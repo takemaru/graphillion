@@ -195,7 +195,7 @@ size_t setset::count(const set<elem_t>& s) const {
 }
 
 pair<setset::iterator, bool> setset::insert(const set<elem_t>& s) {
-  if (this->find(s) != this->end()) {
+  if (this->find(s) != end()) {
     return make_pair(setset::iterator(*this, s), false);
   } else {
     *this |= setset(s);
@@ -219,7 +219,7 @@ void setset::insert(const initializer_list<set<elem_t> >& v) {
 }
 
 size_t setset::erase(const set<elem_t>& s) {
-  if (this->find(s) != this->end()) {
+  if (this->find(s) != end()) {
     *this -= setset(s);
     return 1;
   } else {

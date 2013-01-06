@@ -223,11 +223,11 @@ class setset_test {
   static void lookup() {
     setset ss({{}, {1, 2}, {1, 3}});
     setset::const_iterator i = ss.find({1, 2});
-    assert(i != ss.end());
+    assert(i != setset::end());
     assert(*i == set<int>({1, 2}));
-    assert(setset(i.zdd_).find({1, 2}) == ss.end());
+    assert(setset(i.zdd_).find({1, 2}) == setset::end());
     i = ss.find({1});
-    assert(i == ss.end());
+    assert(i == setset::end());
 
     assert(ss.count({1, 2}) == 1);
     assert(ss.count({2, 3}) == 0);
@@ -237,7 +237,7 @@ class setset_test {
     vector<set<int>> v = {{}, {1, 2}, {1, 3}};
     setset ss(v);
     pair<setset::iterator, bool> p = ss.insert({1});
-    assert(ss.find({1}) != ss.end());
+    assert(ss.find({1}) != setset::end());
     assert(p.first.s_ == set<int>({1}));
     assert(p.second);
     p = ss.insert({1});

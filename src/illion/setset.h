@@ -95,7 +95,7 @@ class setset : public zdd {
   bool empty() const { return this->zdd_ == bot(); }
   std::string size() const;
   iterator begin() const { return iterator(*this); }
-  iterator end() const { return iterator(); }
+  static iterator end() { return iterator(); }
   iterator find(const std::set<elem_t>& s) const;
   size_t count(const std::set<elem_t>& s) const;
   std::pair<iterator, bool> insert(const std::set<elem_t>& s);
