@@ -238,25 +238,28 @@ class setset_test {
     setset ss(v);
     pair<setset::iterator, bool> p = ss.insert({1});
     assert(ss.find({1}) != setset::end());
+    assert(p.first != setset::end());
     assert(p.first.s_ == set<int>({1}));
     assert(p.second);
     p = ss.insert({1});
+    assert(p.first != setset::end());
     assert(p.first.s_ == set<int>({1}));
     assert(!p.second);
 
     setset::iterator i = ss.insert(p.first, {1});
+    assert(i != setset::end());
     assert(i.s_ == set<int>({1}));
 
     ss.insert({{1}, {2}});
-    assert(ss.find({2}) != ss.end());
+    assert(ss.find({2}) != setset::end());
 
     i = ss.erase(i);
-    assert(ss.find({1}) == ss.end());
-    assert(i == ss.end());
+    assert(ss.find({1}) == setset::end());
+    assert(i == setset::end());
 
     assert(ss.erase({1}) == 0);
     assert(ss.erase({1, 2}) == 1);
-    assert(ss.find({1, 2}) == ss.end());
+    assert(ss.find({1, 2}) == setset::end());
 
     ss = setset(v);
     assert(!ss.empty());
