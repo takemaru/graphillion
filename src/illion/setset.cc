@@ -208,14 +208,14 @@ setset::iterator setset::insert(const_iterator /*hint*/, const set<elem_t>& s) {
   return p.first;
 }
 
-setset::iterator setset::erase(const_iterator position) {
-  this->erase(*position);
-  return setset::iterator();
-}
-
 void setset::insert(const initializer_list<set<elem_t> >& v) {
   for (auto i = v.begin(); i != v.end(); ++i)
     this->insert(*i);
+}
+
+setset::iterator setset::erase(const_iterator position) {
+  this->erase(*position);
+  return setset::iterator();
 }
 
 size_t setset::erase(const set<elem_t>& s) {
