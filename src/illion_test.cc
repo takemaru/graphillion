@@ -85,7 +85,7 @@ class setset_test {
     assert(ss.maximal().zdd_ == e1*e2*e3*e4 + e2*e4*e5);
 
     // TODO: test operator~() and hitting() after e5 inserted; add max_elem_
-    // member to setset objects for the test
+    // member to setset objects for the tests
   }
 
   static void binary_operators() {
@@ -207,7 +207,11 @@ class setset_test {
 
     setset ss({{}, {1}, {1, 2}, {1, 2, 3}, {1, 2, 3, 4}, {1, 3, 4}, {1, 4},
                {4}});
-    ss.set_weights({0 /* 1-offset */, 3, -2, -2, 4, 0});  // TODO: remove trailing zero
+
+    // TODO: remove trailing zero from the following weights; add max_elem_
+    // member to setset objects for this test
+    ss.set_weights({0 /* 1-offset */, 3, -2, -2, 4, 0});
+
     setset::iterator i = ss.begin();
     assert(*i == set<int>({1, 4}));
     ++i;
