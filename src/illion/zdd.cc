@@ -19,14 +19,24 @@ ZBDD operator|(const ZBDD& f, const ZBDD& g) {
   return f + g;
 }
 
-zdd_t zdd::single(elem_t e) {
-  assert(0 < e && e <= BDD_MaxVar);
-  if (!initialized_) {
-    BDD_Init(1000000, 8000000000LL);
-    initialized_ = true;
-  }
-  for (; num_elems_ < e; ++num_elems_)
+void zdd::init(elem_t num_elems) {
+  if (initialized_) return;
+  assert(num_elems <= BDD_MaxVar);
+  BDD_Init(1000000, 8000000000LL);
+  initialized_ = true;
+  new_elems(num_elems);
+}
+
+void zdd::new_elems(elem_t max_elem) {
+  assert(max_elem <= BDD_MaxVar);
+  for (; num_elems_ < max_elem; ++num_elems_)
     top().Change(BDD_NewVarOfLev(1));
+}
+
+zdd_t zdd::single(elem_t e) {
+  assert(0 < e);
+  if (!initialized_) init(e);
+  new_elems(e);
   return top().Change(e);
 }
 
@@ -230,14 +240,11 @@ void zdd::algo_b(zdd_t f, const vector<int>& w, vector<bool>* x) {
   x->clear();
   x->resize(num_elems_ + 1, false);
   if (is_top(f)) return;
-
   unordered_map<word_t, bool> t;
   unordered_map<word_t, int> ms = {{id(bot()), INT_MIN}, {id(top()), 0}};
-
   vector<vector<zdd_t> > stacks(num_elems_ + 1);
   unordered_set<word_t> visited;
   sort_zdd(f, &stacks, &visited);
-
   for (elem_t v = num_elems_; v > 0; --v) {
     while (!stacks[v].empty()) {
       zdd_t g = stacks[v].back();
@@ -257,7 +264,6 @@ void zdd::algo_b(zdd_t f, const vector<int>& w, vector<bool>* x) {
       }
     }
   }
-
   while (!is_term(f)) {
     word_t k = id(f);
     elem_t v = elem(f);

@@ -29,6 +29,9 @@ zdd_t operator|(const zdd_t& f, const zdd_t& g);
 
 class zdd {
  protected:
+  static void init(elem_t num_elems);
+  static void new_elems(elem_t max_elem);
+
   static zdd_t single(elem_t e);
   static zdd_t null() { return zdd_t(-1); }
   static zdd_t bot() { return zdd_t(0); }
