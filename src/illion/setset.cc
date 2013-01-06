@@ -5,7 +5,9 @@
 namespace illion {
 
 using std::initializer_list;
+using std::make_pair;
 using std::map;
+using std::pair;
 using std::set;
 using std::string;
 using std::stringstream;
@@ -16,8 +18,9 @@ setset::iterator::iterator(const setset& ss)
   this->next();
 }
 
+// Don't copy weights; this constructor is called lookup methods like find().
 setset::iterator::iterator(const setset& ss, const set<elem_t>& s)
-    : zdd_(ss.zdd_ - setset(s).zdd_), weights_(ss.weights_), s_(s) {
+    : zdd_(ss.zdd_ - setset(s).zdd_), /*weights_(ss.weights_),*/ s_(s) {
 }
 
 setset::iterator& setset::iterator::operator++() {
@@ -180,15 +183,48 @@ string setset::size() const {
   return ss.str();
 }
 
-setset::iterator setset::find(const std::set<elem_t>& s) const {
-  if (this->zdd_ / setset(s).zdd_ != bot())
+setset::iterator setset::find(const set<elem_t>& s) const {
+  if (this->zdd_ - setset(s).zdd_ != this->zdd_)
     return setset::iterator(*this, s);
   else
     return setset::iterator();
 }
 
-size_t setset::count(const std::set<elem_t>& s) const {
+size_t setset::count(const set<elem_t>& s) const {
   return this->zdd_ / setset(s).zdd_ != bot() ? 1 : 0;
+}
+
+pair<setset::iterator, bool> setset::insert(const set<elem_t>& s) {
+  if (this->find(s) != this->end()) {
+    return make_pair(setset::iterator(*this, s), false);
+  } else {
+    *this |= setset(s);
+    return make_pair(setset::iterator(*this, s), true);
+  }
+}
+
+setset::iterator setset::insert(const_iterator /*hint*/, const set<elem_t>& s) {
+  pair<iterator, bool> p = this->insert(s);
+  return p.first;
+}
+
+setset::iterator setset::erase(const_iterator position) {
+  this->erase(*position);
+  return setset::iterator();
+}
+
+void setset::insert(const initializer_list<set<elem_t> >& v) {
+  for (auto i = v.begin(); i != v.end(); ++i)
+    this->insert(*i);
+}
+
+size_t setset::erase(const set<elem_t>& s) {
+  if (this->find(s) != this->end()) {
+    *this -= setset(s);
+    return 1;
+  } else {
+    return 0;
+  }
 }
 
 setset setset::minimal() const {

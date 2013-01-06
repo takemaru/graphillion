@@ -54,7 +54,7 @@ class setset : public zdd {
   explicit setset(const std::vector<std::set<elem_t> >& v);
   explicit setset(const std::map<std::string, std::set<elem_t> >& m);
   explicit setset(const std::vector<std::map<std::string, std::set<elem_t> > >& v);
-  explicit setset(const std::initializer_list<std::set<elem_t> >& s);
+  explicit setset(const std::initializer_list<std::set<elem_t> >& v);
 
   /* Disable this constructor to avoid ambiguity, because compilers
    * automatically convert {{1}, {2}} to {1, 2} if it defined. */
@@ -98,7 +98,11 @@ class setset : public zdd {
   iterator end() const { return iterator(); }
   iterator find(const std::set<elem_t>& s) const;
   size_t count(const std::set<elem_t>& s) const;
-  //  std::pair<iterator, bool> insert(const std::set<elem_t>& s);
+  std::pair<iterator, bool> insert(const std::set<elem_t>& s);
+  iterator insert(const_iterator hint, const std::set<elem_t>& s);
+  void insert(const std::initializer_list<std::set<elem_t> >& v);
+  iterator erase(const_iterator position);
+  size_t erase(const std::set<elem_t>& s);
   void clear() { this->zdd_ = bot(); }
   void swap(setset& ss) {
     zdd_t z = this->zdd_; this->zdd_ = ss.zdd_; ss.zdd_ = z;

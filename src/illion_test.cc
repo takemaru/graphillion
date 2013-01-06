@@ -83,6 +83,9 @@ class setset_test {
     ss = setset({{1, 2}, {1, 2, 3}, {1, 2, 3, 4}, {2, 4, 5}});
     assert(ss.minimal().zdd_ == e1*e2 + e2*e4*e5);
     assert(ss.maximal().zdd_ == e1*e2*e3*e4 + e2*e4*e5);
+
+    // TODO: test operator~() and hitting() after e5 inserted; add max_elem_
+    // member to setset objects for the test
   }
 
   static void binary_operators() {
@@ -219,7 +222,7 @@ class setset_test {
     assert(i != ss.end());
     assert(*i == set<int>({1, 2}));
     assert(setset(i.zdd_).find({1, 2}) == ss.end());
-    i = ss.find({2, 3});
+    i = ss.find({1});
     assert(i == ss.end());
 
     assert(ss.count({1, 2}) == 1);
@@ -229,6 +232,29 @@ class setset_test {
   static void modifiers() {
     vector<set<int>> v = {{}, {1, 2}, {1, 3}};
     setset ss(v);
+    pair<setset::iterator, bool> p = ss.insert({1});
+    assert(ss.find({1}) != ss.end());
+    assert(p.first.s_ == set<int>({1}));
+    assert(p.second);
+    p = ss.insert({1});
+    assert(p.first.s_ == set<int>({1}));
+    assert(!p.second);
+
+    setset::iterator i = ss.insert(p.first, {1});
+    assert(i.s_ == set<int>({1}));
+
+    ss.insert({{1}, {2}});
+    assert(ss.find({2}) != ss.end());
+
+    i = ss.erase(i);
+    assert(ss.find({1}) == ss.end());
+    assert(i == ss.end());
+
+    assert(ss.erase({1}) == 0);
+    assert(ss.erase({1, 2}) == 1);
+    assert(ss.find({1, 2}) == ss.end());
+
+    ss = setset(v);
     assert(!ss.empty());
     ss.clear();
     assert(ss.empty());
