@@ -1,74 +1,15 @@
 #ifndef ILLION_SETSET_H_
 #define ILLION_SETSET_H_
 
-#include <cassert>
-#include <cstdint>
-
 #include <initializer_list>
 #include <map>
-#include <set>
 #include <string>
-#include <unordered_set>
-#include <vector>
 
-#ifdef HAVE_LIBGMPXX
-#include <gmpxx.h>
-#endif
-
-#include "hudd/ZBDD.h"
+#include "illion/zdd.h"
 
 namespace illion {
 
-typedef uint64_t word_t;  // bddword
-typedef int32_t elem_t;  // bddvar
-
-#ifdef HAVE_LIBGMPXX
-typedef mpz_class intx_t;
-#else
-typedef double intx_t; // TODO: rename it since double isn't integer?
-#endif
-
 class setset_test;
-
-class zdd {
- protected:
-  static ZBDD node(elem_t e);  // TODO: rename to elem
-  static ZBDD znull() { return ZBDD(-1); }
-  static ZBDD bot() { return ZBDD(0); }
-  static ZBDD top() { return ZBDD(1); }
-  static ZBDD lo(ZBDD f) { return f.OffSet(f.Top()); }
-  static ZBDD hi(ZBDD f) { return f.OnSet0(f.Top()); }
-  static bool is_bot(ZBDD f) { return f == bot(); }
-  static bool is_top(ZBDD f) { return f == top(); }
-  static bool is_terminal(ZBDD f) { return f.Top() == 0; }
-  static word_t node_id(ZBDD f) { return f.GetID(); }
-  static elem_t var(ZBDD f) {  // TODO: rename to min_elem or min?
-    return is_terminal(f) ? BDD_MaxVar + 1 : f.Top();
-  }
-
-  static ZBDD minimal(ZBDD f);
-  static ZBDD maximal(ZBDD f);
-  static ZBDD hitting(ZBDD f);
-  static ZBDD nonsubsets(ZBDD f, ZBDD g);
-  static ZBDD nonsupersets(ZBDD f, ZBDD g);
-  static ZBDD choose_random(ZBDD f, std::vector<elem_t>* stack, int* idum);
-  static ZBDD choose_best(ZBDD f, const std::vector<int>& weights,
-                          std::set<elem_t>* s);
-  static void algo_b(ZBDD f, const std::vector<int>& w, std::vector<bool>* x);
-  static intx_t algo_c(ZBDD f);
-  static ZBDD zuniq(elem_t v, ZBDD l, ZBDD h);
-  static double ran3(int* idum);
-  static void sort_zdd(ZBDD f, std::vector<std::vector<ZBDD> >* stacks,
-                       std::unordered_set<word_t>* visited);
-  static std::pair<word_t, word_t> make_key(ZBDD f, ZBDD g) {
-    return std::make_pair(node_id(f), node_id(g));
-  }
-  static void dump(ZBDD f);
-  static void dump(ZBDD f, std::vector<elem_t>* stack);
-
-  static bool initialized_;
-  static elem_t num_elems_;
-};
 
 class setset : public zdd {
  public:
