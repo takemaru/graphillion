@@ -233,7 +233,7 @@ size_t setset::erase(const set<elem_t>& s) {
 size_t setset::erase(elem_t e) {
   setset ss = this->find(e);
   *this -= ss;
-  return atol(ss.size().c_str());
+  return atoll(ss.size().c_str());
 }
 
 setset setset::minimal() const {

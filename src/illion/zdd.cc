@@ -15,6 +15,10 @@ using std::unordered_map;
 using std::unordered_set;
 using std::vector;
 
+ZBDD operator|(const ZBDD& f, const ZBDD& g) {
+  return f + g;
+}
+
 zdd_t zdd::single(elem_t e) {
   assert(0 < e && e <= BDD_MaxVar);
   if (!initialized_) {
