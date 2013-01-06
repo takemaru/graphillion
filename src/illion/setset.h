@@ -30,7 +30,7 @@ typedef double intx_t; // TODO: rename it since double isn't integer?
 
 class setset_test;
 
-class base {
+class zdd {
  protected:
   static ZBDD node(elem_t e);  // TODO: rename to elem
   static ZBDD znull() { return ZBDD(-1); }
@@ -46,18 +46,16 @@ class base {
     return is_terminal(f) ? BDD_MaxVar + 1 : f.Top();
   }
 
-  static void do_dump(ZBDD f, std::vector<elem_t>* stack);
-  static ZBDD do_minimal(ZBDD f);
-  static ZBDD do_maximal(ZBDD f);
-  static ZBDD do_hitting(ZBDD f);
-  static ZBDD do_nonsubsets(ZBDD f, ZBDD g);
-  static ZBDD do_nonsupersets(ZBDD f, ZBDD g);
-  static ZBDD choose_randomly(ZBDD f, std::vector<elem_t>* stack, int* idum);
+  static ZBDD minimal(ZBDD f);
+  static ZBDD maximal(ZBDD f);
+  static ZBDD hitting(ZBDD f);
+  static ZBDD nonsubsets(ZBDD f, ZBDD g);
+  static ZBDD nonsupersets(ZBDD f, ZBDD g);
+  static ZBDD choose_random(ZBDD f, std::vector<elem_t>* stack, int* idum);
   static ZBDD choose_best(ZBDD f, const std::vector<int>& weights,
                           std::set<elem_t>* s);
-  static void algorithm_b(ZBDD f, const std::vector<int>& w,
-                          std::vector<bool>* x);
-  static intx_t algorithm_c(ZBDD f);
+  static void algo_b(ZBDD f, const std::vector<int>& w, std::vector<bool>* x);
+  static intx_t algo_c(ZBDD f);
   static ZBDD zuniq(elem_t v, ZBDD l, ZBDD h);
   static double ran3(int* idum);
   static void sort_zdd(ZBDD f, std::vector<std::vector<ZBDD> >* stacks,
@@ -65,12 +63,14 @@ class base {
   static std::pair<word_t, word_t> make_key(ZBDD f, ZBDD g) {
     return std::make_pair(node_id(f), node_id(g));
   }
+  static void dump(ZBDD f);
+  static void dump(ZBDD f, std::vector<elem_t>* stack);
 
   static bool initialized_;
   static elem_t num_elems_;
 };
 
-class setset : public base {
+class setset : public zdd {
  public:
   class iterator
       : public std::iterator<std::forward_iterator_tag, std::set<elem_t> > {
