@@ -22,7 +22,7 @@ typedef int32_t elem_t;  // bddvar
 #ifdef HAVE_LIBGMPXX
 typedef mpz_class intx_t;
 #else
-typedef double intx_t; // TODO: rename it since double isn't integer?
+typedef double intx_t;
 #endif
 
 class zdd {
