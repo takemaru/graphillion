@@ -29,38 +29,38 @@ class setset_test {
     ss = setset(s);
     assert(!zdd::initialized_);
     assert(zdd::num_elems_ == 0);
-    assert(ss.f_ == e0);
+    assert(ss.zdd_ == e0);
 
     s = {1, 2};
     ss = setset(s);
     assert(zdd::initialized_);
     assert(zdd::num_elems_ == 2);
-    assert(ss.f_ == e1*e2);
+    assert(ss.zdd_ == e1*e2);
 
     vector<set<int>> v = {{}, {1, 2}, {1, 3}};
     ss = setset(v);
     assert(zdd::num_elems_ == 3);
-    assert(ss.f_ == e0 + e1*e2 + e1*e3);
+    assert(ss.zdd_ == e0 + e1*e2 + e1*e3);
 
     map<string, set<int>> m = {{"include", {1, 2}}, {"exclude", {4}}};
     ss = setset(m);
     assert(zdd::num_elems_ == 4);
-    assert(ss.f_ == e1*e2 + e1*e2*e3);
+    assert(ss.zdd_ == e1*e2 + e1*e2*e3);
 
     vector<map<string, set<int>>> u = {{{"include", {1, 2}}, {"exclude", {4}}},
                                        {{"include", {1, 3, 4}}},
                                        {{"exclude", {2, 3}}}};
     ss = setset(u);
     assert(zdd::num_elems_ == 4);
-    assert(ss.f_ == e0 + e1 + e1*e2 + e1*e2*e3 + e1*e2*e3*e4 + e1*e3*e4 + e1*e4
-           + e4);
+    assert(ss.zdd_ == e0 + e1 + e1*e2 + e1*e2*e3 + e1*e2*e3*e4 + e1*e3*e4
+           + e1*e4 + e4);
 
     // initializer_list
     ss = setset({{1}, {2}});
-    assert(ss.f_ == e1 + e2);
+    assert(ss.zdd_ == e1 + e2);
 
     ss = setset({{}, {1, 2}, {1, 3}});
-    assert(ss.f_ == e0 + e1*e2 + e1*e3);
+    assert(ss.zdd_ == e0 + e1*e2 + e1*e3);
   }
 
   static void unary_operators() {
@@ -71,18 +71,18 @@ class setset_test {
     ss = setset({{}, {1}, {1, 2}, {1, 2, 3}, {1, 2, 3, 4}, {1, 3, 4}, {1, 4},
                  {4}});
     assert(zdd::num_elems_ == 4);
-    assert((~ss).f_ == e1*e2*e4 + e1*e3 + e2 + e2*e3 + e2*e3*e4 + e2*e4 + e3
+    assert((~ss).zdd_ == e1*e2*e4 + e1*e3 + e2 + e2*e3 + e2*e3*e4 + e2*e4 + e3
            + e3*e4);
-    assert(ss.smaller(2).f_ == e0 + e1 + e1*e2 + e1*e4 + e4);
+    assert(ss.smaller(2).zdd_ == e0 + e1 + e1*e2 + e1*e4 + e4);
 
     ss = setset({{1, 2}, {1, 4}, {2, 3}, {3, 4}});
     assert(zdd::num_elems_ == 4);
-    assert(ss.hitting().f_ == e1*e2*e3 + e1*e2*e3*e4 + e1*e2*e4 + e1*e3
+    assert(ss.hitting().zdd_ == e1*e2*e3 + e1*e2*e3*e4 + e1*e2*e4 + e1*e3
            + e1*e3*e4 + e2*e3*e4 + e2*e4);
 
     ss = setset({{1, 2}, {1, 2, 3}, {1, 2, 3, 4}, {2, 4, 5}});
-    assert(ss.minimal().f_ == e1*e2 + e2*e4*e5);
-    assert(ss.maximal().f_ == e1*e2*e3*e4 + e2*e4*e5);
+    assert(ss.minimal().zdd_ == e1*e2 + e2*e4*e5);
+    assert(ss.maximal().zdd_ == e1*e2*e3*e4 + e2*e4*e5);
   }
 
   static void binary_operators() {
@@ -90,73 +90,73 @@ class setset_test {
                           {1, 4}, {4}};
     vector<set<int>> v = {{1, 2}, {1, 4}, {2, 3}, {3, 4}};
     setset ss = setset(u) & setset(v);
-    assert(ss.f_ == e1*e2 + e1*e4);
+    assert(ss.zdd_ == e1*e2 + e1*e4);
 
     ss = setset(u);
     ss &= setset(v);
-    assert(ss.f_ == e1*e2 + e1*e4);
+    assert(ss.zdd_ == e1*e2 + e1*e4);
 
     ss = setset(u) | setset(v);
-    assert(ss.f_ == e0 + e1 + e1*e2 + e1*e2*e3 + e1*e2*e3*e4 + e1*e3*e4 + e1*e4
-           + e2*e3 + e3*e4 + e4);
+    assert(ss.zdd_ == e0 + e1 + e1*e2 + e1*e2*e3 + e1*e2*e3*e4 + e1*e3*e4
+           + e1*e4 + e2*e3 + e3*e4 + e4);
 
     ss = setset(u);
     ss |= setset(v);
-    assert(ss.f_ == e0 + e1 + e1*e2 + e1*e2*e3 + e1*e2*e3*e4 + e1*e3*e4 + e1*e4
-           + e2*e3 + e3*e4 + e4);
+    assert(ss.zdd_ == e0 + e1 + e1*e2 + e1*e2*e3 + e1*e2*e3*e4 + e1*e3*e4
+           + e1*e4 + e2*e3 + e3*e4 + e4);
 
     ss = setset(u) - setset(v);
-    assert(ss.f_ == e0 + e1 + e1*e2*e3 + e1*e2*e3*e4 + e1*e3*e4 + e4);
+    assert(ss.zdd_ == e0 + e1 + e1*e2*e3 + e1*e2*e3*e4 + e1*e3*e4 + e4);
 
     ss = setset(u);
     ss -= setset(v);
-    assert(ss.f_ == e0 + e1 + e1*e2*e3 + e1*e2*e3*e4 + e1*e3*e4 + e4);
+    assert(ss.zdd_ == e0 + e1 + e1*e2*e3 + e1*e2*e3*e4 + e1*e3*e4 + e4);
 
     ss = setset(u) * setset(v);
-    assert(ss.f_ == e1*e2 + e1*e2*e3 + e1*e2*e4 + e1*e2*e3*e4 + e1*e3*e4 + e1*e4
-           + e2*e3 + e2*e3*e4 + e3*e4);
+    assert(ss.zdd_ == e1*e2 + e1*e2*e3 + e1*e2*e4 + e1*e2*e3*e4 + e1*e3*e4
+           + e1*e4 + e2*e3 + e2*e3*e4 + e3*e4);
 
     ss = setset(u);
     ss *= setset(v);
-    assert(ss.f_ == e1*e2 + e1*e2*e3 + e1*e2*e4 + e1*e2*e3*e4 + e1*e3*e4 + e1*e4
-           + e2*e3 + e2*e3*e4 + e3*e4);
+    assert(ss.zdd_ == e1*e2 + e1*e2*e3 + e1*e2*e4 + e1*e2*e3*e4 + e1*e3*e4
+           + e1*e4 + e2*e3 + e2*e3*e4 + e3*e4);
 
     ss = setset(u) ^ setset(v);
-    assert(ss.f_ == e0 + e1 + e1*e2*e3 + e1*e2*e3*e4 + e1*e3*e4 + e2*e3 + e3*e4
-           + e4);
+    assert(ss.zdd_ == e0 + e1 + e1*e2*e3 + e1*e2*e3*e4 + e1*e3*e4 + e2*e3
+           + e3*e4 + e4);
 
     ss = setset(u);
     ss ^= setset(v);
-    assert(ss.f_ == e0 + e1 + e1*e2*e3 + e1*e2*e3*e4 + e1*e3*e4 + e2*e3 + e3*e4
-           + e4);
+    assert(ss.zdd_ == e0 + e1 + e1*e2*e3 + e1*e2*e3*e4 + e1*e3*e4 + e2*e3
+           + e3*e4 + e4);
 
     v = {{1, 2}};
     ss = setset(u) / setset(v);
-    assert(ss.f_ == e0 + e3 + e3*e4);
+    assert(ss.zdd_ == e0 + e3 + e3*e4);
 
     ss = setset(u);
     ss /= setset(v);
-    assert(ss.f_ == e0 + e3 + e3*e4);
+    assert(ss.zdd_ == e0 + e3 + e3*e4);
 
     ss = setset(u) % setset(v);
-    assert(ss.f_ == e0 + e1 + e1*e3*e4 + e1*e4 + e4);
+    assert(ss.zdd_ == e0 + e1 + e1*e3*e4 + e1*e4 + e4);
 
     ss = setset(u);
     ss %= setset(v);
-    assert(ss.f_ == e0 + e1 + e1*e3*e4 + e1*e4 + e4);
+    assert(ss.zdd_ == e0 + e1 + e1*e3*e4 + e1*e4 + e4);
 
     v = {{1, 2}, {1, 4}, {2, 3}, {3, 4}};
     ss = setset(u).subsets(setset(v));
-    assert(ss.f_ == e0 + e1 + e1*e2 + e1*e4 + e4);
+    assert(ss.zdd_ == e0 + e1 + e1*e2 + e1*e4 + e4);
 
     ss = setset(u).supersets(setset(v));
-    assert(ss.f_ == e1*e2 + e1*e2*e3 + e1*e2*e3*e4 + e1*e3*e4 + e1*e4);
+    assert(ss.zdd_ == e1*e2 + e1*e2*e3 + e1*e2*e3*e4 + e1*e3*e4 + e1*e4);
 
     ss = setset(u).nonsubsets(setset(v));
-    assert(ss.f_ == e1*e2*e3 + e1*e2*e3*e4 + e1*e3*e4);
+    assert(ss.zdd_ == e1*e2*e3 + e1*e2*e3*e4 + e1*e3*e4);
 
     ss = setset(u).nonsupersets(setset(v));
-    assert(ss.f_ == e0 + e1 + e4);
+    assert(ss.zdd_ == e0 + e1 + e4);
   }
 
   static void testers() {
@@ -218,7 +218,7 @@ class setset_test {
     setset::const_iterator i = ss.find({1, 2});
     assert(i != ss.end());
     assert(*i == set<int>({1, 2}));
-    assert(setset(i.f_).find({1, 2}) == ss.end());
+    assert(setset(i.zdd_).find({1, 2}) == ss.end());
     i = ss.find({2, 3});
     assert(i == ss.end());
 

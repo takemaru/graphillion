@@ -12,12 +12,12 @@ using std::stringstream;
 using std::vector;
 
 setset::iterator::iterator(const setset& ss)
-    : f_(ss.f_), weights_(ss.weights_) {
+    : zdd_(ss.zdd_), weights_(ss.weights_) {
   this->next();
 }
 
 setset::iterator::iterator(const setset& ss, const set<elem_t>& s)
-    : f_(ss.f_ - setset(s).f_), weights_(ss.weights_), s_(s) {
+    : zdd_(ss.zdd_ - setset(s).zdd_), weights_(ss.weights_), s_(s) {
 }
 
 setset::iterator& setset::iterator::operator++() {
@@ -26,29 +26,29 @@ setset::iterator& setset::iterator::operator++() {
 }
 
 void setset::iterator::next() {
-  if (this->f_ == null() || is_bot(this->f_)) {
-    this->f_ = null();
+  if (this->zdd_ == null() || is_bot(this->zdd_)) {
+    this->zdd_ = null();
     this->s_ = set<elem_t>();
   } else if (this->weights_.empty()) {  // random sampling
     vector<elem_t> stack;
     static int idum = -1;  // TODO: can be set by users
-    this->f_ -= choose_random(this->f_, &stack, &idum);
+    this->zdd_ -= choose_random(this->zdd_, &stack, &idum);
     this->s_ = set<elem_t>(stack.begin(), stack.end());
   } else {  // optimization
     set<elem_t> s;
-    this->f_ -= choose_best(this->f_, this->weights_, &s);
+    this->zdd_ -= choose_best(this->zdd_, this->weights_, &s);
     this->s_ = s;
   }
 }
 
-setset::setset(const set<elem_t>& s) : f_(top()) {
+setset::setset(const set<elem_t>& s) : zdd_(top()) {
   for (const auto& e : s)
-    this->f_ *= single(e);
+    this->zdd_ *= single(e);
 }
 
 setset::setset(const vector<set<elem_t> >& v) {
   for (const auto& s : v)
-    this->f_ += setset(s).f_;
+    this->zdd_ += setset(s).zdd_;
 }
 
 setset::setset(const map<string, set<elem_t> >& m) {
@@ -68,102 +68,102 @@ setset::setset(const map<string, set<elem_t> >& m) {
          : ex_s.find(v) != ex_s.end() ? n[i-1] + single(v) * n[0]
          :                              n[i-1] + single(v) * n[i-1];
   }
-  this->f_ = n[num_elems_ + 1];
+  this->zdd_ = n[num_elems_ + 1];
 }
 
 setset::setset(const vector<map<string, set<elem_t> > >& v ) {
   for (const auto& m : v)
-    this->f_ += setset(m).f_;
+    this->zdd_ += setset(m).zdd_;
 }
 
 setset::setset(const initializer_list<set<elem_t> >& v) {
   for (auto i = v.begin(); i != v.end(); ++i)
-    this->f_ += setset(*i).f_;
+    this->zdd_ += setset(*i).zdd_;
 }
 /*
-setset::setset(const initializer_list<int>& s) : f_(top()) {
+setset::setset(const initializer_list<int>& s) : zdd_(top()) {
   for (auto i = s.begin(); i != s.end(); ++i)
-    this->f_ *= single(*i);
+    this->zdd_ *= single(*i);
 }
 */
 setset setset::operator~() const {
-  return setset(_not(this->f_));
+  return setset(_not(this->zdd_));
 }
 
 setset setset::operator&(const setset& ss) const {
-  return setset(this->f_ & ss.f_);
+  return setset(this->zdd_ & ss.zdd_);
 }
 
 setset setset::operator|(const setset& ss) const {
-  return setset(this->f_ + ss.f_);
+  return setset(this->zdd_ + ss.zdd_);
 }
 
 setset setset::operator-(const setset& ss) const {
-  return setset(this->f_ - ss.f_);
+  return setset(this->zdd_ - ss.zdd_);
 }
 
 setset setset::operator*(const setset& ss) const {
-  return setset(this->f_ * ss.f_);
+  return setset(this->zdd_ * ss.zdd_);
 }
 
 setset setset::operator^(const setset& ss) const {
-  return setset((this->f_ - ss.f_) + (ss.f_ - this->f_));
+  return setset((this->zdd_ - ss.zdd_) + (ss.zdd_ - this->zdd_));
 }
 
 setset setset::operator/(const setset& ss) const {
-  return setset(this->f_ / ss.f_);
+  return setset(this->zdd_ / ss.zdd_);
 }
 
 setset setset::operator%(const setset& ss) const {
-  return setset(this->f_ % ss.f_);
+  return setset(this->zdd_ % ss.zdd_);
 }
 
 void setset::operator&=(const setset& ss) {
-  this->f_ &= ss.f_;
+  this->zdd_ &= ss.zdd_;
 }
 
 void setset::operator|=(const setset& ss) {
-  this->f_ += ss.f_;
+  this->zdd_ += ss.zdd_;
 }
 
 void setset::operator-=(const setset& ss) {
-  this->f_ -= ss.f_;
+  this->zdd_ -= ss.zdd_;
 }
 
 void setset::operator*=(const setset& ss) {
-  this->f_ *= ss.f_;
+  this->zdd_ *= ss.zdd_;
 }
 
 void setset::operator^=(const setset& ss) {
-  this->f_ = (this->f_ - ss.f_) + (ss.f_ - this->f_);
+  this->zdd_ = (this->zdd_ - ss.zdd_) + (ss.zdd_ - this->zdd_);
 }
 
 void setset::operator/=(const setset& ss) {
-  this->f_ /= ss.f_;
+  this->zdd_ /= ss.zdd_;
 }
 
 void setset::operator%=(const setset& ss) {
-  this->f_ %= ss.f_;
+  this->zdd_ %= ss.zdd_;
 }
 
 bool setset::operator<=(const setset& ss) const {
-  return (this->f_ - ss.f_) == bot();
+  return (this->zdd_ - ss.zdd_) == bot();
 }
 
 bool setset::operator<(const setset& ss) const {
-  return (this->f_ - ss.f_) == bot() && this->f_ != ss.f_;
+  return (this->zdd_ - ss.zdd_) == bot() && this->zdd_ != ss.zdd_;
 }
 
 bool setset::operator>=(const setset& ss) const {
-  return (ss.f_ - this->f_) == bot();
+  return (ss.zdd_ - this->zdd_) == bot();
 }
 
 bool setset::operator>(const setset& ss) const {
-  return (ss.f_ - this->f_) == bot() && this->f_ != ss.f_;
+  return (ss.zdd_ - this->zdd_) == bot() && this->zdd_ != ss.zdd_;
 }
 
 bool setset::is_disjoint(const setset& ss) const {
-  return (this->f_ & ss.f_) == bot();
+  return (this->zdd_ & ss.zdd_) == bot();
 }
 
 bool setset::is_subset(const setset& ss) const {
@@ -176,55 +176,55 @@ bool setset::is_superset(const setset& ss) const {
 
 string setset::size() const {
   stringstream ss;
-  ss << algo_c(this->f_);
+  ss << algo_c(this->zdd_);
   return ss.str();
 }
 
 setset::iterator setset::find(const std::set<elem_t>& s) const {
-  if (this->f_ / setset(s).f_ != bot())
+  if (this->zdd_ / setset(s).zdd_ != bot())
     return setset::iterator(*this, s);
   else
     return setset::iterator();
 }
 
 size_t setset::count(const std::set<elem_t>& s) const {
-  return this->f_ / setset(s).f_ != bot() ? 1 : 0;
+  return this->zdd_ / setset(s).zdd_ != bot() ? 1 : 0;
 }
 
 setset setset::minimal() const {
-  return setset(zdd::minimal(this->f_));
+  return setset(zdd::minimal(this->zdd_));
 }
 
 setset setset::maximal() const {
-  return setset(zdd::maximal(this->f_));
+  return setset(zdd::maximal(this->zdd_));
 }
 
 setset setset::hitting() const {  // a.k.a cross elements
-  return setset(zdd::hitting(this->f_));
+  return setset(zdd::hitting(this->zdd_));
 }
 
 setset setset::smaller(size_t max_set_size) const {
-  return setset(this->f_.PermitSym(max_set_size));
+  return setset(this->zdd_.PermitSym(max_set_size));
 }
 
 setset setset::subsets(const setset& ss) const {
-  return setset(this->f_.Permit(ss.f_));
+  return setset(this->zdd_.Permit(ss.zdd_));
 }
 
 setset setset::supersets(const setset& ss) const {
-  return setset(this->f_.Restrict(ss.f_));
+  return setset(this->zdd_.Restrict(ss.zdd_));
 }
 
 setset setset::nonsubsets(const setset& ss) const {
-  return setset(zdd::nonsubsets(this->f_, ss.f_));
+  return setset(zdd::nonsubsets(this->zdd_, ss.zdd_));
 }
 
 setset setset::nonsupersets(const setset& ss) const {
-  return setset(zdd::nonsupersets(this->f_, ss.f_));
+  return setset(zdd::nonsupersets(this->zdd_, ss.zdd_));
 }
 
 void setset::dump() const {
-  zdd::dump(this->f_);
+  zdd::dump(this->zdd_);
 }
 
 }  // namespace illion

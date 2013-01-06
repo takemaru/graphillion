@@ -19,26 +19,27 @@ class setset : public zdd {
     iterator() {}
     explicit iterator(const setset& ss);
     iterator(const setset& ss, const std::set<elem_t>& s);
-    iterator(const iterator& i) : f_(i.f_), weights_(i.weights_), s_(i.s_) {}
+    iterator(const iterator& i)
+        : zdd_(i.zdd_), weights_(i.weights_), s_(i.s_) {}
 
     void operator=(const iterator& i) {
-      this->f_ = i.f_;
+      this->zdd_ = i.zdd_;
       this->weights_ = i.weights_;
       this->s_ = i.s_;
     }
     std::set<elem_t>& operator*() { return this->s_; }
     iterator& operator++();
     bool operator==(const iterator& i) const {
-      return this->f_ == i.f_;
+      return this->zdd_ == i.zdd_;
     }
     bool operator!=(const iterator& i) const {
-      return this->f_ != i.f_;
+      return this->zdd_ != i.zdd_;
     }
 
    private:
     void next();
 
-    zdd_t f_ = null();  // TODO: rename to zdd_
+    zdd_t zdd_ = null();
     std::vector<int> weights_;
     std::set<elem_t> s_ = std::set<elem_t>();
 
@@ -48,7 +49,7 @@ class setset : public zdd {
   typedef iterator const_iterator;
 
   setset() {}
-  setset(const setset& ss) : f_(ss.f_), weights_(ss.weights_) {}
+  setset(const setset& ss) : zdd_(ss.zdd_), weights_(ss.weights_) {}
   explicit setset(const std::set<elem_t>& s);
   explicit setset(const std::vector<std::set<elem_t> >& v);
   explicit setset(const std::map<std::string, std::set<elem_t> >& m);
@@ -62,11 +63,11 @@ class setset : public zdd {
   virtual ~setset() {}
 
   void operator=(const setset& ss) {
-    this->f_ = ss.f_;
+    this->zdd_ = ss.zdd_;
     this->weights_ = ss.weights_;
   }
-  bool operator==(const setset& ss) { return this->f_ == ss.f_; }
-  bool operator!=(const setset& ss) { return this->f_ != ss.f_; }
+  bool operator==(const setset& ss) { return this->zdd_ == ss.zdd_; }
+  bool operator!=(const setset& ss) { return this->zdd_ != ss.zdd_; }
   setset operator~() const;
   setset operator&(const setset& ss) const;
   setset operator|(const setset& ss) const;
@@ -91,16 +92,16 @@ class setset : public zdd {
   bool is_subset(const setset& ss) const;
   bool is_superset(const setset& ss) const;
 
-  bool empty() const { return this->f_ == bot(); }
+  bool empty() const { return this->zdd_ == bot(); }
   std::string size() const;
   iterator begin() const { return iterator(*this); }
   iterator end() const { return iterator(); }
   iterator find(const std::set<elem_t>& s) const;
   size_t count(const std::set<elem_t>& s) const;
   //  std::pair<iterator, bool> insert(const std::set<elem_t>& s);
-  void clear() { this->f_ = bot(); }
+  void clear() { this->zdd_ = bot(); }
   void swap(setset& ss) {
-    zdd_t f = this->f_; this->f_ = ss.f_; ss.f_ = f;
+    zdd_t z = this->zdd_; this->zdd_ = ss.zdd_; ss.zdd_ = z;
   }
 
   void set_weights(const std::vector<int>& w) { this->weights_ = w; }
@@ -117,11 +118,11 @@ class setset : public zdd {
   setset nonsupersets(const setset& ss) const;
 
  private:
-  explicit setset(const zdd_t& f) : f_(f) {}
+  explicit setset(const zdd_t& z) : zdd_(z) {}
 
   void dump() const;
 
-  zdd_t f_ = bot();  // TODO: rename to zdd_
+  zdd_t zdd_ = bot();
   std::vector<int> weights_;
 
   friend class setset_test;
