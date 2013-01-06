@@ -19,6 +19,332 @@ using std::unordered_map;
 using std::unordered_set;
 using std::vector;
 
+ZBDD base::node(elem_t e) {
+  assert(0 < e && e <= BDD_MaxVar);
+  if (!initialized_) {
+    BDD_Init(1000000, 8000000000LL);
+    initialized_ = true;
+  }
+  for (; num_elems_ < e; ++num_elems_)
+    top().Change(BDD_NewVarOfLev(1));
+  return top().Change(e);
+}
+
+void base::do_dump(ZBDD f, vector<elem_t>* stack) {
+  assert(stack != nullptr);
+  if (is_terminal(f)) {
+    if (is_top(f))
+      printf("{%s},", join(*stack, ",").c_str());
+    return;
+  }
+  stack->push_back(var(f));
+  do_dump(hi(f), stack);
+  stack->pop_back();
+  do_dump(lo(f), stack);
+}
+
+ZBDD base::do_minimal(ZBDD f) {
+  if (is_terminal(f)) return f;
+  vector<vector<ZBDD> > stacks(num_elems_ + 1);
+  unordered_set<word_t> visited;
+  sort_zdd(f, &stacks, &visited);
+  unordered_map<word_t, ZBDD> cache
+    = { {node_id(bot()), bot()}, {node_id(top()), top()} };
+  for (elem_t v = num_elems_; v > 0; --v) {
+    while (!stacks[v].empty()) {
+      ZBDD n = stacks[v].back();
+      stacks[v].pop_back();
+      cache[node_id(n)]
+        = cache.at(node_id(lo(n)))
+        + (cache.at(node_id(hi(n))) - cache.at(node_id(lo(n)))).Change(v);
+    }
+  }
+  return cache.at(node_id(f));
+}
+
+ZBDD base::do_maximal(ZBDD f) {
+  if (is_terminal(f)) return f;
+  vector<vector<ZBDD> > stacks(num_elems_ + 1);
+  unordered_set<word_t> visited;
+  sort_zdd(f, &stacks, &visited);
+  unordered_map<word_t, ZBDD> cache
+    = { {node_id(bot()), bot()}, {node_id(top()), top()} };
+  for (elem_t v = num_elems_; v > 0; --v) {
+    while (!stacks[v].empty()) {
+      ZBDD n = stacks[v].back();
+      stacks[v].pop_back();
+      cache[node_id(n)]
+        = cache.at(node_id(lo(n)))
+        - cache.at(node_id(lo(n))).Permit(cache.at(node_id(hi(n))))
+        + cache.at(node_id(hi(n))).Change(v);
+    }
+  }
+  return cache.at(node_id(f));
+}
+
+ZBDD base::do_hitting(ZBDD f) {
+  if (is_bot(f)) return top();
+  if (is_top(f)) return bot();
+  vector<vector<ZBDD> > stacks(num_elems_ + 1);
+  unordered_set<word_t> visited;
+  sort_zdd(f, &stacks, &visited);
+  unordered_map<word_t, ZBDD> cache
+    = { {node_id(bot()), bot()}, {node_id(top()), bot()} };
+  for (elem_t v = num_elems_; v > 0; --v) {
+    while (!stacks[v].empty()) {
+      ZBDD n = stacks[v].back();
+      stacks[v].pop_back();
+      ZBDD l = cache.at(node_id(lo(n)));
+      if (lo(n) != bot()) {
+        elem_t j = is_top(lo(n)) ? num_elems_ : var(lo(n)) - 1;
+        for (; j > v; --j)
+          l += l.Change(j);
+      }
+      ZBDD h = cache.at(node_id(hi(n)));
+      if (hi(n) != bot()) {
+        elem_t j = is_top(hi(n)) ? num_elems_ : var(hi(n)) - 1;
+        for (; j > v; --j)
+          h += h.Change(j);
+      }
+      if (lo(n) == bot()) {
+        ZBDD g = top();
+        for (elem_t j = num_elems_; j > v; --j)
+          g += g.Change(j);
+        g = g.Change(var(n));
+        cache[node_id(n)] = h + g;
+      } else {
+        cache[node_id(n)] = (h & l) + l.Change(v);
+      }
+    }
+  }
+  ZBDD g = cache.at(node_id(f));
+  elem_t j = is_terminal(f) ? num_elems_ : var(f) - 1;
+  for (; j > 0; --j)
+    g += g.Change(j);
+  return g;
+}
+
+struct bdd_pair_hash {
+  size_t operator()(const pair<word_t, word_t>& o) const {
+    return (o.first << 4*sizeof(o.first)) ^ o.second;
+  }
+};
+
+struct bdd_pair_eq {
+  bool operator()(const pair<word_t,word_t>& a, const pair<word_t,word_t>& b) const {
+    return a.first == b.first && a.second == b.second;
+  }
+};
+
+ZBDD base::do_nonsubsets(ZBDD f, ZBDD g) {
+  static unordered_map<pair<word_t, word_t>, ZBDD, bdd_pair_hash, bdd_pair_eq> cache;
+  if (g == bot())
+    return f;
+  else if (f == bot() || f == top() || f == g)
+    return bot();
+  pair<word_t, word_t> k = make_key(f, g);
+  auto i = cache.find(k);
+  if (i != cache.end())
+    return i->second;
+  ZBDD rl;
+  ZBDD rh;
+  if (var(f) < var(g)) {
+    rl = do_nonsubsets(lo(f), g);
+    rh = hi(f);
+  }
+  else {
+    rl = do_nonsubsets(lo(f), hi(g)) & do_nonsubsets(lo(f), lo(g));
+    rh = do_nonsubsets(hi(f), hi(g));
+  }
+  return cache[k] = zuniq(var(f), rl, rh);
+}
+
+ZBDD base::do_nonsupersets(ZBDD f, ZBDD g) {
+  static unordered_map<pair<word_t, word_t>, ZBDD, bdd_pair_hash, bdd_pair_eq> cache;
+  if (g == bot())
+    return f;
+  else if (f == bot() || g == top() || f == g)
+    return bot();
+  else if (var(f) > var(g))
+    return do_nonsupersets(f, lo(g));
+  pair<word_t, word_t> k = make_key(f, g);
+  auto i = cache.find(k);
+  if (i != cache.end())
+    return i->second;
+  ZBDD rl;
+  ZBDD rh;
+  if (var(f) < var(g)) {
+    rl = do_nonsupersets(lo(f), g);
+    rh = do_nonsupersets(hi(f), g);
+  }
+  else {
+    rl = do_nonsupersets(lo(f), lo(g));
+    rh = do_nonsupersets(hi(f), hi(g)) & do_nonsupersets(hi(f), lo(g));
+  }
+  return cache[k] = zuniq(var(f), rl, rh);
+}
+
+ZBDD base::choose_randomly(ZBDD f, vector<elem_t>* stack, int* idum) {
+  assert(stack != NULL && idum != NULL);
+  if (is_terminal(f)) {
+    if (is_top(f)) {
+      ZBDD g = top();
+      for (int i = 0; i <= static_cast<int>(stack->size()) - 1; i++)
+        g *= node((*stack)[i]);
+      return g;
+    }
+    assert(false);
+  }
+#ifdef HAVE_LIBGMPXX
+  double ch = algorithm_c(hi(f)).get_d();
+  double cl = algorithm_c(lo(f)).get_d();
+#else
+  double ch = algorithm_c(hi(f))
+  double cl = algorithm_c(lo(f))
+#endif
+  if (ran3(idum) > cl / (ch + cl)) {
+    stack->push_back(var(f));
+    return choose_randomly(hi(f), stack, idum);
+  } else {
+    return choose_randomly(lo(f), stack, idum);
+  }
+}
+
+ZBDD base::choose_best(ZBDD f, const vector<int>& weights, set<elem_t>* s) {
+  assert(s != NULL);
+  if (is_bot(f)) return bot();
+  vector<bool> x;
+  algorithm_b(f, weights, &x);
+  ZBDD g = top();
+  s->clear();
+  for (elem_t j = 1; j <= num_elems_; j++) {
+    if (x[j]) {
+      g *= node(j);
+      s->insert(j);
+    }
+  }
+  return g;
+}
+
+// Based on Algorithm B from Knuth vol. 4 fascicle 1 sec. 7.1.4.
+void base::algorithm_b(ZBDD f, const vector<int>& w, vector<bool>* x) {
+  assert(w.size() > static_cast<size_t>(num_elems_));
+  assert(x != NULL);
+  assert(!is_bot(f));
+  x->clear();
+  x->resize(num_elems_ + 1, false);
+  if (is_top(f)) return;
+
+  unordered_map<word_t, bool> t;
+  unordered_map<word_t, int> ms
+      = {{node_id(bot()), INT_MIN}, {node_id(top()), 0}};
+
+  vector<vector<ZBDD> > stacks(num_elems_ + 1);
+  unordered_set<word_t> visited;
+  sort_zdd(f, &stacks, &visited);
+
+  for (elem_t v = num_elems_; v > 0; --v) {
+    while (!stacks[v].empty()) {
+      ZBDD g = stacks[v].back();
+      stacks[v].pop_back();
+      word_t k = node_id(g);
+      elem_t v = var(g);
+      word_t l = node_id(lo(g));
+      word_t h = node_id(hi(g));
+      if (!is_bot(lo(g)))
+        ms[k] = ms.at(l);
+      if (!is_bot(hi(g))) {
+        int m = ms.at(h) + w[v];
+        if (is_bot(lo(g)) || m > ms.at(k)) {
+          ms[k] = m;
+          t[k] = true;
+        }
+      }
+    }
+  }
+
+  while (!is_terminal(f)) {
+    word_t k = node_id(f);
+    elem_t v = var(f);
+    if (t.find(k) == t.end())
+      t[k] = false;
+    (*x)[v] = t.at(k);
+    f = !t.at(k) ? lo(f) : hi(f);
+  }
+}
+
+// Based on Algorithm C from Knuth vol. 4 fascicle 1 sec. 7.1.4 (p.75).
+intx_t base::algorithm_c(ZBDD f) {
+    static unordered_map<word_t, intx_t> counts;
+    if (is_terminal(f))
+        return is_top(f) ? 1 : 0;
+    else if (counts.find(node_id(f)) != counts.end())
+        return counts.at(node_id(f));
+    else
+        return counts[node_id(f)] = algorithm_c(hi(f)) + algorithm_c(lo(f));
+}
+
+// Knuth vol. 4 fascicle 1 sec. 7.1.4.
+ZBDD base::zuniq(elem_t v, ZBDD l, ZBDD h) {
+  return l + node(v) * h;
+}
+
+// Based on Seminumerical Algorithms from Knuth vol. 2, sec. 3.2-3.3.
+#define MBIG 1000000000
+#define MSEED 161803398
+#define MZ 0
+#define FAC (1.0/MBIG)
+double base::ran3(int* idum) {
+  static int inext, inextp;
+  static long ma[56];
+  static int iff = 0;
+  long mj, mk;
+  int i, ii, k;
+
+  if (*idum < 0 || iff == 0) {
+    iff = 1;
+    mj = labs(MSEED - labs(*idum));
+    mj %= MBIG;
+    ma[55] = mj;
+    mk = 1;
+    for (i = 1; i <= 54; ++i) {
+      ii = (21*i) % 55;
+      ma[ii] = mk;
+      mk = mj - mk;
+      if (mk < MZ) mk += MBIG;
+      mj = ma[ii];
+    }
+    for (k = 1; k <= 4; ++k)
+      for (i = 1; i <= 55; ++i) {
+        ma[i] -= ma[1 + (i+30) % 55];
+        if (ma[i] < MZ) ma[i] += MBIG;
+      }
+    inext = 0;
+    inextp = 31;
+    *idum = 1;
+  }
+  if (++inext == 56) inext = 1;
+  if (++inextp == 56) inextp = 1;
+  mj = ma[inext] - ma[inextp];
+  if (mj < MZ) mj += MBIG;
+  ma[inext] = mj;
+  return mj * FAC;
+}
+
+void base::sort_zdd(ZBDD f, vector<vector<ZBDD> >* stacks,
+                      unordered_set<word_t>* visited) {
+  assert(stacks != nullptr && visited != nullptr);
+  if (!is_terminal(f) && visited->find(node_id(f)) == visited->end()) {
+    (*stacks)[var(f)].push_back(f);
+    visited->insert(node_id(f));
+    sort_zdd(lo(f), stacks, visited);
+    sort_zdd(hi(f), stacks, visited);
+  }
+}
+
+bool base::initialized_ = false;
+elem_t base::num_elems_ = 0;
+
 setset::iterator::iterator(const setset& ss)
     : f_(ss.f_), weights_(ss.weights_) {
   this->next();
@@ -245,331 +571,5 @@ void setset::dump() const {
   do_dump(this->f_, &stack);
   printf("}\n");
 }
-
-void setset::do_dump(ZBDD f, vector<elem_t>* stack) {
-  assert(stack != nullptr);
-  if (is_terminal(f)) {
-    if (is_top(f))
-      printf("{%s},", join(*stack, ",").c_str());
-    return;
-  }
-  stack->push_back(var(f));
-  do_dump(hi(f), stack);
-  stack->pop_back();
-  do_dump(lo(f), stack);
-}
-
-ZBDD setset::do_minimal(ZBDD f) {
-  if (is_terminal(f)) return f;
-  vector<vector<ZBDD> > stacks(num_elems_ + 1);
-  unordered_set<word_t> visited;
-  sort_zdd(f, &stacks, &visited);
-  unordered_map<word_t, ZBDD> cache
-    = { {node_id(bot()), bot()}, {node_id(top()), top()} };
-  for (elem_t v = num_elems_; v > 0; --v) {
-    while (!stacks[v].empty()) {
-      ZBDD n = stacks[v].back();
-      stacks[v].pop_back();
-      cache[node_id(n)]
-        = cache.at(node_id(lo(n)))
-        + (cache.at(node_id(hi(n))) - cache.at(node_id(lo(n)))).Change(v);
-    }
-  }
-  return cache.at(node_id(f));
-}
-
-ZBDD setset::do_maximal(ZBDD f) {
-  if (is_terminal(f)) return f;
-  vector<vector<ZBDD> > stacks(num_elems_ + 1);
-  unordered_set<word_t> visited;
-  sort_zdd(f, &stacks, &visited);
-  unordered_map<word_t, ZBDD> cache
-    = { {node_id(bot()), bot()}, {node_id(top()), top()} };
-  for (elem_t v = num_elems_; v > 0; --v) {
-    while (!stacks[v].empty()) {
-      ZBDD n = stacks[v].back();
-      stacks[v].pop_back();
-      cache[node_id(n)]
-        = cache.at(node_id(lo(n)))
-        - cache.at(node_id(lo(n))).Permit(cache.at(node_id(hi(n))))
-        + cache.at(node_id(hi(n))).Change(v);
-    }
-  }
-  return cache.at(node_id(f));
-}
-
-ZBDD setset::do_hitting(ZBDD f) {
-  if (is_bot(f)) return top();
-  if (is_top(f)) return bot();
-  vector<vector<ZBDD> > stacks(num_elems_ + 1);
-  unordered_set<word_t> visited;
-  sort_zdd(f, &stacks, &visited);
-  unordered_map<word_t, ZBDD> cache
-    = { {node_id(bot()), bot()}, {node_id(top()), bot()} };
-  for (elem_t v = num_elems_; v > 0; --v) {
-    while (!stacks[v].empty()) {
-      ZBDD n = stacks[v].back();
-      stacks[v].pop_back();
-      ZBDD l = cache.at(node_id(lo(n)));
-      if (lo(n) != bot()) {
-        elem_t j = is_top(lo(n)) ? num_elems_ : var(lo(n)) - 1;
-        for (; j > v; --j)
-          l += l.Change(j);
-      }
-      ZBDD h = cache.at(node_id(hi(n)));
-      if (hi(n) != bot()) {
-        elem_t j = is_top(hi(n)) ? num_elems_ : var(hi(n)) - 1;
-        for (; j > v; --j)
-          h += h.Change(j);
-      }
-      if (lo(n) == bot()) {
-        ZBDD g = top();
-        for (elem_t j = num_elems_; j > v; --j)
-          g += g.Change(j);
-        g = g.Change(var(n));
-        cache[node_id(n)] = h + g;
-      } else {
-        cache[node_id(n)] = (h & l) + l.Change(v);
-      }
-    }
-  }
-  ZBDD g = cache.at(node_id(f));
-  elem_t j = is_terminal(f) ? num_elems_ : var(f) - 1;
-  for (; j > 0; --j)
-    g += g.Change(j);
-  return g;
-}
-
-struct bdd_pair_hash {
-  size_t operator()(const pair<word_t, word_t>& o) const {
-    return (o.first << 4*sizeof(o.first)) ^ o.second;
-  }
-};
-
-struct bdd_pair_eq {
-  bool operator()(const pair<word_t,word_t>& a, const pair<word_t,word_t>& b) const {
-    return a.first == b.first && a.second == b.second;
-  }
-};
-
-ZBDD setset::do_nonsubsets(ZBDD f, ZBDD g) {
-  static unordered_map<pair<word_t, word_t>, ZBDD, bdd_pair_hash, bdd_pair_eq> cache;
-  if (g == bot())
-    return f;
-  else if (f == bot() || f == top() || f == g)
-    return bot();
-  pair<word_t, word_t> k = make_key(f, g);
-  auto i = cache.find(k);
-  if (i != cache.end())
-    return i->second;
-  ZBDD rl;
-  ZBDD rh;
-  if (var(f) < var(g)) {
-    rl = do_nonsubsets(lo(f), g);
-    rh = hi(f);
-  }
-  else {
-    rl = do_nonsubsets(lo(f), hi(g)) & do_nonsubsets(lo(f), lo(g));
-    rh = do_nonsubsets(hi(f), hi(g));
-  }
-  return cache[k] = zuniq(var(f), rl, rh);
-}
-
-ZBDD setset::do_nonsupersets(ZBDD f, ZBDD g) {
-  static unordered_map<pair<word_t, word_t>, ZBDD, bdd_pair_hash, bdd_pair_eq> cache;
-  if (g == bot())
-    return f;
-  else if (f == bot() || g == top() || f == g)
-    return bot();
-  else if (var(f) > var(g))
-    return do_nonsupersets(f, lo(g));
-  pair<word_t, word_t> k = make_key(f, g);
-  auto i = cache.find(k);
-  if (i != cache.end())
-    return i->second;
-  ZBDD rl;
-  ZBDD rh;
-  if (var(f) < var(g)) {
-    rl = do_nonsupersets(lo(f), g);
-    rh = do_nonsupersets(hi(f), g);
-  }
-  else {
-    rl = do_nonsupersets(lo(f), lo(g));
-    rh = do_nonsupersets(hi(f), hi(g)) & do_nonsupersets(hi(f), lo(g));
-  }
-  return cache[k] = zuniq(var(f), rl, rh);
-}
-
-ZBDD setset::choose_randomly(ZBDD f, vector<elem_t>* stack, int* idum) {
-  assert(stack != NULL && idum != NULL);
-  if (is_terminal(f)) {
-    if (is_top(f)) {
-      ZBDD g = top();
-      for (int i = 0; i <= static_cast<int>(stack->size()) - 1; i++)
-        g *= node((*stack)[i]);
-      return g;
-    }
-    assert(false);
-  }
-#ifdef HAVE_LIBGMPXX
-  double ch = algorithm_c(hi(f)).get_d();
-  double cl = algorithm_c(lo(f)).get_d();
-#else
-  double ch = algorithm_c(hi(f))
-  double cl = algorithm_c(lo(f))
-#endif
-  if (ran3(idum) > cl / (ch + cl)) {
-    stack->push_back(var(f));
-    return choose_randomly(hi(f), stack, idum);
-  } else {
-    return choose_randomly(lo(f), stack, idum);
-  }
-}
-
-ZBDD setset::choose_best(ZBDD f, const vector<int>& weights, set<elem_t>* s) {
-  assert(s != NULL);
-  if (is_bot(f)) return bot();
-  vector<bool> x;
-  algorithm_b(f, weights, &x);
-  ZBDD g = top();
-  s->clear();
-  for (elem_t j = 1; j <= num_elems_; j++) {
-    if (x[j]) {
-      g *= node(j);
-      s->insert(j);
-    }
-  }
-  return g;
-}
-
-// Based on Algorithm B from Knuth vol. 4 fascicle 1 sec. 7.1.4.
-void setset::algorithm_b(ZBDD f, const vector<int>& w, vector<bool>* x) {
-  assert(w.size() > static_cast<size_t>(num_elems_));
-  assert(x != NULL);
-  assert(!is_bot(f));
-  x->clear();
-  x->resize(num_elems_ + 1, false);
-  if (is_top(f)) return;
-
-  unordered_map<word_t, bool> t;
-  unordered_map<word_t, int> ms
-      = {{node_id(bot()), INT_MIN}, {node_id(top()), 0}};
-
-  vector<vector<ZBDD> > stacks(num_elems_ + 1);
-  unordered_set<word_t> visited;
-  sort_zdd(f, &stacks, &visited);
-
-  for (elem_t v = num_elems_; v > 0; --v) {
-    while (!stacks[v].empty()) {
-      ZBDD g = stacks[v].back();
-      stacks[v].pop_back();
-      word_t k = node_id(g);
-      elem_t v = var(g);
-      word_t l = node_id(lo(g));
-      word_t h = node_id(hi(g));
-      if (!is_bot(lo(g)))
-        ms[k] = ms.at(l);
-      if (!is_bot(hi(g))) {
-        int m = ms.at(h) + w[v];
-        if (is_bot(lo(g)) || m > ms.at(k)) {
-          ms[k] = m;
-          t[k] = true;
-        }
-      }
-    }
-  }
-
-  while (!is_terminal(f)) {
-    word_t k = node_id(f);
-    elem_t v = var(f);
-    if (t.find(k) == t.end())
-      t[k] = false;
-    (*x)[v] = t.at(k);
-    f = !t.at(k) ? lo(f) : hi(f);
-  }
-}
-
-// Based on Algorithm C from Knuth vol. 4 fascicle 1 sec. 7.1.4 (p.75).
-intx_t setset::algorithm_c(ZBDD f) {
-    static unordered_map<word_t, intx_t> counts;
-    if (is_terminal(f))
-        return is_top(f) ? 1 : 0;
-    else if (counts.find(node_id(f)) != counts.end())
-        return counts.at(node_id(f));
-    else
-        return counts[node_id(f)] = algorithm_c(hi(f)) + algorithm_c(lo(f));
-}
-
-// Knuth vol. 4 fascicle 1 sec. 7.1.4.
-ZBDD setset::zuniq(elem_t v, ZBDD l, ZBDD h) {
-  return l + node(v) * h;
-}
-
-// Based on Seminumerical Algorithms from Knuth vol. 2, sec. 3.2-3.3.
-#define MBIG 1000000000
-#define MSEED 161803398
-#define MZ 0
-#define FAC (1.0/MBIG)
-double setset::ran3(int* idum) {
-  static int inext, inextp;
-  static long ma[56];
-  static int iff = 0;
-  long mj, mk;
-  int i, ii, k;
-
-  if (*idum < 0 || iff == 0) {
-    iff = 1;
-    mj = labs(MSEED - labs(*idum));
-    mj %= MBIG;
-    ma[55] = mj;
-    mk = 1;
-    for (i = 1; i <= 54; ++i) {
-      ii = (21*i) % 55;
-      ma[ii] = mk;
-      mk = mj - mk;
-      if (mk < MZ) mk += MBIG;
-      mj = ma[ii];
-    }
-    for (k = 1; k <= 4; ++k)
-      for (i = 1; i <= 55; ++i) {
-        ma[i] -= ma[1 + (i+30) % 55];
-        if (ma[i] < MZ) ma[i] += MBIG;
-      }
-    inext = 0;
-    inextp = 31;
-    *idum = 1;
-  }
-  if (++inext == 56) inext = 1;
-  if (++inextp == 56) inextp = 1;
-  mj = ma[inext] - ma[inextp];
-  if (mj < MZ) mj += MBIG;
-  ma[inext] = mj;
-  return mj * FAC;
-}
-
-void setset::sort_zdd(ZBDD f, vector<vector<ZBDD> >* stacks,
-                      unordered_set<word_t>* visited) {
-  assert(stacks != nullptr && visited != nullptr);
-  if (!is_terminal(f) && visited->find(node_id(f)) == visited->end()) {
-    (*stacks)[var(f)].push_back(f);
-    visited->insert(node_id(f));
-    sort_zdd(lo(f), stacks, visited);
-    sort_zdd(hi(f), stacks, visited);
-  }
-}
-
-ZBDD setset::node(elem_t e) {
-  assert(0 < e && e <= BDD_MaxVar);
-  if (!initialized_) {
-    BDD_Init(1000000, 8000000000LL);
-    initialized_ = true;
-  }
-  for (; num_elems_ < e; ++num_elems_)
-    top().Change(BDD_NewVarOfLev(1));
-  return top().Change(e);
-}
-
-bool setset::initialized_ = false;
-elem_t setset::num_elems_ = 0;
 
 }  // namespace illion

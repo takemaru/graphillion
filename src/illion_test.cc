@@ -8,12 +8,12 @@
 
 #include "illion/setset.h"
 
-#define e0 (setset::top())
-#define e1 (setset::node(1))
-#define e2 (setset::node(2))
-#define e3 (setset::node(3))
-#define e4 (setset::node(4))
-#define e5 (setset::node(5))
+#define e0 (illion::base::top())
+#define e1 (illion::base::node(1))
+#define e2 (illion::base::node(2))
+#define e3 (illion::base::node(3))
+#define e4 (illion::base::node(4))
+#define e5 (illion::base::node(5))
 
 namespace illion {
 
@@ -27,31 +27,31 @@ class setset_test {
 
     set<int> s = {};
     ss = setset(s);
-    assert(!setset::initialized_);
-    assert(setset::num_elems_ == 0);
+    assert(!base::initialized_);
+    assert(base::num_elems_ == 0);
     assert(ss.f_ == e0);
 
     s = {1, 2};
     ss = setset(s);
-    assert(setset::initialized_);
-    assert(setset::num_elems_ == 2);
+    assert(base::initialized_);
+    assert(base::num_elems_ == 2);
     assert(ss.f_ == e1*e2);
 
     vector<set<int>> v = {{}, {1, 2}, {1, 3}};
     ss = setset(v);
-    assert(setset::num_elems_ == 3);
+    assert(base::num_elems_ == 3);
     assert(ss.f_ == e0 + e1*e2 + e1*e3);
 
     map<string, set<int>> m = {{"include", {1, 2}}, {"exclude", {4}}};
     ss = setset(m);
-    assert(setset::num_elems_ == 4);
+    assert(base::num_elems_ == 4);
     assert(ss.f_ == e1*e2 + e1*e2*e3);
 
     vector<map<string, set<int>>> u = {{{"include", {1, 2}}, {"exclude", {4}}},
                                        {{"include", {1, 3, 4}}},
                                        {{"exclude", {2, 3}}}};
     ss = setset(u);
-    assert(setset::num_elems_ == 4);
+    assert(base::num_elems_ == 4);
     assert(ss.f_ == e0 + e1 + e1*e2 + e1*e2*e3 + e1*e2*e3*e4 + e1*e3*e4 + e1*e4
            + e4);
 
@@ -70,13 +70,13 @@ class setset_test {
 
     ss = setset({{}, {1}, {1, 2}, {1, 2, 3}, {1, 2, 3, 4}, {1, 3, 4}, {1, 4},
                  {4}});
-    assert(setset::num_elems_ == 4);
+    assert(base::num_elems_ == 4);
     assert((~ss).f_ == e1*e2*e4 + e1*e3 + e2 + e2*e3 + e2*e3*e4 + e2*e4 + e3
            + e3*e4);
     assert(ss.smaller(2).f_ == e0 + e1 + e1*e2 + e1*e4 + e4);
 
     ss = setset({{1, 2}, {1, 4}, {2, 3}, {3, 4}});
-    assert(setset::num_elems_ == 4);
+    assert(base::num_elems_ == 4);
     assert(ss.hitting().f_ == e1*e2*e3 + e1*e2*e3*e4 + e1*e2*e4 + e1*e3
            + e1*e3*e4 + e2*e3*e4 + e2*e4);
 
