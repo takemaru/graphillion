@@ -38,7 +38,7 @@ class setset : public zdd {
    private:
     void next();
 
-    zdd_t f_ = znull();  // TODO: rename to zdd_
+    zdd_t f_ = null();  // TODO: rename to zdd_
     std::vector<int> weights_;
     std::set<elem_t> s_ = std::set<elem_t>();
 
@@ -55,8 +55,8 @@ class setset : public zdd {
   explicit setset(const std::vector<std::map<std::string, std::set<elem_t> > >& v);
   explicit setset(const std::initializer_list<std::set<elem_t> >& s);
 
-  // disable this constructor to avoid ambiguity, because compilers
-  // automatically convert {{1}, {2}} to {1, 2} if it defined.
+  /* Disable this constructor to avoid ambiguity, because compilers
+   * automatically convert {{1}, {2}} to {1, 2} if it defined. */
   //explicit setset(const std::initializer_list<elem_t>& s);
   
   virtual ~setset() {}
@@ -87,9 +87,9 @@ class setset : public zdd {
   bool operator>=(const setset& ss) const;
   bool operator>(const setset& ss) const;
 
-  bool isdisjoint(const setset& ss) const;
-  bool issubset(const setset& ss) const;
-  bool issuperset(const setset& ss) const;
+  bool is_disjoint(const setset& ss) const;
+  bool is_subset(const setset& ss) const;
+  bool is_superset(const setset& ss) const;
 
   bool empty() const { return this->f_ == bot(); }
   std::string size() const;

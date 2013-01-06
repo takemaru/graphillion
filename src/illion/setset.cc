@@ -11,8 +11,6 @@ using std::string;
 using std::stringstream;
 using std::vector;
 
-// class setset::iterator
-
 setset::iterator::iterator(const setset& ss)
     : f_(ss.f_), weights_(ss.weights_) {
   this->next();
@@ -28,8 +26,8 @@ setset::iterator& setset::iterator::operator++() {
 }
 
 void setset::iterator::next() {
-  if (this->f_ == znull() || is_bot(this->f_)) {
-    this->f_ = znull();
+  if (this->f_ == null() || is_bot(this->f_)) {
+    this->f_ = null();
     this->s_ = set<elem_t>();
   } else if (this->weights_.empty()) {  // random sampling
     vector<elem_t> stack;
@@ -43,11 +41,9 @@ void setset::iterator::next() {
   }
 }
 
-// class setset
-
 setset::setset(const set<elem_t>& s) : f_(top()) {
   for (const auto& e : s)
-    this->f_ *= node(e);
+    this->f_ *= single(e);
 }
 
 setset::setset(const vector<set<elem_t> >& v) {
@@ -62,15 +58,15 @@ setset::setset(const map<string, set<elem_t> >& m) {
   const auto ex_it = m.find("exclude");
   const set<elem_t>& in_s = in_it != m.end() ? in_it->second : set<elem_t>();
   const set<elem_t>& ex_s = ex_it != m.end() ? ex_it->second : set<elem_t>();
-  for (const auto& e : in_s) node(e);
-  for (const auto& e : ex_s) node(e);
+  for (const auto& e : in_s) single(e);
+  for (const auto& e : ex_s) single(e);
   vector<zdd_t> n(num_elems_ + 2);
   n[0] = bot(), n[1] = top();
   for (elem_t v = num_elems_; v > 0; --v) {
     elem_t i = num_elems_ - v + 2;
-    n[i] = in_s.find(v) != in_s.end() ? n[0]   + node(v) * n[i-1]
-         : ex_s.find(v) != ex_s.end() ? n[i-1] + node(v) * n[0]
-         :                              n[i-1] + node(v) * n[i-1];
+    n[i] = in_s.find(v) != in_s.end() ? n[0]   + single(v) * n[i-1]
+         : ex_s.find(v) != ex_s.end() ? n[i-1] + single(v) * n[0]
+         :                              n[i-1] + single(v) * n[i-1];
   }
   this->f_ = n[num_elems_ + 1];
 }
@@ -87,7 +83,7 @@ setset::setset(const initializer_list<set<elem_t> >& v) {
 /*
 setset::setset(const initializer_list<int>& s) : f_(top()) {
   for (auto i = s.begin(); i != s.end(); ++i)
-    this->f_ *= node(*i);
+    this->f_ *= single(*i);
 }
 */
 setset setset::operator~() const {
@@ -166,15 +162,15 @@ bool setset::operator>(const setset& ss) const {
   return (ss.f_ - this->f_) == bot() && this->f_ != ss.f_;
 }
 
-bool setset::isdisjoint(const setset& ss) const {
+bool setset::is_disjoint(const setset& ss) const {
   return (this->f_ & ss.f_) == bot();
 }
 
-bool setset::issubset(const setset& ss) const {
+bool setset::is_subset(const setset& ss) const {
   return *this <= ss;
 }
 
-bool setset::issuperset(const setset& ss) const {
+bool setset::is_superset(const setset& ss) const {
   return *this >= ss;
 }
 

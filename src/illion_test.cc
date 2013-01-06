@@ -9,11 +9,11 @@
 #include "illion/setset.h"
 
 #define e0 (illion::zdd::top())
-#define e1 (illion::zdd::node(1))
-#define e2 (illion::zdd::node(2))
-#define e3 (illion::zdd::node(3))
-#define e4 (illion::zdd::node(4))
-#define e5 (illion::zdd::node(5))
+#define e1 (illion::zdd::single(1))
+#define e2 (illion::zdd::single(2))
+#define e3 (illion::zdd::single(3))
+#define e4 (illion::zdd::single(4))
+#define e5 (illion::zdd::single(5))
 
 namespace illion {
 
@@ -162,18 +162,18 @@ class setset_test {
   static void testers() {
     vector<set<int> > v = {{}, {1, 2}, {1, 3}};
     setset ss(v);
-    assert(ss.isdisjoint(setset({{1}, {1, 2, 3}})));
-    assert(!ss.isdisjoint(setset({{1}, {1, 2}})));
+    assert(ss.is_disjoint(setset({{1}, {1, 2, 3}})));
+    assert(!ss.is_disjoint(setset({{1}, {1, 2}})));
 
-    assert(ss.issubset(setset(v)));
-    assert(!ss.issubset(setset({{}, {1, 2}})));
+    assert(ss.is_subset(setset(v)));
+    assert(!ss.is_subset(setset({{}, {1, 2}})));
     assert(ss <= setset(v));
     assert(!(ss <= setset({{}, {1, 2}})));
     assert(ss <= setset({{}, {1}, {1, 2}, {1, 3}}));
     assert(!(ss < setset(v)));
 
-    assert(ss.issuperset(setset(v)));
-    assert(!ss.issuperset(setset({{1}, {1, 2}})));
+    assert(ss.is_superset(setset(v)));
+    assert(!ss.is_superset(setset({{1}, {1, 2}})));
     assert(ss >= setset(v));
     assert(!(ss >= setset({{1}, {1, 2}})));
     assert(ss > setset({{}, {1, 2}}));
