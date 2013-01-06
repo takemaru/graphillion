@@ -64,15 +64,15 @@ setset::setset(const map<string, set<elem_t> >& m) {
   const set<elem_t>& ex_s = ex_it != m.end() ? ex_it->second : set<elem_t>();
   for (const auto& e : in_s) node(e);
   for (const auto& e : ex_s) node(e);
-  vector<ZBDD> nodes(num_elems_ + 2);
-  nodes[0] = bot(), nodes[1] = top();
+  vector<zdd_t> n(num_elems_ + 2);
+  n[0] = bot(), n[1] = top();
   for (elem_t v = num_elems_; v > 0; --v) {
     elem_t i = num_elems_ - v + 2;
-    nodes[i] = in_s.find(v) != in_s.end() ? nodes[0]   + node(v) * nodes[i-1]
-             : ex_s.find(v) != ex_s.end() ? nodes[i-1] + node(v) * nodes[0]
-             :                              nodes[i-1] + node(v) * nodes[i-1];
+    n[i] = in_s.find(v) != in_s.end() ? n[0]   + node(v) * n[i-1]
+         : ex_s.find(v) != ex_s.end() ? n[i-1] + node(v) * n[0]
+         :                              n[i-1] + node(v) * n[i-1];
   }
-  this->f_ = nodes[num_elems_ + 1];
+  this->f_ = n[num_elems_ + 1];
 }
 
 setset::setset(const vector<map<string, set<elem_t> > >& v ) {
@@ -91,13 +91,7 @@ setset::setset(const initializer_list<int>& s) : f_(top()) {
 }
 */
 setset setset::operator~() const {
-  vector<ZBDD> nodes(num_elems_ + 2);
-  nodes[0] = bot(), nodes[1] = top();
-  for (elem_t v = num_elems_; v > 0; --v) {
-    elem_t i = num_elems_ - v + 2;
-    nodes[i] = nodes[i - 1] + node(v) * nodes[i - 1];
-  }
-  return setset(nodes[num_elems_ + 1] - this->f_);
+  return setset(_not(this->f_));
 }
 
 setset setset::operator&(const setset& ss) const {

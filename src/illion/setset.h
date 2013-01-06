@@ -38,7 +38,7 @@ class setset : public zdd {
    private:
     void next();
 
-    ZBDD f_ = znull();  // TODO: rename to zdd_
+    zdd_t f_ = znull();  // TODO: rename to zdd_
     std::vector<int> weights_;
     std::set<elem_t> s_ = std::set<elem_t>();
 
@@ -100,7 +100,7 @@ class setset : public zdd {
   //  std::pair<iterator, bool> insert(const std::set<elem_t>& s);
   void clear() { this->f_ = bot(); }
   void swap(setset& ss) {
-    ZBDD f = this->f_; this->f_ = ss.f_; ss.f_ = f;
+    zdd_t f = this->f_; this->f_ = ss.f_; ss.f_ = f;
   }
 
   void set_weights(const std::vector<int>& w) { this->weights_ = w; }
@@ -117,11 +117,11 @@ class setset : public zdd {
   setset nonsupersets(const setset& ss) const;
 
  private:
-  explicit setset(const ZBDD& f) : f_(f) {}
+  explicit setset(const zdd_t& f) : f_(f) {}
 
   void dump() const;
 
-  ZBDD f_ = bot();  // TODO: rename to zdd_
+  zdd_t f_ = bot();  // TODO: rename to zdd_
   std::vector<int> weights_;
 
   friend class setset_test;
