@@ -18,7 +18,7 @@ class setset : public zdd {
    public:
     iterator() {}
     explicit iterator(const setset& ss);
-    iterator(const setset& ss, const std::set<elem_t>& s);
+    iterator(const std::set<elem_t>& s) : zdd_(bot()), s_(s) {}
     iterator(const iterator& i)
         : zdd_(i.zdd_), weights_(i.weights_), s_(i.s_) {}
 
@@ -97,18 +97,21 @@ class setset : public zdd {
   iterator begin() const { return iterator(*this); }
   static iterator end() { return iterator(); }
   iterator find(const std::set<elem_t>& s) const;
+  setset find(elem_t e) const;
   size_t count(const std::set<elem_t>& s) const;
   std::pair<iterator, bool> insert(const std::set<elem_t>& s);
   iterator insert(const_iterator hint, const std::set<elem_t>& s);
   void insert(const std::initializer_list<std::set<elem_t> >& v);
   iterator erase(const_iterator position);
   size_t erase(const std::set<elem_t>& s);
+  size_t erase(elem_t e);
   void clear() { this->zdd_ = bot(); }
   void swap(setset& ss) {
     zdd_t z = this->zdd_; this->zdd_ = ss.zdd_; ss.zdd_ = z;
   }
 
   void set_weights(const std::vector<int>& w) { this->weights_ = w; }
+  void clear_weights() { this->weights_ = std::vector<int>(); }
   const std::vector<int>& weights() const { return this->weights_; }
 
   setset minimal() const;

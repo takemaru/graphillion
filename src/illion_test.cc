@@ -226,8 +226,10 @@ class setset_test {
     assert(i != setset::end());
     assert(*i == set<int>({1, 2}));
     assert(setset(i.zdd_).find({1, 2}) == setset::end());
-    i = ss.find({1});
+    i = ss.find(set<int>({1}));
     assert(i == setset::end());
+
+    assert(ss.find(1).zdd_ == e1*e2 + e1*e3);
 
     assert(ss.count({1, 2}) == 1);
     assert(ss.count({2, 3}) == 0);
@@ -237,7 +239,7 @@ class setset_test {
     vector<set<int>> v = {{}, {1, 2}, {1, 3}};
     setset ss(v);
     pair<setset::iterator, bool> p = ss.insert({1});
-    assert(ss.find({1}) != setset::end());
+    assert(ss.find(set<int>({1})) != setset::end());
     assert(p.first != setset::end());
     assert(p.first.s_ == set<int>({1}));
     assert(p.second);
@@ -251,15 +253,19 @@ class setset_test {
     assert(i.s_ == set<int>({1}));
 
     ss.insert({{1}, {2}});
-    assert(ss.find({2}) != setset::end());
+    assert(ss.find(set<int>({2})) != setset::end());
 
     i = ss.erase(i);
-    assert(ss.find({1}) == setset::end());
+    assert(ss.find(set<int>({1})) == setset::end());
     assert(i == setset::end());
 
-    assert(ss.erase({1}) == 0);
+    assert(ss.erase(set<int>({1})) == 0);
     assert(ss.erase({1, 2}) == 1);
     assert(ss.find({1, 2}) == setset::end());
+
+    ss = setset(v);
+    assert(ss.erase(1) == 2);
+    assert(ss.find({2, 3}) == setset::end());
 
     ss = setset(v);
     assert(!ss.empty());
