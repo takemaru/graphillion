@@ -25,7 +25,7 @@ typedef mpz_class intx_t;
 typedef double intx_t;
 #endif
 
-ZBDD operator|(const ZBDD& f, const ZBDD& g);
+zdd_t operator|(const zdd_t& f, const zdd_t& g);
 
 class zdd {
  protected:

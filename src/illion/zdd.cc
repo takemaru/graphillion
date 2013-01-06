@@ -94,18 +94,18 @@ zdd_t zdd::hitting(zdd_t f) {
       if (lo(n) != bot()) {
         elem_t j = is_top(lo(n)) ? num_elems_ : elem(lo(n)) - 1;
         for (; j > v; --j)
-          l += l.Change(j);
+          l = l + l.Change(j);
       }
       zdd_t h = cache.at(id(hi(n)));
       if (hi(n) != bot()) {
         elem_t j = is_top(hi(n)) ? num_elems_ : elem(hi(n)) - 1;
         for (; j > v; --j)
-          h += h.Change(j);
+          h = h + h.Change(j);
       }
       if (lo(n) == bot()) {
         zdd_t g = top();
         for (elem_t j = num_elems_; j > v; --j)
-          g += g.Change(j);
+          g = g + g.Change(j);
         g = g.Change(elem(n));
         cache[id(n)] = h + g;
       } else {
@@ -116,7 +116,7 @@ zdd_t zdd::hitting(zdd_t f) {
   zdd_t g = cache.at(id(f));
   elem_t j = is_term(f) ? num_elems_ : elem(f) - 1;
   for (; j > 0; --j)
-    g += g.Change(j);
+    g = g + g.Change(j);
   return g;
 }
 
@@ -186,7 +186,7 @@ zdd_t zdd::choose_random(zdd_t f, vector<elem_t>* stack, int* idum) {
     if (is_top(f)) {
       zdd_t g = top();
       for (int i = 0; i <= static_cast<int>(stack->size()) - 1; i++)
-        g *= single((*stack)[i]);
+        g = g * single((*stack)[i]);
       return g;
     }
     assert(false);
@@ -215,7 +215,7 @@ zdd_t zdd::choose_best(zdd_t f, const vector<int>& weights, set<elem_t>* s) {
   s->clear();
   for (elem_t j = 1; j <= num_elems_; j++) {
     if (x[j]) {
-      g *= single(j);
+      g = g * single(j);
       s->insert(j);
     }
   }
