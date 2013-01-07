@@ -1,6 +1,6 @@
 #from _illion import sets
 import _illion
-class sets(_illion.sets):
+class setset(_illion.setset):
     pass
-class graphs(sets):
+class graphset(setset):
     pass

@@ -1,17 +1,17 @@
-#ifndef ILLION_PYSETS_H_
-#define ILLION_PYSETS_H_
+#ifndef ILLION_PYSETSET_H_
+#define ILLION_PYSETSET_H_
 
-#include "Sets.h"
+#include "illion/setset.h"
 
 typedef struct {
     PyObject_HEAD
-    Sets sets;
-} PySetsObject;
+    illion::setset ss;
+} PySetsetObject;
 
-PyAPI_DATA(PyTypeObject) PySets_Type;
+PyAPI_DATA(PyTypeObject) PySetset_Type;
 
-#define PySets_Check(ob) \
-    (Py_TYPE(ob) == &PySets_Type || \
-    PyType_IsSubtype(Py_TYPE(ob), &PySets_Type))
+#define PySetset_Check(ob) \
+    (Py_TYPE(ob) == &PySetset_Type || \
+    PyType_IsSubtype(Py_TYPE(ob), &PySetset_Type))
 
-#endif // ILLION_PYSETS_H_
+#endif  // ILLION_PYSETSET_H_
