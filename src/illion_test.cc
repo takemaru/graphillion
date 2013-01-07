@@ -4,6 +4,7 @@
 #include <map>
 #include <set>
 #include <string>
+#include <sstream>
 #include <vector>
 
 #include "illion/setset.h"
@@ -279,6 +280,38 @@ class setset_test {
     assert(ss1 == setset(v));
     assert(ss2 == setset(s));
   }
+
+  static void stream() {
+    stringstream sstr;
+    setset ss;
+    sstr << ss;
+    assert(sstr.str() == "B\n");
+    sstr >> ss;
+    assert(ss == setset());
+
+    sstr.clear();
+    sstr.str("");
+    ss = setset({{}});
+    sstr << ss;
+    assert(sstr.str() == "T\n");
+    sstr >> ss;
+    assert(ss == setset({{}}));
+
+    vector<set<int> > v = {{}, {1}, {1, 2}, {1, 2, 3}, {1, 2, 3, 4}, {1, 3, 4},
+                           {1, 4}, {4}};
+    sstr.clear();
+    sstr.str("");
+    ss = setset(v);
+    sstr << ss;
+    sstr >> ss;
+    assert(ss == setset(v));
+
+    sstr.clear();
+    sstr.str("");
+    sstr << ss;
+    ss = setset(sstr);
+    assert(ss == setset(v));
+  }
 };
 
 }  // namespace illion
@@ -292,6 +325,7 @@ int main() {
   illion::setset_test::iterators();
   illion::setset_test::lookup();
   illion::setset_test::modifiers();
+  illion::setset_test::stream();
   printf("ok\n");
   return 0;
 }

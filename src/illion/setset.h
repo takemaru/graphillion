@@ -55,6 +55,7 @@ class setset : public zdd {
   explicit setset(const std::map<std::string, std::set<elem_t> >& m);
   explicit setset(const std::vector<std::map<std::string, std::set<elem_t> > >& v);
   explicit setset(const std::initializer_list<std::set<elem_t> >& v);
+  explicit setset(std::istream& in) : zdd_(zdd::load(in)) {}
 
   /* Disable this constructor to avoid ambiguity, because compilers
    * automatically convert {{1}, {2}} to {1, 2} if it defined. */
@@ -123,6 +124,9 @@ class setset : public zdd {
   setset supersets(const setset& ss) const;
   setset nonsubsets(const setset& ss) const;
   setset nonsupersets(const setset& ss) const;
+
+  friend std::ostream& operator<<(std::ostream& out, const setset& ss);
+  friend std::istream& operator>>(std::istream& in, setset& ss);
 
  private:
   explicit setset(const zdd_t& z) : zdd_(z) {}

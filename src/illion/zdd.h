@@ -3,6 +3,7 @@
 
 #include <cstdint>
 
+#include <iostream>
 #include <set>
 #include <unordered_set>
 #include <vector>
@@ -64,8 +65,10 @@ class zdd {
   static std::pair<word_t, word_t> make_key(zdd_t f, zdd_t g) {
     return std::make_pair(id(f), id(g));
   }
-  static void dump(zdd_t f);
-  static void dump(zdd_t f, std::vector<elem_t>* stack);
+  static void save(zdd_t f, std::ostream& out = std::cout);
+  static zdd_t load(std::istream& in = std::cin);
+  static void dump(zdd_t f, std::ostream& out = std::cout);
+  static void dump(zdd_t f, std::vector<elem_t>* stack, std::ostream& out);
 
   static bool initialized_;
   static elem_t num_elems_;

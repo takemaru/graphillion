@@ -1,16 +1,22 @@
 #include "illion/zdd.h"
 
 #include <cassert>
+#include <cinttypes>
 #include <climits>
 
+#include <string>
 #include <unordered_map>
 
 #include "illion/util.h"
 
 namespace illion {
 
+using std::endl;
+using std::istream;
+using std::ostream;
 using std::pair;
 using std::set;
+using std::string;
 using std::unordered_map;
 using std::unordered_set;
 using std::vector;
@@ -343,24 +349,81 @@ void zdd::sort_zdd(zdd_t f, vector<vector<zdd_t> >* stacks,
   }
 }
 
-void zdd::dump(zdd_t f) {
-  vector<elem_t> stack;
-  printf("{");
-  dump(f, &stack);
-  printf("}\n");
+void zdd::save(zdd_t f, ostream& out) {
+  if (is_bot(f)) {
+    out << "B" << endl;
+  }
+  else if (is_top(f)) {
+    out << "T" << endl;
+  }
+  else {
+    vector<vector<zdd_t> > stacks(num_elems_ + 1);
+    unordered_set<word_t> visited;
+    sort_zdd(f, &stacks, &visited);
+    for (elem_t v = num_elems_; v > 0; --v) {
+      while (!stacks[v].empty()) {
+        zdd_t g = stacks[v].back();
+        stacks[v].pop_back();
+        zdd_t l = lo(g);
+        zdd_t h = hi(g);
+        out << id(g) << " " << elem(g) << " ";
+        if      (is_bot(l)) out << "B";
+        else if (is_top(l)) out << "T";
+        else                out << id(l);
+        out << " ";
+        if      (is_bot(h)) out << "B";
+        else if (is_top(h)) out << "T";
+        else                out << id(h);
+        out << endl;
+      }
+    }
+  }
 }
 
-void zdd::dump(zdd_t f, vector<elem_t>* stack) {
+zdd_t zdd::load(istream& in) {
+  string line;
+  getline(in, line);
+  if      (line == "B") return bot();
+  else if (line == "T") return top();
+  unordered_map<word_t, zdd_t> n = {{id(bot()), bot()}, {id(top()), top()}};
+  zdd_t root;
+  do {
+    word_t k;
+    elem_t v;
+    char sl[256], sh[256];
+    string fmt = sizeof(word_t) == 8 ? ("%" PRId64) : ("%" PRId32);
+    int num = sscanf(line.c_str(), (fmt + " %d %s %s").c_str(),
+                     &k, &v, &sl, &sh);
+    assert(num == 4);
+    word_t l = strcmp(sl, "B") == 0 ? id(bot())
+             : strcmp(sl, "T") == 0 ? id(top())
+             :                        atoll(sl);
+    word_t h = strcmp(sh, "B") == 0 ? id(bot())
+             : strcmp(sh, "T") == 0 ? id(top())
+             :                        atoll(sh);
+    n[k] = root = n.at(l) + single(v) * n.at(h);
+  } while (getline(in, line));
+  return root;
+}
+
+void zdd::dump(zdd_t f, ostream& out) {
+  vector<elem_t> stack;
+  out << "{";
+  dump(f, &stack, out);
+  out << "}" << endl;
+}
+
+void zdd::dump(zdd_t f, vector<elem_t>* stack, ostream& out) {
   assert(stack != nullptr);
   if (is_term(f)) {
     if (is_top(f))
-      printf("{%s},", join(*stack, ",").c_str());
+      out << "{" << join(*stack, ",") << "},";
     return;
   }
   stack->push_back(elem(f));
-  dump(hi(f), stack);
+  dump(hi(f), stack, out);
   stack->pop_back();
-  dump(lo(f), stack);
+  dump(lo(f), stack, out);
 }
 
 bool zdd::initialized_ = false;

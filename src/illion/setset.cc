@@ -7,8 +7,10 @@
 namespace illion {
 
 using std::initializer_list;
+using std::istream;
 using std::make_pair;
 using std::map;
+using std::ostream;
 using std::pair;
 using std::set;
 using std::string;
@@ -80,6 +82,7 @@ setset::setset(const initializer_list<set<elem_t> >& v) {
   for (auto i = v.begin(); i != v.end(); ++i)
     this->zdd_ += setset(*i).zdd_;
 }
+
 /*
 setset::setset(const initializer_list<int>& s) : zdd_(top()) {
   for (auto i = s.begin(); i != s.end(); ++i)
@@ -266,6 +269,16 @@ setset setset::nonsubsets(const setset& ss) const {
 
 setset setset::nonsupersets(const setset& ss) const {
   return setset(zdd::nonsupersets(this->zdd_, ss.zdd_));
+}
+
+ostream& operator<<(ostream& out, const setset& ss) {
+  zdd::save(ss.zdd_, out);
+  return out;
+}
+
+istream& operator>>(istream& in, setset& ss) {
+  ss.zdd_ = zdd::load(in);
+  return in;
 }
 
 void setset::dump() const {
