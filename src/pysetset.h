@@ -5,7 +5,7 @@
 
 typedef struct {
     PyObject_HEAD
-    illion::setset ss;
+    illion::setset* ss;
 } PySetsetObject;
 
 PyAPI_DATA(PyTypeObject) PySetset_Type;

@@ -6,6 +6,7 @@
 static void
 setset_dealloc(PySetsetObject *so)
 {
+    delete so->ss;
     so->ob_type->tp_free((PyObject *)so);
 }
 
@@ -30,8 +31,10 @@ setset_init(PySetsetObject* so, PyObject* args, PyObject* kwds)
         return -1;
     }
 
-    if (s == NULL)
+    if (s == NULL) {
+        so->ss = new illion::setset();
         return 0;
+    }
 /*
     PyObject* it = PyObject_GetIter(s);
     if (it == NULL)
@@ -67,7 +70,7 @@ static PyMethodDef setset_methods[] = {
 static PyObject *
 setset_repr(PySetsetObject *so)
 {
-    return PyString_FromFormat("<%s object of %p>", so->ob_type->tp_name, (void *) so->ss.id());
+    return PyString_FromFormat("<%s object of %p>", so->ob_type->tp_name, (void *) so->ss->id());
 }
 
 static PyObject *
@@ -107,7 +110,7 @@ static long
 setset_hash(PyObject *self)
 {
     PySetsetObject *so = (PySetsetObject *)self;
-    return (long) so->ss.id();
+    return (long) so->ss->id();
 }
 
 static PyObject *
@@ -126,10 +129,10 @@ setset_richcompare(PySetsetObject *v, PyObject *w, int op)
     u = (PySetsetObject *)w;
     switch (op) {
     case Py_EQ:
-        if (v->ss == u->ss) Py_RETURN_TRUE;
+        if (*v->ss == *u->ss) Py_RETURN_TRUE;
         else                    Py_RETURN_FALSE;
     case Py_NE:
-        if (v->ss != u->ss) Py_RETURN_TRUE;
+        if (*v->ss != *u->ss) Py_RETURN_TRUE;
         else                    Py_RETURN_FALSE;
     default:
         PyErr_SetString(PyExc_TypeError, "not support enequalities");
