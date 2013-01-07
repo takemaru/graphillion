@@ -208,11 +208,7 @@ class setset_test {
 
     setset ss({{}, {1}, {1, 2}, {1, 2, 3}, {1, 2, 3, 4}, {1, 3, 4}, {1, 4},
                {4}});
-
-    // TODO: remove trailing zero from the following weights; add max_elem_
-    // member to setset objects for this test
-    ss.set_weights({0 /* 1-offset */, 3, -2, -2, 4, 0});
-
+    ss.set_weights({0 /* 1-offset */, 3, -2, -2, 4});
     setset::iterator i = ss.begin();
     assert(*i == set<int>({1, 4}));
     ++i;
@@ -287,6 +283,7 @@ class setset_test {
     sstr << ss;
     assert(sstr.str() == "B\nE\n");
     sstr >> ss;
+    assert(sstr.good());
     assert(ss == setset());
 
     sstr.clear(); sstr.str("");
@@ -294,6 +291,7 @@ class setset_test {
     sstr << ss;
     assert(sstr.str() == "T\nE\n");
     sstr >> ss;
+    assert(sstr.good());
     assert(ss == setset({{}}));
 
     sstr.clear(); sstr.str("");
@@ -302,6 +300,7 @@ class setset_test {
     ss = setset(v);
     sstr << ss;
     sstr >> ss;
+    assert(sstr.good());
     assert(ss == setset(v));
 
     sstr.clear(); sstr.str("");
@@ -311,8 +310,9 @@ class setset_test {
 
     string str1 = "hello", str2 = "bye";
     sstr.clear(); sstr.str("");
-    sstr << str1 << endl << ss << endl << str2;
+    sstr << str1 << " " << endl << ss << endl << str2 << endl;
     sstr >> str1 >> ss >> str2;
+    assert(sstr.good());
     assert(str1 == "hello" && ss == setset(v) && str2 == "bye");
   }
 };

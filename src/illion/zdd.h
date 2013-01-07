@@ -56,19 +56,20 @@ class zdd {
   static zdd_t choose_random(zdd_t f, std::vector<elem_t>* stack, int* idum);
   static zdd_t choose_best(zdd_t f, const std::vector<int>& weights,
                            std::set<elem_t>* s);
+  static void save(zdd_t f, std::ostream& out = std::cout);
+  static zdd_t load(std::istream& in = std::cin);
+  static void dump(zdd_t f, std::ostream& out = std::cout);
+  static void dump(zdd_t f, std::vector<elem_t>* stack, std::ostream& out);
   static void algo_b(zdd_t f, const std::vector<int>& w, std::vector<bool>* x);
   static intx_t algo_c(zdd_t f);
   static zdd_t zuniq(elem_t v, zdd_t l, zdd_t h);
   static double ran3(int* idum);
   static void sort_zdd(zdd_t f, std::vector<std::vector<zdd_t> >* stacks,
-                       std::unordered_set<word_t>* visited);
+                       std::unordered_set<word_t>* visited,
+                       elem_t* max_elem = nullptr);
   static std::pair<word_t, word_t> make_key(zdd_t f, zdd_t g) {
     return std::make_pair(id(f), id(g));
   }
-  static void save(zdd_t f, std::ostream& out = std::cout);
-  static zdd_t load(std::istream& in = std::cin);
-  static void dump(zdd_t f, std::ostream& out = std::cout);
-  static void dump(zdd_t f, std::vector<elem_t>* stack, std::ostream& out);
 
   static bool initialized_;
   static elem_t num_elems_;

@@ -42,6 +42,10 @@ std::vector<std::string> split(const std::string& str, const std::string sep = "
     return v;
 }
 
+inline bool is_space(std::string s) {
+    return s.find_first_not_of(" \t\r\n") == std::string::npos;
+}
+
 inline bool is_digit(std::string s) {
     return s.find_first_not_of("0123456789") == std::string::npos;
 }

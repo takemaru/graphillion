@@ -198,7 +198,7 @@ zdd_t zdd::nonsupersets(zdd_t f, zdd_t g) {
 }
 
 zdd_t zdd::choose_random(zdd_t f, vector<elem_t>* stack, int* idum) {
-  assert(stack != NULL && idum != NULL);
+  assert(stack != nullptr && idum != nullptr);
   if (is_term(f)) {
     if (is_top(f)) {
       zdd_t g = top();
@@ -224,7 +224,7 @@ zdd_t zdd::choose_random(zdd_t f, vector<elem_t>* stack, int* idum) {
 }
 
 zdd_t zdd::choose_best(zdd_t f, const vector<int>& weights, set<elem_t>* s) {
-  assert(s != NULL);
+  assert(s != nullptr);
   if (is_bot(f)) return bot();
   vector<bool> x;
   algo_b(f, weights, &x);
@@ -239,20 +239,104 @@ zdd_t zdd::choose_best(zdd_t f, const vector<int>& weights, set<elem_t>* s) {
   return g;
 }
 
+void zdd::save(zdd_t f, ostream& out) {
+  if (is_bot(f)) {
+    out << "B" << endl << "E" << endl;
+  }
+  else if (is_top(f)) {
+    out << "T" << endl << "E" << endl;
+  }
+  else {
+    vector<vector<zdd_t> > stacks(num_elems_ + 1);
+    unordered_set<word_t> visited;
+    sort_zdd(f, &stacks, &visited);
+    for (elem_t v = num_elems_; v > 0; --v) {
+      while (!stacks[v].empty()) {
+        zdd_t g = stacks[v].back();
+        stacks[v].pop_back();
+        zdd_t l = lo(g);
+        zdd_t h = hi(g);
+        out << id(g) << " " << elem(g) << " ";
+        if      (is_bot(l)) out << "B";
+        else if (is_top(l)) out << "T";
+        else                out << id(l);
+        out << " ";
+        if      (is_bot(h)) out << "B";
+        else if (is_top(h)) out << "T";
+        else                out << id(h);
+        out << endl;
+      }
+    }
+    out << "E" << endl;
+  }
+}
+
+zdd_t zdd::load(istream& in) {
+  string line;
+  getline(in, line);
+  if      (line == "B") return bot();
+  else if (line == "T") return top();
+  unordered_map<word_t, zdd_t> n = {{id(bot()), bot()}, {id(top()), top()}};
+  zdd_t root;
+  do {
+    if (line.empty() || is_space(line)) continue;  // skip preceding empty lines
+    if (line == "E") break;
+    word_t k;
+    elem_t v;
+    char sl[256], sh[256];
+    string fmt = sizeof(word_t) == 8 ? ("%" PRId64) : ("%" PRId32);
+    int num = sscanf(line.c_str(), (fmt + " %d %s %s").c_str(),
+                     &k, &v, &sl, &sh);
+    if (num != 4) {
+      in.setstate(in.badbit);
+      return null();
+    }
+    word_t l = strcmp(sl, "B") == 0 ? id(bot())
+             : strcmp(sl, "T") == 0 ? id(top())
+             :                        atoll(sl);
+    word_t h = strcmp(sh, "B") == 0 ? id(bot())
+             : strcmp(sh, "T") == 0 ? id(top())
+             :                        atoll(sh);
+    n[k] = root = n.at(l) + single(v) * n.at(h);
+  } while (getline(in, line));
+  return root;
+}
+
+void zdd::dump(zdd_t f, ostream& out) {
+  vector<elem_t> stack;
+  out << "{";
+  dump(f, &stack, out);
+  out << "}" << endl;
+}
+
+void zdd::dump(zdd_t f, vector<elem_t>* stack, ostream& out) {
+  assert(stack != nullptr);
+  if (is_term(f)) {
+    if (is_top(f))
+      out << "{" << join(*stack, ",") << "},";
+    return;
+  }
+  stack->push_back(elem(f));
+  dump(hi(f), stack, out);
+  stack->pop_back();
+  dump(lo(f), stack, out);
+}
+
 // Algorithm B modified for ZDD, from Knuth vol. 4 fascicle 1 sec. 7.1.4.
 void zdd::algo_b(zdd_t f, const vector<int>& w, vector<bool>* x) {
-  assert(w.size() > static_cast<size_t>(num_elems_));
-  assert(x != NULL);
+  assert(x != nullptr);
   assert(!is_bot(f));
-  x->clear();
-  x->resize(num_elems_ + 1, false);
   if (is_top(f)) return;
-  unordered_map<word_t, bool> t;
-  unordered_map<word_t, int> ms = {{id(bot()), INT_MIN}, {id(top()), 0}};
   vector<vector<zdd_t> > stacks(num_elems_ + 1);
   unordered_set<word_t> visited;
-  sort_zdd(f, &stacks, &visited);
-  for (elem_t v = num_elems_; v > 0; --v) {
+  elem_t max_elem = 0;
+  sort_zdd(f, &stacks, &visited, &max_elem);
+  assert(w.size() > static_cast<size_t>(max_elem));
+  x->clear();
+  x->resize(max_elem + 1, false);
+  unordered_map<word_t, bool> t;
+  unordered_map<word_t, int> ms = {{id(bot()), INT_MIN}, {id(top()), 0}};
+  for (elem_t v = max_elem; v > 0; --v) {
     while (!stacks[v].empty()) {
       zdd_t g = stacks[v].back();
       stacks[v].pop_back();
@@ -340,97 +424,16 @@ double zdd::ran3(int* idum) {
 }
 
 void zdd::sort_zdd(zdd_t f, vector<vector<zdd_t> >* stacks,
-                   unordered_set<word_t>* visited) {
+                   unordered_set<word_t>* visited, elem_t* max_elem) {
   assert(stacks != nullptr && visited != nullptr);
-  if (!is_term(f) && visited->find(id(f)) == visited->end()) {
-    (*stacks)[elem(f)].push_back(f);
-    visited->insert(id(f));
-    sort_zdd(lo(f), stacks, visited);
-    sort_zdd(hi(f), stacks, visited);
-  }
-}
-
-void zdd::save(zdd_t f, ostream& out) {
-  if (is_bot(f)) {
-    out << "B" << endl << "E" << endl;
-  }
-  else if (is_top(f)) {
-    out << "T" << endl << "E" << endl;
-  }
-  else {
-    vector<vector<zdd_t> > stacks(num_elems_ + 1);
-    unordered_set<word_t> visited;
-    sort_zdd(f, &stacks, &visited);
-    for (elem_t v = num_elems_; v > 0; --v) {
-      while (!stacks[v].empty()) {
-        zdd_t g = stacks[v].back();
-        stacks[v].pop_back();
-        zdd_t l = lo(g);
-        zdd_t h = hi(g);
-        out << id(g) << " " << elem(g) << " ";
-        if      (is_bot(l)) out << "B";
-        else if (is_top(l)) out << "T";
-        else                out << id(l);
-        out << " ";
-        if      (is_bot(h)) out << "B";
-        else if (is_top(h)) out << "T";
-        else                out << id(h);
-        out << endl;
-      }
-    }
-    out << "E" << endl;
-  }
-}
-
-zdd_t zdd::load(istream& in) {
-  string line;
-  getline(in, line);
-  if      (line == "B") return bot();
-  else if (line == "T") return top();
-  unordered_map<word_t, zdd_t> n = {{id(bot()), bot()}, {id(top()), top()}};
-  zdd_t root;
-  do {
-    if (line.size() == 0) continue;  // skip preceding empty lines
-    if (line == "E") break;
-    word_t k;
-    elem_t v;
-    char sl[256], sh[256];
-    string fmt = sizeof(word_t) == 8 ? ("%" PRId64) : ("%" PRId32);
-    int num = sscanf(line.c_str(), (fmt + " %d %s %s").c_str(),
-                     &k, &v, &sl, &sh);
-    if (num != 4) {
-      in.setstate(in.badbit);
-      return null();
-    }
-    word_t l = strcmp(sl, "B") == 0 ? id(bot())
-             : strcmp(sl, "T") == 0 ? id(top())
-             :                        atoll(sl);
-    word_t h = strcmp(sh, "B") == 0 ? id(bot())
-             : strcmp(sh, "T") == 0 ? id(top())
-             :                        atoll(sh);
-    n[k] = root = n.at(l) + single(v) * n.at(h);
-  } while (getline(in, line));
-  return root;
-}
-
-void zdd::dump(zdd_t f, ostream& out) {
-  vector<elem_t> stack;
-  out << "{";
-  dump(f, &stack, out);
-  out << "}" << endl;
-}
-
-void zdd::dump(zdd_t f, vector<elem_t>* stack, ostream& out) {
-  assert(stack != nullptr);
-  if (is_term(f)) {
-    if (is_top(f))
-      out << "{" << join(*stack, ",") << "},";
-    return;
-  }
-  stack->push_back(elem(f));
-  dump(hi(f), stack, out);
-  stack->pop_back();
-  dump(lo(f), stack, out);
+  if (is_term(f)) return;
+  if (visited->find(id(f)) != visited->end()) return;
+  (*stacks)[elem(f)].push_back(f);
+  visited->insert(id(f));
+  if (max_elem != nullptr && elem(f) > *max_elem)
+    *max_elem = elem(f);
+  sort_zdd(lo(f), stacks, visited, max_elem);
+  sort_zdd(hi(f), stacks, visited, max_elem);
 }
 
 bool zdd::initialized_ = false;
