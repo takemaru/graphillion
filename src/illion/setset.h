@@ -131,6 +131,9 @@ class setset {
   setset nonsubsets(const setset& ss) const;
   setset nonsupersets(const setset& ss) const;
 
+  void save(std::ostream& out) const;
+  void load(std::istream& in);
+
   friend std::ostream& operator<<(std::ostream& out, const setset& ss);
   friend std::istream& operator>>(std::istream& in, setset& ss);
 

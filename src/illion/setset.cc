@@ -94,7 +94,7 @@ setset::setset(const initializer_list<set<elem_t> >& v) : zdd_(bot()) {
     this->zdd_ += setset(*i).zdd_;
 }
 
-setset::setset(istream& in) : zdd_(load(in)) {
+setset::setset(istream& in) : zdd_(illion::load(in)) {
 }
 /*
 setset::setset(const initializer_list<int>& s) : zdd_(top()) {
@@ -296,13 +296,21 @@ setset setset::nonsupersets(const setset& ss) const {
   return setset(illion::nonsupersets(this->zdd_, ss.zdd_));
 }
 
+void setset::save(std::ostream& out) const {
+  illion::save(this->zdd_, out);
+}
+
+void setset::load(std::istream& in) {
+  this->zdd_ = illion::load(in);
+}
+
 ostream& operator<<(ostream& out, const setset& ss) {
-  save(ss.zdd_, out);
+  illion::save(ss.zdd_, out);
   return out;
 }
 
 istream& operator>>(istream& in, setset& ss) {
-  ss.zdd_ = load(in);
+  ss.zdd_ = illion::load(in);
   return in;
 }
 
