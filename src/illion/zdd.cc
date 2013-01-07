@@ -237,7 +237,7 @@ zdd_t choose_best(zdd_t f, const vector<int>& weights, set<elem_t>* s) {
   algo_b(f, weights, &x);
   zdd_t g = top();
   s->clear();
-  for (elem_t j = 1; j <= num_elems_; j++) {
+  for (elem_t j = 1; j < static_cast<elem_t>(x.size()); j++) {
     if (x[j]) {
       g = g * single(j);
       s->insert(j);
