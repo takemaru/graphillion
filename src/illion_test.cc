@@ -285,32 +285,35 @@ class setset_test {
     stringstream sstr;
     setset ss;
     sstr << ss;
-    assert(sstr.str() == "B\n");
+    assert(sstr.str() == "B\nE\n");
     sstr >> ss;
     assert(ss == setset());
 
-    sstr.clear();
-    sstr.str("");
+    sstr.clear(); sstr.str("");
     ss = setset({{}});
     sstr << ss;
-    assert(sstr.str() == "T\n");
+    assert(sstr.str() == "T\nE\n");
     sstr >> ss;
     assert(ss == setset({{}}));
 
+    sstr.clear(); sstr.str("");
     vector<set<int> > v = {{}, {1}, {1, 2}, {1, 2, 3}, {1, 2, 3, 4}, {1, 3, 4},
                            {1, 4}, {4}};
-    sstr.clear();
-    sstr.str("");
     ss = setset(v);
     sstr << ss;
     sstr >> ss;
     assert(ss == setset(v));
 
-    sstr.clear();
-    sstr.str("");
+    sstr.clear(); sstr.str("");
     sstr << ss;
     ss = setset(sstr);
     assert(ss == setset(v));
+
+    string str1 = "hello", str2 = "bye";
+    sstr.clear(); sstr.str("");
+    sstr << str1 << endl << ss << endl << str2;
+    sstr >> str1 >> ss >> str2;
+    assert(str1 == "hello" && ss == setset(v) && str2 == "bye");
   }
 };
 

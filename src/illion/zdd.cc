@@ -12,6 +12,7 @@
 namespace illion {
 
 using std::endl;
+using std::getline;
 using std::istream;
 using std::ostream;
 using std::pair;
@@ -351,10 +352,10 @@ void zdd::sort_zdd(zdd_t f, vector<vector<zdd_t> >* stacks,
 
 void zdd::save(zdd_t f, ostream& out) {
   if (is_bot(f)) {
-    out << "B" << endl;
+    out << "B" << endl << "E" << endl;
   }
   else if (is_top(f)) {
-    out << "T" << endl;
+    out << "T" << endl << "E" << endl;
   }
   else {
     vector<vector<zdd_t> > stacks(num_elems_ + 1);
@@ -377,6 +378,7 @@ void zdd::save(zdd_t f, ostream& out) {
         out << endl;
       }
     }
+    out << "E" << endl;
   }
 }
 
@@ -388,13 +390,18 @@ zdd_t zdd::load(istream& in) {
   unordered_map<word_t, zdd_t> n = {{id(bot()), bot()}, {id(top()), top()}};
   zdd_t root;
   do {
+    if (line.size() == 0) continue;  // skip preceding empty lines
+    if (line == "E") break;
     word_t k;
     elem_t v;
     char sl[256], sh[256];
     string fmt = sizeof(word_t) == 8 ? ("%" PRId64) : ("%" PRId32);
     int num = sscanf(line.c_str(), (fmt + " %d %s %s").c_str(),
                      &k, &v, &sl, &sh);
-    assert(num == 4);
+    if (num != 4) {
+      in.setstate(in.badbit);
+      return null();
+    }
     word_t l = strcmp(sl, "B") == 0 ? id(bot())
              : strcmp(sl, "T") == 0 ? id(top())
              :                        atoll(sl);
