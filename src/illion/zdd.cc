@@ -151,7 +151,7 @@ struct bdd_pair_hash {
 };
 
 struct bdd_pair_eq {
-  bool operator()(const pair<word_t,word_t>& a, const pair<word_t,word_t>& b) const {
+  bool operator()(const pair<word_t,word_t>& a, const pair<word_t, word_t>& b) const {
     return a.first == b.first && a.second == b.second;
   }
 };
@@ -171,8 +171,7 @@ zdd_t nonsubsets(zdd_t f, zdd_t g) {
   if (elem(f) < elem(g)) {
     rl = nonsubsets(lo(f), g);
     rh = hi(f);
-  }
-  else {
+  } else {
     rl = nonsubsets(lo(f), hi(g)) & nonsubsets(lo(f), lo(g));
     rh = nonsubsets(hi(f), hi(g));
   }
@@ -196,8 +195,7 @@ zdd_t nonsupersets(zdd_t f, zdd_t g) {
   if (elem(f) < elem(g)) {
     rl = nonsupersets(lo(f), g);
     rh = nonsupersets(hi(f), g);
-  }
-  else {
+  } else {
     rl = nonsupersets(lo(f), lo(g));
     rh = nonsupersets(hi(f), hi(g)) & nonsupersets(hi(f), lo(g));
   }
@@ -249,11 +247,9 @@ zdd_t choose_best(zdd_t f, const vector<int>& weights, set<elem_t>* s) {
 void save(zdd_t f, ostream& out) {
   if (is_bot(f)) {
     out << "B" << endl << "E" << endl;
-  }
-  else if (is_top(f)) {
+  } else if (is_top(f)) {
     out << "T" << endl << "E" << endl;
-  }
-  else {
+  } else {
     vector<vector<zdd_t> > stacks(num_elems_ + 1);
     unordered_set<word_t> visited;
     sort_zdd(f, &stacks, &visited);

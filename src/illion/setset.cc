@@ -84,7 +84,7 @@ setset::setset(const map<string, set<elem_t> >& m) {
   this->zdd_ = n[num_elems() + 1];
 }
 
-setset::setset(const vector<map<string, set<elem_t> > >& v ) : zdd_(bot()) {
+setset::setset(const vector<map<string, set<elem_t> > >& v) : zdd_(bot()) {
   for (const auto& m : v)
     this->zdd_ += setset(m).zdd_;
 }
@@ -262,6 +262,12 @@ size_t setset::erase(elem_t e) {
 
 void setset::clear() {
   this->zdd_ = bot();
+}
+
+void setset::swap(setset& ss) {
+  zdd_t z = this->zdd_;
+  this->zdd_ = ss.zdd_;
+  ss.zdd_ = z;
 }
 
 setset setset::minimal() const {

@@ -4,6 +4,7 @@
 #include <iostream>
 #include <set>
 #include <unordered_set>
+#include <utility>
 #include <vector>
 
 #ifdef HAVE_LIBGMPXX

@@ -7,6 +7,7 @@
 #include <map>
 #include <set>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "illion/type.h"
@@ -63,7 +64,7 @@ class setset {
 
   /* Disable this constructor to avoid ambiguity, because compilers
    * automatically convert {{1}, {2}} to {1, 2} if it is defined. */
-  //explicit setset(const std::initializer_list<elem_t>& s);
+//  explicit setset(const std::initializer_list<elem_t>& s);
   
   virtual ~setset() {}
 
@@ -113,9 +114,7 @@ class setset {
   size_t erase(const std::set<elem_t>& s);
   size_t erase(elem_t e);
   void clear();
-  void swap(setset& ss) {
-    zdd_t z = this->zdd_; this->zdd_ = ss.zdd_; ss.zdd_ = z;
-  }
+  void swap(setset& ss);
 
   void set_weights(const std::vector<int>& w) { this->weights_ = w; }
   void clear_weights() { this->weights_ = std::vector<int>(); }
