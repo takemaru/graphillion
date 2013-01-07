@@ -22,11 +22,14 @@ using std::unordered_map;
 using std::unordered_set;
 using std::vector;
 
+bool initialized_ = false;
+elem_t num_elems_ = 0;
+
 ZBDD operator|(const ZBDD& f, const ZBDD& g) {
   return f + g;
 }
 
-void zdd::init(elem_t num_elems) {
+void init(elem_t num_elems) {
   if (initialized_) return;
   assert(num_elems <= BDD_MaxVar);
   BDD_Init(1000000, 8000000000LL);
@@ -34,20 +37,24 @@ void zdd::init(elem_t num_elems) {
   new_elems(num_elems);
 }
 
-void zdd::new_elems(elem_t max_elem) {
+void new_elems(elem_t max_elem) {
   assert(max_elem <= BDD_MaxVar);
   for (; num_elems_ < max_elem; ++num_elems_)
     top().Change(BDD_NewVarOfLev(1));
 }
 
-zdd_t zdd::single(elem_t e) {
+elem_t num_elems() {
+  return num_elems_;
+}
+
+zdd_t single(elem_t e) {
   assert(0 < e);
   if (!initialized_) init(e);
   new_elems(e);
   return top().Change(e);
 }
 
-zdd_t zdd::_not(zdd_t f) {
+zdd_t _not(zdd_t f) {
   vector<zdd_t> n(num_elems_ + 2);
   n[0] = bot(), n[1] = top();
   for (elem_t v = num_elems_; v > 0; --v) {
@@ -57,7 +64,7 @@ zdd_t zdd::_not(zdd_t f) {
   return n[num_elems_ + 1] - f;
 }
 
-zdd_t zdd::minimal(zdd_t f) {
+zdd_t minimal(zdd_t f) {
   if (is_term(f)) return f;
   vector<vector<zdd_t> > stacks(num_elems_ + 1);
   unordered_set<word_t> visited;
@@ -76,7 +83,7 @@ zdd_t zdd::minimal(zdd_t f) {
   return cache.at(id(f));
 }
 
-zdd_t zdd::maximal(zdd_t f) {
+zdd_t maximal(zdd_t f) {
   if (is_term(f)) return f;
   vector<vector<zdd_t> > stacks(num_elems_ + 1);
   unordered_set<word_t> visited;
@@ -95,7 +102,7 @@ zdd_t zdd::maximal(zdd_t f) {
   return cache.at(id(f));
 }
 
-zdd_t zdd::hitting(zdd_t f) {
+zdd_t hitting(zdd_t f) {
   if (is_bot(f)) return top();
   if (is_top(f)) return bot();
   vector<vector<zdd_t> > stacks(num_elems_ + 1);
@@ -149,7 +156,7 @@ struct bdd_pair_eq {
   }
 };
 
-zdd_t zdd::nonsubsets(zdd_t f, zdd_t g) {
+zdd_t nonsubsets(zdd_t f, zdd_t g) {
   static unordered_map<pair<word_t, word_t>, zdd_t, bdd_pair_hash, bdd_pair_eq> cache;
   if (g == bot())
     return f;
@@ -172,7 +179,7 @@ zdd_t zdd::nonsubsets(zdd_t f, zdd_t g) {
   return cache[k] = zuniq(elem(f), rl, rh);
 }
 
-zdd_t zdd::nonsupersets(zdd_t f, zdd_t g) {
+zdd_t nonsupersets(zdd_t f, zdd_t g) {
   static unordered_map<pair<word_t, word_t>, zdd_t, bdd_pair_hash, bdd_pair_eq> cache;
   if (g == bot())
     return f;
@@ -197,7 +204,7 @@ zdd_t zdd::nonsupersets(zdd_t f, zdd_t g) {
   return cache[k] = zuniq(elem(f), rl, rh);
 }
 
-zdd_t zdd::choose_random(zdd_t f, vector<elem_t>* stack, int* idum) {
+zdd_t choose_random(zdd_t f, vector<elem_t>* stack, int* idum) {
   assert(stack != nullptr && idum != nullptr);
   if (is_term(f)) {
     if (is_top(f)) {
@@ -223,7 +230,7 @@ zdd_t zdd::choose_random(zdd_t f, vector<elem_t>* stack, int* idum) {
   }
 }
 
-zdd_t zdd::choose_best(zdd_t f, const vector<int>& weights, set<elem_t>* s) {
+zdd_t choose_best(zdd_t f, const vector<int>& weights, set<elem_t>* s) {
   assert(s != nullptr);
   if (is_bot(f)) return bot();
   vector<bool> x;
@@ -239,7 +246,7 @@ zdd_t zdd::choose_best(zdd_t f, const vector<int>& weights, set<elem_t>* s) {
   return g;
 }
 
-void zdd::save(zdd_t f, ostream& out) {
+void save(zdd_t f, ostream& out) {
   if (is_bot(f)) {
     out << "B" << endl << "E" << endl;
   }
@@ -271,7 +278,7 @@ void zdd::save(zdd_t f, ostream& out) {
   }
 }
 
-zdd_t zdd::load(istream& in) {
+zdd_t load(istream& in) {
   string line;
   getline(in, line);
   if      (line == "B") return bot();
@@ -302,14 +309,14 @@ zdd_t zdd::load(istream& in) {
   return root;
 }
 
-void zdd::dump(zdd_t f, ostream& out) {
+void dump(zdd_t f, ostream& out) {
   vector<elem_t> stack;
   out << "{";
   dump(f, &stack, out);
   out << "}" << endl;
 }
 
-void zdd::dump(zdd_t f, vector<elem_t>* stack, ostream& out) {
+void dump(zdd_t f, vector<elem_t>* stack, ostream& out) {
   assert(stack != nullptr);
   if (is_term(f)) {
     if (is_top(f))
@@ -323,7 +330,7 @@ void zdd::dump(zdd_t f, vector<elem_t>* stack, ostream& out) {
 }
 
 // Algorithm B modified for ZDD, from Knuth vol. 4 fascicle 1 sec. 7.1.4.
-void zdd::algo_b(zdd_t f, const vector<int>& w, vector<bool>* x) {
+void algo_b(zdd_t f, const vector<int>& w, vector<bool>* x) {
   assert(x != nullptr);
   assert(!is_bot(f));
   if (is_top(f)) return;
@@ -366,7 +373,7 @@ void zdd::algo_b(zdd_t f, const vector<int>& w, vector<bool>* x) {
 }
 
 // Algorithm C modified for ZDD, from Knuth vol. 4 fascicle 1 sec. 7.1.4 (p.75).
-intx_t zdd::algo_c(zdd_t f) {
+intx_t algo_c(zdd_t f) {
     static unordered_map<word_t, intx_t> counts;
     if (is_term(f))
         return is_top(f) ? 1 : 0;
@@ -377,7 +384,7 @@ intx_t zdd::algo_c(zdd_t f) {
 }
 
 // Algorithm ZUNIQ from Knuth vol. 4 fascicle 1 sec. 7.1.4.
-zdd_t zdd::zuniq(elem_t v, zdd_t l, zdd_t h) {
+zdd_t zuniq(elem_t v, zdd_t l, zdd_t h) {
   return l + single(v) * h;
 }
 
@@ -386,7 +393,7 @@ zdd_t zdd::zuniq(elem_t v, zdd_t l, zdd_t h) {
 #define MSEED 161803398
 #define MZ 0
 #define FAC (1.0/MBIG)
-double zdd::ran3(int* idum) {
+double ran3(int* idum) {
   static int inext, inextp;
   static long ma[56];
   static int iff = 0;
@@ -423,7 +430,7 @@ double zdd::ran3(int* idum) {
   return mj * FAC;
 }
 
-void zdd::sort_zdd(zdd_t f, vector<vector<zdd_t> >* stacks,
+void sort_zdd(zdd_t f, vector<vector<zdd_t> >* stacks,
                    unordered_set<word_t>* visited, elem_t* max_elem) {
   assert(stacks != nullptr && visited != nullptr);
   if (is_term(f)) return;
@@ -435,8 +442,5 @@ void zdd::sort_zdd(zdd_t f, vector<vector<zdd_t> >* stacks,
   sort_zdd(lo(f), stacks, visited, max_elem);
   sort_zdd(hi(f), stacks, visited, max_elem);
 }
-
-bool zdd::initialized_ = false;
-elem_t zdd::num_elems_ = 0;
 
 }  // namespace illion

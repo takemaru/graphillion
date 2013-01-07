@@ -7,18 +7,21 @@
 #include <sstream>
 #include <vector>
 
+#include "illion/zdd.h"
 #include "illion/setset.h"
 
-#define e0 (illion::zdd::top())
-#define e1 (illion::zdd::single(1))
-#define e2 (illion::zdd::single(2))
-#define e3 (illion::zdd::single(3))
-#define e4 (illion::zdd::single(4))
-#define e5 (illion::zdd::single(5))
+#define e0 (illion::top())
+#define e1 (illion::single(1))
+#define e2 (illion::single(2))
+#define e3 (illion::single(3))
+#define e4 (illion::single(4))
+#define e5 (illion::single(5))
 
 namespace illion {
 
 using namespace std;
+
+extern bool initialized_;
 
 class setset_test {
  public:
@@ -28,31 +31,31 @@ class setset_test {
 
     set<int> s = {};
     ss = setset(s);
-    assert(!zdd::initialized_);
-    assert(zdd::num_elems_ == 0);
+    assert(!initialized_);
+    assert(num_elems() == 0);
     assert(ss.zdd_ == e0);
 
     s = {1, 2};
     ss = setset(s);
-    assert(zdd::initialized_);
-    assert(zdd::num_elems_ == 2);
+    assert(initialized_);
+    assert(num_elems() == 2);
     assert(ss.zdd_ == e1*e2);
 
     vector<set<int>> v = {{}, {1, 2}, {1, 3}};
     ss = setset(v);
-    assert(zdd::num_elems_ == 3);
+    assert(num_elems() == 3);
     assert(ss.zdd_ == e0 + e1*e2 + e1*e3);
 
     map<string, set<int>> m = {{"include", {1, 2}}, {"exclude", {4}}};
     ss = setset(m);
-    assert(zdd::num_elems_ == 4);
+    assert(num_elems() == 4);
     assert(ss.zdd_ == e1*e2 + e1*e2*e3);
 
     vector<map<string, set<int>>> u = {{{"include", {1, 2}}, {"exclude", {4}}},
                                        {{"include", {1, 3, 4}}},
                                        {{"exclude", {2, 3}}}};
     ss = setset(u);
-    assert(zdd::num_elems_ == 4);
+    assert(num_elems() == 4);
     assert(ss.zdd_ == e0 + e1 + e1*e2 + e1*e2*e3 + e1*e2*e3*e4 + e1*e3*e4
            + e1*e4 + e4);
 
@@ -71,13 +74,13 @@ class setset_test {
 
     ss = setset({{}, {1}, {1, 2}, {1, 2, 3}, {1, 2, 3, 4}, {1, 3, 4}, {1, 4},
                  {4}});
-    assert(zdd::num_elems_ == 4);
+    assert(num_elems() == 4);
     assert((~ss).zdd_ == e1*e2*e4 + e1*e3 + e2 + e2*e3 + e2*e3*e4 + e2*e4 + e3
            + e3*e4);
     assert(ss.smaller(2).zdd_ == e0 + e1 + e1*e2 + e1*e4 + e4);
 
     ss = setset({{1, 2}, {1, 4}, {2, 3}, {3, 4}});
-    assert(zdd::num_elems_ == 4);
+    assert(num_elems() == 4);
     assert(ss.hitting().zdd_ == e1*e2*e3 + e1*e2*e3*e4 + e1*e2*e4 + e1*e3
            + e1*e3*e4 + e2*e3*e4 + e2*e4);
 

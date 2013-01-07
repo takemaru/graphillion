@@ -2,23 +2,27 @@
 #define ILLION_SETSET_H_
 
 #include <initializer_list>
+#include <iostream>
+#include <iterator>
 #include <map>
+#include <set>
 #include <string>
+#include <vector>
 
-#include "illion/zdd.h"
+#include "illion/type.h"
 
 namespace illion {
 
 class setset_test;
 
-class setset : public zdd {
+class setset {
  public:
   class iterator
       : public std::iterator<std::forward_iterator_tag, std::set<elem_t> > {
    public:
-    iterator() {}
+    iterator();
     explicit iterator(const setset& ss);
-    iterator(const std::set<elem_t>& s) : zdd_(bot()), s_(s) {}
+    iterator(const std::set<elem_t>& s);
     iterator(const iterator& i)
         : zdd_(i.zdd_), weights_(i.weights_), s_(i.s_) {}
 
@@ -39,8 +43,8 @@ class setset : public zdd {
    private:
     void next();
 
-    zdd_t zdd_ = null();
-    std::vector<int> weights_;
+    zdd_t zdd_;
+    std::vector<int> weights_ = std::vector<int>();
     std::set<elem_t> s_ = std::set<elem_t>();
 
     friend class setset_test;
@@ -48,17 +52,17 @@ class setset : public zdd {
 
   typedef iterator const_iterator;
 
-  setset() {}
+  setset();
   setset(const setset& ss) : zdd_(ss.zdd_), weights_(ss.weights_) {}
   explicit setset(const std::set<elem_t>& s);
   explicit setset(const std::vector<std::set<elem_t> >& v);
   explicit setset(const std::map<std::string, std::set<elem_t> >& m);
   explicit setset(const std::vector<std::map<std::string, std::set<elem_t> > >& v);
   explicit setset(const std::initializer_list<std::set<elem_t> >& v);
-  explicit setset(std::istream& in) : zdd_(zdd::load(in)) {}
+  explicit setset(std::istream& in);
 
   /* Disable this constructor to avoid ambiguity, because compilers
-   * automatically convert {{1}, {2}} to {1, 2} if it defined. */
+   * automatically convert {{1}, {2}} to {1, 2} if it is defined. */
   //explicit setset(const std::initializer_list<elem_t>& s);
   
   virtual ~setset() {}
@@ -93,7 +97,7 @@ class setset : public zdd {
   bool is_subset(const setset& ss) const;
   bool is_superset(const setset& ss) const;
 
-  bool empty() const { return this->zdd_ == bot(); }
+  bool empty() const;
   std::string size() const;
   iterator begin() const { return iterator(*this); }
   static iterator end() { return iterator(); }
@@ -106,7 +110,7 @@ class setset : public zdd {
   iterator erase(const_iterator position);
   size_t erase(const std::set<elem_t>& s);
   size_t erase(elem_t e);
-  void clear() { this->zdd_ = bot(); }
+  void clear();
   void swap(setset& ss) {
     zdd_t z = this->zdd_; this->zdd_ = ss.zdd_; ss.zdd_ = z;
   }
@@ -133,8 +137,8 @@ class setset : public zdd {
 
   void dump() const;
 
-  zdd_t zdd_ = bot();
-  std::vector<int> weights_;
+  zdd_t zdd_;
+  std::vector<int> weights_ = std::vector<int>();
 
   friend class setset_test;
 };

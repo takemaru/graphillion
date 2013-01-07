@@ -4,6 +4,8 @@
 
 #include <sstream>
 
+#include "illion/zdd.h"
+
 namespace illion {
 
 using std::initializer_list;
@@ -17,9 +19,15 @@ using std::string;
 using std::stringstream;
 using std::vector;
 
+setset::iterator::iterator() : zdd_(null()) {
+}
+
 setset::iterator::iterator(const setset& ss)
     : zdd_(ss.zdd_), weights_(ss.weights_) {
   this->next();
+}
+
+setset::iterator::iterator(const set<elem_t>& s) : zdd_(bot()), s_(s) {
 }
 
 setset::iterator& setset::iterator::operator++() {
@@ -43,12 +51,15 @@ void setset::iterator::next() {
   }
 }
 
+setset::setset() : zdd_(bot()) {
+}
+
 setset::setset(const set<elem_t>& s) : zdd_(top()) {
   for (const auto& e : s)
     this->zdd_ *= single(e);
 }
 
-setset::setset(const vector<set<elem_t> >& v) {
+setset::setset(const vector<set<elem_t> >& v) : zdd_(bot()) {
   for (const auto& s : v)
     this->zdd_ += setset(s).zdd_;
 }
@@ -62,27 +73,29 @@ setset::setset(const map<string, set<elem_t> >& m) {
   const set<elem_t>& ex_s = ex_it != m.end() ? ex_it->second : set<elem_t>();
   for (const auto& e : in_s) single(e);
   for (const auto& e : ex_s) single(e);
-  vector<zdd_t> n(num_elems_ + 2);
+  vector<zdd_t> n(num_elems() + 2);
   n[0] = bot(), n[1] = top();
-  for (elem_t v = num_elems_; v > 0; --v) {
-    elem_t i = num_elems_ - v + 2;
+  for (elem_t v = num_elems(); v > 0; --v) {
+    elem_t i = num_elems() - v + 2;
     n[i] = in_s.find(v) != in_s.end() ? n[0]   + single(v) * n[i-1]
          : ex_s.find(v) != ex_s.end() ? n[i-1] + single(v) * n[0]
          :                              n[i-1] + single(v) * n[i-1];
   }
-  this->zdd_ = n[num_elems_ + 1];
+  this->zdd_ = n[num_elems() + 1];
 }
 
-setset::setset(const vector<map<string, set<elem_t> > >& v ) {
+setset::setset(const vector<map<string, set<elem_t> > >& v ) : zdd_(bot()) {
   for (const auto& m : v)
     this->zdd_ += setset(m).zdd_;
 }
 
-setset::setset(const initializer_list<set<elem_t> >& v) {
+setset::setset(const initializer_list<set<elem_t> >& v) : zdd_(bot()) {
   for (auto i = v.begin(); i != v.end(); ++i)
     this->zdd_ += setset(*i).zdd_;
 }
 
+setset::setset(istream& in) : zdd_(load(in)) {
+}
 /*
 setset::setset(const initializer_list<int>& s) : zdd_(top()) {
   for (auto i = s.begin(); i != s.end(); ++i)
@@ -177,6 +190,10 @@ bool setset::is_superset(const setset& ss) const {
   return *this >= ss;
 }
 
+bool setset::empty() const {
+  return this->zdd_ == bot();
+}
+
 string setset::size() const {
   stringstream ss;
   ss << algo_c(this->zdd_);
@@ -239,16 +256,20 @@ size_t setset::erase(elem_t e) {
   return atoll(ss.size().c_str());
 }
 
+void setset::clear() {
+  this->zdd_ = bot();
+}
+
 setset setset::minimal() const {
-  return setset(zdd::minimal(this->zdd_));
+  return setset(illion::minimal(this->zdd_));
 }
 
 setset setset::maximal() const {
-  return setset(zdd::maximal(this->zdd_));
+  return setset(illion::maximal(this->zdd_));
 }
 
 setset setset::hitting() const {  // a.k.a cross elements
-  return setset(zdd::hitting(this->zdd_));
+  return setset(illion::hitting(this->zdd_));
 }
 
 setset setset::smaller(size_t max_set_size) const {
@@ -264,25 +285,25 @@ setset setset::supersets(const setset& ss) const {
 }
 
 setset setset::nonsubsets(const setset& ss) const {
-  return setset(zdd::nonsubsets(this->zdd_, ss.zdd_));
+  return setset(illion::nonsubsets(this->zdd_, ss.zdd_));
 }
 
 setset setset::nonsupersets(const setset& ss) const {
-  return setset(zdd::nonsupersets(this->zdd_, ss.zdd_));
+  return setset(illion::nonsupersets(this->zdd_, ss.zdd_));
 }
 
 ostream& operator<<(ostream& out, const setset& ss) {
-  zdd::save(ss.zdd_, out);
+  save(ss.zdd_, out);
   return out;
 }
 
 istream& operator>>(istream& in, setset& ss) {
-  ss.zdd_ = zdd::load(in);
+  ss.zdd_ = load(in);
   return in;
 }
 
 void setset::dump() const {
-  zdd::dump(this->zdd_);
+  illion::dump(this->zdd_);
 }
 
 }  // namespace illion
