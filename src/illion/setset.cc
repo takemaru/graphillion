@@ -178,6 +178,10 @@ bool setset::operator>(const setset& ss) const {
   return (ss.zdd_ - this->zdd_) == bot() && this->zdd_ != ss.zdd_;
 }
 
+word_t setset::id() const {
+  return illion::id(this->zdd_);
+}
+
 bool setset::is_disjoint(const setset& ss) const {
   return (this->zdd_ & ss.zdd_) == bot();
 }

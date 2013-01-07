@@ -93,6 +93,8 @@ class setset {
   bool operator>=(const setset& ss) const;
   bool operator>(const setset& ss) const;
 
+  word_t id() const;
+
   bool is_disjoint(const setset& ss) const;
   bool is_subset(const setset& ss) const;
   bool is_superset(const setset& ss) const;
