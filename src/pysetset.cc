@@ -105,7 +105,7 @@ static int setset_parse_set(PyObject* so, set<int>* s) {
   while ((eo = PyIter_Next(i))) {
     if (!PyInt_Check(eo)) {
       Py_DECREF(eo);
-      PyErr_SetString(PyExc_TypeError, "must contain integers");
+      PyErr_SetString(PyExc_TypeError, "can't assign non-integer elements");
       return -1;
     }
     s->insert(PyLong_AsLong(eo));
@@ -122,7 +122,7 @@ static int setset_parse_map(PyObject* dict_obj, map<string, set<int> >* m) {
   Py_ssize_t pos = 0;
   while (PyDict_Next(dict_obj, &pos, &key_obj, &so)) {
     if (!PyString_Check(key_obj) || !PyAnySet_Check(so)) {
-      PyErr_SetString(PyExc_TypeError, "must be dict of string and set");
+      PyErr_SetString(PyExc_TypeError, "not list of sets or dicts");
       return -1;
     }
     string key = PyString_AsString(key_obj);
@@ -159,7 +159,7 @@ static int setset_init(PySetsetObject* self, PyObject* args, PyObject* kwds) {
   } else {
     PyObject* i = PyObject_GetIter(obj);
     if (i == nullptr) {
-      PyErr_SetString(PyExc_TypeError, "must be list of sets or dicts");
+      PyErr_SetString(PyExc_TypeError, "not list of sets or dicts");
       return -1;
     }
     vector<set<int> > vs;
@@ -191,8 +191,8 @@ static void setset_dealloc(PySetsetObject* self) {
 
 static PyObject* setset_isdisjoint(PySetsetObject* self, PyObject* other) {
   if (!PySetset_Check(other)) {
-    Py_INCREF(Py_NotImplemented);
-    return Py_NotImplemented;
+    PyErr_SetString(PyExc_TypeError, "not setset");
+    return nullptr;
   }
   PySetsetObject* sso = reinterpret_cast<PySetsetObject*>(other);
   if (self->ss->is_disjoint(*sso->ss))
@@ -203,8 +203,8 @@ static PyObject* setset_isdisjoint(PySetsetObject* self, PyObject* other) {
 
 static PyObject* setset_issubset(PySetsetObject* self, PyObject* other) {
   if (!PySetset_Check(other)) {
-    Py_INCREF(Py_NotImplemented);
-    return Py_NotImplemented;
+    PyErr_SetString(PyExc_TypeError, "not setset");
+    return nullptr;
   }
   PySetsetObject* sso = reinterpret_cast<PySetsetObject*>(other);
   if (self->ss->is_subset(*sso->ss))
@@ -215,8 +215,8 @@ static PyObject* setset_issubset(PySetsetObject* self, PyObject* other) {
 
 static PyObject* setset_issuperset(PySetsetObject* self, PyObject* other) {
   if (!PySetset_Check(other)) {
-    Py_INCREF(Py_NotImplemented);
-    return Py_NotImplemented;
+    PyErr_SetString(PyExc_TypeError, "not setset");
+    return nullptr;
   }
   PySetsetObject* sso = reinterpret_cast<PySetsetObject*>(other);
   if (self->ss->is_superset(*sso->ss))
