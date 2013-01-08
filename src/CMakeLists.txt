@@ -3,4 +3,4 @@ SET(SRCS hudd/bddc hudd/BDD hudd/ZBDD illion/setset illion/zdd)
 ADD_LIBRARY(${PROJECT_NAME} ${SRCS})
 INSTALL(TARGETS ${PROJECT_NAME} ARCHIVE DESTINATION lib)
 
-ADD_EXECUTABLE(${PROJECT_NAME}_test ${SRCS} illion_test)
+ADD_EXECUTABLE(${PROJECT_NAME}_test ${SRCS} illion/test)
