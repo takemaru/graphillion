@@ -127,14 +127,13 @@ class setset {
 
   void save(std::ostream& out) const;
   void load(std::istream& in);
+  void dump() const;
 
   friend std::ostream& operator<<(std::ostream& out, const setset& ss);
   friend std::istream& operator>>(std::istream& in, setset& ss);
 
  private:
   explicit setset(const zdd_t& z) : zdd_(z) {}
-
-  void dump() const;
 
   zdd_t zdd_;
 

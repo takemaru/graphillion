@@ -3,181 +3,13 @@
 
 #include "pysetset.h"
 
-static void setset_dealloc(PySetsetObject* sso) {
-  delete sso->ss;
-  sso->ob_type->tp_free(reinterpret_cast<PyObject*>(sso));
-}
+using illion::setset;
+using std::map;
+using std::set;
+using std::string;
+using std::vector;
 
-static PyObject* setset_new(PyTypeObject* type, PyObject* args, PyObject* kwds) {
-  PySetsetObject* sso;
-  sso = reinterpret_cast<PySetsetObject*>(type->tp_alloc(type, 0));
-  return reinterpret_cast<PyObject*>(sso);
-}
-
-static int setset_init(PySetsetObject* sso, PyObject* args, PyObject* kwds) {
-  PyObject* s = nullptr;
-  if (!PyArg_ParseTuple(args, "|O", &s))
-    return -1;
-  if (s != nullptr && !(PySet_Check(s) || PyFrozenSet_Check(s))) {
-    PyErr_SetString(PyExc_TypeError, "must be (frozen)set");
-    return -1;
-  }
-  if (s == nullptr) {
-    sso->ss = new illion::setset();
-    return 0;
-  }
-/*
-    PyObject* it = PyObject_GetIter(s);
-    if (it == NULL)
-        return -1;
-    so->f = ZBDD(1);
-    PyObject* elem;
-    while ((elem = PyIter_Next(it))) {
-        if (! PyInt_Check(elem)) {
-            Py_DECREF(elem);
-            PyErr_SetString(PyExc_TypeError, "must be (frozen)set of integers");
-            return -1;
-        }
-        bddvar v = PyLong_AsLong(elem);
-        if (v > max_var)
-            for (; max_var < v; max_var++)
-                ZBDD(1).Change(BDD_NewVarOfLev(1));
-        Py_DECREF(elem);
-        so->f *= ZBDD(1).Change(v);
-    }
-    Py_DECREF(it);
-*/
-  return 0;
-}
-
-static PyMemberDef setset_members[] = {
-  {nullptr}  /* Sentinel */
-};
-
-static PyMethodDef setset_methods[] = {
-  {nullptr}  /* Sentinel */
-};
-
-static PyObject* setset_repr(PySetsetObject* sso) {
-  return PyString_FromFormat("<%s object of %p>", sso->ob_type->tp_name,
-                             reinterpret_cast<void*>(sso->ss->id()));
-}
-
-static PyObject* setset_sub(PySetsetObject* sso, PyObject* other) {
-  PySetsetObject* result = nullptr;
-  if (!PySetset_Check(sso) || !PySetset_Check(other)) {
-    Py_INCREF(Py_NotImplemented);
-    return Py_NotImplemented;
-  }
-  result = reinterpret_cast<PySetsetObject*>(
-      PySetset_Type.tp_alloc(&PySetset_Type, 0));
-  if (result == nullptr) return nullptr;
-  // TODO: add elements to result
-  return reinterpret_cast<PyObject*>(result);
-}
-
-// Returns the number of objects in sequence o on success, and -1 on failure.
-static Py_ssize_t setset_len(PyObject* self) {
-  return 0;
-}
-
-// If an item in o is equal to value, return 1, otherwise return 0. On error, return -1.
-static int setset_contains(PySetsetObject *sso, PyObject *key) {
-  return 0;
-}
-
-static long setset_hash(PyObject* self) {
-  PySetsetObject* sso = reinterpret_cast<PySetsetObject*>(self);
-  return sso->ss->id();
-}
-
-static PyObject* setset_richcompare(PySetsetObject* v, PyObject* w, int op) {
-  PySetsetObject* u;
-  if(!PySetset_Check(w)) {
-    if (op == Py_EQ) Py_RETURN_FALSE;
-    if (op == Py_NE) Py_RETURN_TRUE;
-    PyErr_SetString(PyExc_TypeError, "can only compare to set of sets");
-    return nullptr;
-  }
-  u = reinterpret_cast<PySetsetObject*>(w);
-  switch (op) {
-    case Py_EQ:
-      if (*v->ss == *u->ss) Py_RETURN_TRUE;
-      else                  Py_RETURN_FALSE;
-    case Py_NE:
-      if (*v->ss != *u->ss) Py_RETURN_TRUE;
-      else                  Py_RETURN_FALSE;
-    default:
-      PyErr_SetString(PyExc_TypeError, "not support enequalities");
-      return NULL;
-/*
-    case Py_LE:
-        if (setset_issubset(v, u)) Py_RETURN_TRUE;
-        else                     Py_RETURN_FALSE;
-    case Py_GE:
-        if (setset_issuperset(v, u)) Py_RETURN_TRUE;
-        else                       Py_RETURN_FALSE;
-    case Py_LT:
-        if (v->sets != u->sets && setset_issubset(v, u)) Py_RETURN_TRUE;
-        else                                           Py_RETURN_FALSE;
-    case Py_GT:
-        if (v->sets != u->sets && setset_issuperset(v, u)) Py_RETURN_TRUE;
-        else                                             Py_RETURN_FALSE;
-*/
-  }
-  Py_INCREF(Py_NotImplemented);
-  return Py_NotImplemented;
-}
-
-static PyNumberMethods setset_as_number = {
-  0,                                  /*nb_add*/
-  reinterpret_cast<binaryfunc>(setset_sub), /*nb_subtract*/
-  0,                                  /*nb_multiply*/
-  0,                                  /*nb_divide*/
-  0,                                  /*nb_remainder*/
-  0,                                  /*nb_divmod*/
-  0,                                  /*nb_power*/
-  0,                                  /*nb_negative*/
-  0,                                  /*nb_positive*/
-  0,                                  /*nb_absolute*/
-  0,                                  /*nb_nonzero*/
-  0,                                  /*nb_invert*/
-  0,                                  /*nb_lshift*/
-  0,                                  /*nb_rshift*/
-//    (binaryfunc)setset_and,                /*nb_and*/
-//    (binaryfunc)setset_xor,                /*nb_xor*/
-//    (binaryfunc)setset_or,                 /*nb_or*/
-  0,                                  /*nb_coerce*/
-  0,                                  /*nb_int*/
-  0,                                  /*nb_long*/
-  0,                                  /*nb_float*/
-  0,                                  /*nb_oct*/
-  0,                                  /*nb_hex*/
-  0,                                  /*nb_inplace_add*/
-//    (binaryfunc)setset_isub,               /*nb_inplace_subtract*/
-  0,                                  /*nb_inplace_multiply*/
-  0,                                  /*nb_inplace_divide*/
-  0,                                  /*nb_inplace_remainder*/
-  0,                                  /*nb_inplace_power*/
-  0,                                  /*nb_inplace_lshift*/
-  0,                                  /*nb_inplace_rshift*/
-//    (binaryfunc)setset_iand,               /*nb_inplace_and*/
-//    (binaryfunc)setset_ixor,               /*nb_inplace_xor*/
-//    (binaryfunc)setset_ior,                /*nb_inplace_or*/
-};
-
-static PySequenceMethods setset_as_sequence = {
-  setset_len,                           /* sq_length */
-  0,                                  /* sq_concat */
-  0,                                  /* sq_repeat */
-  0,                                  /* sq_item */
-  0,                                  /* sq_slice */
-  0,                                  /* sq_ass_item */
-  0,                                  /* sq_ass_slice */
-  reinterpret_cast<objobjproc>(setset_contains), /* sq_contains */
-};
-
-/***** Setset iterator type ***********************************************/
+// setset::iterator
 
 typedef struct {
   PyObject_HEAD
@@ -255,6 +87,230 @@ static PyObject* setset_iter(PySetsetObject* sso) {
   ssi->len = 0;
   return reinterpret_cast<PyObject*>(ssi);
 }
+
+// setset
+
+static int setset_parse_set(PyObject* so, set<int>* s) {
+  assert(s != nullptr);
+  PyObject* i = PyObject_GetIter(so);
+  if (i == nullptr) return -1;
+  PyObject* eo;
+  while ((eo = PyIter_Next(i))) {
+    if (!PyInt_Check(eo)) {
+      Py_DECREF(eo);
+      PyErr_SetString(PyExc_TypeError, "must contain integers");
+      return -1;
+    }
+    s->insert(PyLong_AsLong(eo));
+    Py_DECREF(eo);
+  }
+  Py_DECREF(i);
+  return 0;
+}
+
+static int setset_parse_map(PyObject* dict_obj, map<string, set<int> >* m) {
+  assert(m != nullptr);
+  PyObject* key_obj;
+  PyObject* so;
+  Py_ssize_t pos = 0;
+  while (PyDict_Next(dict_obj, &pos, &key_obj, &so)) {
+    if (!PyString_Check(key_obj) || !PyAnySet_Check(so)) {
+      PyErr_SetString(PyExc_TypeError, "must be dict of string and set");
+      return -1;
+    }
+    string key = PyString_AsString(key_obj);
+    set<int> s;
+    if (setset_parse_set(so, &s) == -1) return -1;
+    (*m)[key] = s;
+  }
+  return 0;
+}
+
+static PyObject* setset_new(PyTypeObject* type, PyObject* args, PyObject* kwds) {
+  PySetsetObject* sso;
+  sso = reinterpret_cast<PySetsetObject*>(type->tp_alloc(type, 0));
+  return reinterpret_cast<PyObject*>(sso);
+}
+
+static int setset_init(PySetsetObject* sso, PyObject* args, PyObject* kwds) {
+  PyObject* obj = nullptr;
+  if (!PyArg_ParseTuple(args, "|O", &obj))
+    return -1;
+  if (obj == nullptr) {
+    sso->ss = new setset();
+  } else if (PyAnySet_Check(obj)) {
+    set<int> s;
+    if (setset_parse_set(obj, &s) == -1) return -1;
+    sso->ss = new setset(s);
+  } else if (PyDict_Check(obj)) {
+    map<string, set<int> > m;
+    if (setset_parse_map(obj, &m) == -1) return -1;
+    sso->ss = new setset(m);
+  } else {
+    PyObject* i = PyObject_GetIter(obj);
+    if (i == nullptr) {
+      PyErr_SetString(PyExc_TypeError, "must be list of sets or dicts");
+      return -1;
+    }
+    vector<set<int> > vs;
+    vector<map<string, set<int> > > vm;
+    PyObject* o;
+    while ((o = PyIter_Next(i))) {
+      if (PyAnySet_Check(o)) {
+        set<int> s;
+        if (setset_parse_set(o, &s) == -1) return -1;
+        vs.push_back(s);
+      } else if (PyDict_Check(o)) {
+        map<string, set<int> > m;
+        if (setset_parse_map(o, &m) == -1) return -1;
+        vm.push_back(m);
+      }
+      Py_DECREF(o);
+    }
+    Py_DECREF(i);
+    sso->ss = new setset(vs);
+//    sso->ss = new setset(vm);  // TODO: merge two setsets
+  }
+  return 0;
+}
+
+static void setset_dealloc(PySetsetObject* sso) {
+  delete sso->ss;
+  sso->ob_type->tp_free(reinterpret_cast<PyObject*>(sso));
+}
+
+static PyObject* setset_dump(PySetsetObject* sso) {
+  sso->ss->dump();
+  Py_RETURN_NONE;
+}
+
+static PyObject* setset_repr(PySetsetObject* sso) {
+  return PyString_FromFormat("<%s object of %p>", sso->ob_type->tp_name,
+                             reinterpret_cast<void*>(sso->ss->id()));
+}
+
+static PyObject* setset_sub(PySetsetObject* sso, PyObject* other) {
+  PySetsetObject* result = nullptr;
+  if (!PySetset_Check(sso) || !PySetset_Check(other)) {
+    Py_INCREF(Py_NotImplemented);
+    return Py_NotImplemented;
+  }
+  result = reinterpret_cast<PySetsetObject*>(
+      PySetset_Type.tp_alloc(&PySetset_Type, 0));
+  if (result == nullptr) return nullptr;
+  // TODO: add elements to result
+  return reinterpret_cast<PyObject*>(result);
+}
+
+// Returns the number of objects in sequence o on success, and -1 on failure.
+static Py_ssize_t setset_len(PyObject* self) {
+  return 0;
+}
+
+// If an item in o is equal to value, return 1, otherwise return 0. On error, return -1.
+static int setset_contains(PySetsetObject *sso, PyObject *key) {
+  return 0;
+}
+
+static long setset_hash(PyObject* self) {
+  PySetsetObject* sso = reinterpret_cast<PySetsetObject*>(self);
+  return sso->ss->id();
+}
+
+static PyObject* setset_richcompare(PySetsetObject* v, PyObject* w, int op) {
+  PySetsetObject* u;
+  if(!PySetset_Check(w)) {
+    if (op == Py_EQ) Py_RETURN_FALSE;
+    if (op == Py_NE) Py_RETURN_TRUE;
+    PyErr_SetString(PyExc_TypeError, "can only compare to set of sets");
+    return nullptr;
+  }
+  u = reinterpret_cast<PySetsetObject*>(w);
+  switch (op) {
+    case Py_EQ:
+      if (*v->ss == *u->ss) Py_RETURN_TRUE;
+      else                  Py_RETURN_FALSE;
+    case Py_NE:
+      if (*v->ss != *u->ss) Py_RETURN_TRUE;
+      else                  Py_RETURN_FALSE;
+    default:
+      PyErr_SetString(PyExc_TypeError, "not support enequalities");
+      return NULL;
+/*
+    case Py_LE:
+        if (setset_issubset(v, u)) Py_RETURN_TRUE;
+        else                     Py_RETURN_FALSE;
+    case Py_GE:
+        if (setset_issuperset(v, u)) Py_RETURN_TRUE;
+        else                       Py_RETURN_FALSE;
+    case Py_LT:
+        if (v->sets != u->sets && setset_issubset(v, u)) Py_RETURN_TRUE;
+        else                                           Py_RETURN_FALSE;
+    case Py_GT:
+        if (v->sets != u->sets && setset_issuperset(v, u)) Py_RETURN_TRUE;
+        else                                             Py_RETURN_FALSE;
+*/
+  }
+  Py_INCREF(Py_NotImplemented);
+  return Py_NotImplemented;
+}
+
+static PyMemberDef setset_members[] = {
+  {nullptr}  /* Sentinel */
+};
+
+static PyMethodDef setset_methods[] = {
+  {"dump", (PyCFunction)setset_dump, METH_NOARGS, ""},
+  {nullptr}  /* Sentinel */
+};
+
+static PyNumberMethods setset_as_number = {
+  0,                                  /*nb_add*/
+  reinterpret_cast<binaryfunc>(setset_sub), /*nb_subtract*/
+  0,                                  /*nb_multiply*/
+  0,                                  /*nb_divide*/
+  0,                                  /*nb_remainder*/
+  0,                                  /*nb_divmod*/
+  0,                                  /*nb_power*/
+  0,                                  /*nb_negative*/
+  0,                                  /*nb_positive*/
+  0,                                  /*nb_absolute*/
+  0,                                  /*nb_nonzero*/
+  0,                                  /*nb_invert*/
+  0,                                  /*nb_lshift*/
+  0,                                  /*nb_rshift*/
+//    (binaryfunc)setset_and,                /*nb_and*/
+//    (binaryfunc)setset_xor,                /*nb_xor*/
+//    (binaryfunc)setset_or,                 /*nb_or*/
+  0,                                  /*nb_coerce*/
+  0,                                  /*nb_int*/
+  0,                                  /*nb_long*/
+  0,                                  /*nb_float*/
+  0,                                  /*nb_oct*/
+  0,                                  /*nb_hex*/
+  0,                                  /*nb_inplace_add*/
+//    (binaryfunc)setset_isub,               /*nb_inplace_subtract*/
+  0,                                  /*nb_inplace_multiply*/
+  0,                                  /*nb_inplace_divide*/
+  0,                                  /*nb_inplace_remainder*/
+  0,                                  /*nb_inplace_power*/
+  0,                                  /*nb_inplace_lshift*/
+  0,                                  /*nb_inplace_rshift*/
+//    (binaryfunc)setset_iand,               /*nb_inplace_and*/
+//    (binaryfunc)setset_ixor,               /*nb_inplace_xor*/
+//    (binaryfunc)setset_ior,                /*nb_inplace_or*/
+};
+
+static PySequenceMethods setset_as_sequence = {
+  setset_len,                           /* sq_length */
+  0,                                  /* sq_concat */
+  0,                                  /* sq_repeat */
+  0,                                  /* sq_item */
+  0,                                  /* sq_slice */
+  0,                                  /* sq_ass_item */
+  0,                                  /* sq_ass_slice */
+  reinterpret_cast<objobjproc>(setset_contains), /* sq_contains */
+};
 
 PyTypeObject PySetset_Type = {
   PyObject_HEAD_INIT(NULL)

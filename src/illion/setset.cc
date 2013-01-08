@@ -310,6 +310,10 @@ void setset::load(std::istream& in) {
   this->zdd_ = illion::load(in);
 }
 
+void setset::dump() const {
+  illion::dump(this->zdd_);
+}
+
 ostream& operator<<(ostream& out, const setset& ss) {
   illion::save(ss.zdd_, out);
   return out;
@@ -318,10 +322,6 @@ ostream& operator<<(ostream& out, const setset& ss) {
 istream& operator>>(istream& in, setset& ss) {
   ss.zdd_ = illion::load(in);
   return in;
-}
-
-void setset::dump() const {
-  illion::dump(this->zdd_);
 }
 
 }  // namespace illion
