@@ -189,7 +189,48 @@ static void setset_dealloc(PySetsetObject* self) {
   self->ob_type->tp_free(reinterpret_cast<PyObject*>(self));
 }
 
+static PyObject* setset_isdisjoint(PySetsetObject* self, PyObject* other) {
+  if (!PySetset_Check(other)) {
+    Py_INCREF(Py_NotImplemented);
+    return Py_NotImplemented;
+  }
+  PySetsetObject* sso = reinterpret_cast<PySetsetObject*>(other);
+  if (self->ss->is_disjoint(*sso->ss))
+    Py_RETURN_TRUE;
+  else
+    Py_RETURN_FALSE;
+}
+
+static PyObject* setset_issubset(PySetsetObject* self, PyObject* other) {
+  if (!PySetset_Check(other)) {
+    Py_INCREF(Py_NotImplemented);
+    return Py_NotImplemented;
+  }
+  PySetsetObject* sso = reinterpret_cast<PySetsetObject*>(other);
+  if (self->ss->is_subset(*sso->ss))
+    Py_RETURN_TRUE;
+  else
+    Py_RETURN_FALSE;
+}
+
+static PyObject* setset_issuperset(PySetsetObject* self, PyObject* other) {
+  if (!PySetset_Check(other)) {
+    Py_INCREF(Py_NotImplemented);
+    return Py_NotImplemented;
+  }
+  PySetsetObject* sso = reinterpret_cast<PySetsetObject*>(other);
+  if (self->ss->is_superset(*sso->ss))
+    Py_RETURN_TRUE;
+  else
+    Py_RETURN_FALSE;
+}
+
 static PyObject* setset_dump(PySetsetObject* self) {
+  self->ss->dump();
+  Py_RETURN_NONE;
+}
+
+static PyObject* setset_dumps(PySetsetObject* self) {
   stringstream sstr;
   self->ss->dump(sstr);
   return PyString_FromString(sstr.str().c_str());
@@ -273,7 +314,11 @@ static PyMemberDef setset_members[] = {
 };
 
 static PyMethodDef setset_methods[] = {
-  {"dump", (PyCFunction)setset_dump, METH_NOARGS, ""},
+  {"isdisjoint", reinterpret_cast<PyCFunction>(setset_isdisjoint), METH_O, ""},
+  {"issubset", reinterpret_cast<PyCFunction>(setset_issubset), METH_O, ""},
+  {"issuperset", reinterpret_cast<PyCFunction>(setset_issuperset), METH_O, ""},
+  {"dump", reinterpret_cast<PyCFunction>(setset_dump), METH_NOARGS, ""},
+  {"dumps", reinterpret_cast<PyCFunction>(setset_dumps), METH_NOARGS, ""},
   {nullptr}  /* Sentinel */
 };
 
