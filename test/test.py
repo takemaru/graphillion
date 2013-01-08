@@ -83,10 +83,15 @@ def binary_operators():
     ss = setset(u)
     ss &= setset(v)
     assert(ss == setset([set([1, 2]), set([1, 4])]))
-    setset(u).intersection_update(setset(v))
+    ss = setset(u)
+    ss.intersection_update(setset(v))
     assert(ss == setset([set([1, 2]), set([1, 4])]))
 
     ss = setset(u) | setset(v)
+    assert(ss == setset([set(), set([1]), set([1, 2]), set([1, 2, 3]),
+                         set([1, 2, 3, 4]), set([1, 3, 4]), set([1, 4]),
+                         set([2, 3]), set([3, 4]), set([4])]))
+    ss = setset(u).update(setset(v))
     assert(ss == setset([set(), set([1]), set([1, 2]), set([1, 2, 3]),
                          set([1, 2, 3, 4]), set([1, 3, 4]), set([1, 4]),
                          set([2, 3]), set([3, 4]), set([4])]))
@@ -96,8 +101,16 @@ def binary_operators():
     assert(ss == setset([set(), set([1]), set([1, 2]), set([1, 2, 3]),
                          set([1, 2, 3, 4]), set([1, 3, 4]), set([1, 4]),
                          set([2, 3]), set([3, 4]), set([4])]))
+    ss = setset(u)
+    ss.update(setset(v))
+    assert(ss == setset([set(), set([1]), set([1, 2]), set([1, 2, 3]),
+                         set([1, 2, 3, 4]), set([1, 3, 4]), set([1, 4]),
+                         set([2, 3]), set([3, 4]), set([4])]))
 
     ss = setset(u) - setset(v)
+    assert(ss == setset([set(), set([1]), set([1, 2, 3]), set([1, 2, 3, 4]),
+                         set([1, 3, 4]), set([4])]))
+    ss = setset(u).difference(setset(v))
     assert(ss == setset([set(), set([1]), set([1, 2, 3]), set([1, 2, 3, 4]),
                          set([1, 3, 4]), set([4])]))
 
@@ -105,8 +118,16 @@ def binary_operators():
     ss -= setset(v)
     assert(ss == setset([set(), set([1]), set([1, 2, 3]), set([1, 2, 3, 4]),
                          set([1, 3, 4]), set([4])]))
+    ss = setset(u)
+    ss.difference_update(setset(v))
+    assert(ss == setset([set(), set([1]), set([1, 2, 3]), set([1, 2, 3, 4]),
+                         set([1, 3, 4]), set([4])]))
 
     ss = setset(u) * setset(v)
+    assert(ss == setset([set([1, 2]), set([1, 2, 3]), set([1, 2, 4]),
+                         set([1, 2, 3, 4]), set([1, 3, 4]), set([1, 4]),
+                         set([2, 3]), set([2, 3, 4]), set([3, 4])]))
+    ss = setset(u).product(setset(v))
     assert(ss == setset([set([1, 2]), set([1, 2, 3]), set([1, 2, 4]),
                          set([1, 2, 3, 4]), set([1, 3, 4]), set([1, 4]),
                          set([2, 3]), set([2, 3, 4]), set([3, 4])]))
@@ -116,13 +137,25 @@ def binary_operators():
     assert(ss == setset([set([1, 2]), set([1, 2, 3]), set([1, 2, 4]),
                          set([1, 2, 3, 4]), set([1, 3, 4]), set([1, 4]),
                          set([2, 3]), set([2, 3, 4]), set([3, 4])]))
+    ss = setset(u)
+    ss.product_update(setset(v))
+    assert(ss == setset([set([1, 2]), set([1, 2, 3]), set([1, 2, 4]),
+                         set([1, 2, 3, 4]), set([1, 3, 4]), set([1, 4]),
+                         set([2, 3]), set([2, 3, 4]), set([3, 4])]))
 
     ss = setset(u) ^ setset(v)
+    assert(ss == setset([set(), set([1]), set([1, 2, 3]), set([1, 2, 3, 4]),
+                         set([1, 3, 4]), set([2, 3]), set([3, 4]), set([4])]))
+    ss = setset(u).symmetric_difference(setset(v))
     assert(ss == setset([set(), set([1]), set([1, 2, 3]), set([1, 2, 3, 4]),
                          set([1, 3, 4]), set([2, 3]), set([3, 4]), set([4])]))
 
     ss = setset(u)
     ss ^= setset(v)
+    assert(ss == setset([set(), set([1]), set([1, 2, 3]), set([1, 2, 3, 4]),
+                         set([1, 3, 4]), set([2, 3]), set([3, 4]), set([4])]))
+    ss = setset(u)
+    ss.symmetric_difference_update(setset(v))
     assert(ss == setset([set(), set([1]), set([1, 2, 3]), set([1, 2, 3, 4]),
                          set([1, 3, 4]), set([2, 3]), set([3, 4]), set([4])]))
 
