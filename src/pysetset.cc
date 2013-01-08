@@ -306,6 +306,50 @@ static PyObject* setset_symmetric_difference_update(PySetsetObject* self, PyObje
   return reinterpret_cast<PyObject*>(self);
 }
 
+static PyObject* setset_divide(PySetsetObject* self, PyObject* other) {
+  if (!PySetset_Check(other)) {
+    PyErr_SetString(PyExc_TypeError, "not setset");
+    return nullptr;
+  }
+  PySetsetObject* sso = reinterpret_cast<PySetsetObject*>(other);
+  PySetsetObject* ret = reinterpret_cast<PySetsetObject*>(
+      PySetset_Type.tp_alloc(&PySetset_Type, 0));
+  ret->ss = new setset((*self->ss) / (*sso->ss));
+  return reinterpret_cast<PyObject*>(ret);
+}
+
+static PyObject* setset_divide_update(PySetsetObject* self, PyObject* other) {
+  if (!PySetset_Check(other)) {
+    PyErr_SetString(PyExc_TypeError, "not setset");
+    return nullptr;
+  }
+  PySetsetObject* sso = reinterpret_cast<PySetsetObject*>(other);
+  (*self->ss) /= (*sso->ss);
+  return reinterpret_cast<PyObject*>(self);
+}
+
+static PyObject* setset_remainder(PySetsetObject* self, PyObject* other) {
+  if (!PySetset_Check(other)) {
+    PyErr_SetString(PyExc_TypeError, "not setset");
+    return nullptr;
+  }
+  PySetsetObject* sso = reinterpret_cast<PySetsetObject*>(other);
+  PySetsetObject* ret = reinterpret_cast<PySetsetObject*>(
+      PySetset_Type.tp_alloc(&PySetset_Type, 0));
+  ret->ss = new setset((*self->ss) % (*sso->ss));
+  return reinterpret_cast<PyObject*>(ret);
+}
+
+static PyObject* setset_remainder_update(PySetsetObject* self, PyObject* other) {
+  if (!PySetset_Check(other)) {
+    PyErr_SetString(PyExc_TypeError, "not setset");
+    return nullptr;
+  }
+  PySetsetObject* sso = reinterpret_cast<PySetsetObject*>(other);
+  (*self->ss) %= (*sso->ss);
+  return reinterpret_cast<PyObject*>(self);
+}
+
 static PyObject* setset_isdisjoint(PySetsetObject* self, PyObject* other) {
   if (!PySetset_Check(other)) {
     PyErr_SetString(PyExc_TypeError, "not setset");
@@ -373,6 +417,54 @@ static PyObject* setset_smaller(PySetsetObject* self, PyObject* other) {
       PySetset_Type.tp_alloc(&PySetset_Type, 0));
   sso->ss = new setset(self->ss->smaller(max_set_size));
   return reinterpret_cast<PyObject*>(sso);
+}
+
+static PyObject* setset_subsets(PySetsetObject* self, PyObject* other) {
+  if (!PySetset_Check(other)) {
+    PyErr_SetString(PyExc_TypeError, "not setset");
+    return nullptr;
+  }
+  PySetsetObject* sso = reinterpret_cast<PySetsetObject*>(other);
+  PySetsetObject* ret = reinterpret_cast<PySetsetObject*>(
+      PySetset_Type.tp_alloc(&PySetset_Type, 0));
+  ret->ss = new setset(self->ss->subsets(*sso->ss));
+  return reinterpret_cast<PyObject*>(ret);
+}
+
+static PyObject* setset_supersets(PySetsetObject* self, PyObject* other) {
+  if (!PySetset_Check(other)) {
+    PyErr_SetString(PyExc_TypeError, "not setset");
+    return nullptr;
+  }
+  PySetsetObject* sso = reinterpret_cast<PySetsetObject*>(other);
+  PySetsetObject* ret = reinterpret_cast<PySetsetObject*>(
+      PySetset_Type.tp_alloc(&PySetset_Type, 0));
+  ret->ss = new setset(self->ss->supersets(*sso->ss));
+  return reinterpret_cast<PyObject*>(ret);
+}
+
+static PyObject* setset_nonsubsets(PySetsetObject* self, PyObject* other) {
+  if (!PySetset_Check(other)) {
+    PyErr_SetString(PyExc_TypeError, "not setset");
+    return nullptr;
+  }
+  PySetsetObject* sso = reinterpret_cast<PySetsetObject*>(other);
+  PySetsetObject* ret = reinterpret_cast<PySetsetObject*>(
+      PySetset_Type.tp_alloc(&PySetset_Type, 0));
+  ret->ss = new setset(self->ss->nonsubsets(*sso->ss));
+  return reinterpret_cast<PyObject*>(ret);
+}
+
+static PyObject* setset_nonsupersets(PySetsetObject* self, PyObject* other) {
+  if (!PySetset_Check(other)) {
+    PyErr_SetString(PyExc_TypeError, "not setset");
+    return nullptr;
+  }
+  PySetsetObject* sso = reinterpret_cast<PySetsetObject*>(other);
+  PySetsetObject* ret = reinterpret_cast<PySetsetObject*>(
+      PySetset_Type.tp_alloc(&PySetset_Type, 0));
+  ret->ss = new setset(self->ss->nonsupersets(*sso->ss));
+  return reinterpret_cast<PyObject*>(ret);
 }
 
 static PyObject* setset_dump(PySetsetObject* self) {
@@ -455,6 +547,10 @@ static PyMethodDef setset_methods[] = {
   {"product_update", reinterpret_cast<PyCFunction>(setset_product_update), METH_O, ""},
   {"symmetric_difference", reinterpret_cast<PyCFunction>(setset_symmetric_difference), METH_O, ""},
   {"symmetric_difference_update", reinterpret_cast<PyCFunction>(setset_symmetric_difference_update), METH_O, ""},
+  {"divide", reinterpret_cast<PyCFunction>(setset_divide), METH_O, ""},
+  {"divide_update", reinterpret_cast<PyCFunction>(setset_divide_update), METH_O, ""},
+  {"remainder", reinterpret_cast<PyCFunction>(setset_remainder), METH_O, ""},
+  {"remainder_update", reinterpret_cast<PyCFunction>(setset_remainder_update), METH_O, ""},
   {"isdisjoint", reinterpret_cast<PyCFunction>(setset_isdisjoint), METH_O, ""},
   {"issubset", reinterpret_cast<PyCFunction>(setset_issubset), METH_O, ""},
   {"issuperset", reinterpret_cast<PyCFunction>(setset_issuperset), METH_O, ""},
@@ -462,6 +558,10 @@ static PyMethodDef setset_methods[] = {
   {"maximal", reinterpret_cast<PyCFunction>(setset_maximal), METH_NOARGS, ""},
   {"hitting", reinterpret_cast<PyCFunction>(setset_hitting), METH_NOARGS, ""},
   {"smaller", reinterpret_cast<PyCFunction>(setset_smaller), METH_O, ""},
+  {"subsets", reinterpret_cast<PyCFunction>(setset_subsets), METH_O, ""},
+  {"supersets", reinterpret_cast<PyCFunction>(setset_supersets), METH_O, ""},
+  {"nonsubsets", reinterpret_cast<PyCFunction>(setset_nonsubsets), METH_O, ""},
+  {"nonsupersets", reinterpret_cast<PyCFunction>(setset_nonsupersets), METH_O, ""},
   {"dump", reinterpret_cast<PyCFunction>(setset_dump), METH_NOARGS, ""},
   {"dumps", reinterpret_cast<PyCFunction>(setset_dumps), METH_NOARGS, ""},
   {nullptr}  /* Sentinel */
@@ -471,8 +571,8 @@ static PyNumberMethods setset_as_number = {
   0,                                  /*nb_add*/
   reinterpret_cast<binaryfunc>(setset_difference), /*nb_subtract*/
   reinterpret_cast<binaryfunc>(setset_product), /*nb_multiply*/
-  0,                                  /*nb_divide*/
-  0,                                  /*nb_remainder*/
+  reinterpret_cast<binaryfunc>(setset_divide), /*nb_divide*/
+  reinterpret_cast<binaryfunc>(setset_remainder), /*nb_remainder*/
   0,                                  /*nb_divmod*/
   0,                                  /*nb_power*/
   0,                                  /*nb_negative*/
@@ -494,8 +594,8 @@ static PyNumberMethods setset_as_number = {
   0,                                  /*nb_inplace_add*/
   reinterpret_cast<binaryfunc>(setset_difference_update), /*nb_inplace_subtract*/
   reinterpret_cast<binaryfunc>(setset_product_update), /*nb_inplace_multiply*/
-  0,                                  /*nb_inplace_divide*/
-  0,                                  /*nb_inplace_remainder*/
+  reinterpret_cast<binaryfunc>(setset_divide_update), /*nb_inplace_divide*/
+  reinterpret_cast<binaryfunc>(setset_remainder_update), /*nb_inplace_remainder*/
   0,                                  /*nb_inplace_power*/
   0,                                  /*nb_inplace_lshift*/
   0,                                  /*nb_inplace_rshift*/

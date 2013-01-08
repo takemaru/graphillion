@@ -159,6 +159,49 @@ def binary_operators():
     assert(ss == setset([set(), set([1]), set([1, 2, 3]), set([1, 2, 3, 4]),
                          set([1, 3, 4]), set([2, 3]), set([3, 4]), set([4])]))
 
+    v = [set([1, 2])]
+    ss = setset(u) / setset(v)
+    assert(ss == setset([set(), set([3]), set([3, 4])]))
+    ss = setset(u).divide(setset(v))
+    assert(ss == setset([set(), set([3]), set([3, 4])]))
+
+    ss = setset(u)
+    ss /= setset(v)
+    assert(ss == setset([set(), set([3]), set([3, 4])]))
+    ss = setset(u)
+    ss.divide_update(setset(v))
+    assert(ss == setset([set(), set([3]), set([3, 4])]))
+
+    ss = setset(u) % setset(v)
+    assert(ss == setset([set(), set([1]), set([1, 3, 4]), set([1, 4]),
+                         set([4])]))
+    ss = setset(u).remainder(setset(v))
+    assert(ss == setset([set(), set([1]), set([1, 3, 4]), set([1, 4]),
+                         set([4])]))
+
+    ss = setset(u)
+    ss %= setset(v)
+    assert(ss == setset([set(), set([1]), set([1, 3, 4]), set([1, 4]),
+                         set([4])]))
+    ss = setset(u)
+    ss.remainder_update(setset(v))
+    assert(ss == setset([set(), set([1]), set([1, 3, 4]), set([1, 4]),
+                         set([4])]))
+
+    v = [set([1, 2]), set([1, 4]), set([2, 3]), set([3, 4])]
+    ss = setset(u).subsets(setset(v))
+    assert(ss == setset([set(), set([1]), set([1, 2]), set([1, 4]), set([4])]))
+
+    ss = setset(u).supersets(setset(v))
+    assert(ss == setset([set([1, 2]), set([1, 2, 3]), set([1, 2, 3, 4]),
+                         set([1, 3, 4]), set([1, 4])]))
+
+    ss = setset(u).nonsubsets(setset(v))
+    assert(ss == setset([set([1, 2, 3]), set([1, 2, 3, 4]), set([1, 3, 4])]))
+
+    ss = setset(u).nonsupersets(setset(v))
+    assert(ss == setset([set(), set([1]), set([4])]))
+
 if __name__ == '__main__':
     constructors()
     comparison()
