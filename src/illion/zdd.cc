@@ -5,8 +5,6 @@
 #include <climits>
 
 #include <string>
-#include <sstream>
-#include <typeinfo>
 #include <unordered_map>
 
 #include "illion/util.h"
@@ -313,7 +311,7 @@ void dump(zdd_t f, ostream& out) {
   bool dumped = true;
   dump(f, out, &stack, &dumped);
   out << "}";
-  if (typeid(out) != typeid(std::stringstream))
+  if (out == std::cout || out == std::cerr)
     out << endl;
 }
 
