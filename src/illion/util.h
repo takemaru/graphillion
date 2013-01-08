@@ -9,6 +9,14 @@
 
 namespace illion {
 
+#define assert(e) {                                                     \
+    if (!(e)) {                                                          \
+      fprintf(stderr, "Error: %s:%u: %s: assertion `%s' failed.\n",     \
+              __FILE__, __LINE__, __PRETTY_FUNCTION__, (#e));           \
+      exit(1);                                                          \
+    }                                                                   \
+  }
+
 #define error_if(e, m) {                                                \
     if ((e)) {                                                          \
       std::stringstream ss;                                             \
