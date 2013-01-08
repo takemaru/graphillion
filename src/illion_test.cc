@@ -65,15 +65,40 @@ class setset_test {
 
     ss = setset({{}, {1, 2}, {1, 3}});
     assert(ss.zdd_ == e0 + e1*e2 + e1*e3);
+
+    // copy constructor
+    ss = setset(setset({{1}, {2}}));
+    assert(ss.zdd_ == e1 + e2);
   }
 
-  static void unary_operators() {
+  static void comparison() {
     setset ss({{1, 2}});
     assert(ss == setset({{1, 2}}));
     assert(ss != setset({{1, 3}}));
 
-    ss = setset({{}, {1}, {1, 2}, {1, 2, 3}, {1, 2, 3, 4}, {1, 3, 4}, {1, 4},
-                 {4}});
+    vector<set<int> > v = {{}, {1, 2}, {1, 3}};
+    ss = setset(v);
+    assert(ss.is_disjoint(setset({{1}, {1, 2, 3}})));
+    assert(!ss.is_disjoint(setset({{1}, {1, 2}})));
+
+    assert(ss.is_subset(setset(v)));
+    assert(!ss.is_subset(setset({{}, {1, 2}})));
+    assert(ss <= setset(v));
+    assert(!(ss <= setset({{}, {1, 2}})));
+    assert(ss < setset({{}, {1}, {1, 2}, {1, 3}}));
+    assert(!(ss < setset(v)));
+
+    assert(ss.is_superset(setset(v)));
+    assert(!ss.is_superset(setset({{1}, {1, 2}})));
+    assert(ss >= setset(v));
+    assert(!(ss >= setset({{1}, {1, 2}})));
+    assert(ss > setset({{}, {1, 2}}));
+    assert(!(ss > setset(v)));
+  }
+
+  static void unary_operators() {
+    setset ss({{}, {1}, {1, 2}, {1, 2, 3}, {1, 2, 3, 4}, {1, 3, 4}, {1, 4},
+               {4}});
     assert(num_elems() == 4);
     assert((~ss).zdd_ == e1*e2*e4 + e1*e3 + e2 + e2*e3 + e2*e3*e4 + e2*e4 + e3
            + e3*e4);
@@ -164,27 +189,6 @@ class setset_test {
 
     ss = setset(u).nonsupersets(setset(v));
     assert(ss.zdd_ == e0 + e1 + e4);
-  }
-
-  static void testers() {
-    vector<set<int> > v = {{}, {1, 2}, {1, 3}};
-    setset ss(v);
-    assert(ss.is_disjoint(setset({{1}, {1, 2, 3}})));
-    assert(!ss.is_disjoint(setset({{1}, {1, 2}})));
-
-    assert(ss.is_subset(setset(v)));
-    assert(!ss.is_subset(setset({{}, {1, 2}})));
-    assert(ss <= setset(v));
-    assert(!(ss <= setset({{}, {1, 2}})));
-    assert(ss < setset({{}, {1}, {1, 2}, {1, 3}}));
-    assert(!(ss < setset(v)));
-
-    assert(ss.is_superset(setset(v)));
-    assert(!ss.is_superset(setset({{1}, {1, 2}})));
-    assert(ss >= setset(v));
-    assert(!(ss >= setset({{1}, {1, 2}})));
-    assert(ss > setset({{}, {1, 2}}));
-    assert(!(ss > setset(v)));
   }
 
   static void capacity() {
@@ -328,9 +332,9 @@ class setset_test {
 
 int main() {
   illion::setset_test::constructors();
+  illion::setset_test::comparison();
   illion::setset_test::unary_operators();
   illion::setset_test::binary_operators();
-  illion::setset_test::testers();
   illion::setset_test::capacity();
   illion::setset_test::iterators();
   illion::setset_test::lookup();

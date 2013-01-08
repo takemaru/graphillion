@@ -3,10 +3,17 @@
 
 #include "pysetset.h"
 
+#include <map>
+#include <set>
+#include <string>
+#include <sstream>
+#include <vector>
+
 using illion::setset;
 using std::map;
 using std::set;
 using std::string;
+using std::stringstream;
 using std::vector;
 
 // setset::iterator
@@ -138,6 +145,9 @@ static int setset_init(PySetsetObject* self, PyObject* args, PyObject* kwds) {
     return -1;
   if (obj == nullptr) {
     self->ss = new setset();
+  } else if (PySetset_Check(obj)) {
+    PySetsetObject* sso = reinterpret_cast<PySetsetObject*>(obj);
+    self->ss = new setset(*(sso->ss));
   } else if (PyAnySet_Check(obj)) {
     set<int> s;
     if (setset_parse_set(obj, &s) == -1) return -1;
@@ -180,8 +190,9 @@ static void setset_dealloc(PySetsetObject* self) {
 }
 
 static PyObject* setset_dump(PySetsetObject* self) {
-  self->ss->dump();
-  Py_RETURN_NONE;
+  stringstream sstr;
+  self->ss->dump(sstr);
+  return PyString_FromString(sstr.str().c_str());
 }
 
 static PyObject* setset_repr(PySetsetObject* self) {

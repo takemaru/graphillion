@@ -53,7 +53,7 @@ zdd_t choose_best(zdd_t f, const std::vector<int>& weights,
 void save(zdd_t f, std::ostream& out = std::cout);
 zdd_t load(std::istream& in = std::cin);
 void dump(zdd_t f, std::ostream& out = std::cout);
-void dump(zdd_t f, std::vector<elem_t>* stack, std::ostream& out);
+void dump(zdd_t f, std::ostream& out, std::vector<elem_t>* stack, bool* dumped);
 void algo_b(zdd_t f, const std::vector<int>& w, std::vector<bool>* x);
 intx_t algo_c(zdd_t f);
 zdd_t zuniq(elem_t v, zdd_t l, zdd_t h);

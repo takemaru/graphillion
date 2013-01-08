@@ -5,6 +5,8 @@
 #include <climits>
 
 #include <string>
+#include <sstream>
+#include <typeinfo>
 #include <unordered_map>
 
 #include "illion/util.h"
@@ -308,21 +310,29 @@ zdd_t load(istream& in) {
 void dump(zdd_t f, ostream& out) {
   vector<elem_t> stack;
   out << "{";
-  dump(f, &stack, out);
-  out << "}" << endl;
+  bool dumped = true;
+  dump(f, out, &stack, &dumped);
+  out << "}";
+  if (typeid(out) != typeid(std::stringstream))
+    out << endl;
 }
 
-void dump(zdd_t f, vector<elem_t>* stack, ostream& out) {
+void dump(zdd_t f, ostream& out, vector<elem_t>* stack, bool* dumped) {
   assert(stack != nullptr);
   if (is_term(f)) {
-    if (is_top(f))
-      out << "{" << join(*stack, ",") << "},";
+    if (is_top(f)) {
+      if (*dumped)
+        *dumped = false;
+      else
+        out << ",";
+      out << "{" << join(*stack, ",") << "}";
+    }
     return;
   }
   stack->push_back(elem(f));
-  dump(hi(f), stack, out);
+  dump(hi(f), out, stack, dumped);
   stack->pop_back();
-  dump(lo(f), stack, out);
+  dump(lo(f), out, stack, dumped);
 }
 
 // Algorithm B modified for ZDD, from Knuth vol. 4 fascicle 1 sec. 7.1.4.
