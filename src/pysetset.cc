@@ -52,10 +52,15 @@ static PyObject* setsetiter_iternext(setsetiterobject* self) {
   PyObject* so = PySet_New(nullptr);
   for (const auto& e : s) {
     PyObject* eo = PyInt_FromLong(e);
-    if (eo == nullptr)
+    if (eo == nullptr) {
+      Py_DECREF(eo);
       return nullptr;
-    if (PySet_Add(so, eo) == -1)
+    }
+    if (PySet_Add(so, eo) == -1) {
+      Py_DECREF(eo);
       return nullptr;
+    }
+    Py_DECREF(eo);
   }
   return so;
 }

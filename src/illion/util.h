@@ -9,20 +9,28 @@
 
 namespace illion {
 
+#ifdef __PRETTY_FUNCTION__
+#define __FUNC__ (__PRETTY_FUNCTION__)
+#else
+#define __FUNC__ (__func__)
+#endif
+
+#ifndef assert
 #define assert(e) {                                                     \
     if (!(e)) {                                                          \
       fprintf(stderr, "Error: %s:%u: %s: assertion `%s' failed.\n",     \
-              __FILE__, __LINE__, __PRETTY_FUNCTION__, (#e));           \
+              __FILE__, __LINE__, __FUNC__, (#e));                      \
       exit(1);                                                          \
     }                                                                   \
   }
+#endif
 
 #define error_if(e, m) {                                                \
     if ((e)) {                                                          \
       std::stringstream ss;                                             \
       (ss << m);                                                        \
       fprintf(stderr, "Error: %s:%u: %s: %s, assertion `%s' failed.\n", \
-              __FILE__, __LINE__, __PRETTY_FUNCTION__, ss.str().c_str(), (#e)); \
+              __FILE__, __LINE__, __FUNC__, ss.str().c_str(), (#e));    \
       exit(1);                                                          \
     }                                                                   \
   }

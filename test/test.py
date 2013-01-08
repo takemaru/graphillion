@@ -235,6 +235,14 @@ def stream():
     pass
 
 if __name__ == '__main__':
+    ss1 = setset([set(), set([1, 2]), set([1, 3])])
+    ss2 = setset()
+    for s in ss1:
+        ss2 = ss2 | setset(s)
+    assert ss1 == ss2
+    import sys
+    sys.exit()
+
     constructors()
     comparison()
     unary_operators()
