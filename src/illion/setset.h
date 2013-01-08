@@ -22,8 +22,8 @@ class setset {
       : public std::iterator<std::forward_iterator_tag, std::set<elem_t> > {
    public:
     iterator();
-    explicit iterator(const setset& ss);
-    iterator(const std::set<elem_t>& s);
+    iterator(const setset& ss, std::vector<int> weights = std::vector<int>());
+    explicit iterator(const std::set<elem_t>& s);
     iterator(const iterator& i)
         : zdd_(i.zdd_), weights_(i.weights_), s_(i.s_) {}
 
@@ -54,7 +54,7 @@ class setset {
   typedef iterator const_iterator;
 
   setset();
-  setset(const setset& ss) : zdd_(ss.zdd_), weights_(ss.weights_) {}
+  setset(const setset& ss) : zdd_(ss.zdd_) {}
   explicit setset(const std::set<elem_t>& s);
   explicit setset(const std::vector<std::set<elem_t> >& v);
   explicit setset(const std::map<std::string, std::set<elem_t> >& m);
@@ -62,16 +62,13 @@ class setset {
   explicit setset(const std::initializer_list<std::set<elem_t> >& v);
   explicit setset(std::istream& in);
 
-  /* Disable this constructor to avoid ambiguity, because compilers
-   * automatically convert {{1}, {2}} to {1, 2} if it is defined. */
+  // Disable this constructor to avoid ambiguity, because compilers
+  // automatically convert {{1}, {2}} to {1, 2} if it is defined.
 //  explicit setset(const std::initializer_list<elem_t>& s);
   
   virtual ~setset() {}
 
-  void operator=(const setset& ss) {
-    this->zdd_ = ss.zdd_;
-    this->weights_ = ss.weights_;
-  }
+  void operator=(const setset& ss) { this->zdd_ = ss.zdd_; }
   bool operator==(const setset& ss) { return this->zdd_ == ss.zdd_; }
   bool operator!=(const setset& ss) { return this->zdd_ != ss.zdd_; }
   setset operator~() const;
@@ -102,7 +99,9 @@ class setset {
 
   bool empty() const;
   std::string size() const;
-  iterator begin() const { return iterator(*this); }
+  iterator begin(std::vector<int> weights = std::vector<int>()) const {
+    return iterator(*this, weights);
+  }
   static iterator end() { return iterator(); }
   iterator find(const std::set<elem_t>& s) const;
   setset find(elem_t e) const;
@@ -115,10 +114,6 @@ class setset {
   size_t erase(elem_t e);
   void clear();
   void swap(setset& ss);
-
-  void set_weights(const std::vector<int>& w) { this->weights_ = w; }
-  void clear_weights() { this->weights_ = std::vector<int>(); }
-  const std::vector<int>& weights() const { return this->weights_; }
 
   setset minimal() const;
   setset maximal() const;
@@ -142,7 +137,6 @@ class setset {
   void dump() const;
 
   zdd_t zdd_;
-  std::vector<int> weights_ = std::vector<int>();
 
   friend class setset_test;
 };
