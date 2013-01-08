@@ -53,10 +53,12 @@ static PyObject* setsetiter_iternext(setsetiterobject* self) {
   for (const auto& e : s) {
     PyObject* eo = PyInt_FromLong(e);
     if (eo == nullptr) {
+      PyErr_SetString(PyExc_TypeError, "can't assign non-integer elements");
       Py_DECREF(eo);
       return nullptr;
     }
     if (PySet_Add(so, eo) == -1) {
+      PyErr_SetString(PyExc_TypeError, "can't add elements to a set");
       Py_DECREF(eo);
       return nullptr;
     }

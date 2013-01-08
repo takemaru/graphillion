@@ -237,8 +237,12 @@ def stream():
 if __name__ == '__main__':
     ss1 = setset([set(), set([1, 2]), set([1, 3])])
     ss2 = setset()
-    for s in ss1:
-        ss2 = ss2 | setset(s)
+#    for s in ss1:
+#        print 'in'
+#        ss2 = ss2 | setset()
+#        print 'out'
+    ss2 = ss2 | setset()
+    ss2 = ss2 | setset()
     assert ss1 == ss2
     import sys
     sys.exit()
