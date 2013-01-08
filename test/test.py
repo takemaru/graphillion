@@ -1,3 +1,4 @@
+import _illion
 from illion import setset
 
 def constructors():
@@ -97,7 +98,7 @@ def binary_operators():
     assert ss == setset([set(), set([1]), set([1, 2]), set([1, 2, 3]),
                          set([1, 2, 3, 4]), set([1, 3, 4]), set([1, 4]),
                          set([2, 3]), set([3, 4]), set([4])])
-    ss = setset(u).update(setset(v))
+    ss = setset(u).union(setset(v))
     assert ss == setset([set(), set([1]), set([1, 2]), set([1, 2, 3]),
                          set([1, 2, 3, 4]), set([1, 3, 4]), set([1, 4]),
                          set([2, 3]), set([3, 4]), set([4])])
@@ -215,7 +216,11 @@ def capacity():
     assert ss.len() == 3
 
 def iterators():
-    pass
+    ss1 = setset([set(), set([1, 2]), set([1, 3])])
+    ss2 = setset()
+    for s in ss1:
+        ss2 = ss2 | setset(s)
+    assert ss1 == ss2
 
 def lookup():
     pass

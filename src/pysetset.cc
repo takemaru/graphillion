@@ -23,36 +23,41 @@ using std::vector;
 
 typedef struct {
   PyObject_HEAD
-  PySetsetObject* ssi_sso; /* Set to NULL when iterator is exhausted */
-  Py_ssize_t ssi_pos;
-  Py_ssize_t len;
+  setset::iterator* it;
 } setsetiterobject;
 
 static void setsetiter_dealloc(setsetiterobject* self) {
-  Py_XDECREF(self->ssi_sso);
+  delete self->it;
   PyObject_Del(self);
 }
 
-static PyObject* setsetiter_len(setsetiterobject* self) {
-  return PyInt_FromLong(0);
-}
+//static PyObject* setsetiter_len(setsetiterobject* self) {
+//  return PyInt_FromLong(0);
+//}
 
-PyDoc_STRVAR(length_hint_doc,
-             "Private method returning an estimate of len(list(it)).");
+//PyDoc_STRVAR(length_hint_doc,
+//             "Private method returning an estimate of len(list(it)).");
 
 static PyMethodDef setsetiter_methods[] = {
-  {"__length_hint__", reinterpret_cast<PyCFunction>(setsetiter_len), METH_NOARGS,
-   length_hint_doc},
+//  {"__length_hint__", reinterpret_cast<PyCFunction>(setsetiter_len), METH_NOARGS,
+//   length_hint_doc},
   {nullptr,           nullptr}           /* sentinel */
 };
 
 static PyObject* setsetiter_iternext(setsetiterobject* self) {
-  PySetsetObject *sso = self->ssi_sso;
-  if (sso == nullptr) return nullptr;
-  assert(PySetset_Check(sso));
-  Py_DECREF(sso);
-  self->ssi_sso = nullptr;
-  return nullptr;
+  if (*(self->it) == setset::end())
+    return nullptr;
+  ++(*self->it);
+  set<int> s = *(*self->it);
+  PyObject* so = PySet_New(nullptr);
+  for (const auto& e : s) {
+    PyObject* eo = PyInt_FromLong(e);
+    if (eo == nullptr)
+      return nullptr;
+    if (PySet_Add(so, eo) == -1)
+      return nullptr;
+  }
+  return so;
 }
 
 static PyTypeObject SetsetIter_Type = {
@@ -410,10 +415,7 @@ static PyObject* setset_long_len(PyObject* obj) {
 static PyObject* setset_iter(PySetsetObject* self) {
   setsetiterobject* ssi = PyObject_New(setsetiterobject, &SetsetIter_Type);
   if (ssi == nullptr) return nullptr;
-  Py_INCREF(self);
-  ssi->ssi_sso = self;
-  ssi->ssi_pos = 0;
-  ssi->len = 0;
+  ssi->it = new setset::iterator(self->ss->begin());
   return reinterpret_cast<PyObject*>(ssi);
 }
 
@@ -619,7 +621,7 @@ static PyNumberMethods setset_as_number = {
   reinterpret_cast<binaryfunc>(setset_intersection), /*nb_and*/
   reinterpret_cast<binaryfunc>(setset_symmetric_difference), /*nb_xor*/
   reinterpret_cast<binaryfunc>(setset_union), /*nb_or*/
-  0,                                  /*nb_coerce*/
+  reinterpret_cast<coercion>(Py_TPFLAGS_CHECKTYPES), /*nb_coerce*/
   0,                                  /*nb_int*/
   0,                                  /*nb_long*/
   0,                                  /*nb_float*/
