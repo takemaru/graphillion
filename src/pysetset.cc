@@ -628,7 +628,7 @@ static PyNumberMethods setset_as_number = {
   reinterpret_cast<binaryfunc>(setset_intersection), /*nb_and*/
   reinterpret_cast<binaryfunc>(setset_symmetric_difference), /*nb_xor*/
   reinterpret_cast<binaryfunc>(setset_union), /*nb_or*/
-  reinterpret_cast<coercion>(Py_TPFLAGS_CHECKTYPES), /*nb_coerce*/
+  0/*reinterpret_cast<coercion>(Py_TPFLAGS_CHECKTYPES)*/, /*nb_coerce*/
   0,                                  /*nb_int*/
   0,                                  /*nb_long*/
   0,                                  /*nb_float*/
@@ -679,7 +679,7 @@ PyTypeObject PySetset_Type = {
   0,                         /*tp_getattro*/
   0,                         /*tp_setattro*/
   0,                         /*tp_as_buffer*/
-  Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /*tp_flags*/
+  Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
   "Base class for set of sets", /* tp_doc */
   0,		               /* tp_traverse */
   0,		               /* tp_clear */
