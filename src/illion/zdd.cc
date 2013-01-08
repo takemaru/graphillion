@@ -1,6 +1,6 @@
 #include "illion/zdd.h"
 
-#include <cassert>
+//#include <cassert>
 #include <cinttypes>
 #include <climits>
 
@@ -48,7 +48,7 @@ elem_t num_elems() {
 }
 
 zdd_t single(elem_t e) {
-  assert(0 < e);
+  assert(e > 0);
   if (!initialized_) init(e);
   new_elems(e);
   return top().Change(e);
