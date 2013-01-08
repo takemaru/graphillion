@@ -189,6 +189,35 @@ static void setset_dealloc(PySetsetObject* self) {
   self->ob_type->tp_free(reinterpret_cast<PyObject*>(self));
 }
 
+static PyObject* setset_complement(PySetsetObject* self) {
+  PySetsetObject* sso = reinterpret_cast<PySetsetObject*>(
+      PySetset_Type.tp_alloc(&PySetset_Type, 0));
+  sso->ss = new setset(~(*self->ss));
+  return reinterpret_cast<PyObject*>(sso);
+}
+
+static PyObject* setset_intersection(PySetsetObject* self, PyObject* other) {
+  if (!PySetset_Check(other)) {
+    PyErr_SetString(PyExc_TypeError, "not setset");
+    return nullptr;
+  }
+  PySetsetObject* sso = reinterpret_cast<PySetsetObject*>(other);
+  PySetsetObject* ret = reinterpret_cast<PySetsetObject*>(
+      PySetset_Type.tp_alloc(&PySetset_Type, 0));
+  ret->ss = new setset((*self->ss) & (*sso->ss));
+  return reinterpret_cast<PyObject*>(ret);
+}
+
+static PyObject* setset_iintersection(PySetsetObject* self, PyObject* other) {
+  if (!PySetset_Check(other)) {
+    PyErr_SetString(PyExc_TypeError, "not setset");
+    return nullptr;
+  }
+  PySetsetObject* sso = reinterpret_cast<PySetsetObject*>(other);
+  (*self->ss) &= (*sso->ss);
+  return reinterpret_cast<PyObject*>(self);
+}
+
 static PyObject* setset_isdisjoint(PySetsetObject* self, PyObject* other) {
   if (!PySetset_Check(other)) {
     PyErr_SetString(PyExc_TypeError, "not setset");
@@ -225,6 +254,39 @@ static PyObject* setset_issuperset(PySetsetObject* self, PyObject* other) {
     Py_RETURN_FALSE;
 }
 
+static PyObject* setset_minimal(PySetsetObject* self) {
+  PySetsetObject* sso = reinterpret_cast<PySetsetObject*>(
+      PySetset_Type.tp_alloc(&PySetset_Type, 0));
+  sso->ss = new setset(self->ss->minimal());
+  return reinterpret_cast<PyObject*>(sso);
+}
+
+static PyObject* setset_maximal(PySetsetObject* self) {
+  PySetsetObject* sso = reinterpret_cast<PySetsetObject*>(
+      PySetset_Type.tp_alloc(&PySetset_Type, 0));
+  sso->ss = new setset(self->ss->maximal());
+  return reinterpret_cast<PyObject*>(sso);
+}
+
+static PyObject* setset_hitting(PySetsetObject* self) {
+  PySetsetObject* sso = reinterpret_cast<PySetsetObject*>(
+      PySetset_Type.tp_alloc(&PySetset_Type, 0));
+  sso->ss = new setset(self->ss->hitting());
+  return reinterpret_cast<PyObject*>(sso);
+}
+
+static PyObject* setset_smaller(PySetsetObject* self, PyObject* other) {
+  if (!PyInt_Check(other)) {
+    PyErr_SetString(PyExc_TypeError, "not integer");
+    return nullptr;
+  }
+  int max_set_size = PyLong_AsLong(other);
+  PySetsetObject* sso = reinterpret_cast<PySetsetObject*>(
+      PySetset_Type.tp_alloc(&PySetset_Type, 0));
+  sso->ss = new setset(self->ss->smaller(max_set_size));
+  return reinterpret_cast<PyObject*>(sso);
+}
+
 static PyObject* setset_dump(PySetsetObject* self) {
   self->ss->dump();
   Py_RETURN_NONE;
@@ -252,13 +314,6 @@ static PyObject* setset_sub(PySetsetObject* self, PyObject* other) {
   if (result == nullptr) return nullptr;
   // TODO: add elements to result
   return reinterpret_cast<PyObject*>(result);
-}
-
-static PyObject* setset_invert(PySetsetObject* self) {
-  PySetsetObject* sso = reinterpret_cast<PySetsetObject*>(
-      PySetset_Type.tp_alloc(&PySetset_Type, 0));
-  sso->ss = new setset(~(*self->ss));
-  return reinterpret_cast<PyObject*>(sso);
 }
 
 // Returns the number of objects in sequence o on success, and -1 on failure.
@@ -314,9 +369,15 @@ static PyMemberDef setset_members[] = {
 };
 
 static PyMethodDef setset_methods[] = {
+  {"complement", reinterpret_cast<PyCFunction>(setset_complement), METH_NOARGS, ""},
+  {"intersection", reinterpret_cast<PyCFunction>(setset_intersection), METH_O, ""},
   {"isdisjoint", reinterpret_cast<PyCFunction>(setset_isdisjoint), METH_O, ""},
   {"issubset", reinterpret_cast<PyCFunction>(setset_issubset), METH_O, ""},
   {"issuperset", reinterpret_cast<PyCFunction>(setset_issuperset), METH_O, ""},
+  {"minimal", reinterpret_cast<PyCFunction>(setset_minimal), METH_NOARGS, ""},
+  {"maximal", reinterpret_cast<PyCFunction>(setset_maximal), METH_NOARGS, ""},
+  {"hitting", reinterpret_cast<PyCFunction>(setset_hitting), METH_NOARGS, ""},
+  {"smaller", reinterpret_cast<PyCFunction>(setset_smaller), METH_O, ""},
   {"dump", reinterpret_cast<PyCFunction>(setset_dump), METH_NOARGS, ""},
   {"dumps", reinterpret_cast<PyCFunction>(setset_dumps), METH_NOARGS, ""},
   {nullptr}  /* Sentinel */
@@ -334,12 +395,12 @@ static PyNumberMethods setset_as_number = {
   0,                                  /*nb_positive*/
   0,                                  /*nb_absolute*/
   0,                                  /*nb_nonzero*/
-  reinterpret_cast<unaryfunc>(setset_invert), /*nb_invert*/
+  reinterpret_cast<unaryfunc>(setset_complement), /*nb_invert*/
   0,                                  /*nb_lshift*/
   0,                                  /*nb_rshift*/
-//    (binaryfunc)setset_and,                /*nb_and*/
-//    (binaryfunc)setset_xor,                /*nb_xor*/
-//    (binaryfunc)setset_or,                 /*nb_or*/
+  reinterpret_cast<binaryfunc>(setset_intersection), /*nb_and*/
+  0,                /*nb_xor*/
+  0,                 /*nb_or*/
   0,                                  /*nb_coerce*/
   0,                                  /*nb_int*/
   0,                                  /*nb_long*/
@@ -347,14 +408,14 @@ static PyNumberMethods setset_as_number = {
   0,                                  /*nb_oct*/
   0,                                  /*nb_hex*/
   0,                                  /*nb_inplace_add*/
-//    (binaryfunc)setset_isub,               /*nb_inplace_subtract*/
+  0,               /*nb_inplace_subtract*/
   0,                                  /*nb_inplace_multiply*/
   0,                                  /*nb_inplace_divide*/
   0,                                  /*nb_inplace_remainder*/
   0,                                  /*nb_inplace_power*/
   0,                                  /*nb_inplace_lshift*/
   0,                                  /*nb_inplace_rshift*/
-//    (binaryfunc)setset_iand,               /*nb_inplace_and*/
+  reinterpret_cast<binaryfunc>(setset_iintersection), /*nb_inplace_and*/
 //    (binaryfunc)setset_ixor,               /*nb_inplace_xor*/
 //    (binaryfunc)setset_ior,                /*nb_inplace_or*/
 };
