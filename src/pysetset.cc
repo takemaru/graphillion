@@ -23,17 +23,17 @@ using std::vector;
 
 typedef struct {
   PyObject_HEAD
-  PySetsetObject* ssi_sets; /* Set to NULL when iterator is exhausted */
+  PySetsetObject* ssi_ss; /* Set to NULL when iterator is exhausted */
   Py_ssize_t ssi_pos;
   Py_ssize_t len;
 } setsetiterobject;
 
-static void setsetiter_dealloc(setsetiterobject* ssi) {
-  Py_XDECREF(ssi->ssi_sets);
-  PyObject_Del(ssi);
+static void setsetiter_dealloc(setsetiterobject* self) {
+  Py_XDECREF(self->ssi_ss);
+  PyObject_Del(self);
 }
 
-static PyObject* setsetiter_len(setsetiterobject* ssi) {
+static PyObject* setsetiter_len(setsetiterobject* self) {
   return PyInt_FromLong(0);
 }
 
@@ -46,12 +46,12 @@ static PyMethodDef setsetiter_methods[] = {
   {nullptr,           nullptr}           /* sentinel */
 };
 
-static PyObject* setsetiter_iternext(setsetiterobject* ssi) {
-  PySetsetObject *sso = ssi->ssi_sets;
+static PyObject* setsetiter_iternext(setsetiterobject* self) {
+  PySetsetObject *sso = self->ssi_ss;
   if (sso == nullptr) return nullptr;
   assert(PySetset_Check(sso));
   Py_DECREF(sso);
-  ssi->ssi_sets = nullptr;
+  self->ssi_ss = nullptr;
   return nullptr;
 }
 
@@ -87,16 +87,6 @@ static PyTypeObject SetsetIter_Type = {
   setsetiter_methods,                           /* tp_methods */
   0,
 };
-
-static PyObject* setset_iter(PySetsetObject* sso) {
-  setsetiterobject* ssi = PyObject_New(setsetiterobject, &SetsetIter_Type);
-  if (ssi == nullptr) return nullptr;
-  Py_INCREF(sso);
-  ssi->ssi_sets = sso;
-  ssi->ssi_pos = 0;
-  ssi->len = 0;
-  return reinterpret_cast<PyObject*>(ssi);
-}
 
 // setset
 
@@ -415,6 +405,16 @@ static PyObject* setset_long_len(PyObject* obj) {
   buf.push_back('\0');
   PyObject* len = PyLong_FromString(buf.data(), nullptr, 0);
   return len;
+}
+
+static PyObject* setset_iter(PySetsetObject* self) {
+  setsetiterobject* ssi = PyObject_New(setsetiterobject, &SetsetIter_Type);
+  if (ssi == nullptr) return nullptr;
+  Py_INCREF(self);
+  ssi->ssi_ss = self;
+  ssi->ssi_pos = 0;
+  ssi->len = 0;
+  return reinterpret_cast<PyObject*>(ssi);
 }
 
 static PyObject* setset_clear(PySetsetObject* self) {
