@@ -257,7 +257,7 @@ size_t setset::erase(const set<elem_t>& s) {
 size_t setset::erase(elem_t e) {
   setset ss = this->find(e);
   *this -= ss;
-  return atoll(ss.size().c_str());
+  return strtoll(ss.size().c_str(), nullptr, 0);
 }
 
 void setset::clear() {

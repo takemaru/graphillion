@@ -290,19 +290,20 @@ zdd_t load(istream& in) {
     string fmt = sizeof(word_t) == 8 ? ("%" PRId64) : ("%" PRId32);
     int num = sscanf(line.c_str(), (fmt + " %d %s %s").c_str(),
                      &k, &v, &sl, &sh);
-    if (num != 4) {
-      in.setstate(in.badbit);
-      return null();
-    }
+    if (num != 4) goto error;
     word_t l = strcmp(sl, "B") == 0 ? id(bot())
              : strcmp(sl, "T") == 0 ? id(top())
-             :                        atoll(sl);
+             :                        strtoll(sl, nullptr, 0);
     word_t h = strcmp(sh, "B") == 0 ? id(bot())
              : strcmp(sh, "T") == 0 ? id(top())
-             :                        atoll(sh);
+             :                        strtoll(sh, nullptr, 0);
+    if (l == LLONG_MAX || h == LLONG_MAX) goto error;
     n[k] = root = n.at(l) + single(v) * n.at(h);
   } while (getline(in, line));
   return root;
+error:
+  in.setstate(in.badbit);
+  return null();
 }
 
 void dump(zdd_t f, ostream& out) {

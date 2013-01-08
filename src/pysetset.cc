@@ -3,6 +3,9 @@
 
 #include "pysetset.h"
 
+#include <cstdlib>
+#include <climits>
+
 #include <map>
 #include <set>
 #include <string>
@@ -187,6 +190,13 @@ static int setset_init(PySetsetObject* self, PyObject* args, PyObject* kwds) {
 static void setset_dealloc(PySetsetObject* self) {
   delete self->ss;
   self->ob_type->tp_free(reinterpret_cast<PyObject*>(self));
+}
+
+static PyObject* setset_copy(PySetsetObject* self) {
+  PySetsetObject* sso = reinterpret_cast<PySetsetObject*>(
+      PySetset_Type.tp_alloc(&PySetset_Type, 0));
+  sso->ss = new setset(*self->ss);
+  return reinterpret_cast<PyObject*>(sso);
 }
 
 static PyObject* setset_complement(PySetsetObject* self) {
@@ -386,6 +396,32 @@ static PyObject* setset_issuperset(PySetsetObject* self, PyObject* other) {
     Py_RETURN_FALSE;
 }
 
+static Py_ssize_t setset_len(PyObject* obj) {
+  PySetsetObject* self = reinterpret_cast<PySetsetObject*>(obj);
+  long long int len = strtoll(self->ss->size().c_str(), nullptr, 0);
+  if (len != LLONG_MAX) {
+    return len;
+  } else {
+    PyErr_SetString(PyExc_TypeError, "overflow, use setset.len()");
+    return 1;
+  }
+}
+
+static PyObject* setset_long_len(PyObject* obj) {
+  PySetsetObject* self = reinterpret_cast<PySetsetObject*>(obj);
+  vector<char> buf;
+  for (const auto& c : self->ss->size())
+    buf.push_back(c);
+  buf.push_back('\0');
+  PyObject* len = PyLong_FromString(buf.data(), nullptr, 0);
+  return len;
+}
+
+static PyObject* setset_clear(PySetsetObject* self) {
+  self->ss->clear();
+  Py_RETURN_NONE;
+}
+
 static PyObject* setset_minimal(PySetsetObject* self) {
   PySetsetObject* sso = reinterpret_cast<PySetsetObject*>(
       PySetset_Type.tp_alloc(&PySetset_Type, 0));
@@ -483,11 +519,6 @@ static PyObject* setset_repr(PySetsetObject* self) {
                              reinterpret_cast<void*>(self->ss->id()));
 }
 
-// Returns the number of objects in sequence o on success, and -1 on failure.
-static Py_ssize_t setset_len(PyObject* self) {
-  return 0;
-}
-
 // If an item in o is equal to value, return 1, otherwise return 0. On error, return -1.
 static int setset_contains(PySetsetObject *self, PyObject *key) {
   return 0;
@@ -536,6 +567,7 @@ static PyMemberDef setset_members[] = {
 };
 
 static PyMethodDef setset_methods[] = {
+  {"copy", reinterpret_cast<PyCFunction>(setset_copy), METH_NOARGS, ""},
   {"complement", reinterpret_cast<PyCFunction>(setset_complement), METH_NOARGS, ""},
   {"intersection", reinterpret_cast<PyCFunction>(setset_intersection), METH_O, ""},
   {"intersection_update", reinterpret_cast<PyCFunction>(setset_intersection_update), METH_O, ""},
@@ -554,6 +586,8 @@ static PyMethodDef setset_methods[] = {
   {"isdisjoint", reinterpret_cast<PyCFunction>(setset_isdisjoint), METH_O, ""},
   {"issubset", reinterpret_cast<PyCFunction>(setset_issubset), METH_O, ""},
   {"issuperset", reinterpret_cast<PyCFunction>(setset_issuperset), METH_O, ""},
+  {"len", reinterpret_cast<PyCFunction>(setset_long_len), METH_NOARGS, ""},
+  {"clear", reinterpret_cast<PyCFunction>(setset_clear), METH_NOARGS, ""},
   {"minimal", reinterpret_cast<PyCFunction>(setset_minimal), METH_NOARGS, ""},
   {"maximal", reinterpret_cast<PyCFunction>(setset_maximal), METH_NOARGS, ""},
   {"hitting", reinterpret_cast<PyCFunction>(setset_hitting), METH_NOARGS, ""},
