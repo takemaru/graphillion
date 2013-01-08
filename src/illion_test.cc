@@ -176,7 +176,7 @@ class setset_test {
     assert(!ss.is_subset(setset({{}, {1, 2}})));
     assert(ss <= setset(v));
     assert(!(ss <= setset({{}, {1, 2}})));
-    assert(ss <= setset({{}, {1}, {1, 2}, {1, 3}}));
+    assert(ss < setset({{}, {1}, {1, 2}, {1, 3}}));
     assert(!(ss < setset(v)));
 
     assert(ss.is_superset(setset(v)));

@@ -127,25 +127,25 @@ static int setset_parse_map(PyObject* dict_obj, map<string, set<int> >* m) {
 }
 
 static PyObject* setset_new(PyTypeObject* type, PyObject* args, PyObject* kwds) {
-  PySetsetObject* sso;
-  sso = reinterpret_cast<PySetsetObject*>(type->tp_alloc(type, 0));
-  return reinterpret_cast<PyObject*>(sso);
+  PySetsetObject* self;
+  self = reinterpret_cast<PySetsetObject*>(type->tp_alloc(type, 0));
+  return reinterpret_cast<PyObject*>(self);
 }
 
-static int setset_init(PySetsetObject* sso, PyObject* args, PyObject* kwds) {
+static int setset_init(PySetsetObject* self, PyObject* args, PyObject* kwds) {
   PyObject* obj = nullptr;
   if (!PyArg_ParseTuple(args, "|O", &obj))
     return -1;
   if (obj == nullptr) {
-    sso->ss = new setset();
+    self->ss = new setset();
   } else if (PyAnySet_Check(obj)) {
     set<int> s;
     if (setset_parse_set(obj, &s) == -1) return -1;
-    sso->ss = new setset(s);
+    self->ss = new setset(s);
   } else if (PyDict_Check(obj)) {
     map<string, set<int> > m;
     if (setset_parse_map(obj, &m) == -1) return -1;
-    sso->ss = new setset(m);
+    self->ss = new setset(m);
   } else {
     PyObject* i = PyObject_GetIter(obj);
     if (i == nullptr) {
@@ -168,30 +168,30 @@ static int setset_init(PySetsetObject* sso, PyObject* args, PyObject* kwds) {
       Py_DECREF(o);
     }
     Py_DECREF(i);
-    sso->ss = new setset(vs);
-//    sso->ss = new setset(vm);  // TODO: merge two setsets
+    self->ss = new setset(vs);
+//    self->ss = new setset(vm);  // TODO: merge two setsets
   }
   return 0;
 }
 
-static void setset_dealloc(PySetsetObject* sso) {
-  delete sso->ss;
-  sso->ob_type->tp_free(reinterpret_cast<PyObject*>(sso));
+static void setset_dealloc(PySetsetObject* self) {
+  delete self->ss;
+  self->ob_type->tp_free(reinterpret_cast<PyObject*>(self));
 }
 
-static PyObject* setset_dump(PySetsetObject* sso) {
-  sso->ss->dump();
+static PyObject* setset_dump(PySetsetObject* self) {
+  self->ss->dump();
   Py_RETURN_NONE;
 }
 
-static PyObject* setset_repr(PySetsetObject* sso) {
-  return PyString_FromFormat("<%s object of %p>", sso->ob_type->tp_name,
-                             reinterpret_cast<void*>(sso->ss->id()));
+static PyObject* setset_repr(PySetsetObject* self) {
+  return PyString_FromFormat("<%s object of %p>", self->ob_type->tp_name,
+                             reinterpret_cast<void*>(self->ss->id()));
 }
 
-static PyObject* setset_sub(PySetsetObject* sso, PyObject* other) {
+static PyObject* setset_sub(PySetsetObject* self, PyObject* other) {
   PySetsetObject* result = nullptr;
-  if (!PySetset_Check(sso) || !PySetset_Check(other)) {
+  if (!PySetset_Check(self) || !PySetset_Check(other)) {
     Py_INCREF(Py_NotImplemented);
     return Py_NotImplemented;
   }
@@ -202,13 +202,20 @@ static PyObject* setset_sub(PySetsetObject* sso, PyObject* other) {
   return reinterpret_cast<PyObject*>(result);
 }
 
+static PyObject* setset_invert(PySetsetObject* self) {
+  PySetsetObject* sso = reinterpret_cast<PySetsetObject*>(
+      PySetset_Type.tp_alloc(&PySetset_Type, 0));
+  sso->ss = new setset(~(*self->ss));
+  return reinterpret_cast<PyObject*>(sso);
+}
+
 // Returns the number of objects in sequence o on success, and -1 on failure.
 static Py_ssize_t setset_len(PyObject* self) {
   return 0;
 }
 
 // If an item in o is equal to value, return 1, otherwise return 0. On error, return -1.
-static int setset_contains(PySetsetObject *sso, PyObject *key) {
+static int setset_contains(PySetsetObject *self, PyObject *key) {
   return 0;
 }
 
@@ -217,39 +224,34 @@ static long setset_hash(PyObject* self) {
   return sso->ss->id();
 }
 
-static PyObject* setset_richcompare(PySetsetObject* v, PyObject* w, int op) {
-  PySetsetObject* u;
-  if(!PySetset_Check(w)) {
+static PyObject* setset_richcompare(PySetsetObject* self, PyObject* obj, int op) {
+  PySetsetObject* sso;
+  if(!PySetset_Check(obj)) {
     if (op == Py_EQ) Py_RETURN_FALSE;
     if (op == Py_NE) Py_RETURN_TRUE;
     PyErr_SetString(PyExc_TypeError, "can only compare to set of sets");
     return nullptr;
   }
-  u = reinterpret_cast<PySetsetObject*>(w);
+  sso = reinterpret_cast<PySetsetObject*>(obj);
   switch (op) {
     case Py_EQ:
-      if (*v->ss == *u->ss) Py_RETURN_TRUE;
-      else                  Py_RETURN_FALSE;
+      if (*self->ss == *sso->ss) Py_RETURN_TRUE;
+      else Py_RETURN_FALSE;
     case Py_NE:
-      if (*v->ss != *u->ss) Py_RETURN_TRUE;
-      else                  Py_RETURN_FALSE;
-    default:
-      PyErr_SetString(PyExc_TypeError, "not support enequalities");
-      return NULL;
-/*
+      if (*self->ss != *sso->ss) Py_RETURN_TRUE;
+      else Py_RETURN_FALSE;
     case Py_LE:
-        if (setset_issubset(v, u)) Py_RETURN_TRUE;
-        else                     Py_RETURN_FALSE;
+      if (*self->ss <= *sso->ss) Py_RETURN_TRUE;
+      else Py_RETURN_FALSE;
     case Py_GE:
-        if (setset_issuperset(v, u)) Py_RETURN_TRUE;
-        else                       Py_RETURN_FALSE;
+      if (*self->ss >= *sso->ss) Py_RETURN_TRUE;
+      else Py_RETURN_FALSE;
     case Py_LT:
-        if (v->sets != u->sets && setset_issubset(v, u)) Py_RETURN_TRUE;
-        else                                           Py_RETURN_FALSE;
+      if (*self->ss < *sso->ss) Py_RETURN_TRUE;
+      else Py_RETURN_FALSE;
     case Py_GT:
-        if (v->sets != u->sets && setset_issuperset(v, u)) Py_RETURN_TRUE;
-        else                                             Py_RETURN_FALSE;
-*/
+      if (*self->ss > *sso->ss) Py_RETURN_TRUE;
+      else Py_RETURN_FALSE;
   }
   Py_INCREF(Py_NotImplemented);
   return Py_NotImplemented;
@@ -276,7 +278,7 @@ static PyNumberMethods setset_as_number = {
   0,                                  /*nb_positive*/
   0,                                  /*nb_absolute*/
   0,                                  /*nb_nonzero*/
-  0,                                  /*nb_invert*/
+  reinterpret_cast<unaryfunc>(setset_invert), /*nb_invert*/
   0,                                  /*nb_lshift*/
   0,                                  /*nb_rshift*/
 //    (binaryfunc)setset_and,                /*nb_and*/
