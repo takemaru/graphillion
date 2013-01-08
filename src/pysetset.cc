@@ -23,13 +23,13 @@ using std::vector;
 
 typedef struct {
   PyObject_HEAD
-  PySetsetObject* ssi_ss; /* Set to NULL when iterator is exhausted */
+  PySetsetObject* ssi_sso; /* Set to NULL when iterator is exhausted */
   Py_ssize_t ssi_pos;
   Py_ssize_t len;
 } setsetiterobject;
 
 static void setsetiter_dealloc(setsetiterobject* self) {
-  Py_XDECREF(self->ssi_ss);
+  Py_XDECREF(self->ssi_sso);
   PyObject_Del(self);
 }
 
@@ -47,11 +47,11 @@ static PyMethodDef setsetiter_methods[] = {
 };
 
 static PyObject* setsetiter_iternext(setsetiterobject* self) {
-  PySetsetObject *sso = self->ssi_ss;
+  PySetsetObject *sso = self->ssi_sso;
   if (sso == nullptr) return nullptr;
   assert(PySetset_Check(sso));
   Py_DECREF(sso);
-  self->ssi_ss = nullptr;
+  self->ssi_sso = nullptr;
   return nullptr;
 }
 
@@ -411,7 +411,7 @@ static PyObject* setset_iter(PySetsetObject* self) {
   setsetiterobject* ssi = PyObject_New(setsetiterobject, &SetsetIter_Type);
   if (ssi == nullptr) return nullptr;
   Py_INCREF(self);
-  ssi->ssi_ss = self;
+  ssi->ssi_sso = self;
   ssi->ssi_pos = 0;
   ssi->len = 0;
   return reinterpret_cast<PyObject*>(ssi);
