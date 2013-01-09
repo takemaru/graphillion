@@ -324,7 +324,7 @@ class setset_test {
     assert(str1 == "hello" && ss == setset(v) && str2 == "bye");
 
     sstr.clear(); sstr.str("");
-    ss.save(sstr);
+    ss.dump(sstr);
     ss.load(sstr);
     assert(ss == setset(v));
   }

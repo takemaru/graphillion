@@ -244,7 +244,7 @@ zdd_t choose_best(zdd_t f, const vector<int>& weights, set<elem_t>* s) {
   return g;
 }
 
-void save(zdd_t f, ostream& out) {
+void dump(zdd_t f, ostream& out) {
   if (is_bot(f)) {
     out << "B" << endl << "E" << endl;
   } else if (is_top(f)) {

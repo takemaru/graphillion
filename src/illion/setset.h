@@ -126,7 +126,7 @@ class setset {
   setset nonsubsets(const setset& ss) const;
   setset nonsupersets(const setset& ss) const;
 
-  void save(std::ostream& out) const;
+  void dump(std::ostream& out) const;
   void load(std::istream& in);
   void _enum(std::ostream& out = std::cout) const;
 

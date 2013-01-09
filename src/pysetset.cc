@@ -711,8 +711,8 @@ static PyMethodDef setset_methods[] = {
   {"supersets", reinterpret_cast<PyCFunction>(setset_supersets), METH_O, ""},
   {"nonsubsets", reinterpret_cast<PyCFunction>(setset_nonsubsets), METH_O, ""},
   {"nonsupersets", reinterpret_cast<PyCFunction>(setset_nonsupersets), METH_O, ""},
-  {"enum", reinterpret_cast<PyCFunction>(setset_enum), METH_NOARGS, ""},
-  {"enums", reinterpret_cast<PyCFunction>(setset_enums), METH_NOARGS, ""},
+  {"_enum", reinterpret_cast<PyCFunction>(setset_enum), METH_NOARGS, ""},
+  {"_enums", reinterpret_cast<PyCFunction>(setset_enums), METH_NOARGS, ""},
   {nullptr}  /* Sentinel */
 };
 

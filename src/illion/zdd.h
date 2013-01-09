@@ -50,7 +50,7 @@ zdd_t nonsupersets(zdd_t f, zdd_t g);
 zdd_t choose_random(zdd_t f, std::vector<elem_t>* stack, int* idum);
 zdd_t choose_best(zdd_t f, const std::vector<int>& weights,
                   std::set<elem_t>* s);
-void save(zdd_t f, std::ostream& out = std::cout);
+void dump(zdd_t f, std::ostream& out = std::cout);
 zdd_t load(std::istream& in = std::cin);
 void _enum(zdd_t f, std::ostream& out = std::cout);
 void _enum(zdd_t f, std::ostream& out, std::vector<elem_t>* stack, bool* first);

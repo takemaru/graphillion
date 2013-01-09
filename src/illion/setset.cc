@@ -306,8 +306,8 @@ setset setset::nonsupersets(const setset& ss) const {
   return setset(illion::nonsupersets(this->zdd_, ss.zdd_));
 }
 
-void setset::save(ostream& out) const {
-  illion::save(this->zdd_, out);
+void setset::dump(ostream& out) const {
+  illion::dump(this->zdd_, out);
 }
 
 void setset::load(istream& in) {
@@ -319,7 +319,7 @@ void setset::_enum(ostream& out) const {
 }
 
 ostream& operator<<(ostream& out, const setset& ss) {
-  illion::save(ss.zdd_, out);
+  illion::dump(ss.zdd_, out);
   return out;
 }
 
