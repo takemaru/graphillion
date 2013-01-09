@@ -19,40 +19,12 @@ using std::string;
 using std::stringstream;
 using std::vector;
 
-// setset::iterator
-
-typedef struct {
-  PyObject_HEAD
-  setset::iterator* it;
-} setsetiterobject;
-
-static void setsetiter_dealloc(setsetiterobject* self) {
-  delete self->it;
-  PyObject_Del(self);
-}
-
-//static PyObject* setsetiter_len(setsetiterobject* self) {
-//  return PyInt_FromLong(0);
-//}
-
-//PyDoc_STRVAR(length_hint_doc,
-//             "Private method returning an estimate of len(list(it)).");
-
-static PyMethodDef setsetiter_methods[] = {
-//  {"__length_hint__", reinterpret_cast<PyCFunction>(setsetiter_len), METH_NOARGS,
-//   length_hint_doc},
-  {nullptr,           nullptr}           /* sentinel */
-};
-
-static PyObject* setsetiter_iternext(setsetiterobject* self) {
-  if (*(self->it) == setset::end())
-    return nullptr;
-  set<int> s = *(*self->it);
+static PyObject* setset_build_set(const set<int>& s) {
   PyObject* so = PySet_New(nullptr);
   for (const auto& e : s) {
     PyObject* eo = PyInt_FromLong(e);
     if (eo == nullptr) {
-      PyErr_SetString(PyExc_TypeError, "can't assign non-integer elements");
+      PyErr_SetString(PyExc_TypeError, "not integer set");
       Py_DECREF(eo);
       return nullptr;
     }
@@ -63,44 +35,8 @@ static PyObject* setsetiter_iternext(setsetiterobject* self) {
     }
     Py_DECREF(eo);
   }
-  ++(*self->it);
   return so;
 }
-
-static PyTypeObject SetsetIter_Type = {
-  PyVarObject_HEAD_INIT(&PyType_Type, 0)
-  "setsiterator",                             /* tp_name */
-  sizeof(setsetiterobject),                     /* tp_basicsize */
-  0,                                          /* tp_itemsize */
-  /* methods */
-  reinterpret_cast<destructor>(setsetiter_dealloc), /* tp_dealloc */
-  0,                                          /* tp_print */
-  0,                                          /* tp_getattr */
-  0,                                          /* tp_setattr */
-  0,                                          /* tp_compare */
-  0,                                          /* tp_repr */
-  0,                                          /* tp_as_number */
-  0,                                          /* tp_as_sequence */
-  0,                                          /* tp_as_mapping */
-  0,                                          /* tp_hash */
-  0,                                          /* tp_call */
-  0,                                          /* tp_str */
-  PyObject_GenericGetAttr,                    /* tp_getattro */
-  0,                                          /* tp_setattro */
-  0,                                          /* tp_as_buffer */
-  Py_TPFLAGS_DEFAULT,                         /* tp_flags */
-  0,                                          /* tp_doc */
-  0,                                          /* tp_traverse */
-  0,                                          /* tp_clear */
-  0,                                          /* tp_richcompare */
-  0,                                          /* tp_weaklistoffset */
-  PyObject_SelfIter,                          /* tp_iter */
-  reinterpret_cast<iternextfunc>(setsetiter_iternext), /* tp_iternext */
-  setsetiter_methods,                           /* tp_methods */
-  0,
-};
-
-// setset
 
 static int setset_parse_set(PyObject* so, set<int>* s) {
   assert(s != nullptr);
@@ -137,6 +73,74 @@ static int setset_parse_map(PyObject* dict_obj, map<string, set<int> >* m) {
   }
   return 0;
 }
+
+// setset::iterator
+
+typedef struct {
+  PyObject_HEAD
+  setset::iterator* it;
+} setsetiterobject;
+
+static void setsetiter_dealloc(setsetiterobject* self) {
+  delete self->it;
+  PyObject_Del(self);
+}
+
+//static PyObject* setsetiter_len(setsetiterobject* self) {
+//  return PyInt_FromLong(0);
+//}
+
+//PyDoc_STRVAR(length_hint_doc,
+//             "Private method returning an estimate of len(list(it)).");
+
+static PyMethodDef setsetiter_methods[] = {
+//  {"__length_hint__", reinterpret_cast<PyCFunction>(setsetiter_len), METH_NOARGS,
+//   length_hint_doc},
+  {nullptr,           nullptr}           /* sentinel */
+};
+
+static PyObject* setsetiter_iternext(setsetiterobject* self) {
+  if (*(self->it) == setset::end())
+    return nullptr;
+  set<int> s = *(*self->it);
+  ++(*self->it);
+  return setset_build_set(s);
+}
+
+static PyTypeObject SetsetIter_Type = {
+  PyVarObject_HEAD_INIT(&PyType_Type, 0)
+  "setsiterator",                             /* tp_name */
+  sizeof(setsetiterobject),                     /* tp_basicsize */
+  0,                                          /* tp_itemsize */
+  /* methods */
+  reinterpret_cast<destructor>(setsetiter_dealloc), /* tp_dealloc */
+  0,                                          /* tp_print */
+  0,                                          /* tp_getattr */
+  0,                                          /* tp_setattr */
+  0,                                          /* tp_compare */
+  0,                                          /* tp_repr */
+  0,                                          /* tp_as_number */
+  0,                                          /* tp_as_sequence */
+  0,                                          /* tp_as_mapping */
+  0,                                          /* tp_hash */
+  0,                                          /* tp_call */
+  0,                                          /* tp_str */
+  PyObject_GenericGetAttr,                    /* tp_getattro */
+  0,                                          /* tp_setattro */
+  0,                                          /* tp_as_buffer */
+  Py_TPFLAGS_DEFAULT,                         /* tp_flags */
+  0,                                          /* tp_doc */
+  0,                                          /* tp_traverse */
+  0,                                          /* tp_clear */
+  0,                                          /* tp_richcompare */
+  0,                                          /* tp_weaklistoffset */
+  PyObject_SelfIter,                          /* tp_iter */
+  reinterpret_cast<iternextfunc>(setsetiter_iternext), /* tp_iternext */
+  setsetiter_methods,                           /* tp_methods */
+  0,
+};
+
+// setset
 
 static PyObject* setset_new(PyTypeObject* type, PyObject* args, PyObject* kwds) {
   PySetsetObject* self;
@@ -484,6 +488,50 @@ static PyObject* setset_not_find(PySetsetObject* self, PyObject* eo) {
   return reinterpret_cast<PyObject*>(sso);
 }
 
+static PyObject* setset_add(PySetsetObject* self, PyObject* so) {
+  if (!PyAnySet_Check(so)) {
+    PyErr_SetString(PyExc_TypeError, "not integer set");
+    return nullptr;
+  }
+  set<int> s;
+  if (setset_parse_set(so, &s) == -1) return nullptr;
+  self->ss->insert(s);
+  Py_RETURN_NONE;
+}
+
+static PyObject* setset_remove(PySetsetObject* self, PyObject* so) {
+  if (!PyAnySet_Check(so)) {
+    PyErr_SetString(PyExc_TypeError, "not integer set");
+    return nullptr;
+  }
+  set<int> s;
+  if (setset_parse_set(so, &s) == -1) return nullptr;
+  if (self->ss->erase(s) == 0) {
+    PyErr_SetString(PyExc_KeyError, "not found");
+    return nullptr;
+  }
+  Py_RETURN_NONE;
+}
+
+static PyObject* setset_discard(PySetsetObject* self, PyObject* so) {
+  if (!PyAnySet_Check(so)) {
+    PyErr_SetString(PyExc_TypeError, "not integer set");
+    return nullptr;
+  }
+  set<int> s;
+  if (setset_parse_set(so, &s) == -1) return nullptr;
+  self->ss->erase(s);
+  Py_RETURN_NONE;
+}
+
+static PyObject* setset_pop(PySetsetObject* self) {
+  setset::iterator i = self->ss->begin();
+  if (i == setset::end()) return nullptr;
+  set<int> s = *i;
+  self->ss->erase(s);
+  return setset_build_set(s);
+}
+
 static PyObject* setset_clear(PySetsetObject* self) {
   self->ss->clear();
   Py_RETURN_NONE;
@@ -652,6 +700,10 @@ static PyMethodDef setset_methods[] = {
   {"opt_iter", reinterpret_cast<PyCFunction>(setset_opt_iter), METH_O, ""},
   {"find", reinterpret_cast<PyCFunction>(setset_find), METH_O, ""},
   {"not_find", reinterpret_cast<PyCFunction>(setset_not_find), METH_O, ""},
+  {"add", reinterpret_cast<PyCFunction>(setset_add), METH_O, ""},
+  {"remove", reinterpret_cast<PyCFunction>(setset_remove), METH_O, ""},
+  {"discard", reinterpret_cast<PyCFunction>(setset_discard), METH_O, ""},
+  {"pop", reinterpret_cast<PyCFunction>(setset_pop), METH_NOARGS, ""},
   {"clear", reinterpret_cast<PyCFunction>(setset_clear), METH_NOARGS, ""},
   {"minimal", reinterpret_cast<PyCFunction>(setset_minimal), METH_NOARGS, ""},
   {"maximal", reinterpret_cast<PyCFunction>(setset_maximal), METH_NOARGS, ""},

@@ -249,6 +249,29 @@ def lookup():
 def modifiers():
     v = [set(), set([1, 2]), set([1, 3])]
     ss = setset(v)
+    ss.add(set([1]))
+    assert set([1]) in ss
+
+    ss.remove(set([1]))
+    assert set([1]) not in ss
+
+    try:
+        ss.remove(set([1]))
+    except KeyError:
+        pass
+    else:
+        assert False
+
+    ss.add(set([1]))
+    ss.discard(set([1]))
+    assert set([1]) not in ss
+    ss.discard(set([1]))  # no exception raised
+
+    s = ss.pop()
+    assert s not in ss
+    assert ss | setset(s) == setset([set(), set([1, 2]), set([1, 3])])
+
+    assert ss
     ss.clear()
     assert not ss
 
