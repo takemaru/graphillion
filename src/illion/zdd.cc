@@ -22,8 +22,10 @@ using std::unordered_map;
 using std::unordered_set;
 using std::vector;
 
+static const string WORD_FMT = sizeof(word_t) == 8 ? ("%" PRId64) : ("%" PRId32);
+
 bool initialized_ = false;
-elem_t num_elems_ = 0;
+static elem_t num_elems_ = 0;
 
 ZBDD operator|(const ZBDD& f, const ZBDD& g) {
   return f + g;
@@ -318,8 +320,7 @@ zdd_t load(istream& in) {
     word_t k;
     elem_t v;
     char sl[256], sh[256];
-    string fmt = sizeof(word_t) == 8 ? ("%" PRId64) : ("%" PRId32);
-    int num = sscanf(line.c_str(), (fmt + " %d %s %s").c_str(),
+    int num = sscanf(line.c_str(), (WORD_FMT + " %d %s %s").c_str(),
                      &k, &v, &sl, &sh);
     if (num != 4) goto error;
     word_t l = strcmp(sl, "B") == 0 ? id(bot())
@@ -352,8 +353,7 @@ zdd_t load(FILE* fp) {
     word_t k;
     elem_t v;
     char sl[256], sh[256];
-    string fmt = sizeof(word_t) == 8 ? ("%" PRId64) : ("%" PRId32);
-    int num = sscanf(line.c_str(), (fmt + " %d %s %s").c_str(),
+    int num = sscanf(line.c_str(), (WORD_FMT + " %d %s %s").c_str(),
                      &k, &v, &sl, &sh);
     if (num != 4) return null();
     word_t l = strcmp(sl, "B") == 0 ? id(bot())
