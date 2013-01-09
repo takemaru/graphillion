@@ -110,10 +110,10 @@ static int setset_parse_set(PyObject* so, set<int>* s) {
   while ((eo = PyIter_Next(i))) {
     if (!PyInt_Check(eo)) {
       Py_DECREF(eo);
-      PyErr_SetString(PyExc_TypeError, "can't assign non-integer elements");
+      PyErr_SetString(PyExc_TypeError, "not integer set");
       return -1;
     }
-    s->insert(PyLong_AsLong(eo));
+    s->insert(PyInt_AsLong(eo));
     Py_DECREF(eo);
   }
   Py_DECREF(i);
@@ -428,7 +428,7 @@ static PyObject* setset_iter(PySetsetObject* self) {
 
 static PyObject* setset_opt_iter(PySetsetObject* self, PyObject* weights) {
   if (!PyList_Check(weights)) {
-    PyErr_SetString(PyExc_TypeError, "weights must be integer list");
+    PyErr_SetString(PyExc_TypeError, "not integer list");
     return nullptr;
   }
   PyObject* i = PyObject_GetIter(weights);
@@ -438,10 +438,10 @@ static PyObject* setset_opt_iter(PySetsetObject* self, PyObject* weights) {
   while ((eo = PyIter_Next(i))) {
     if (!PyInt_Check(eo)) {
       Py_DECREF(eo);
-      PyErr_SetString(PyExc_TypeError, "weights must be integer list");
+      PyErr_SetString(PyExc_TypeError, "not integer list");
       return nullptr;
     }
-    w.push_back(PyLong_AsLong(eo));
+    w.push_back(PyInt_AsLong(eo));
     Py_DECREF(eo);
   }
   Py_DECREF(i);
@@ -449,6 +449,28 @@ static PyObject* setset_opt_iter(PySetsetObject* self, PyObject* weights) {
   if (ssi == nullptr) return nullptr;
   ssi->it = new setset::iterator(self->ss->begin(w));
   return reinterpret_cast<PyObject*>(ssi);
+}
+
+// If an item in o is equal to value, return 1, otherwise return 0. On error, return -1.
+static int setset_contains(PySetsetObject* self, PyObject* so) {
+  if (!PyAnySet_Check(so)) {
+    PyErr_SetString(PyExc_TypeError, "not integer set");
+    return -1;
+  }
+  set<int> s;
+  if (setset_parse_set(so, &s) == -1) return -1;
+  return self->ss->find(s) != setset::end() ? 1 : 0;
+}
+
+static PyObject* setset_find(PySetsetObject* self, PyObject* eo) {
+  if (!PyInt_Check(eo)) {
+    PyErr_SetString(PyExc_TypeError, "not integer");
+    return nullptr;
+  }
+  PySetsetObject* sso = reinterpret_cast<PySetsetObject*>(
+      PySetset_Type.tp_alloc(&PySetset_Type, 0));
+  sso->ss = new setset(self->ss->find(PyInt_AsLong(eo)));
+  return reinterpret_cast<PyObject*>(sso);
 }
 
 static PyObject* setset_clear(PySetsetObject* self) {
@@ -553,11 +575,6 @@ static PyObject* setset_repr(PySetsetObject* self) {
                              reinterpret_cast<void*>(self->ss->id()));
 }
 
-// If an item in o is equal to value, return 1, otherwise return 0. On error, return -1.
-static int setset_contains(PySetsetObject *self, PyObject *key) {
-  return 0;
-}
-
 static long setset_hash(PyObject* self) {
   PySetsetObject* sso = reinterpret_cast<PySetsetObject*>(self);
   return sso->ss->id();
@@ -622,6 +639,7 @@ static PyMethodDef setset_methods[] = {
   {"issuperset", reinterpret_cast<PyCFunction>(setset_issuperset), METH_O, ""},
   {"len", reinterpret_cast<PyCFunction>(setset_long_len), METH_NOARGS, ""},
   {"opt_iter", reinterpret_cast<PyCFunction>(setset_opt_iter), METH_O, ""},
+  {"find", reinterpret_cast<PyCFunction>(setset_find), METH_O, ""},
   {"clear", reinterpret_cast<PyCFunction>(setset_clear), METH_NOARGS, ""},
   {"minimal", reinterpret_cast<PyCFunction>(setset_minimal), METH_NOARGS, ""},
   {"maximal", reinterpret_cast<PyCFunction>(setset_maximal), METH_NOARGS, ""},
