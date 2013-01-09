@@ -1,4 +1,3 @@
-import _illion
 from illion import setset
 
 def constructors():
