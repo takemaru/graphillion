@@ -322,12 +322,16 @@ void setset::load(FILE* fp) {
   this->zdd_ = illion::load(fp);
 }
 
-void setset::_enum(ostream& out) const {
-  illion::_enum(this->zdd_, out);
+void setset::_enum(ostream& out,
+                   const pair<const char*, const char*> outer_braces,
+                   const pair<const char*, const char*> inner_braces) const {
+  illion::_enum(this->zdd_, out, outer_braces, inner_braces);
 }
 
-void setset::_enum(FILE* fp) const {
-  illion::_enum(this->zdd_, fp);
+void setset::_enum(FILE* fp,
+                   const pair<const char*, const char*> outer_braces,
+                   const pair<const char*, const char*> inner_braces) const {
+  illion::_enum(this->zdd_, fp, outer_braces, inner_braces);
 }
 
 ostream& operator<<(ostream& out, const setset& ss) {

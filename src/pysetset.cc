@@ -675,7 +675,8 @@ static PyObject* setset_enum(PySetsetObject* self, PyObject* obj) {
   PyFileObject* file = reinterpret_cast<PyFileObject*>(obj);
   PyFile_IncUseCount(file);
   Py_BEGIN_ALLOW_THREADS;
-  self->ss->_enum(fp);
+  self->ss->_enum(fp, std::make_pair("setset([", "])"),
+                  std::make_pair("set([", "])"));
   Py_END_ALLOW_THREADS;
   PyFile_DecUseCount(file);
   Py_RETURN_NONE;
@@ -683,7 +684,8 @@ static PyObject* setset_enum(PySetsetObject* self, PyObject* obj) {
 
 static PyObject* setset_enums(PySetsetObject* self) {
   stringstream sstr;
-  self->ss->_enum(sstr);
+  self->ss->_enum(sstr, std::make_pair("setset([", "])"),
+                  std::make_pair("set([", "])"));
   return PyString_FromString(sstr.str().c_str());
 }
 

@@ -368,60 +368,67 @@ zdd_t load(FILE* fp) {
   return root;
 }
 
-void _enum(zdd_t f, ostream& out) {
+void _enum(zdd_t f, ostream& out,
+           const pair<const char*, const char*>& outer_braces,
+           const pair<const char*, const char*>& inner_braces) {
   vector<elem_t> stack;
-  out << "{";
+  out << outer_braces.first;
   bool first = true;
-  _enum(f, out, &stack, &first);
-  out << "}";
+  _enum(f, out, &stack, &first, inner_braces);
+  out << outer_braces.second;
   if (out == std::cout || out == std::cerr)
     out << endl;
 }
 
-void _enum(zdd_t f, FILE* fp) {
+void _enum(zdd_t f, FILE* fp,
+           const pair<const char*, const char*>& outer_braces,
+           const pair<const char*, const char*>& inner_braces) {
   vector<elem_t> stack;
-  fprintf(fp, "{");
+  fprintf(fp, outer_braces.first);
   bool first = true;
-  _enum(f, fp, &stack, &first);
-  fprintf(fp, "}");
+  _enum(f, fp, &stack, &first, inner_braces);
+  fprintf(fp, outer_braces.second);
   if (fp == stdout || fp == stderr)
     fprintf(fp, "\n");
 }
 
-void _enum(zdd_t f, ostream& out, vector<elem_t>* stack, bool* first) {
+void _enum(zdd_t f, ostream& out, vector<elem_t>* stack, bool* first,
+           const pair<const char*, const char*>& inner_braces) {
   assert(stack != nullptr);
   if (is_term(f)) {
     if (is_top(f)) {
       if (*first)
         *first = false;
       else
-        out << ",";
-      out << "{" << join(*stack, ",") << "}";
+        out << ", ";
+      out << inner_braces.first << join(*stack, ", ") << inner_braces.second;
     }
     return;
   }
   stack->push_back(elem(f));
-  _enum(hi(f), out, stack, first);
+  _enum(hi(f), out, stack, first, inner_braces);
   stack->pop_back();
-  _enum(lo(f), out, stack, first);
+  _enum(lo(f), out, stack, first, inner_braces);
 }
 
-void _enum(zdd_t f, FILE* fp, vector<elem_t>* stack, bool* first) {
+void _enum(zdd_t f, FILE* fp, vector<elem_t>* stack, bool* first,
+           const pair<const char*, const char*>& inner_braces) {
   assert(stack != nullptr);
   if (is_term(f)) {
     if (is_top(f)) {
       if (*first)
         *first = false;
       else
-        fprintf(fp, ",");
-      fprintf(fp, "{%s}", join(*stack, ",").c_str());
+        fprintf(fp, ", ");
+      fprintf(fp, "%s%s%s", inner_braces.first, join(*stack, ", ").c_str(),
+              inner_braces.second);
     }
     return;
   }
   stack->push_back(elem(f));
-  _enum(hi(f), fp, stack, first);
+  _enum(hi(f), fp, stack, first, inner_braces);
   stack->pop_back();
-  _enum(lo(f), fp, stack, first);
+  _enum(lo(f), fp, stack, first, inner_braces);
 }
 
 // Algorithm B modified for ZDD, from Knuth vol. 4 fascicle 1 sec. 7.1.4.

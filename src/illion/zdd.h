@@ -54,10 +54,16 @@ void dump(zdd_t f, std::ostream& out);
 void dump(zdd_t f, FILE* fp = stdout);
 zdd_t load(std::istream& in);
 zdd_t load(FILE* fp = stdin);
-void _enum(zdd_t f, std::ostream& out);
-void _enum(zdd_t f, FILE* fp = stdout);
-void _enum(zdd_t f, std::ostream& out, std::vector<elem_t>* stack, bool* first);
-void _enum(zdd_t f, FILE* fp, std::vector<elem_t>* stack, bool* first);
+void _enum(zdd_t f, std::ostream& out,
+           const std::pair<const char*, const char*>& outer_braces,
+           const std::pair<const char*, const char*>& inner_braces);
+void _enum(zdd_t f, FILE* fp,
+           const std::pair<const char*, const char*>& outer_braces,
+           const std::pair<const char*, const char*>& inner_braces);
+void _enum(zdd_t f, std::ostream& out, std::vector<elem_t>* stack, bool* first,
+           const std::pair<const char*, const char*>& inner_braces);
+void _enum(zdd_t f, FILE* fp, std::vector<elem_t>* stack, bool* first,
+           const std::pair<const char*, const char*>& inner_braces);
 void algo_b(zdd_t f, const std::vector<int>& w, std::vector<bool>* x);
 intx_t algo_c(zdd_t f);
 zdd_t zuniq(elem_t v, zdd_t l, zdd_t h);

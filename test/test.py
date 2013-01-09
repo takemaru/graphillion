@@ -4,34 +4,36 @@ from illion import setset
 def constructors():
     ss = setset()
     assert repr(ss) == '<setset object of 0x8000000000>'
-    assert ss._enums() == '{}'
+    assert ss._enums() == 'setset([])'
 
     ss = setset(set())
-    assert ss._enums() == '{{}}'
+    assert ss._enums() == 'setset([set([])])'
 
     ss = setset(frozenset([1, 2]))
-    assert ss._enums() == '{{1,2}}'
+    assert ss._enums() == 'setset([set([1, 2])])'
 
     ss = setset([set(), set([1, 2]), set([1, 3])])
-    assert ss._enums() == '{{1,2},{1,3},{}}'
+    assert ss._enums() == 'setset([set([1, 2]), set([1, 3]), set([])])'
 
     ss = setset({'include': set([1, 2]), 'exclude': set([4])})
-    assert ss._enums() == '{{1,2,3},{1,2}}'
+    assert ss._enums() == 'setset([set([1, 2, 3]), set([1, 2])])'
 
     ss = setset([{'include': set([1, 2]), 'exclude': set([4])},
                  {'include': set([1, 3, 4])},
                  {'exclude': set([2, 3])}])
-    assert ss._enums() ==  '{{1,2,3,4},{1,2,3},{1,2},{1,3,4},{1,4},{1},{4},{}}'
+    assert ss._enums() == ('setset([set([1, 2, 3, 4]), set([1, 2, 3]), '
+                                   'set([1, 2]), set([1, 3, 4]), set([1, 4]), '
+                                   'set([1]), set([4]), set([])])')
 
     # copy constructor
     ss = setset([set(), set([1, 2]), set([1, 3])])
-    assert ss._enums() == '{{1,2},{1,3},{}}'
+    assert ss._enums() == 'setset([set([1, 2]), set([1, 3]), set([])])'
 
     ss1 = setset([set(), set([1, 2]), set([1, 3])])
     ss2 = ss1.copy()
     ss1.clear()
-    assert ss1._enums() == '{}'
-    assert ss2._enums() == '{{1,2},{1,3},{}}'
+    assert ss1._enums() == 'setset([])'
+    assert ss2._enums() == 'setset([set([1, 2]), set([1, 3]), set([])])'
 
 def comparison():
     ss = setset(set([1, 2]))

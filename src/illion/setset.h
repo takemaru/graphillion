@@ -130,8 +130,16 @@ class setset {
   void dump(FILE* fp = stdout) const;
   void load(std::istream& in);
   void load(FILE* fp = stdin);
-  void _enum(std::ostream& out) const;
-  void _enum(FILE* fp = stdout) const;
+  void _enum(std::ostream& out,
+             const std::pair<const char*, const char*> outer_braces
+               = std::make_pair("{", "}"),
+             const std::pair<const char*, const char*> inner_braces
+               = std::make_pair("{", "}")) const;
+  void _enum(FILE* fp = stdout,
+             const std::pair<const char*, const char*> outer_braces
+               = std::make_pair("{", "}"),
+             const std::pair<const char*, const char*> inner_braces
+               = std::make_pair("{", "}")) const;
 
   friend std::ostream& operator<<(std::ostream& out, const setset& ss);
   friend std::istream& operator>>(std::istream& in, setset& ss);
