@@ -405,7 +405,7 @@ static Py_ssize_t setset_len(PyObject* obj) {
     return len;
   } else {
     PyErr_SetString(PyExc_TypeError, "overflow, use setset.len()");
-    return 1;
+    return -1;
   }
 }
 
