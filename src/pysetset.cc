@@ -473,6 +473,17 @@ static PyObject* setset_find(PySetsetObject* self, PyObject* eo) {
   return reinterpret_cast<PyObject*>(sso);
 }
 
+static PyObject* setset_not_find(PySetsetObject* self, PyObject* eo) {
+  if (!PyInt_Check(eo)) {
+    PyErr_SetString(PyExc_TypeError, "not integer");
+    return nullptr;
+  }
+  PySetsetObject* sso = reinterpret_cast<PySetsetObject*>(
+      PySetset_Type.tp_alloc(&PySetset_Type, 0));
+  sso->ss = new setset(self->ss->not_find(PyInt_AsLong(eo)));
+  return reinterpret_cast<PyObject*>(sso);
+}
+
 static PyObject* setset_clear(PySetsetObject* self) {
   self->ss->clear();
   Py_RETURN_NONE;
@@ -640,6 +651,7 @@ static PyMethodDef setset_methods[] = {
   {"len", reinterpret_cast<PyCFunction>(setset_long_len), METH_NOARGS, ""},
   {"opt_iter", reinterpret_cast<PyCFunction>(setset_opt_iter), METH_O, ""},
   {"find", reinterpret_cast<PyCFunction>(setset_find), METH_O, ""},
+  {"not_find", reinterpret_cast<PyCFunction>(setset_not_find), METH_O, ""},
   {"clear", reinterpret_cast<PyCFunction>(setset_clear), METH_NOARGS, ""},
   {"minimal", reinterpret_cast<PyCFunction>(setset_minimal), METH_NOARGS, ""},
   {"maximal", reinterpret_cast<PyCFunction>(setset_maximal), METH_NOARGS, ""},

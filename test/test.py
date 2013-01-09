@@ -244,6 +244,8 @@ def lookup():
 
     assert ss.find(1) == setset([set([1, 2]), set([1, 3])])
 
+    assert ss.not_find(2) == setset([set(), set([1, 3])])
+
 def modifiers():
     v = [set(), set([1, 2]), set([1, 3])]
     ss = setset(v)

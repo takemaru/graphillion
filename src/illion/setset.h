@@ -105,6 +105,7 @@ class setset {
   static iterator end() { return iterator(); }
   iterator find(const std::set<elem_t>& s) const;
   setset find(elem_t e) const;
+  setset not_find(elem_t e) const;
   size_t count(const std::set<elem_t>& s) const;
   std::pair<iterator, bool> insert(const std::set<elem_t>& s);
   iterator insert(const_iterator hint, const std::set<elem_t>& s);

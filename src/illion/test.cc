@@ -234,6 +234,8 @@ class setset_test {
 
     assert(ss.find(1).zdd_ == e1*e2 + e1*e3);
 
+    assert(ss.not_find(2).zdd_ == e0 + e1*e3);
+
     assert(ss.count({1, 2}) == 1);
     assert(ss.count({2, 3}) == 0);
   }

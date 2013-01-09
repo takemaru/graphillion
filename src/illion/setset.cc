@@ -217,6 +217,10 @@ setset setset::find(elem_t e) const {
   return setset(z2 * z1);
 }
 
+setset setset::not_find(elem_t e) const {
+  return setset(this->zdd_ % setset({{e}}).zdd_);
+}
+
 size_t setset::count(const set<elem_t>& s) const {
   return this->zdd_ / setset(s).zdd_ != bot() ? 1 : 0;
 }
