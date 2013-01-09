@@ -3,36 +3,35 @@ from illion import setset
 
 def constructors():
     ss = setset()
-#    print ss
-    assert ss.dumps() == '{}'
+    assert repr(ss) == '<setset object of 0x8000000000>'
+    assert ss.enums() == '{}'
 
     ss = setset(set())
-    assert ss.dumps() == '{{}}'
+    assert ss.enums() == '{{}}'
 
     ss = setset(frozenset([1, 2]))
-    assert ss.dumps() == '{{1,2}}'
+    assert ss.enums() == '{{1,2}}'
 
     ss = setset([set(), set([1, 2]), set([1, 3])])
-    assert ss.dumps() == '{{1,2},{1,3},{}}'
+    assert ss.enums() == '{{1,2},{1,3},{}}'
 
     ss = setset({'include': set([1, 2]), 'exclude': set([4])})
-    assert ss.dumps() == '{{1,2,3},{1,2}}'
+    assert ss.enums() == '{{1,2,3},{1,2}}'
 
-    # TODO:
-    #ss = setset([{'include': set([1, 2]), 'exclude': set([4])},
-    #             {'include': set([1, 3, 4])},
-    #             {'exclude': set([2, 3])}])
-    #assert ss.dumps() == e0 + e1 + e1*e2 + e1*e2*e3 + e1*e2*e3*e4 + e1*e3*e4 + e1*e4 + e4
+    ss = setset([{'include': set([1, 2]), 'exclude': set([4])},
+                 {'include': set([1, 3, 4])},
+                 {'exclude': set([2, 3])}])
+    assert ss.enums() ==  '{{1,2,3,4},{1,2,3},{1,2},{1,3,4},{1,4},{1},{4},{}}'
 
     # copy constructor
     ss = setset([set(), set([1, 2]), set([1, 3])])
-    assert ss.dumps() == '{{1,2},{1,3},{}}'
+    assert ss.enums() == '{{1,2},{1,3},{}}'
 
     ss1 = setset([set(), set([1, 2]), set([1, 3])])
     ss2 = ss1.copy()
     ss1.clear()
-    assert ss1.dumps() == '{}'
-    assert ss2.dumps() == '{{1,2},{1,3},{}}'
+    assert ss1.enums() == '{}'
+    assert ss2.enums() == '{{1,2},{1,3},{}}'
 
 def comparison():
     ss = setset(set([1, 2]))

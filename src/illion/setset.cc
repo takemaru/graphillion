@@ -314,8 +314,8 @@ void setset::load(istream& in) {
   this->zdd_ = illion::load(in);
 }
 
-void setset::dump(ostream& out) const {
-  illion::dump(this->zdd_, out);
+void setset::_enum(ostream& out) const {
+  illion::_enum(this->zdd_, out);
 }
 
 ostream& operator<<(ostream& out, const setset& ss) {

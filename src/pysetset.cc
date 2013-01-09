@@ -187,8 +187,7 @@ static int setset_init(PySetsetObject* self, PyObject* args, PyObject* kwds) {
       Py_DECREF(o);
     }
     Py_DECREF(i);
-    self->ss = new setset(vs);
-//    self->ss = new setset(vm);  // TODO: merge two setsets
+    self->ss = new setset(setset(vs) | setset(vm));
   }
   return 0;
 }
@@ -617,14 +616,14 @@ static PyObject* setset_nonsupersets(PySetsetObject* self, PyObject* other) {
   return reinterpret_cast<PyObject*>(ret);
 }
 
-static PyObject* setset_dump(PySetsetObject* self) {
-  self->ss->dump();
+static PyObject* setset_enum(PySetsetObject* self) {
+  self->ss->_enum();
   Py_RETURN_NONE;
 }
 
-static PyObject* setset_dumps(PySetsetObject* self) {
+static PyObject* setset_enums(PySetsetObject* self) {
   stringstream sstr;
-  self->ss->dump(sstr);
+  self->ss->_enum(sstr);
   return PyString_FromString(sstr.str().c_str());
 }
 
@@ -712,8 +711,8 @@ static PyMethodDef setset_methods[] = {
   {"supersets", reinterpret_cast<PyCFunction>(setset_supersets), METH_O, ""},
   {"nonsubsets", reinterpret_cast<PyCFunction>(setset_nonsubsets), METH_O, ""},
   {"nonsupersets", reinterpret_cast<PyCFunction>(setset_nonsupersets), METH_O, ""},
-  {"dump", reinterpret_cast<PyCFunction>(setset_dump), METH_NOARGS, ""},
-  {"dumps", reinterpret_cast<PyCFunction>(setset_dumps), METH_NOARGS, ""},
+  {"enum", reinterpret_cast<PyCFunction>(setset_enum), METH_NOARGS, ""},
+  {"enums", reinterpret_cast<PyCFunction>(setset_enums), METH_NOARGS, ""},
   {nullptr}  /* Sentinel */
 };
 

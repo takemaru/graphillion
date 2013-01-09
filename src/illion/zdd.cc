@@ -306,22 +306,22 @@ error:
   return null();
 }
 
-void dump(zdd_t f, ostream& out) {
+void _enum(zdd_t f, ostream& out) {
   vector<elem_t> stack;
   out << "{";
-  bool dumped = true;
-  dump(f, out, &stack, &dumped);
+  bool first = true;
+  _enum(f, out, &stack, &first);
   out << "}";
   if (out == std::cout || out == std::cerr)
     out << endl;
 }
 
-void dump(zdd_t f, ostream& out, vector<elem_t>* stack, bool* dumped) {
+void _enum(zdd_t f, ostream& out, vector<elem_t>* stack, bool* first) {
   assert(stack != nullptr);
   if (is_term(f)) {
     if (is_top(f)) {
-      if (*dumped)
-        *dumped = false;
+      if (*first)
+        *first = false;
       else
         out << ",";
       out << "{" << join(*stack, ",") << "}";
@@ -329,9 +329,9 @@ void dump(zdd_t f, ostream& out, vector<elem_t>* stack, bool* dumped) {
     return;
   }
   stack->push_back(elem(f));
-  dump(hi(f), out, stack, dumped);
+  _enum(hi(f), out, stack, first);
   stack->pop_back();
-  dump(lo(f), out, stack, dumped);
+  _enum(lo(f), out, stack, first);
 }
 
 // Algorithm B modified for ZDD, from Knuth vol. 4 fascicle 1 sec. 7.1.4.
