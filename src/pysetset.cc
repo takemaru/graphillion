@@ -426,6 +426,31 @@ static PyObject* setset_iter(PySetsetObject* self) {
   return reinterpret_cast<PyObject*>(ssi);
 }
 
+static PyObject* setset_optimize(PySetsetObject* self, PyObject* weights) {
+  if (!PyList_Check(weights)) {
+    PyErr_SetString(PyExc_TypeError, "weights must be integer list");
+    return nullptr;
+  }
+  PyObject* i = PyObject_GetIter(weights);
+  if (i == nullptr) return nullptr;
+  PyObject* eo;
+  vector<int> w;
+  while ((eo = PyIter_Next(i))) {
+    if (!PyInt_Check(eo)) {
+      Py_DECREF(eo);
+      PyErr_SetString(PyExc_TypeError, "weights must be integer list");
+      return nullptr;
+    }
+    w.push_back(PyLong_AsLong(eo));
+    Py_DECREF(eo);
+  }
+  Py_DECREF(i);
+  setsetiterobject* ssi = PyObject_New(setsetiterobject, &SetsetIter_Type);
+  if (ssi == nullptr) return nullptr;
+  ssi->it = new setset::iterator(self->ss->begin(w));
+  return reinterpret_cast<PyObject*>(ssi);
+}
+
 static PyObject* setset_clear(PySetsetObject* self) {
   self->ss->clear();
   Py_RETURN_NONE;
@@ -596,6 +621,7 @@ static PyMethodDef setset_methods[] = {
   {"issubset", reinterpret_cast<PyCFunction>(setset_issubset), METH_O, ""},
   {"issuperset", reinterpret_cast<PyCFunction>(setset_issuperset), METH_O, ""},
   {"len", reinterpret_cast<PyCFunction>(setset_long_len), METH_NOARGS, ""},
+  {"optimize", reinterpret_cast<PyCFunction>(setset_optimize), METH_O, ""},
   {"clear", reinterpret_cast<PyCFunction>(setset_clear), METH_NOARGS, ""},
   {"minimal", reinterpret_cast<PyCFunction>(setset_minimal), METH_NOARGS, ""},
   {"maximal", reinterpret_cast<PyCFunction>(setset_maximal), METH_NOARGS, ""},

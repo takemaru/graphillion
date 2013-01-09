@@ -227,6 +227,16 @@ def iterators():
         ss2 = ss2 | setset(s)
     assert ss1 == ss2
 
+    ss = setset([set(), set([1]), set([1, 2]), set([1, 2, 3]), set([1, 2, 3, 4]),
+                 set([1, 3, 4]), set([1, 4]), set([4])])
+    r = []
+    for s in ss.optimize([0, 3, -2, -2, 4]):  # 1-offset list
+        r.append(s)
+    assert(r[0] == set([1, 4]))
+    assert(r[1] == set([1, 3, 4]))
+    assert(r[2] == set([4]))
+    assert(len(r) == 8)
+
 def lookup():
     pass
 
