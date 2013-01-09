@@ -419,8 +419,7 @@ static PyObject* setset_long_len(PyObject* obj) {
   for (const auto& c : self->ss->size())
     buf.push_back(c);
   buf.push_back('\0');
-  PyObject* len = PyLong_FromString(buf.data(), nullptr, 0);
-  return len;
+  return PyLong_FromString(buf.data(), nullptr, 0);
 }
 
 static PyObject* setset_iter(PySetsetObject* self) {
