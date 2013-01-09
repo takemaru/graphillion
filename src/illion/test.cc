@@ -289,7 +289,7 @@ class setset_test {
     stringstream sstr;
     setset ss;
     sstr << ss;
-    assert(sstr.str() == "B\nE\n");
+    assert(sstr.str() == "B\n.\n");
     ss.clear();
     sstr >> ss;
     assert(sstr.good());
@@ -298,7 +298,7 @@ class setset_test {
     sstr.clear(); sstr.str("");
     ss = setset({{}});
     sstr << ss;
-    assert(sstr.str() == "T\nE\n");
+    assert(sstr.str() == "T\n.\n");
     ss.clear();
     sstr >> ss;
     assert(sstr.good());
@@ -331,6 +331,15 @@ class setset_test {
     ss.dump(sstr);
     ss.clear();
     ss.load(sstr);
+    assert(ss == setset(v));
+
+    FILE* fp = fopen("/tmp/illion_", "w");
+    ss.dump(fp);
+    fclose(fp);
+    ss.clear();
+    fp = fopen("/tmp/illion_", "r");
+    ss.load(fp);
+    fclose(fp);
     assert(ss == setset(v));
   }
 };

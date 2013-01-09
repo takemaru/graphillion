@@ -277,13 +277,13 @@ def modifiers():
 def stream():
     ss = setset()
     str = ss.dumps()
-    assert str == "B\nE\n"
+    assert str == "B\n.\n"
     ss.loads(str)
     assert ss == setset()
 
     ss = setset(set())
     str = ss.dumps()
-    assert str == "T\nE\n"
+    assert str == "T\n.\n"
     ss.loads(str)
     assert ss == setset(set())
 
@@ -298,9 +298,9 @@ def stream():
     ss = setset(str)
     assert ss == setset(v)
 
-    ss.dump(open('a.txt', 'w'))
+    ss.dump(open('/tmp/illion_', 'w'))
     ss = setset()
-    ss.load(open('a.txt'))
+    ss.load(open('/tmp/illion_'))
     assert ss == setset(v)
 
 if __name__ == '__main__':

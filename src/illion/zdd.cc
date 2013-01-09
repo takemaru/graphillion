@@ -273,7 +273,7 @@ void dump(zdd_t f, ostream& out) {
       }
     }
   }
-  out << "E" << endl;
+  out << "." << endl;
 }
 
 void dump(zdd_t f, FILE* fp) {
@@ -304,7 +304,7 @@ void dump(zdd_t f, FILE* fp) {
       }
     }
   }
-  fprintf(fp, "E\n");
+  fprintf(fp, ".\n");
 }
 
 zdd_t load(istream& in) {
@@ -316,7 +316,7 @@ zdd_t load(istream& in) {
   zdd_t root;
   do {
     if (line.empty() || is_space(line)) continue;  // skip preceding empty lines
-    if (line[0] == 'E') break;
+    if (line[0] == '.') break;
     word_t k;
     elem_t v;
     char sl[256], sh[256];
@@ -349,7 +349,7 @@ zdd_t load(FILE* fp) {
   do {
     line = string(buf);
     if (line.empty() || is_space(line)) continue;  // skip preceding empty lines
-    if (line[0] == 'E') break;
+    if (line[0] == '.') break;
     word_t k;
     elem_t v;
     char sl[256], sh[256];
