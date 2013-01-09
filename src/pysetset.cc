@@ -165,6 +165,10 @@ static int setset_init(PySetsetObject* self, PyObject* args, PyObject* kwds) {
     map<string, set<int> > m;
     if (setset_parse_map(obj, &m) == -1) return -1;
     self->ss = new setset(m);
+  } else if (PyString_Check(obj)) {
+    stringstream sstr(PyString_AsString(obj));
+    self->ss = new setset();
+    self->ss->load(sstr);
   } else {
     PyObject* i = PyObject_GetIter(obj);
     if (i == nullptr) {
@@ -616,6 +620,52 @@ static PyObject* setset_nonsupersets(PySetsetObject* self, PyObject* other) {
   return reinterpret_cast<PyObject*>(ret);
 }
 
+static PyObject* setset_dump(PySetsetObject* self, PyObject* obj) {
+  if (!PyFile_Check(obj)) {
+    PyErr_SetString(PyExc_TypeError, "not file");
+    return nullptr;
+  }
+  FILE* fp = PyFile_AsFile(obj);
+  PyFileObject* file = reinterpret_cast<PyFileObject*>(obj);
+  PyFile_IncUseCount(file);
+  Py_BEGIN_ALLOW_THREADS;
+  self->ss->dump(fp);
+  Py_END_ALLOW_THREADS;
+  PyFile_DecUseCount(file);
+  Py_RETURN_NONE;
+}
+
+static PyObject* setset_dumps(PySetsetObject* self) {
+  stringstream sstr;
+  self->ss->dump(sstr);
+  return PyString_FromString(sstr.str().c_str());
+}
+
+static PyObject* setset_load(PySetsetObject* self, PyObject* obj) {
+  if (!PyFile_Check(obj)) {
+    PyErr_SetString(PyExc_TypeError, "not file");
+    return nullptr;
+  }
+  FILE* fp = PyFile_AsFile(obj);
+  PyFileObject* file = reinterpret_cast<PyFileObject*>(obj);
+  PyFile_IncUseCount(file);
+  Py_BEGIN_ALLOW_THREADS;
+  self->ss->load(fp);
+  Py_END_ALLOW_THREADS;
+  PyFile_DecUseCount(file);
+  Py_RETURN_NONE;
+}
+
+static PyObject* setset_loads(PySetsetObject* self, PyObject* obj) {
+  if (!PyString_Check(obj)) {
+    PyErr_SetString(PyExc_TypeError, "not string");
+    return nullptr;
+  }
+  stringstream sstr(PyString_AsString(obj));
+  self->ss->load(sstr);
+  Py_RETURN_NONE;
+}
+
 static PyObject* setset_enum(PySetsetObject* self, PyObject* obj) {
   if (!PyFile_Check(obj)) {
     PyErr_SetString(PyExc_TypeError, "not file");
@@ -721,6 +771,10 @@ static PyMethodDef setset_methods[] = {
   {"supersets", reinterpret_cast<PyCFunction>(setset_supersets), METH_O, ""},
   {"nonsubsets", reinterpret_cast<PyCFunction>(setset_nonsubsets), METH_O, ""},
   {"nonsupersets", reinterpret_cast<PyCFunction>(setset_nonsupersets), METH_O, ""},
+  {"dump", reinterpret_cast<PyCFunction>(setset_dump), METH_O, ""},
+  {"dumps", reinterpret_cast<PyCFunction>(setset_dumps), METH_NOARGS, ""},
+  {"load", reinterpret_cast<PyCFunction>(setset_load), METH_O, ""},
+  {"loads", reinterpret_cast<PyCFunction>(setset_loads), METH_O, ""},
   {"_enum", reinterpret_cast<PyCFunction>(setset_enum), METH_O, ""},
   {"_enums", reinterpret_cast<PyCFunction>(setset_enums), METH_NOARGS, ""},
   {nullptr}  /* Sentinel */

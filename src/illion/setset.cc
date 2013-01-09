@@ -310,8 +310,16 @@ void setset::dump(ostream& out) const {
   illion::dump(this->zdd_, out);
 }
 
+void setset::dump(FILE* fp) const {
+  illion::dump(this->zdd_, fp);
+}
+
 void setset::load(istream& in) {
   this->zdd_ = illion::load(in);
+}
+
+void setset::load(FILE* fp) {
+  this->zdd_ = illion::load(fp);
 }
 
 void setset::_enum(ostream& out) const {

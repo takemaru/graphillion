@@ -246,9 +246,9 @@ zdd_t choose_best(zdd_t f, const vector<int>& weights, set<elem_t>* s) {
 
 void dump(zdd_t f, ostream& out) {
   if (is_bot(f)) {
-    out << "B" << endl << "E" << endl;
+    out << "B" << endl;
   } else if (is_top(f)) {
-    out << "T" << endl << "E" << endl;
+    out << "T" << endl;
   } else {
     vector<vector<zdd_t> > stacks(num_elems_ + 1);
     unordered_set<word_t> visited;
@@ -270,8 +270,39 @@ void dump(zdd_t f, ostream& out) {
         out << endl;
       }
     }
-    out << "E" << endl;
   }
+  out << "E" << endl;
+}
+
+void dump(zdd_t f, FILE* fp) {
+  string fmt = sizeof(word_t) == 8 ? ("%" PRId64) : ("%" PRId32);
+  if (is_bot(f)) {
+    fprintf(fp, "B\n");
+  } else if (is_top(f)) {
+    fprintf(fp, "T\n");
+  } else {
+    vector<vector<zdd_t> > stacks(num_elems_ + 1);
+    unordered_set<word_t> visited;
+    sort_zdd(f, &stacks, &visited);
+    for (elem_t v = num_elems_; v > 0; --v) {
+      while (!stacks[v].empty()) {
+        zdd_t g = stacks[v].back();
+        stacks[v].pop_back();
+        zdd_t l = lo(g);
+        zdd_t h = hi(g);
+        fprintf(fp, (fmt +" %d ").c_str(), id(g), elem(g));
+        if      (is_bot(l)) fprintf(fp, "B");
+        else if (is_top(l)) fprintf(fp, "T");
+        else                fprintf(fp, fmt.c_str(), id(l));
+        fprintf(fp, " ");
+        if      (is_bot(h)) fprintf(fp, "B");
+        else if (is_top(h)) fprintf(fp, "T");
+        else                fprintf(fp, fmt.c_str(), id(h));
+        fprintf(fp, "\n");
+      }
+    }
+  }
+  fprintf(fp, "E\n");
 }
 
 zdd_t load(istream& in) {
@@ -304,6 +335,36 @@ zdd_t load(istream& in) {
 error:
   in.setstate(in.badbit);
   return null();
+}
+
+zdd_t load(FILE* fp) {
+  char buf[256];
+  if (fgets(buf, sizeof(buf), fp) == NULL) return null();
+  string line = buf;
+  if      (line == "B") return bot();
+  else if (line == "T") return top();
+  unordered_map<word_t, zdd_t> n = {{id(bot()), bot()}, {id(top()), top()}};
+  zdd_t root;
+  do {
+    if (line.empty() || is_space(line)) continue;  // skip preceding empty lines
+    if (line == "E") break;
+    word_t k;
+    elem_t v;
+    char sl[256], sh[256];
+    string fmt = sizeof(word_t) == 8 ? ("%" PRId64) : ("%" PRId32);
+    int num = sscanf(line.c_str(), (fmt + " %d %s %s").c_str(),
+                     &k, &v, &sl, &sh);
+    if (num != 4) return null();
+    word_t l = strcmp(sl, "B") == 0 ? id(bot())
+             : strcmp(sl, "T") == 0 ? id(top())
+             :                        strtoll(sl, nullptr, 0);
+    word_t h = strcmp(sh, "B") == 0 ? id(bot())
+             : strcmp(sh, "T") == 0 ? id(top())
+             :                        strtoll(sh, nullptr, 0);
+    if (l == LLONG_MAX || h == LLONG_MAX) return null();
+    n[k] = root = n.at(l) + single(v) * n.at(h);
+  } while (fgets(buf, sizeof(buf), fp) != NULL);
+  return root;
 }
 
 void _enum(zdd_t f, ostream& out) {

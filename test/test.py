@@ -275,7 +275,27 @@ def modifiers():
     assert not ss
 
 def stream():
-    pass
+    ss = setset()
+    str = ss.dumps()
+    assert str == "B\nE\n"
+    ss.loads(str)
+    assert ss == setset()
+
+    ss = setset(set())
+    str = ss.dumps()
+    assert str == "T\nE\n"
+    ss.loads(str)
+    assert ss == setset(set())
+
+    v = [set(), set([1]), set([1, 2]), set([1, 2, 3]), set([1, 2, 3, 4]),
+         set([1, 3, 4]), set([1, 4]), set([4])]
+    ss = setset(v)
+    str = ss.dumps()
+    ss.loads(str)
+    assert ss == setset(v)
+
+    ss = setset(str)
+    assert ss == setset(v)
 
 if __name__ == '__main__':
     constructors()

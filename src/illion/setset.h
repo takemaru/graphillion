@@ -127,9 +127,11 @@ class setset {
   setset nonsupersets(const setset& ss) const;
 
   void dump(std::ostream& out) const;
+  void dump(FILE* fp = stdout) const;
   void load(std::istream& in);
-  void _enum(std::ostream& out = std::cout) const;
-  void _enum(FILE* fp = stdin) const;
+  void load(FILE* fp = stdin);
+  void _enum(std::ostream& out) const;
+  void _enum(FILE* fp = stdout) const;
 
   friend std::ostream& operator<<(std::ostream& out, const setset& ss);
   friend std::istream& operator>>(std::istream& in, setset& ss);
