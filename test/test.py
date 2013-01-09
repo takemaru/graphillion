@@ -232,10 +232,10 @@ def iterators():
     r = []
     for s in ss.optimize([0, 3, -2, -2, 4]):  # 1-offset list
         r.append(s)
+    assert(len(r) == 8)
     assert(r[0] == set([1, 4]))
     assert(r[1] == set([1, 3, 4]))
     assert(r[2] == set([4]))
-    assert(len(r) == 8)
 
 def lookup():
     pass

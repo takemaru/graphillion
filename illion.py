@@ -2,9 +2,9 @@ import _illion
 
 class setset(_illion.setset):
     def optimize(self, weights):
-        it = super(setset, self).optimize(weights)
+        i = self.opt_iter(weights)
         while (True):
-            yield it.next()
+            yield i.next()
 
 #class graphset(setset):
 #    pass

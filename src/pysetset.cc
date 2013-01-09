@@ -426,7 +426,7 @@ static PyObject* setset_iter(PySetsetObject* self) {
   return reinterpret_cast<PyObject*>(ssi);
 }
 
-static PyObject* setset_optimize(PySetsetObject* self, PyObject* weights) {
+static PyObject* setset_opt_iter(PySetsetObject* self, PyObject* weights) {
   if (!PyList_Check(weights)) {
     PyErr_SetString(PyExc_TypeError, "weights must be integer list");
     return nullptr;
@@ -621,7 +621,7 @@ static PyMethodDef setset_methods[] = {
   {"issubset", reinterpret_cast<PyCFunction>(setset_issubset), METH_O, ""},
   {"issuperset", reinterpret_cast<PyCFunction>(setset_issuperset), METH_O, ""},
   {"len", reinterpret_cast<PyCFunction>(setset_long_len), METH_NOARGS, ""},
-  {"optimize", reinterpret_cast<PyCFunction>(setset_optimize), METH_O, ""},
+  {"opt_iter", reinterpret_cast<PyCFunction>(setset_opt_iter), METH_O, ""},
   {"clear", reinterpret_cast<PyCFunction>(setset_clear), METH_NOARGS, ""},
   {"minimal", reinterpret_cast<PyCFunction>(setset_minimal), METH_NOARGS, ""},
   {"maximal", reinterpret_cast<PyCFunction>(setset_maximal), METH_NOARGS, ""},
