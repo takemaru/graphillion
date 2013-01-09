@@ -222,8 +222,7 @@ def iterators():
         ss2 = ss2 | setset(s)
     assert ss1 == ss2
 
-    ss1 = setset([set(), set([1, 2]), set([1, 3])])
-    ss2 = setset()
+    ss2.clear()
     for s in ss1:
         ss2 = ss2 | setset(s)
     assert ss1 == ss2
