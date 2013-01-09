@@ -129,6 +129,7 @@ class setset {
   void dump(std::ostream& out) const;
   void load(std::istream& in);
   void _enum(std::ostream& out = std::cout) const;
+  void _enum(FILE* fp = stdin) const;
 
   friend std::ostream& operator<<(std::ostream& out, const setset& ss);
   friend std::istream& operator>>(std::istream& in, setset& ss);

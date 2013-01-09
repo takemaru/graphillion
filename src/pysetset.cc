@@ -616,8 +616,18 @@ static PyObject* setset_nonsupersets(PySetsetObject* self, PyObject* other) {
   return reinterpret_cast<PyObject*>(ret);
 }
 
-static PyObject* setset_enum(PySetsetObject* self) {
-  self->ss->_enum();
+static PyObject* setset_enum(PySetsetObject* self, PyObject* obj) {
+  if (!PyFile_Check(obj)) {
+    PyErr_SetString(PyExc_TypeError, "not file");
+    return nullptr;
+  }
+  FILE* fp = PyFile_AsFile(obj);
+  PyFileObject* file = reinterpret_cast<PyFileObject*>(obj);
+  PyFile_IncUseCount(file);
+  Py_BEGIN_ALLOW_THREADS;
+  self->ss->_enum(fp);
+  Py_END_ALLOW_THREADS;
+  PyFile_DecUseCount(file);
   Py_RETURN_NONE;
 }
 
@@ -711,7 +721,7 @@ static PyMethodDef setset_methods[] = {
   {"supersets", reinterpret_cast<PyCFunction>(setset_supersets), METH_O, ""},
   {"nonsubsets", reinterpret_cast<PyCFunction>(setset_nonsubsets), METH_O, ""},
   {"nonsupersets", reinterpret_cast<PyCFunction>(setset_nonsupersets), METH_O, ""},
-  {"_enum", reinterpret_cast<PyCFunction>(setset_enum), METH_NOARGS, ""},
+  {"_enum", reinterpret_cast<PyCFunction>(setset_enum), METH_O, ""},
   {"_enums", reinterpret_cast<PyCFunction>(setset_enums), METH_NOARGS, ""},
   {nullptr}  /* Sentinel */
 };

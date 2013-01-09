@@ -318,6 +318,10 @@ void setset::_enum(ostream& out) const {
   illion::_enum(this->zdd_, out);
 }
 
+void setset::_enum(FILE* fp) const {
+  illion::_enum(this->zdd_, fp);
+}
+
 ostream& operator<<(ostream& out, const setset& ss) {
   illion::dump(ss.zdd_, out);
   return out;

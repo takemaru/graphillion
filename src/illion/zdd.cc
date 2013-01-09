@@ -316,6 +316,16 @@ void _enum(zdd_t f, ostream& out) {
     out << endl;
 }
 
+void _enum(zdd_t f, FILE* fp) {
+  vector<elem_t> stack;
+  fprintf(fp, "{");
+  bool first = true;
+  _enum(f, fp, &stack, &first);
+  fprintf(fp, "}");
+  if (fp == stdout || fp == stderr)
+    fprintf(fp, "\n");
+}
+
 void _enum(zdd_t f, ostream& out, vector<elem_t>* stack, bool* first) {
   assert(stack != nullptr);
   if (is_term(f)) {
@@ -332,6 +342,24 @@ void _enum(zdd_t f, ostream& out, vector<elem_t>* stack, bool* first) {
   _enum(hi(f), out, stack, first);
   stack->pop_back();
   _enum(lo(f), out, stack, first);
+}
+
+void _enum(zdd_t f, FILE* fp, vector<elem_t>* stack, bool* first) {
+  assert(stack != nullptr);
+  if (is_term(f)) {
+    if (is_top(f)) {
+      if (*first)
+        *first = false;
+      else
+        fprintf(fp, ",");
+      fprintf(fp, "{%s}", join(*stack, ",").c_str());
+    }
+    return;
+  }
+  stack->push_back(elem(f));
+  _enum(hi(f), fp, stack, first);
+  stack->pop_back();
+  _enum(lo(f), fp, stack, first);
 }
 
 // Algorithm B modified for ZDD, from Knuth vol. 4 fascicle 1 sec. 7.1.4.
