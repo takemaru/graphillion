@@ -291,10 +291,16 @@ def stream():
          set([1, 3, 4]), set([1, 4]), set([4])]
     ss = setset(v)
     str = ss.dumps()
+    ss = setset()
     ss.loads(str)
     assert ss == setset(v)
 
     ss = setset(str)
+    assert ss == setset(v)
+
+    ss.dump(open('a.txt', 'w'))
+    ss = setset()
+    ss.load(open('a.txt'))
     assert ss == setset(v)
 
 if __name__ == '__main__':

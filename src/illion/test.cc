@@ -290,6 +290,7 @@ class setset_test {
     setset ss;
     sstr << ss;
     assert(sstr.str() == "B\nE\n");
+    ss.clear();
     sstr >> ss;
     assert(sstr.good());
     assert(ss == setset());
@@ -298,6 +299,7 @@ class setset_test {
     ss = setset({{}});
     sstr << ss;
     assert(sstr.str() == "T\nE\n");
+    ss.clear();
     sstr >> ss;
     assert(sstr.good());
     assert(ss == setset({{}}));
@@ -307,6 +309,7 @@ class setset_test {
                            {1, 4}, {4}};
     ss = setset(v);
     sstr << ss;
+    ss.clear();
     sstr >> ss;
     assert(sstr.good());
     assert(ss == setset(v));
@@ -319,12 +322,14 @@ class setset_test {
     string str1 = "hello", str2 = "bye";
     sstr.clear(); sstr.str("");
     sstr << str1 << " " << endl << ss << endl << str2 << endl;
+    ss.clear();
     sstr >> str1 >> ss >> str2;
     assert(sstr.good());
     assert(str1 == "hello" && ss == setset(v) && str2 == "bye");
 
     sstr.clear(); sstr.str("");
     ss.dump(sstr);
+    ss.clear();
     ss.load(sstr);
     assert(ss == setset(v));
   }

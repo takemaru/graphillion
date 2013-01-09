@@ -314,7 +314,7 @@ zdd_t load(istream& in) {
   zdd_t root;
   do {
     if (line.empty() || is_space(line)) continue;  // skip preceding empty lines
-    if (line == "E") break;
+    if (line[0] == 'E') break;
     word_t k;
     elem_t v;
     char sl[256], sh[256];
@@ -346,8 +346,9 @@ zdd_t load(FILE* fp) {
   unordered_map<word_t, zdd_t> n = {{id(bot()), bot()}, {id(top()), top()}};
   zdd_t root;
   do {
+    line = string(buf);
     if (line.empty() || is_space(line)) continue;  // skip preceding empty lines
-    if (line == "E") break;
+    if (line[0] == 'E') break;
     word_t k;
     elem_t v;
     char sl[256], sh[256];
