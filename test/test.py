@@ -226,7 +226,7 @@ def iterators():
     ss2 = setset()
     for s in ss1:
         ss2 = ss2 | setset(s)
-#    assert ss1 == ss2 # TODO
+    assert ss1 == ss2
 
 def lookup():
     pass

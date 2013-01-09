@@ -47,7 +47,6 @@ static PyMethodDef setsetiter_methods[] = {
 static PyObject* setsetiter_iternext(setsetiterobject* self) {
   if (*(self->it) == setset::end())
     return nullptr;
-  ++(*self->it);
   set<int> s = *(*self->it);
   PyObject* so = PySet_New(nullptr);
   for (const auto& e : s) {
@@ -64,6 +63,7 @@ static PyObject* setsetiter_iternext(setsetiterobject* self) {
     }
     Py_DECREF(eo);
   }
+  ++(*self->it);
   return so;
 }
 
