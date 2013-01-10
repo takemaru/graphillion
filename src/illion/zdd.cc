@@ -277,7 +277,6 @@ void dump(zdd_t f, ostream& out) {
 }
 
 void dump(zdd_t f, FILE* fp) {
-  string fmt = sizeof(word_t) == 8 ? ("%" PRId64) : ("%" PRId32);
   if (is_bot(f)) {
     fprintf(fp, "B\n");
   } else if (is_top(f)) {
@@ -292,14 +291,14 @@ void dump(zdd_t f, FILE* fp) {
         stacks[v].pop_back();
         zdd_t l = lo(g);
         zdd_t h = hi(g);
-        fprintf(fp, (fmt +" %d ").c_str(), id(g), elem(g));
+        fprintf(fp, (WORD_FMT +" %d ").c_str(), id(g), elem(g));
         if      (is_bot(l)) fprintf(fp, "B");
         else if (is_top(l)) fprintf(fp, "T");
-        else                fprintf(fp, fmt.c_str(), id(l));
+        else                fprintf(fp, WORD_FMT.c_str(), id(l));
         fprintf(fp, " ");
         if      (is_bot(h)) fprintf(fp, "B");
         else if (is_top(h)) fprintf(fp, "T");
-        else                fprintf(fp, fmt.c_str(), id(h));
+        else                fprintf(fp, WORD_FMT.c_str(), id(h));
         fprintf(fp, "\n");
       }
     }

@@ -203,14 +203,14 @@ static void setset_dealloc(PySetsetObject* self) {
 
 static PyObject* setset_copy(PySetsetObject* self) {
   PySetsetObject* sso = reinterpret_cast<PySetsetObject*>(
-      PySetset_Type.tp_alloc(&PySetset_Type, 0));
+      self->ob_type->tp_alloc(self->ob_type, 0));
   sso->ss = new setset(*self->ss);
   return reinterpret_cast<PyObject*>(sso);
 }
 
 static PyObject* setset_complement(PySetsetObject* self) {
   PySetsetObject* sso = reinterpret_cast<PySetsetObject*>(
-      PySetset_Type.tp_alloc(&PySetset_Type, 0));
+      self->ob_type->tp_alloc(self->ob_type, 0));
   sso->ss = new setset(~(*self->ss));
   return reinterpret_cast<PyObject*>(sso);
 }
@@ -222,7 +222,7 @@ static PyObject* setset_intersection(PySetsetObject* self, PyObject* other) {
   }
   PySetsetObject* sso = reinterpret_cast<PySetsetObject*>(other);
   PySetsetObject* ret = reinterpret_cast<PySetsetObject*>(
-      PySetset_Type.tp_alloc(&PySetset_Type, 0));
+      self->ob_type->tp_alloc(self->ob_type, 0));
   ret->ss = new setset((*self->ss) & (*sso->ss));
   return reinterpret_cast<PyObject*>(ret);
 }
@@ -234,6 +234,7 @@ static PyObject* setset_intersection_update(PySetsetObject* self, PyObject* othe
   }
   PySetsetObject* sso = reinterpret_cast<PySetsetObject*>(other);
   (*self->ss) &= (*sso->ss);
+  Py_INCREF(self);
   return reinterpret_cast<PyObject*>(self);
 }
 
@@ -244,7 +245,7 @@ static PyObject* setset_union(PySetsetObject* self, PyObject* other) {
   }
   PySetsetObject* sso = reinterpret_cast<PySetsetObject*>(other);
   PySetsetObject* ret = reinterpret_cast<PySetsetObject*>(
-      PySetset_Type.tp_alloc(&PySetset_Type, 0));
+      self->ob_type->tp_alloc(self->ob_type, 0));
   ret->ss = new setset((*self->ss) | (*sso->ss));
   return reinterpret_cast<PyObject*>(ret);
 }
@@ -256,6 +257,7 @@ static PyObject* setset_update(PySetsetObject* self, PyObject* other) {
   }
   PySetsetObject* sso = reinterpret_cast<PySetsetObject*>(other);
   (*self->ss) |= (*sso->ss);
+  Py_INCREF(self);
   return reinterpret_cast<PyObject*>(self);
 }
 
@@ -266,7 +268,7 @@ static PyObject* setset_difference(PySetsetObject* self, PyObject* other) {
   }
   PySetsetObject* sso = reinterpret_cast<PySetsetObject*>(other);
   PySetsetObject* ret = reinterpret_cast<PySetsetObject*>(
-      PySetset_Type.tp_alloc(&PySetset_Type, 0));
+      self->ob_type->tp_alloc(self->ob_type, 0));
   ret->ss = new setset((*self->ss) - (*sso->ss));
   return reinterpret_cast<PyObject*>(ret);
 }
@@ -278,6 +280,7 @@ static PyObject* setset_difference_update(PySetsetObject* self, PyObject* other)
   }
   PySetsetObject* sso = reinterpret_cast<PySetsetObject*>(other);
   (*self->ss) -= (*sso->ss);
+  Py_INCREF(self);
   return reinterpret_cast<PyObject*>(self);
 }
 
@@ -288,7 +291,7 @@ static PyObject* setset_product(PySetsetObject* self, PyObject* other) {
   }
   PySetsetObject* sso = reinterpret_cast<PySetsetObject*>(other);
   PySetsetObject* ret = reinterpret_cast<PySetsetObject*>(
-      PySetset_Type.tp_alloc(&PySetset_Type, 0));
+      self->ob_type->tp_alloc(self->ob_type, 0));
   ret->ss = new setset((*self->ss) * (*sso->ss));
   return reinterpret_cast<PyObject*>(ret);
 }
@@ -300,6 +303,7 @@ static PyObject* setset_product_update(PySetsetObject* self, PyObject* other) {
   }
   PySetsetObject* sso = reinterpret_cast<PySetsetObject*>(other);
   (*self->ss) *= (*sso->ss);
+  Py_INCREF(self);
   return reinterpret_cast<PyObject*>(self);
 }
 
@@ -310,7 +314,7 @@ static PyObject* setset_symmetric_difference(PySetsetObject* self, PyObject* oth
   }
   PySetsetObject* sso = reinterpret_cast<PySetsetObject*>(other);
   PySetsetObject* ret = reinterpret_cast<PySetsetObject*>(
-      PySetset_Type.tp_alloc(&PySetset_Type, 0));
+      self->ob_type->tp_alloc(self->ob_type, 0));
   ret->ss = new setset((*self->ss) ^ (*sso->ss));
   return reinterpret_cast<PyObject*>(ret);
 }
@@ -322,6 +326,7 @@ static PyObject* setset_symmetric_difference_update(PySetsetObject* self, PyObje
   }
   PySetsetObject* sso = reinterpret_cast<PySetsetObject*>(other);
   (*self->ss) ^= (*sso->ss);
+  Py_INCREF(self);
   return reinterpret_cast<PyObject*>(self);
 }
 
@@ -332,7 +337,7 @@ static PyObject* setset_divide(PySetsetObject* self, PyObject* other) {
   }
   PySetsetObject* sso = reinterpret_cast<PySetsetObject*>(other);
   PySetsetObject* ret = reinterpret_cast<PySetsetObject*>(
-      PySetset_Type.tp_alloc(&PySetset_Type, 0));
+      self->ob_type->tp_alloc(self->ob_type, 0));
   ret->ss = new setset((*self->ss) / (*sso->ss));
   return reinterpret_cast<PyObject*>(ret);
 }
@@ -344,6 +349,7 @@ static PyObject* setset_divide_update(PySetsetObject* self, PyObject* other) {
   }
   PySetsetObject* sso = reinterpret_cast<PySetsetObject*>(other);
   (*self->ss) /= (*sso->ss);
+  Py_INCREF(self);
   return reinterpret_cast<PyObject*>(self);
 }
 
@@ -354,7 +360,7 @@ static PyObject* setset_remainder(PySetsetObject* self, PyObject* other) {
   }
   PySetsetObject* sso = reinterpret_cast<PySetsetObject*>(other);
   PySetsetObject* ret = reinterpret_cast<PySetsetObject*>(
-      PySetset_Type.tp_alloc(&PySetset_Type, 0));
+      self->ob_type->tp_alloc(self->ob_type, 0));
   ret->ss = new setset((*self->ss) % (*sso->ss));
   return reinterpret_cast<PyObject*>(ret);
 }
@@ -366,6 +372,7 @@ static PyObject* setset_remainder_update(PySetsetObject* self, PyObject* other) 
   }
   PySetsetObject* sso = reinterpret_cast<PySetsetObject*>(other);
   (*self->ss) %= (*sso->ss);
+  Py_INCREF(self);
   return reinterpret_cast<PyObject*>(self);
 }
 
@@ -474,7 +481,7 @@ static PyObject* setset_find(PySetsetObject* self, PyObject* eo) {
     return nullptr;
   }
   PySetsetObject* sso = reinterpret_cast<PySetsetObject*>(
-      PySetset_Type.tp_alloc(&PySetset_Type, 0));
+      self->ob_type->tp_alloc(self->ob_type, 0));
   sso->ss = new setset(self->ss->find(PyInt_AsLong(eo)));
   return reinterpret_cast<PyObject*>(sso);
 }
@@ -485,7 +492,7 @@ static PyObject* setset_not_find(PySetsetObject* self, PyObject* eo) {
     return nullptr;
   }
   PySetsetObject* sso = reinterpret_cast<PySetsetObject*>(
-      PySetset_Type.tp_alloc(&PySetset_Type, 0));
+      self->ob_type->tp_alloc(self->ob_type, 0));
   sso->ss = new setset(self->ss->not_find(PyInt_AsLong(eo)));
   return reinterpret_cast<PyObject*>(sso);
 }
@@ -541,21 +548,21 @@ static PyObject* setset_clear(PySetsetObject* self) {
 
 static PyObject* setset_minimal(PySetsetObject* self) {
   PySetsetObject* sso = reinterpret_cast<PySetsetObject*>(
-      PySetset_Type.tp_alloc(&PySetset_Type, 0));
+      self->ob_type->tp_alloc(self->ob_type, 0));
   sso->ss = new setset(self->ss->minimal());
   return reinterpret_cast<PyObject*>(sso);
 }
 
 static PyObject* setset_maximal(PySetsetObject* self) {
   PySetsetObject* sso = reinterpret_cast<PySetsetObject*>(
-      PySetset_Type.tp_alloc(&PySetset_Type, 0));
+      self->ob_type->tp_alloc(self->ob_type, 0));
   sso->ss = new setset(self->ss->maximal());
   return reinterpret_cast<PyObject*>(sso);
 }
 
 static PyObject* setset_hitting(PySetsetObject* self) {
   PySetsetObject* sso = reinterpret_cast<PySetsetObject*>(
-      PySetset_Type.tp_alloc(&PySetset_Type, 0));
+      self->ob_type->tp_alloc(self->ob_type, 0));
   sso->ss = new setset(self->ss->hitting());
   return reinterpret_cast<PyObject*>(sso);
 }
@@ -567,7 +574,7 @@ static PyObject* setset_smaller(PySetsetObject* self, PyObject* other) {
   }
   int max_set_size = PyLong_AsLong(other);
   PySetsetObject* sso = reinterpret_cast<PySetsetObject*>(
-      PySetset_Type.tp_alloc(&PySetset_Type, 0));
+      self->ob_type->tp_alloc(self->ob_type, 0));
   sso->ss = new setset(self->ss->smaller(max_set_size));
   return reinterpret_cast<PyObject*>(sso);
 }
@@ -579,7 +586,7 @@ static PyObject* setset_subsets(PySetsetObject* self, PyObject* other) {
   }
   PySetsetObject* sso = reinterpret_cast<PySetsetObject*>(other);
   PySetsetObject* ret = reinterpret_cast<PySetsetObject*>(
-      PySetset_Type.tp_alloc(&PySetset_Type, 0));
+      self->ob_type->tp_alloc(self->ob_type, 0));
   ret->ss = new setset(self->ss->subsets(*sso->ss));
   return reinterpret_cast<PyObject*>(ret);
 }
@@ -591,7 +598,7 @@ static PyObject* setset_supersets(PySetsetObject* self, PyObject* other) {
   }
   PySetsetObject* sso = reinterpret_cast<PySetsetObject*>(other);
   PySetsetObject* ret = reinterpret_cast<PySetsetObject*>(
-      PySetset_Type.tp_alloc(&PySetset_Type, 0));
+      self->ob_type->tp_alloc(self->ob_type, 0));
   ret->ss = new setset(self->ss->supersets(*sso->ss));
   return reinterpret_cast<PyObject*>(ret);
 }
@@ -603,7 +610,7 @@ static PyObject* setset_nonsubsets(PySetsetObject* self, PyObject* other) {
   }
   PySetsetObject* sso = reinterpret_cast<PySetsetObject*>(other);
   PySetsetObject* ret = reinterpret_cast<PySetsetObject*>(
-      PySetset_Type.tp_alloc(&PySetset_Type, 0));
+      self->ob_type->tp_alloc(self->ob_type, 0));
   ret->ss = new setset(self->ss->nonsubsets(*sso->ss));
   return reinterpret_cast<PyObject*>(ret);
 }
@@ -615,7 +622,7 @@ static PyObject* setset_nonsupersets(PySetsetObject* self, PyObject* other) {
   }
   PySetsetObject* sso = reinterpret_cast<PySetsetObject*>(other);
   PySetsetObject* ret = reinterpret_cast<PySetsetObject*>(
-      PySetset_Type.tp_alloc(&PySetset_Type, 0));
+      self->ob_type->tp_alloc(self->ob_type, 0));
   ret->ss = new setset(self->ss->nonsupersets(*sso->ss));
   return reinterpret_cast<PyObject*>(ret);
 }
@@ -675,7 +682,8 @@ static PyObject* setset_enum(PySetsetObject* self, PyObject* obj) {
   PyFileObject* file = reinterpret_cast<PyFileObject*>(obj);
   PyFile_IncUseCount(file);
   Py_BEGIN_ALLOW_THREADS;
-  self->ss->_enum(fp, std::make_pair("setset([", "])"),
+  string name = self->ob_type->tp_name;
+  self->ss->_enum(fp, std::make_pair((name + "([").c_str(), "])"),
                   std::make_pair("set([", "])"));
   Py_END_ALLOW_THREADS;
   PyFile_DecUseCount(file);
@@ -684,7 +692,8 @@ static PyObject* setset_enum(PySetsetObject* self, PyObject* obj) {
 
 static PyObject* setset_enums(PySetsetObject* self) {
   stringstream sstr;
-  self->ss->_enum(sstr, std::make_pair("setset([", "])"),
+  string name = self->ob_type->tp_name;
+  self->ss->_enum(sstr, std::make_pair((name + "([").c_str(), "])"),
                   std::make_pair("set([", "])"));
   return PyString_FromString(sstr.str().c_str());
 }

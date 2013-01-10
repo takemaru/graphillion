@@ -2,6 +2,7 @@ from illion import setset
 
 def constructors():
     ss = setset()
+    assert isinstance(ss, setset)
     assert repr(ss) == '<setset object of 0x8000000000>'
     assert ss._enums() == 'setset([])'
 
@@ -30,6 +31,7 @@ def constructors():
 
     ss1 = setset([set(), set([1, 2]), set([1, 3])])
     ss2 = ss1.copy()
+    assert isinstance(ss2, setset)
     ss1.clear()
     assert ss1._enums() == 'setset([])'
     assert ss2._enums() == 'setset([set([1, 2]), set([1, 3]), set([])])'
@@ -61,6 +63,13 @@ def comparison():
 def unary_operators():
     ss = setset([set(), set([1]), set([1, 2]), set([1, 2, 3]), set([1, 2, 3, 4]),
                  set([1, 3, 4]), set([1, 4]), set([4])])
+    assert isinstance(~ss, setset)
+    assert isinstance(ss.complement(), setset)
+    assert isinstance(ss.smaller(2), setset)
+    assert isinstance(ss.hitting(), setset)
+    assert isinstance(ss.minimal(), setset)
+    assert isinstance(ss.maximal(), setset)
+
     assert ~ss == setset([set([1, 2, 4]), set([1, 3]), set([2]), set([2, 3]),
                           set([2, 3, 4]), set([2, 4]), set([3]), set([3, 4])])
     assert ss.complement() == setset([set([1, 2, 4]), set([1, 3]), set([2]),
@@ -83,126 +92,158 @@ def binary_operators():
          set([1, 3, 4]), set([1, 4]), set([4])]
     v = [set([1, 2]), set([1, 4]), set([2, 3]), set([3, 4])]
     ss = setset(u) & setset(v)
+    assert isinstance(ss, setset)
     assert ss == setset([set([1, 2]), set([1, 4])])
     ss = setset(u).intersection(setset(v))
+    assert isinstance(ss, setset)
     assert ss == setset([set([1, 2]), set([1, 4])])
 
     ss = setset(u)
     ss &= setset(v)
+    assert isinstance(ss, setset)
     assert ss == setset([set([1, 2]), set([1, 4])])
     ss = setset(u)
     ss.intersection_update(setset(v))
+    assert isinstance(ss, setset)
     assert ss == setset([set([1, 2]), set([1, 4])])
 
     ss = setset(u) | setset(v)
+    assert isinstance(ss, setset)
     assert ss == setset([set(), set([1]), set([1, 2]), set([1, 2, 3]),
                          set([1, 2, 3, 4]), set([1, 3, 4]), set([1, 4]),
                          set([2, 3]), set([3, 4]), set([4])])
     ss = setset(u).union(setset(v))
+    assert isinstance(ss, setset)
     assert ss == setset([set(), set([1]), set([1, 2]), set([1, 2, 3]),
                          set([1, 2, 3, 4]), set([1, 3, 4]), set([1, 4]),
                          set([2, 3]), set([3, 4]), set([4])])
 
     ss = setset(u)
     ss |= setset(v)
+    assert isinstance(ss, setset)
     assert ss == setset([set(), set([1]), set([1, 2]), set([1, 2, 3]),
                          set([1, 2, 3, 4]), set([1, 3, 4]), set([1, 4]),
                          set([2, 3]), set([3, 4]), set([4])])
     ss = setset(u)
     ss.update(setset(v))
+    assert isinstance(ss, setset)
     assert ss == setset([set(), set([1]), set([1, 2]), set([1, 2, 3]),
                          set([1, 2, 3, 4]), set([1, 3, 4]), set([1, 4]),
                          set([2, 3]), set([3, 4]), set([4])])
 
     ss = setset(u) - setset(v)
+    assert isinstance(ss, setset)
     assert ss == setset([set(), set([1]), set([1, 2, 3]), set([1, 2, 3, 4]),
                          set([1, 3, 4]), set([4])])
     ss = setset(u).difference(setset(v))
+    assert isinstance(ss, setset)
     assert ss == setset([set(), set([1]), set([1, 2, 3]), set([1, 2, 3, 4]),
                          set([1, 3, 4]), set([4])])
 
     ss = setset(u)
     ss -= setset(v)
+    assert isinstance(ss, setset)
     assert ss == setset([set(), set([1]), set([1, 2, 3]), set([1, 2, 3, 4]),
                          set([1, 3, 4]), set([4])])
     ss = setset(u)
     ss.difference_update(setset(v))
+    assert isinstance(ss, setset)
     assert ss == setset([set(), set([1]), set([1, 2, 3]), set([1, 2, 3, 4]),
                          set([1, 3, 4]), set([4])])
 
     ss = setset(u) * setset(v)
+    assert isinstance(ss, setset)
     assert ss == setset([set([1, 2]), set([1, 2, 3]), set([1, 2, 4]),
                          set([1, 2, 3, 4]), set([1, 3, 4]), set([1, 4]),
                          set([2, 3]), set([2, 3, 4]), set([3, 4])])
     ss = setset(u).product(setset(v))
+    assert isinstance(ss, setset)
     assert ss == setset([set([1, 2]), set([1, 2, 3]), set([1, 2, 4]),
                          set([1, 2, 3, 4]), set([1, 3, 4]), set([1, 4]),
                          set([2, 3]), set([2, 3, 4]), set([3, 4])])
 
     ss = setset(u)
     ss *= setset(v)
+    assert isinstance(ss, setset)
     assert ss == setset([set([1, 2]), set([1, 2, 3]), set([1, 2, 4]),
                          set([1, 2, 3, 4]), set([1, 3, 4]), set([1, 4]),
                          set([2, 3]), set([2, 3, 4]), set([3, 4])])
     ss = setset(u)
     ss.product_update(setset(v))
+    assert isinstance(ss, setset)
     assert ss == setset([set([1, 2]), set([1, 2, 3]), set([1, 2, 4]),
                          set([1, 2, 3, 4]), set([1, 3, 4]), set([1, 4]),
                          set([2, 3]), set([2, 3, 4]), set([3, 4])])
 
     ss = setset(u) ^ setset(v)
+    assert isinstance(ss, setset)
     assert ss == setset([set(), set([1]), set([1, 2, 3]), set([1, 2, 3, 4]),
                          set([1, 3, 4]), set([2, 3]), set([3, 4]), set([4])])
     ss = setset(u).symmetric_difference(setset(v))
+    assert isinstance(ss, setset)
     assert ss == setset([set(), set([1]), set([1, 2, 3]), set([1, 2, 3, 4]),
                          set([1, 3, 4]), set([2, 3]), set([3, 4]), set([4])])
 
     ss = setset(u)
     ss ^= setset(v)
+    assert isinstance(ss, setset)
     assert ss == setset([set(), set([1]), set([1, 2, 3]), set([1, 2, 3, 4]),
                          set([1, 3, 4]), set([2, 3]), set([3, 4]), set([4])])
     ss = setset(u)
     ss.symmetric_difference_update(setset(v))
+    assert isinstance(ss, setset)
     assert ss == setset([set(), set([1]), set([1, 2, 3]), set([1, 2, 3, 4]),
                          set([1, 3, 4]), set([2, 3]), set([3, 4]), set([4])])
 
     v = [set([1, 2])]
     ss = setset(u) / setset(v)
+    assert isinstance(ss, setset)
     assert ss == setset([set(), set([3]), set([3, 4])])
     ss = setset(u).divide(setset(v))
+    assert isinstance(ss, setset)
     assert ss == setset([set(), set([3]), set([3, 4])])
 
     ss = setset(u)
     ss /= setset(v)
+    assert isinstance(ss, setset)
     assert ss == setset([set(), set([3]), set([3, 4])])
     ss = setset(u)
     ss.divide_update(setset(v))
+    assert isinstance(ss, setset)
     assert ss == setset([set(), set([3]), set([3, 4])])
 
     ss = setset(u) % setset(v)
+    assert isinstance(ss, setset)
     assert ss == setset([set(), set([1]), set([1, 3, 4]), set([1, 4]), set([4])])
     ss = setset(u).remainder(setset(v))
+    assert isinstance(ss, setset)
     assert ss == setset([set(), set([1]), set([1, 3, 4]), set([1, 4]), set([4])])
 
     ss = setset(u)
     ss %= setset(v)
+    assert isinstance(ss, setset)
     assert ss == setset([set(), set([1]), set([1, 3, 4]), set([1, 4]), set([4])])
     ss = setset(u)
     ss.remainder_update(setset(v))
+    assert isinstance(ss, setset)
     assert ss == setset([set(), set([1]), set([1, 3, 4]), set([1, 4]), set([4])])
 
     v = [set([1, 2]), set([1, 4]), set([2, 3]), set([3, 4])]
     ss = setset(u).subsets(setset(v))
+    assert isinstance(ss, setset)
     assert ss == setset([set(), set([1]), set([1, 2]), set([1, 4]), set([4])])
 
     ss = setset(u).supersets(setset(v))
+    assert isinstance(ss, setset)
     assert ss == setset([set([1, 2]), set([1, 2, 3]), set([1, 2, 3, 4]),
                          set([1, 3, 4]), set([1, 4])])
 
     ss = setset(u).nonsubsets(setset(v))
+    assert isinstance(ss, setset)
     assert ss == setset([set([1, 2, 3]), set([1, 2, 3, 4]), set([1, 3, 4])])
 
     ss = setset(u).nonsupersets(setset(v))
+    assert isinstance(ss, setset)
     assert ss == setset([set(), set([1]), set([4])])
 
 def capacity():
@@ -238,13 +279,17 @@ def iterators():
     assert r[2] == set([4])
 
 def lookup():
-    ss = setset([set(), set([1, 2]), set([1, 3])])
-    assert set([1, 2]) in ss
-    assert set([1]) not in ss
+    ss1 = setset([set(), set([1, 2]), set([1, 3])])
+    assert set([1, 2]) in ss1
+    assert set([1]) not in ss1
 
-    assert ss.find(1) == setset([set([1, 2]), set([1, 3])])
+    ss2 = ss1.find(1)
+    assert isinstance(ss2, setset)
+    assert ss2 == setset([set([1, 2]), set([1, 3])])
 
-    assert ss.not_find(2) == setset([set(), set([1, 3])])
+    ss2 = ss1.not_find(2)
+    assert isinstance(ss2, setset)
+    assert ss2 == setset([set(), set([1, 3])])
 
 def modifiers():
     v = [set(), set([1, 2]), set([1, 3])]
