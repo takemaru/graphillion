@@ -67,41 +67,29 @@ zdd_t _not(zdd_t f) {
 }
 
 zdd_t minimal(zdd_t f) {
+  static unordered_map<word_t, zdd_t> cache;
   if (is_term(f)) return f;
-  vector<vector<zdd_t> > stacks(num_elems_ + 1);
-  unordered_set<word_t> visited;
-  sort_zdd(f, &stacks, &visited);
-  unordered_map<word_t, zdd_t> cache
-    = { {id(bot()), bot()}, {id(top()), top()} };
-  for (elem_t v = num_elems_; v > 0; --v) {
-    while (!stacks[v].empty()) {
-      zdd_t n = stacks[v].back();
-      stacks[v].pop_back();
-      cache[id(n)]
-        = cache.at(id(lo(n)))
-        + (cache.at(id(hi(n))) - cache.at(id(lo(n)))).Change(v);
-    }
-  }
-  return cache.at(id(f));
+  auto i = cache.find(id(f));
+  if (i != cache.end())
+    return i->second;
+  zdd_t rl = minimal(lo(f));
+  zdd_t r = minimal(hi(f));
+  zdd_t rh = nonsupersets(r, rl);
+  r = zuniq(elem(f), rl, rh);
+  return cache[id(f)] = r;
 }
 
 zdd_t maximal(zdd_t f) {
+  static unordered_map<word_t, zdd_t> cache;
   if (is_term(f)) return f;
-  vector<vector<zdd_t> > stacks(num_elems_ + 1);
-  unordered_set<word_t> visited;
-  sort_zdd(f, &stacks, &visited);
-  unordered_map<word_t, zdd_t> cache
-    = { {id(bot()), bot()}, {id(top()), top()} };
-  for (elem_t v = num_elems_; v > 0; --v) {
-    while (!stacks[v].empty()) {
-      zdd_t n = stacks[v].back();
-      stacks[v].pop_back();
-      cache[id(n)]
-        = cache.at(id(lo(n))) - cache.at(id(lo(n))).Permit(cache.at(id(hi(n))))
-        + cache.at(id(hi(n))).Change(v);
-    }
-  }
-  return cache.at(id(f));
+  auto i = cache.find(id(f));
+  if (i != cache.end())
+    return i->second;
+  zdd_t r = maximal(lo(f));
+  zdd_t rh = maximal(hi(f));
+  zdd_t rl = nonsubsets(r, rh);
+  r = zuniq(elem(f), rl, rh);
+  return cache[id(f)] = r;
 }
 
 zdd_t hitting(zdd_t f) {
@@ -168,16 +156,20 @@ zdd_t nonsubsets(zdd_t f, zdd_t g) {
   auto i = cache.find(k);
   if (i != cache.end())
     return i->second;
+  zdd_t r;
   zdd_t rl;
   zdd_t rh;
   if (elem(f) < elem(g)) {
     rl = nonsubsets(lo(f), g);
     rh = hi(f);
   } else {
-    rl = nonsubsets(lo(f), hi(g)) & nonsubsets(lo(f), lo(g));
+    rh = nonsubsets(lo(f), lo(g));
+    r = nonsubsets(lo(f), hi(g));
+    rl = r & rh;
     rh = nonsubsets(hi(f), hi(g));
   }
-  return cache[k] = zuniq(elem(f), rl, rh);
+  r = zuniq(elem(f), rl, rh);
+  return cache[k] = r;
 }
 
 zdd_t nonsupersets(zdd_t f, zdd_t g) {
@@ -192,16 +184,20 @@ zdd_t nonsupersets(zdd_t f, zdd_t g) {
   auto i = cache.find(k);
   if (i != cache.end())
     return i->second;
+  zdd_t r;
   zdd_t rl;
   zdd_t rh;
   if (elem(f) < elem(g)) {
     rl = nonsupersets(lo(f), g);
     rh = nonsupersets(hi(f), g);
   } else {
+    rl = nonsupersets(hi(f), hi(g));
+    r = nonsupersets(hi(f), lo(g));
+    rh = r & rl;
     rl = nonsupersets(lo(f), lo(g));
-    rh = nonsupersets(hi(f), hi(g)) & nonsupersets(hi(f), lo(g));
   }
-  return cache[k] = zuniq(elem(f), rl, rh);
+  r = zuniq(elem(f), rl, rh);
+  return cache[k] = r;
 }
 
 zdd_t choose_random(zdd_t f, vector<elem_t>* stack, int* idum) {
