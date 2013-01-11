@@ -19,12 +19,57 @@ using std::string;
 using std::stringstream;
 using std::vector;
 
+#define CHECK_OR_ERROR(obj, check, name, ret)         \
+  do {                                                \
+    if (!check(obj)) {                                \
+      PyErr_SetString(PyExc_TypeError, "not " name);  \
+      return (ret);                                   \
+    }                                                 \
+  } while (0) ;
+
+#define CHECK_SETSET_OR_ERROR(obj)                              \
+  CHECK_OR_ERROR(obj, PySetset_Check, "setset", nullptr);
+
+#define RETURN_NEW_SETSET(self, expr)                         \
+  do {                                                        \
+    PySetsetObject* _ret = reinterpret_cast<PySetsetObject*>( \
+        (self)->ob_type->tp_alloc((self)->ob_type, 0));       \
+    _ret->ss = new setset(expr);                              \
+    return reinterpret_cast<PyObject*>(_ret);                 \
+  } while (0);
+
+
+#define RETURN_NEW_SETSET2(self, other, _other, expr)                   \
+  do {                                                                  \
+    PySetsetObject* (_other) = reinterpret_cast<PySetsetObject*>(other); \
+    PySetsetObject* _ret = reinterpret_cast<PySetsetObject*>(           \
+        (self)->ob_type->tp_alloc((self)->ob_type, 0));                 \
+    if (_ret == nullptr) return nullptr;                                \
+    _ret->ss = new setset(expr);                                        \
+    return reinterpret_cast<PyObject*>(_ret);                           \
+  } while (0);
+
+#define RETURN_SELF_SETSET(self, other, _other, expr)                  \
+  do {                                                                 \
+    PySetsetObject* _other = reinterpret_cast<PySetsetObject*>(other); \
+    (expr);                                                            \
+    Py_INCREF(self);                                                   \
+    return reinterpret_cast<PyObject*>(self);                          \
+  } while (0);
+
+#define RETURN_TRUE_IF(self, other, _other, expr)                       \
+  do {                                                                  \
+    PySetsetObject* (_other) = reinterpret_cast<PySetsetObject*>(other); \
+    if (expr) Py_RETURN_TRUE;                                           \
+    else      Py_RETURN_FALSE;                                          \
+  } while (0);
+
 static PyObject* setset_build_set(const set<int>& s) {
   PyObject* so = PySet_New(nullptr);
   for (const auto& e : s) {
     PyObject* eo = PyInt_FromLong(e);
     if (eo == nullptr) {
-      PyErr_SetString(PyExc_TypeError, "not integer set");
+      PyErr_SetString(PyExc_TypeError, "not int set");
       Py_DECREF(eo);
       return nullptr;
     }
@@ -46,7 +91,7 @@ static int setset_parse_set(PyObject* so, set<int>* s) {
   while ((eo = PyIter_Next(i))) {
     if (!PyInt_Check(eo)) {
       Py_DECREF(eo);
-      PyErr_SetString(PyExc_TypeError, "not integer set");
+      PyErr_SetString(PyExc_TypeError, "not int set");
       return -1;
     }
     s->insert(PyInt_AsLong(eo));
@@ -196,214 +241,96 @@ static void setset_dealloc(PySetsetObject* self) {
 }
 
 static PyObject* setset_copy(PySetsetObject* self) {
-  PySetsetObject* sso = reinterpret_cast<PySetsetObject*>(
-      self->ob_type->tp_alloc(self->ob_type, 0));
-  sso->ss = new setset(*self->ss);
-  return reinterpret_cast<PyObject*>(sso);
+  RETURN_NEW_SETSET(self, *self->ss);
 }
 
 static PyObject* setset_complement(PySetsetObject* self) {
-  PySetsetObject* sso = reinterpret_cast<PySetsetObject*>(
-      self->ob_type->tp_alloc(self->ob_type, 0));
-  sso->ss = new setset(~(*self->ss));
-  return reinterpret_cast<PyObject*>(sso);
+  RETURN_NEW_SETSET(self, ~(*self->ss));
 }
 
 static PyObject* setset_intersection(PySetsetObject* self, PyObject* other) {
-  if (!PySetset_Check(other)) {
-    PyErr_SetString(PyExc_TypeError, "not setset");
-    return nullptr;
-  }
-  PySetsetObject* sso = reinterpret_cast<PySetsetObject*>(other);
-  PySetsetObject* ret = reinterpret_cast<PySetsetObject*>(
-      self->ob_type->tp_alloc(self->ob_type, 0));
-  ret->ss = new setset((*self->ss) & (*sso->ss));
-  return reinterpret_cast<PyObject*>(ret);
+  CHECK_SETSET_OR_ERROR(other);
+  RETURN_NEW_SETSET2(self, other, _other, (*self->ss) & (*_other->ss));
 }
 
 static PyObject* setset_intersection_update(PySetsetObject* self, PyObject* other) {
-  if (!PySetset_Check(other)) {
-    PyErr_SetString(PyExc_TypeError, "not setset");
-    return nullptr;
-  }
-  PySetsetObject* sso = reinterpret_cast<PySetsetObject*>(other);
-  (*self->ss) &= (*sso->ss);
-  Py_INCREF(self);
-  return reinterpret_cast<PyObject*>(self);
+  CHECK_SETSET_OR_ERROR(other);
+  RETURN_SELF_SETSET(self, other, _other, (*self->ss) &= (*_other->ss));
 }
 
 static PyObject* setset_union(PySetsetObject* self, PyObject* other) {
-  if (!PySetset_Check(other)) {
-    PyErr_SetString(PyExc_TypeError, "not setset");
-    return nullptr;
-  }
-  PySetsetObject* sso = reinterpret_cast<PySetsetObject*>(other);
-  PySetsetObject* ret = reinterpret_cast<PySetsetObject*>(
-      self->ob_type->tp_alloc(self->ob_type, 0));
-  ret->ss = new setset((*self->ss) | (*sso->ss));
-  return reinterpret_cast<PyObject*>(ret);
+  CHECK_SETSET_OR_ERROR(other);
+  RETURN_NEW_SETSET2(self, other, _other, (*self->ss) | (*_other->ss));
 }
 
 static PyObject* setset_update(PySetsetObject* self, PyObject* other) {
-  if (!PySetset_Check(other)) {
-    PyErr_SetString(PyExc_TypeError, "not setset");
-    return nullptr;
-  }
-  PySetsetObject* sso = reinterpret_cast<PySetsetObject*>(other);
-  (*self->ss) |= (*sso->ss);
-  Py_INCREF(self);
-  return reinterpret_cast<PyObject*>(self);
+  CHECK_SETSET_OR_ERROR(other);
+  RETURN_SELF_SETSET(self, other, _other, (*self->ss) |= (*_other->ss));
 }
 
 static PyObject* setset_difference(PySetsetObject* self, PyObject* other) {
-  if (!PySetset_Check(other)) {
-    PyErr_SetString(PyExc_TypeError, "not setset");
-    return nullptr;
-  }
-  PySetsetObject* sso = reinterpret_cast<PySetsetObject*>(other);
-  PySetsetObject* ret = reinterpret_cast<PySetsetObject*>(
-      self->ob_type->tp_alloc(self->ob_type, 0));
-  ret->ss = new setset((*self->ss) - (*sso->ss));
-  return reinterpret_cast<PyObject*>(ret);
+  CHECK_SETSET_OR_ERROR(other);
+  RETURN_NEW_SETSET2(self, other, _other, (*self->ss) - (*_other->ss));
 }
 
 static PyObject* setset_difference_update(PySetsetObject* self, PyObject* other) {
-  if (!PySetset_Check(other)) {
-    PyErr_SetString(PyExc_TypeError, "not setset");
-    return nullptr;
-  }
-  PySetsetObject* sso = reinterpret_cast<PySetsetObject*>(other);
-  (*self->ss) -= (*sso->ss);
-  Py_INCREF(self);
-  return reinterpret_cast<PyObject*>(self);
+  CHECK_SETSET_OR_ERROR(other);
+  RETURN_SELF_SETSET(self, other, _other, (*self->ss) -= (*_other->ss));
 }
 
 static PyObject* setset_product(PySetsetObject* self, PyObject* other) {
-  if (!PySetset_Check(other)) {
-    PyErr_SetString(PyExc_TypeError, "not setset");
-    return nullptr;
-  }
-  PySetsetObject* sso = reinterpret_cast<PySetsetObject*>(other);
-  PySetsetObject* ret = reinterpret_cast<PySetsetObject*>(
-      self->ob_type->tp_alloc(self->ob_type, 0));
-  ret->ss = new setset((*self->ss) * (*sso->ss));
-  return reinterpret_cast<PyObject*>(ret);
+  CHECK_SETSET_OR_ERROR(other);
+  RETURN_NEW_SETSET2(self, other, _other, (*self->ss) * (*_other->ss));
 }
 
 static PyObject* setset_product_update(PySetsetObject* self, PyObject* other) {
-  if (!PySetset_Check(other)) {
-    PyErr_SetString(PyExc_TypeError, "not setset");
-    return nullptr;
-  }
-  PySetsetObject* sso = reinterpret_cast<PySetsetObject*>(other);
-  (*self->ss) *= (*sso->ss);
-  Py_INCREF(self);
-  return reinterpret_cast<PyObject*>(self);
+  CHECK_SETSET_OR_ERROR(other);
+  RETURN_SELF_SETSET(self, other, _other, (*self->ss) *= (*_other->ss));
 }
 
 static PyObject* setset_symmetric_difference(PySetsetObject* self, PyObject* other) {
-  if (!PySetset_Check(other)) {
-    PyErr_SetString(PyExc_TypeError, "not setset");
-    return nullptr;
-  }
-  PySetsetObject* sso = reinterpret_cast<PySetsetObject*>(other);
-  PySetsetObject* ret = reinterpret_cast<PySetsetObject*>(
-      self->ob_type->tp_alloc(self->ob_type, 0));
-  ret->ss = new setset((*self->ss) ^ (*sso->ss));
-  return reinterpret_cast<PyObject*>(ret);
+  CHECK_SETSET_OR_ERROR(other);
+  RETURN_NEW_SETSET2(self, other, _other, (*self->ss) ^ (*_other->ss));
 }
 
 static PyObject* setset_symmetric_difference_update(PySetsetObject* self, PyObject* other) {
-  if (!PySetset_Check(other)) {
-    PyErr_SetString(PyExc_TypeError, "not setset");
-    return nullptr;
-  }
-  PySetsetObject* sso = reinterpret_cast<PySetsetObject*>(other);
-  (*self->ss) ^= (*sso->ss);
-  Py_INCREF(self);
-  return reinterpret_cast<PyObject*>(self);
+  CHECK_SETSET_OR_ERROR(other);
+  RETURN_SELF_SETSET(self, other, _other, (*self->ss) ^= (*_other->ss));
 }
 
 static PyObject* setset_divide(PySetsetObject* self, PyObject* other) {
-  if (!PySetset_Check(other)) {
-    PyErr_SetString(PyExc_TypeError, "not setset");
-    return nullptr;
-  }
-  PySetsetObject* sso = reinterpret_cast<PySetsetObject*>(other);
-  PySetsetObject* ret = reinterpret_cast<PySetsetObject*>(
-      self->ob_type->tp_alloc(self->ob_type, 0));
-  ret->ss = new setset((*self->ss) / (*sso->ss));
-  return reinterpret_cast<PyObject*>(ret);
+  CHECK_SETSET_OR_ERROR(other);
+  RETURN_NEW_SETSET2(self, other, _other, (*self->ss) / (*_other->ss));
 }
 
 static PyObject* setset_divide_update(PySetsetObject* self, PyObject* other) {
-  if (!PySetset_Check(other)) {
-    PyErr_SetString(PyExc_TypeError, "not setset");
-    return nullptr;
-  }
-  PySetsetObject* sso = reinterpret_cast<PySetsetObject*>(other);
-  (*self->ss) /= (*sso->ss);
-  Py_INCREF(self);
-  return reinterpret_cast<PyObject*>(self);
+  CHECK_SETSET_OR_ERROR(other);
+  RETURN_SELF_SETSET(self, other, _other, (*self->ss) /= (*_other->ss));
 }
 
 static PyObject* setset_remainder(PySetsetObject* self, PyObject* other) {
-  if (!PySetset_Check(other)) {
-    PyErr_SetString(PyExc_TypeError, "not setset");
-    return nullptr;
-  }
-  PySetsetObject* sso = reinterpret_cast<PySetsetObject*>(other);
-  PySetsetObject* ret = reinterpret_cast<PySetsetObject*>(
-      self->ob_type->tp_alloc(self->ob_type, 0));
-  ret->ss = new setset((*self->ss) % (*sso->ss));
-  return reinterpret_cast<PyObject*>(ret);
+  CHECK_SETSET_OR_ERROR(other);
+  RETURN_NEW_SETSET2(self, other, _other, (*self->ss) % (*_other->ss));
 }
 
 static PyObject* setset_remainder_update(PySetsetObject* self, PyObject* other) {
-  if (!PySetset_Check(other)) {
-    PyErr_SetString(PyExc_TypeError, "not setset");
-    return nullptr;
-  }
-  PySetsetObject* sso = reinterpret_cast<PySetsetObject*>(other);
-  (*self->ss) %= (*sso->ss);
-  Py_INCREF(self);
-  return reinterpret_cast<PyObject*>(self);
+  CHECK_SETSET_OR_ERROR(other);
+  RETURN_SELF_SETSET(self, other, _other, (*self->ss) %= (*_other->ss));
 }
 
 static PyObject* setset_isdisjoint(PySetsetObject* self, PyObject* other) {
-  if (!PySetset_Check(other)) {
-    PyErr_SetString(PyExc_TypeError, "not setset");
-    return nullptr;
-  }
-  PySetsetObject* sso = reinterpret_cast<PySetsetObject*>(other);
-  if (self->ss->is_disjoint(*sso->ss))
-    Py_RETURN_TRUE;
-  else
-    Py_RETURN_FALSE;
+  CHECK_SETSET_OR_ERROR(other);
+  RETURN_TRUE_IF(self, other, _other, self->ss->is_disjoint(*_other->ss));
 }
 
 static PyObject* setset_issubset(PySetsetObject* self, PyObject* other) {
-  if (!PySetset_Check(other)) {
-    PyErr_SetString(PyExc_TypeError, "not setset");
-    return nullptr;
-  }
-  PySetsetObject* sso = reinterpret_cast<PySetsetObject*>(other);
-  if (self->ss->is_subset(*sso->ss))
-    Py_RETURN_TRUE;
-  else
-    Py_RETURN_FALSE;
+  CHECK_SETSET_OR_ERROR(other);
+  RETURN_TRUE_IF(self, other, _other, self->ss->is_subset(*_other->ss));
 }
 
 static PyObject* setset_issuperset(PySetsetObject* self, PyObject* other) {
-  if (!PySetset_Check(other)) {
-    PyErr_SetString(PyExc_TypeError, "not setset");
-    return nullptr;
-  }
-  PySetsetObject* sso = reinterpret_cast<PySetsetObject*>(other);
-  if (self->ss->is_superset(*sso->ss))
-    Py_RETURN_TRUE;
-  else
-    Py_RETURN_FALSE;
+  CHECK_SETSET_OR_ERROR(other);
+  RETURN_TRUE_IF(self, other, _other, self->ss->is_superset(*_other->ss));
 }
 
 static Py_ssize_t setset_len(PyObject* obj) {
@@ -434,10 +361,7 @@ static PyObject* setset_iter(PySetsetObject* self) {
 }
 
 static PyObject* setset_opt_iter(PySetsetObject* self, PyObject* weights) {
-  if (!PyList_Check(weights)) {
-    PyErr_SetString(PyExc_TypeError, "not integer list");
-    return nullptr;
-  }
+  CHECK_OR_ERROR(weights, PyList_Check, "list", nullptr);
   PyObject* i = PyObject_GetIter(weights);
   if (i == nullptr) return nullptr;
   PyObject* eo;
@@ -445,7 +369,7 @@ static PyObject* setset_opt_iter(PySetsetObject* self, PyObject* weights) {
   while ((eo = PyIter_Next(i))) {
     if (!PyInt_Check(eo)) {
       Py_DECREF(eo);
-      PyErr_SetString(PyExc_TypeError, "not integer list");
+      PyErr_SetString(PyExc_TypeError, "not int list");
       return nullptr;
     }
     w.push_back(PyInt_AsLong(eo));
@@ -460,20 +384,14 @@ static PyObject* setset_opt_iter(PySetsetObject* self, PyObject* weights) {
 
 // If an item in o is equal to value, return 1, otherwise return 0. On error, return -1.
 static int setset_contains(PySetsetObject* self, PyObject* so) {
-  if (!PyAnySet_Check(so)) {
-    PyErr_SetString(PyExc_TypeError, "not integer set");
-    return -1;
-  }
+  CHECK_OR_ERROR(so, PyAnySet_Check, "set", -1);
   set<int> s;
   if (setset_parse_set(so, &s) == -1) return -1;
   return self->ss->find(s) != setset::end() ? 1 : 0;
 }
 
 static PyObject* setset_find(PySetsetObject* self, PyObject* eo) {
-  if (!PyInt_Check(eo)) {
-    PyErr_SetString(PyExc_TypeError, "not integer");
-    return nullptr;
-  }
+  CHECK_OR_ERROR(eo, PyInt_Check, "int", nullptr);
   PySetsetObject* sso = reinterpret_cast<PySetsetObject*>(
       self->ob_type->tp_alloc(self->ob_type, 0));
   sso->ss = new setset(self->ss->find(PyInt_AsLong(eo)));
@@ -481,10 +399,7 @@ static PyObject* setset_find(PySetsetObject* self, PyObject* eo) {
 }
 
 static PyObject* setset_not_find(PySetsetObject* self, PyObject* eo) {
-  if (!PyInt_Check(eo)) {
-    PyErr_SetString(PyExc_TypeError, "not integer");
-    return nullptr;
-  }
+  CHECK_OR_ERROR(eo, PyInt_Check, "int", nullptr);
   PySetsetObject* sso = reinterpret_cast<PySetsetObject*>(
       self->ob_type->tp_alloc(self->ob_type, 0));
   sso->ss = new setset(self->ss->not_find(PyInt_AsLong(eo)));
@@ -492,10 +407,7 @@ static PyObject* setset_not_find(PySetsetObject* self, PyObject* eo) {
 }
 
 static PyObject* setset_add(PySetsetObject* self, PyObject* so) {
-  if (!PyAnySet_Check(so)) {
-    PyErr_SetString(PyExc_TypeError, "not integer set");
-    return nullptr;
-  }
+  CHECK_OR_ERROR(so, PyAnySet_Check, "set", nullptr);
   set<int> s;
   if (setset_parse_set(so, &s) == -1) return nullptr;
   self->ss->insert(s);
@@ -503,10 +415,7 @@ static PyObject* setset_add(PySetsetObject* self, PyObject* so) {
 }
 
 static PyObject* setset_remove(PySetsetObject* self, PyObject* so) {
-  if (!PyAnySet_Check(so)) {
-    PyErr_SetString(PyExc_TypeError, "not integer set");
-    return nullptr;
-  }
+  CHECK_OR_ERROR(so, PyAnySet_Check, "set", nullptr);
   set<int> s;
   if (setset_parse_set(so, &s) == -1) return nullptr;
   if (self->ss->erase(s) == 0) {
@@ -517,10 +426,7 @@ static PyObject* setset_remove(PySetsetObject* self, PyObject* so) {
 }
 
 static PyObject* setset_discard(PySetsetObject* self, PyObject* so) {
-  if (!PyAnySet_Check(so)) {
-    PyErr_SetString(PyExc_TypeError, "not integer set");
-    return nullptr;
-  }
+  CHECK_OR_ERROR(so, PyAnySet_Check, "set", nullptr);
   set<int> s;
   if (setset_parse_set(so, &s) == -1) return nullptr;
   self->ss->erase(s);
@@ -541,91 +447,45 @@ static PyObject* setset_clear(PySetsetObject* self) {
 }
 
 static PyObject* setset_minimal(PySetsetObject* self) {
-  PySetsetObject* sso = reinterpret_cast<PySetsetObject*>(
-      self->ob_type->tp_alloc(self->ob_type, 0));
-  sso->ss = new setset(self->ss->minimal());
-  return reinterpret_cast<PyObject*>(sso);
+  RETURN_NEW_SETSET(self, self->ss->minimal());
 }
 
 static PyObject* setset_maximal(PySetsetObject* self) {
-  PySetsetObject* sso = reinterpret_cast<PySetsetObject*>(
-      self->ob_type->tp_alloc(self->ob_type, 0));
-  sso->ss = new setset(self->ss->maximal());
-  return reinterpret_cast<PyObject*>(sso);
+  RETURN_NEW_SETSET(self, self->ss->maximal());
 }
 
 static PyObject* setset_hitting(PySetsetObject* self) {
-  PySetsetObject* sso = reinterpret_cast<PySetsetObject*>(
-      self->ob_type->tp_alloc(self->ob_type, 0));
-  sso->ss = new setset(self->ss->hitting());
-  return reinterpret_cast<PyObject*>(sso);
+  RETURN_NEW_SETSET(self, self->ss->hitting());
 }
 
 static PyObject* setset_smaller(PySetsetObject* self, PyObject* other) {
-  if (!PyInt_Check(other)) {
-    PyErr_SetString(PyExc_TypeError, "not integer");
-    return nullptr;
-  }
+  CHECK_OR_ERROR(other, PyInt_Check, "int", nullptr);
   int max_set_size = PyLong_AsLong(other);
-  PySetsetObject* sso = reinterpret_cast<PySetsetObject*>(
-      self->ob_type->tp_alloc(self->ob_type, 0));
-  sso->ss = new setset(self->ss->smaller(max_set_size));
-  return reinterpret_cast<PyObject*>(sso);
+  RETURN_NEW_SETSET(self, self->ss->smaller(max_set_size));
 }
 
 static PyObject* setset_subsets(PySetsetObject* self, PyObject* other) {
-  if (!PySetset_Check(other)) {
-    PyErr_SetString(PyExc_TypeError, "not setset");
-    return nullptr;
-  }
-  PySetsetObject* sso = reinterpret_cast<PySetsetObject*>(other);
-  PySetsetObject* ret = reinterpret_cast<PySetsetObject*>(
-      self->ob_type->tp_alloc(self->ob_type, 0));
-  ret->ss = new setset(self->ss->subsets(*sso->ss));
-  return reinterpret_cast<PyObject*>(ret);
+  CHECK_SETSET_OR_ERROR(other);
+  RETURN_NEW_SETSET2(self, other, _other, self->ss->subsets(*_other->ss));
 }
 
 static PyObject* setset_supersets(PySetsetObject* self, PyObject* other) {
-  if (!PySetset_Check(other)) {
-    PyErr_SetString(PyExc_TypeError, "not setset");
-    return nullptr;
-  }
-  PySetsetObject* sso = reinterpret_cast<PySetsetObject*>(other);
-  PySetsetObject* ret = reinterpret_cast<PySetsetObject*>(
-      self->ob_type->tp_alloc(self->ob_type, 0));
-  ret->ss = new setset(self->ss->supersets(*sso->ss));
-  return reinterpret_cast<PyObject*>(ret);
+  CHECK_SETSET_OR_ERROR(other);
+  RETURN_NEW_SETSET2(self, other, _other, self->ss->supersets(*_other->ss));
 }
 
 static PyObject* setset_nonsubsets(PySetsetObject* self, PyObject* other) {
-  if (!PySetset_Check(other)) {
-    PyErr_SetString(PyExc_TypeError, "not setset");
-    return nullptr;
-  }
-  PySetsetObject* sso = reinterpret_cast<PySetsetObject*>(other);
-  PySetsetObject* ret = reinterpret_cast<PySetsetObject*>(
-      self->ob_type->tp_alloc(self->ob_type, 0));
-  ret->ss = new setset(self->ss->nonsubsets(*sso->ss));
-  return reinterpret_cast<PyObject*>(ret);
+  CHECK_SETSET_OR_ERROR(other);
+  RETURN_NEW_SETSET2(self, other, _other, self->ss->nonsubsets(*_other->ss));
 }
 
 static PyObject* setset_nonsupersets(PySetsetObject* self, PyObject* other) {
-  if (!PySetset_Check(other)) {
-    PyErr_SetString(PyExc_TypeError, "not setset");
-    return nullptr;
-  }
-  PySetsetObject* sso = reinterpret_cast<PySetsetObject*>(other);
-  PySetsetObject* ret = reinterpret_cast<PySetsetObject*>(
-      self->ob_type->tp_alloc(self->ob_type, 0));
-  ret->ss = new setset(self->ss->nonsupersets(*sso->ss));
-  return reinterpret_cast<PyObject*>(ret);
+  CHECK_SETSET_OR_ERROR(other);
+  RETURN_NEW_SETSET2(self, other, _other, self->ss->nonsupersets(*_other->ss));
 }
 
 static PyObject* setset_dump(PySetsetObject* self, PyObject* obj) {
-  if (!PyFile_Check(obj)) {
-    PyErr_SetString(PyExc_TypeError, "not file");
-    return nullptr;
-  }
+  CHECK_OR_ERROR(obj, PyFile_Check, "file", nullptr);
   FILE* fp = PyFile_AsFile(obj);
   PyFileObject* file = reinterpret_cast<PyFileObject*>(obj);
   PyFile_IncUseCount(file);
@@ -643,10 +503,7 @@ static PyObject* setset_dumps(PySetsetObject* self) {
 }
 
 static PyObject* setset_load(PySetsetObject* self, PyObject* obj) {
-  if (!PyFile_Check(obj)) {
-    PyErr_SetString(PyExc_TypeError, "not file");
-    return nullptr;
-  }
+  CHECK_OR_ERROR(obj, PyFile_Check, "file", nullptr);
   FILE* fp = PyFile_AsFile(obj);
   PyFileObject* file = reinterpret_cast<PyFileObject*>(obj);
   PyFile_IncUseCount(file);
@@ -658,20 +515,14 @@ static PyObject* setset_load(PySetsetObject* self, PyObject* obj) {
 }
 
 static PyObject* setset_loads(PySetsetObject* self, PyObject* obj) {
-  if (!PyString_Check(obj)) {
-    PyErr_SetString(PyExc_TypeError, "not string");
-    return nullptr;
-  }
+  CHECK_OR_ERROR(obj, PyString_Check, "str", nullptr);
   stringstream sstr(PyString_AsString(obj));
   self->ss->load(sstr);
   Py_RETURN_NONE;
 }
 
 static PyObject* setset_enum(PySetsetObject* self, PyObject* obj) {
-  if (!PyFile_Check(obj)) {
-    PyErr_SetString(PyExc_TypeError, "not file");
-    return nullptr;
-  }
+  CHECK_OR_ERROR(obj, PyFile_Check, "file", nullptr);
   FILE* fp = PyFile_AsFile(obj);
   PyFileObject* file = reinterpret_cast<PyFileObject*>(obj);
   PyFile_IncUseCount(file);
