@@ -150,25 +150,31 @@ zdd_t nonsubsets(zdd_t f, zdd_t g) {
   static unordered_map<pair<word_t, word_t>, zdd_t, bdd_pair_hash, bdd_pair_eq> cache;
   if (g == bot())
     return f;
+  else if (g == top())
+    return f - top();
   else if (f == bot() || f == top() || f == g)
     return bot();
   pair<word_t, word_t> k = make_key(f, g);
   auto i = cache.find(k);
   if (i != cache.end())
     return i->second;
-  zdd_t r;
-  zdd_t rl;
-  zdd_t rh;
+  zdd_t r, r2, rl, rh;
   if (elem(f) < elem(g)) {
     rl = nonsubsets(lo(f), g);
     rh = hi(f);
-  } else {
-    rh = nonsubsets(lo(f), lo(g));
-    r = nonsubsets(lo(f), hi(g));
-    rl = r & rh;
+    r = zuniq(elem(f), rl, rh);
+  } else if (elem(f) == elem(g)) {
+//    r = nonsubsets(lo(f), lo(g));
+//    r2 = nonsubsets(lo(f), hi(g));
+//    rl = r & r2;
+    r2 = lo(g) | hi(g);
+    rl = nonsubsets(lo(f), r2);
     rh = nonsubsets(hi(f), hi(g));
+    r = zuniq(elem(f), rl, rh);
+  } else {
+    r2 = lo(g) | hi(g);
+    r = nonsubsets(f, r2);
   }
-  r = zuniq(elem(f), rl, rh);
   return cache[k] = r;
 }
 
@@ -184,6 +190,7 @@ zdd_t nonsupersets(zdd_t f, zdd_t g) {
   auto i = cache.find(k);
   if (i != cache.end())
     return i->second;
+  elem_t v = elem(f);
   zdd_t r;
   zdd_t rl;
   zdd_t rh;
@@ -196,7 +203,7 @@ zdd_t nonsupersets(zdd_t f, zdd_t g) {
     rh = r & rl;
     rl = nonsupersets(lo(f), lo(g));
   }
-  r = zuniq(elem(f), rl, rh);
+  r = zuniq(v, rl, rh);
   return cache[k] = r;
 }
 

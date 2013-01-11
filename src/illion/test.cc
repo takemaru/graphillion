@@ -111,8 +111,7 @@ class setset_test {
 
     ss = setset({{1, 2}, {1, 2, 3}, {1, 2, 3, 4}, {2, 4, 5}});
     assert(ss.minimal().zdd_ == e1*e2 + e2*e4*e5);
-    // TODO: fix a bug on maximal
-//    assert(ss.maximal().zdd_ == e1*e2*e3*e4 + e2*e4*e5);
+    assert(ss.maximal().zdd_ == e1*e2*e3*e4 + e2*e4*e5);
 
     // TODO: test operator~() and hitting() after e5 inserted; add max_elem_
     // member to setset objects for the tests
