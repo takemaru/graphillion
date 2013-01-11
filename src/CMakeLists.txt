@@ -1,4 +1,4 @@
-SET(SRCS hudd/bddc hudd/BDD hudd/ZBDD illion/setset illion/zdd)
+SET(SRCS hudd/bddc hudd/BDD hudd/ZBDD illion/setset illion/util illion/zdd)
 
 ADD_LIBRARY(${PROJECT_NAME} ${SRCS})
 INSTALL(TARGETS ${PROJECT_NAME} ARCHIVE DESTINATION lib)

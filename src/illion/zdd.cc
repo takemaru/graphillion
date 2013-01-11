@@ -7,8 +7,6 @@
 #include <string>
 #include <unordered_map>
 
-#include "illion/util.h"
-
 namespace illion {
 
 using std::endl;
@@ -105,18 +103,18 @@ zdd_t hitting(zdd_t f) {
       zdd_t n = stacks[v].back();
       stacks[v].pop_back();
       zdd_t l = cache.at(id(lo(n)));
-      if (lo(n) != bot()) {
+      if (!is_bot(lo(n))) {
         elem_t j = is_top(lo(n)) ? num_elems_ : elem(lo(n)) - 1;
         for (; j > v; --j)
           l = l + l.Change(j);
       }
       zdd_t h = cache.at(id(hi(n)));
-      if (hi(n) != bot()) {
+      if (!is_bot(hi(n))) {
         elem_t j = is_top(hi(n)) ? num_elems_ : elem(hi(n)) - 1;
         for (; j > v; --j)
           h = h + h.Change(j);
       }
-      if (lo(n) == bot()) {
+      if (is_bot(lo(n))) {
         zdd_t g = top();
         for (elem_t j = num_elems_; j > v; --j)
           g = g + g.Change(j);
@@ -148,11 +146,11 @@ struct bdd_pair_eq {
 
 zdd_t nonsubsets(zdd_t f, zdd_t g) {
   static unordered_map<pair<word_t, word_t>, zdd_t, bdd_pair_hash, bdd_pair_eq> cache;
-  if (g == bot())
+  if (is_bot(g))
     return f;
-  else if (g == top())
+  else if (is_top(g))
     return f - top();
-  else if (f == bot() || f == top() || f == g)
+  else if (is_bot(f) || is_top(f) || f == g)
     return bot();
   pair<word_t, word_t> k = make_key(f, g);
   auto i = cache.find(k);
@@ -180,10 +178,12 @@ zdd_t nonsubsets(zdd_t f, zdd_t g) {
 
 zdd_t nonsupersets(zdd_t f, zdd_t g) {
   static unordered_map<pair<word_t, word_t>, zdd_t, bdd_pair_hash, bdd_pair_eq> cache;
-  if (g == bot())
+  if (is_bot(g))
     return f;
-  else if (f == bot() || g == top() || f == g)
+  else if (is_bot(f) || is_top(g) || f == g)
     return bot();
+  else if (is_top(f))
+    return top();
   else if (elem(f) > elem(g))
     return nonsupersets(f, lo(g));
   pair<word_t, word_t> k = make_key(f, g);

@@ -12,6 +12,7 @@
 #endif
 
 #include "illion/type.h"
+#include "illion/util.h"
 
 namespace illion {
 
@@ -26,17 +27,24 @@ void new_elems(elem_t max_elem);
 elem_t num_elems();
 
 zdd_t single(elem_t e);
+inline word_t id(zdd_t f) { return f.GetID(); }
 inline zdd_t null() { return zdd_t(-1); }
 inline zdd_t bot() { return zdd_t(0); }
 inline zdd_t top() { return zdd_t(1); }
-inline zdd_t lo(zdd_t f) { return f.OffSet(f.Top()); }
-inline zdd_t hi(zdd_t f) { return f.OnSet0(f.Top()); }
+inline bool is_term(zdd_t f) { return f.Top() == 0; }
 inline bool is_bot(zdd_t f) { return f == bot(); }
 inline bool is_top(zdd_t f) { return f == top(); }
-inline bool is_term(zdd_t f) { return f.Top() == 0; }
-inline word_t id(zdd_t f) { return f.GetID(); }
+inline zdd_t lo(zdd_t f) {
+  assert(!is_term(f));
+  return f.OffSet(f.Top());
+}
+inline zdd_t hi(zdd_t f) {
+  assert(!is_term(f));
+  return f.OnSet0(f.Top());
+}
 inline elem_t elem(zdd_t f) {
-  return is_term(f) ? BDD_MaxVar + 1 : f.Top();
+  assert(!is_term(f));
+  return f.Top();
 }
 
 zdd_t operator|(const zdd_t& f, const zdd_t& g);
