@@ -86,16 +86,7 @@ static void setsetiter_dealloc(setsetiterobject* self) {
   PyObject_Del(self);
 }
 
-//static PyObject* setsetiter_len(setsetiterobject* self) {
-//  return PyInt_FromLong(0);
-//}
-
-//PyDoc_STRVAR(length_hint_doc,
-//             "Private method returning an estimate of len(list(it)).");
-
 static PyMethodDef setsetiter_methods[] = {
-//  {"__length_hint__", reinterpret_cast<PyCFunction>(setsetiter_len), METH_NOARGS,
-//   length_hint_doc},
   {nullptr,           nullptr}           /* sentinel */
 };
 
@@ -145,6 +136,7 @@ static PyTypeObject SetsetIter_Type = {
 static PyObject* setset_new(PyTypeObject* type, PyObject* args, PyObject* kwds) {
   PySetsetObject* self;
   self = reinterpret_cast<PySetsetObject*>(type->tp_alloc(type, 0));
+  if (self == nullptr) return nullptr;
   return reinterpret_cast<PyObject*>(self);
 }
 
@@ -193,6 +185,8 @@ static int setset_init(PySetsetObject* self, PyObject* args, PyObject* kwds) {
     Py_DECREF(i);
     self->ss = new setset(setset(vs) | setset(vm));
   }
+  if (PyErr_Occurred())
+    return -1;
   return 0;
 }
 
@@ -708,6 +702,11 @@ static long setset_hash(PyObject* self) {
   return sso->ss->id();
 }
 
+static int setset_nocmp(PyObject* self, PyObject* other) {
+  PyErr_SetString(PyExc_TypeError, "cannot compare using cmp()");
+  return -1;
+}
+
 static PyObject* setset_richcompare(PySetsetObject* self, PyObject* obj, int op) {
   PySetsetObject* sso;
   if(!PySetset_Check(obj)) {
@@ -849,7 +848,7 @@ PyTypeObject PySetset_Type = {
   0,                         /*tp_print*/
   0,                         /*tp_getattr*/
   0,                         /*tp_setattr*/
-  0,                         /*tp_compare*/
+  setset_nocmp,                         /*tp_compare*/
   reinterpret_cast<reprfunc>(setset_repr), /*tp_repr*/
   &setset_as_number,           /*tp_as_number*/
   &setset_as_sequence,         /*tp_as_sequence*/
