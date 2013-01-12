@@ -263,7 +263,7 @@ def iterators():
         ss2 = ss2 | setset(s)
     assert ss1 == ss2
 
-    ss2.clear()
+    ss2 = setset()
     for s in ss1:
         ss2 = ss2 | setset(s)
     assert ss1 == ss2
@@ -282,7 +282,7 @@ def lookup():
     assert ss2 == setset([set(), set([1, 3])])
 
 def modifiers():
-    v = [set([1, 2]), set([1, 3])]
+    v = [set(), set([1, 2]), set([1, 3])]
     ss = setset(v)
     ss.add(set([1]))
     assert set([1]) in ss
@@ -302,6 +302,8 @@ def modifiers():
     assert set([1]) not in ss
     ss.discard(set([1]))  # no exception raised
 
+    v = [set([1]), set([1, 2]), set([1, 3])]
+    ss = setset(v)
     s = ss.pop()
     assert s not in ss
     assert ss | setset(s) == setset(v)

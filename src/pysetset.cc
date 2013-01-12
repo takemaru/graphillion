@@ -145,7 +145,7 @@ static PyObject* setsetiter_iternext(setsetiterobject* self) {
 
 static PyTypeObject SetsetIter_Type = {
   PyVarObject_HEAD_INIT(&PyType_Type, 0)
-  "setsiterator",                             /* tp_name */
+  "setsetiterator",                             /* tp_name */
   sizeof(setsetiterobject),                     /* tp_basicsize */
   0,                                          /* tp_itemsize */
   /* methods */

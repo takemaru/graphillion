@@ -44,6 +44,17 @@ def constructors():
                                     'set([1]), set([4]), set([])])')
 
 def iterators():
+    ss1 = setset([set(), set(['1', '2']), set(['1', '3'])])
+    ss2 = setset()
+    for s in ss1:
+        ss2 = ss2 | setset(s)
+    assert ss1 == ss2
+
+    ss2 = setset()
+    for s in ss1:
+        ss2 = ss2 | setset(s)
+    assert ss1 == ss2
+
     ss = setset([set(), set(['1']), set(['1', '2']), set(['1', '2', '3']),
                  set(['1', '2', '3', '4']), set(['1', '3', '4']),
                  set(['1', '4']), set(['4'])])
@@ -69,7 +80,7 @@ def lookup():
     assert ss2 == setset([set(), set(['1', '3'])])
 
 def modifiers():
-    v = [set(['1', '2']), set(['1', '3'])]
+    v = [set(), set(['1', '2']), set(['1', '3'])]
     ss = setset(v)
     ss.add(set(['1']))
     assert set(['1']) in ss
@@ -89,6 +100,7 @@ def modifiers():
     assert set(['1']) not in ss
     ss.discard(set(['1']))  # no exception raised
 
+    v = [set(['1']), set(['1', '2']), set(['1', '3'])]
     ss = setset(v)
     s = ss.pop()
 #    assert s not in ss
@@ -99,7 +111,7 @@ if __name__ == '__main__':
 
     init()
     constructors()
-    lookup()
 #    iterators()
+    lookup()
     modifiers()
     print __file__, 'ok'
