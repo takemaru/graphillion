@@ -68,7 +68,7 @@ class setset(_illion.setset):
 
     @hookarg
     def __init__(self, *args, **kwds):
-        self._init(*args, **kwds);
+        _illion.setset.__init__(self, *args, **kwds);
 
     @hookret
     def pop(self):

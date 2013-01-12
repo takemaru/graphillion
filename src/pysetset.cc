@@ -185,10 +185,10 @@ static PyObject* setset_new(PyTypeObject* type, PyObject* args, PyObject* kwds) 
   return reinterpret_cast<PyObject*>(self);
 }
 
-static PyObject* setset_do_init(PySetsetObject* self, PyObject* args, PyObject* kwds) {
+static int setset_init(PySetsetObject* self, PyObject* args, PyObject* kwds) {
   PyObject* obj = nullptr;
   if (!PyArg_ParseTuple(args, "|O", &obj))
-    return nullptr;
+    return -1;
   if (obj == nullptr) {
     self->ss = new setset();
   } else if (PySetset_Check(obj)) {
@@ -196,11 +196,11 @@ static PyObject* setset_do_init(PySetsetObject* self, PyObject* args, PyObject* 
     self->ss = new setset(*(sso->ss));
   } else if (PyAnySet_Check(obj)) {
     set<int> s;
-    if (setset_parse_set(obj, &s) == -1) return nullptr;
+    if (setset_parse_set(obj, &s) == -1) return -1;
     self->ss = new setset(s);
   } else if (PyDict_Check(obj)) {
     map<string, set<int> > m;
-    if (setset_parse_map(obj, &m) == -1) return nullptr;
+    if (setset_parse_map(obj, &m) == -1) return -1;
     self->ss = new setset(m);
   } else if (PyString_Check(obj)) {
     stringstream sstr(PyString_AsString(obj));
@@ -210,7 +210,7 @@ static PyObject* setset_do_init(PySetsetObject* self, PyObject* args, PyObject* 
     PyObject* i = PyObject_GetIter(obj);
     if (i == nullptr) {
       PyErr_SetString(PyExc_TypeError, "not list of sets or dicts");
-      return nullptr;
+      return -1;
     }
     vector<set<int> > vs;
     vector<map<string, set<int> > > vm;
@@ -218,11 +218,11 @@ static PyObject* setset_do_init(PySetsetObject* self, PyObject* args, PyObject* 
     while ((o = PyIter_Next(i))) {
       if (PyAnySet_Check(o)) {
         set<int> s;
-        if (setset_parse_set(o, &s) == -1) return nullptr;
+        if (setset_parse_set(o, &s) == -1) return -1;
         vs.push_back(s);
       } else if (PyDict_Check(o)) {
         map<string, set<int> > m;
-        if (setset_parse_map(o, &m) == -1) return nullptr;
+        if (setset_parse_map(o, &m) == -1) return -1;
         vm.push_back(m);
       }
       Py_DECREF(o);
@@ -231,12 +231,6 @@ static PyObject* setset_do_init(PySetsetObject* self, PyObject* args, PyObject* 
     self->ss = new setset(setset(vs) | setset(vm));
   }
   if (PyErr_Occurred())
-    return nullptr;
-  Py_RETURN_NONE;
-}
-
-static int setset_init(PySetsetObject* self, PyObject* args, PyObject* kwds) {
-  if (setset_do_init(self, args, kwds) == nullptr)
     return -1;
   return 0;
 }
@@ -605,7 +599,6 @@ static PyMemberDef setset_members[] = {
 };
 
 static PyMethodDef setset_methods[] = {
-  {"_init", reinterpret_cast<PyCFunction>(setset_do_init), METH_VARARGS | METH_KEYWORDS, ""},
   {"copy", reinterpret_cast<PyCFunction>(setset_copy), METH_NOARGS, ""},
   {"complement", reinterpret_cast<PyCFunction>(setset_complement), METH_NOARGS, ""},
   {"intersection", reinterpret_cast<PyCFunction>(setset_intersection), METH_O, ""},
