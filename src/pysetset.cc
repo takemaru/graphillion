@@ -171,7 +171,7 @@ static PyTypeObject PySetsetIter_Type = {
   PyObject_GenericGetAttr,                    /* tp_getattro */
   0,                                          /* tp_setattro */
   0,                                          /* tp_as_buffer */
-  Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,                         /* tp_flags */
+  Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_ITER,                         /* tp_flags */
   0,                                          /* tp_doc */
   0,                                          /* tp_traverse */
   0,                                          /* tp_clear */
@@ -373,6 +373,10 @@ static PyObject* setset_init_iter(PySetsetObject* self, PyObject* obj) {
   PySetsetIterObject* ssi = reinterpret_cast<PySetsetIterObject*>(obj);
 //  Py_INCREF(ssi);
   ssi->it = new setset::iterator(self->ss->begin());
+  if (ssi->it == nullptr) {
+    PyErr_NoMemory();
+    return nullptr;
+  }
   return reinterpret_cast<PyObject*>(ssi);
 }
 
@@ -380,6 +384,10 @@ static PyObject* setset_iter(PySetsetObject* self) {
   PySetsetIterObject* ssi = PyObject_New(PySetsetIterObject, &PySetsetIter_Type);
   if (ssi == nullptr) return nullptr;
   ssi->it = new setset::iterator(self->ss->begin());
+  if (ssi->it == nullptr) {
+    PyErr_NoMemory();
+    return nullptr;
+  }
   return reinterpret_cast<PyObject*>(ssi);
 }
 
@@ -402,6 +410,10 @@ static PyObject* setset_opt_iter(PySetsetObject* self, PyObject* weights) {
   PySetsetIterObject* ssi = PyObject_New(PySetsetIterObject, &PySetsetIter_Type);
   if (ssi == nullptr) return nullptr;
   ssi->it = new setset::iterator(self->ss->begin(w));
+  if (ssi->it == nullptr) {
+    PyErr_NoMemory();
+    return nullptr;
+  }
   return reinterpret_cast<PyObject*>(ssi);
 }
 
@@ -744,7 +756,7 @@ PyTypeObject PySetset_Type = {
   reinterpret_cast<richcmpfunc>(setset_richcompare), /* tp_richcompare */
   0,		               /* tp_weaklistoffset */
   reinterpret_cast<getiterfunc>(setset_iter), /* tp_iter */
-  0,		               /* tp_iternext */
+  0,                          /* tp_iternext */
   setset_methods,              /* tp_methods */
   setset_members,              /* tp_members */
   0,                         /* tp_getset */
