@@ -103,7 +103,7 @@ def modifiers():
     v = [set(['1']), set(['1', '2']), set(['1', '3'])]
     ss = setset(v)
     s = ss.pop()
-#    assert s not in ss
+    assert s not in ss
     assert ss | setset(s) == setset(v)
 
 if __name__ == '__main__':
@@ -111,7 +111,7 @@ if __name__ == '__main__':
 
     init()
     constructors()
-#    iterators()
+    iterators()
     lookup()
     modifiers()
     print __file__, 'ok'

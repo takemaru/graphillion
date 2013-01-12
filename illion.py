@@ -57,9 +57,8 @@ def hookret(func):
 
 class setset_iterator(_illion.setset_iterator):
 
-    def __init__(self):
-        print 'setset_iterator called'
-        pass
+    def __init__(self, *args, **kwds):
+        _illion.setset_iterator.__init__(self, *args, **kwds)
 
     @hookret
     def next(self):
@@ -77,10 +76,10 @@ class setset(_illion.setset):
     def __init__(self, *args, **kwds):
         _illion.setset.__init__(self, *args, **kwds);
 
-#    def __iter__(self):
-#        i = setset_iterator()
-#        _illion.setset.init_iter(self, i)
-#        return i
+    def __iter__(self):
+        i = setset_iterator()
+        _illion.setset.init_iter(self, i)
+        return i
 
     @hookarg
     def __contains__(self, *args, **kwds):

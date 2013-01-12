@@ -138,7 +138,7 @@ static void setsetiter_dealloc(PySetsetIterObject* self) {
   PyObject_Del(self);
 }
 
-static PyObject* setsetiter_iternext(PySetsetIterObject* self) {
+static PyObject* setsetiter_next(PySetsetIterObject* self) {
   if (*(self->it) == setset::end())
     return nullptr;
   set<int> s = *(*self->it);
@@ -178,7 +178,7 @@ static PyTypeObject PySetsetIter_Type = {
   0,                                          /* tp_richcompare */
   0,                                          /* tp_weaklistoffset */
   PyObject_SelfIter,                          /* tp_iter */
-  reinterpret_cast<iternextfunc>(setsetiter_iternext), /* tp_iternext */
+  reinterpret_cast<iternextfunc>(setsetiter_next), /* tp_iternext */
   setsetiter_methods,                           /* tp_methods */
   0,              /* tp_members */
   0,                         /* tp_getset */
@@ -371,6 +371,7 @@ static PyObject* setset_long_len(PyObject* obj) {
 
 static PyObject* setset_init_iter(PySetsetObject* self, PyObject* obj) {
   PySetsetIterObject* ssi = reinterpret_cast<PySetsetIterObject*>(obj);
+//  Py_INCREF(ssi);
   ssi->it = new setset::iterator(self->ss->begin());
   return reinterpret_cast<PyObject*>(ssi);
 }
@@ -378,7 +379,8 @@ static PyObject* setset_init_iter(PySetsetObject* self, PyObject* obj) {
 static PyObject* setset_iter(PySetsetObject* self) {
   PySetsetIterObject* ssi = PyObject_New(PySetsetIterObject, &PySetsetIter_Type);
   if (ssi == nullptr) return nullptr;
-  return setset_init_iter(self, reinterpret_cast<PyObject*>(ssi));
+  ssi->it = new setset::iterator(self->ss->begin());
+  return reinterpret_cast<PyObject*>(ssi);
 }
 
 static PyObject* setset_opt_iter(PySetsetObject* self, PyObject* weights) {
@@ -399,7 +401,8 @@ static PyObject* setset_opt_iter(PySetsetObject* self, PyObject* weights) {
   Py_DECREF(i);
   PySetsetIterObject* ssi = PyObject_New(PySetsetIterObject, &PySetsetIter_Type);
   if (ssi == nullptr) return nullptr;
-  return setset_init_iter(self, reinterpret_cast<PyObject*>(ssi));
+  ssi->it = new setset::iterator(self->ss->begin(w));
+  return reinterpret_cast<PyObject*>(ssi);
 }
 
 // If an item in o is equal to value, return 1, otherwise return 0. On error, return -1.
