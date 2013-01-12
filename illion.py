@@ -35,7 +35,10 @@ class setset(_illion.setset):
                 d[k] = setset.conv(s)
             return d
         else:
-            raise TypeError('not set or dict')
+            e = obj
+            if e not in setset.obj2int:
+                setset.add_elem(e)
+            return setset.obj2int[e]
 
     def hookarg(func):
         def wrapper(self, *args, **kwds):
@@ -59,20 +62,46 @@ class setset(_illion.setset):
             s = func(self, *args, **kwds);
             if setset.INT_ONLY or s is None:
                 return s
-            else:
+            elif isinstance(s, (set, frozenset)):
                 ret = set()
                 for e in s:
                     ret.add(setset.int2obj[e])
                 return ret
+            else:
+                raise TypeError('not set')
         return wrapper
 
     @hookarg
     def __init__(self, *args, **kwds):
         _illion.setset.__init__(self, *args, **kwds);
 
+    @hookarg
+    def __contains__(self, *args, **kwds):
+        return _illion.setset.__contains__(self, *args, **kwds);
+
+    @hookarg
+    def find(self, *args, **kwds):
+        return _illion.setset.find(self, *args, **kwds);
+
+    @hookarg
+    def not_find(self, *args, **kwds):
+        return _illion.setset.not_find(self, *args, **kwds);
+
+    @hookarg
+    def add(self, *args, **kwds):
+        return _illion.setset.add(self, *args, **kwds)
+
+    @hookarg
+    def remove(self, *args, **kwds):
+        return _illion.setset.remove(self, *args, **kwds)
+
+    @hookarg
+    def discard(self, *args, **kwds):
+        return _illion.setset.discard(self, *args, **kwds)
+
     @hookret
-    def pop(self):
-        return _illion.setset.pop(self)
+    def pop(self, *args, **kwds):
+        return _illion.setset.pop(self, *args, **kwds)
 
     def optimize(self, weights):
         i = self.opt_iter(weights)
