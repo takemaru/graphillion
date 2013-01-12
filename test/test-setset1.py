@@ -1,6 +1,11 @@
-from _illion import setset
+import sys
 
-name = '_illion.setset'
+if sys.argv[1] == '_illion':
+    from _illion import setset
+    name = '_illion.setset'
+else:
+    from illion import setset
+    name = 'setset'
 
 def constructors():
     ss = setset()
@@ -351,4 +356,4 @@ if __name__ == '__main__':
     lookup()
     modifiers()
     stream()
-    print __file__, 'ok'
+    print ' '.join(sys.argv), 'ok'
