@@ -369,18 +369,7 @@ static PyObject* setset_long_len(PyObject* obj) {
   return PyLong_FromString(buf.data(), nullptr, 0);
 }
 
-static PyObject* setset_init_iter(PySetsetObject* self, PyObject* obj) {
-  PySetsetIterObject* ssi = reinterpret_cast<PySetsetIterObject*>(obj);
-//  Py_INCREF(ssi);
-  ssi->it = new setset::iterator(self->ss->begin());
-  if (ssi->it == nullptr) {
-    PyErr_NoMemory();
-    return nullptr;
-  }
-  return reinterpret_cast<PyObject*>(ssi);
-}
-
-static PyObject* setset_iter(PySetsetObject* self) {
+static PyObject* setset_rand_iter(PySetsetObject* self) {
   PySetsetIterObject* ssi = PyObject_New(PySetsetIterObject, &PySetsetIter_Type);
   if (ssi == nullptr) return nullptr;
   ssi->it = new setset::iterator(self->ss->begin());
@@ -654,7 +643,7 @@ static PyMethodDef setset_methods[] = {
   {"issubset", reinterpret_cast<PyCFunction>(setset_issubset), METH_O, ""},
   {"issuperset", reinterpret_cast<PyCFunction>(setset_issuperset), METH_O, ""},
   {"len", reinterpret_cast<PyCFunction>(setset_long_len), METH_NOARGS, ""},
-  {"init_iter", reinterpret_cast<PyCFunction>(setset_init_iter), METH_O, ""},
+  {"rand_iter", reinterpret_cast<PyCFunction>(setset_rand_iter), METH_NOARGS, ""},
   {"opt_iter", reinterpret_cast<PyCFunction>(setset_opt_iter), METH_O, ""},
   {"find", reinterpret_cast<PyCFunction>(setset_find), METH_O, ""},
   {"not_find", reinterpret_cast<PyCFunction>(setset_not_find), METH_O, ""},
@@ -755,7 +744,7 @@ PyTypeObject PySetset_Type = {
   0,		               /* tp_clear */
   reinterpret_cast<richcmpfunc>(setset_richcompare), /* tp_richcompare */
   0,		               /* tp_weaklistoffset */
-  reinterpret_cast<getiterfunc>(setset_iter), /* tp_iter */
+  0, /* tp_iter */
   0,                          /* tp_iternext */
   setset_methods,              /* tp_methods */
   setset_members,              /* tp_members */

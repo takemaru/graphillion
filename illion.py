@@ -76,11 +76,6 @@ class setset(_illion.setset):
     def __init__(self, *args, **kwds):
         _illion.setset.__init__(self, *args, **kwds);
 
-    def __iter__(self):
-        i = setset_iterator()
-        _illion.setset.init_iter(self, i)
-        return i
-
     @hookarg
     def __contains__(self, *args, **kwds):
         return _illion.setset.__contains__(self, *args, **kwds);
@@ -109,10 +104,50 @@ class setset(_illion.setset):
     def pop(self, *args, **kwds):
         return _illion.setset.pop(self, *args, **kwds)
 
-    def optimize(self, weights):
-        i = self.opt_iter(weights)
+    def __iter__(self):
+        return my_iterator(self.rand_iter())
+
+#    @hookret
+    def randomize(self):
+        i = self.rand_iter()
         while (True):
-            yield i.next()
+#            yield i.next()
+            # TODO: the followng procedure found in optimize, my_iterator and hookret
+            s = i.next()
+            if not isinstance(s, (set, frozenset)):
+                raise TypeError('not set')
+            if not setset.INT_ONLY and s is not None:
+                ret = set()
+                for e in s:
+                    ret.add(setset.int2obj[e])
+                s = ret
+            yield s
+
+#    @hookret
+    def optimize(self, weights):
+        ws = [0]
+        max = 0
+        # TODO: fix the following dirty and inefficient code
+        for o, w in weights.iteritems():
+            i = setset.obj2int[o]
+            if i > max: max = i
+        for i in xrange(max):
+            ws.append(None)
+        for o, w in weights.iteritems():
+            i = setset.obj2int[o]
+            ws[i] = w
+        i = self.opt_iter(ws)
+        while (True):
+#            yield i.next()
+            s = i.next()
+            if not isinstance(s, (set, frozenset)):
+                raise TypeError('not set')
+            if not setset.INT_ONLY and s is not None:
+                ret = set()
+                for e in s:
+                    ret.add(setset.int2obj[e])
+                s = ret
+            yield s
 
     @staticmethod
     def universe(*args):
@@ -123,6 +158,26 @@ class setset(_illion.setset):
                 add_elem(e)
         else:
             return setset.int2obj[1:]
+
+
+class my_iterator(object):  # TODO: rename
+
+    def __init__(self, it):
+        self.it = it
+
+    def __iter__(self):
+        return self
+
+    def next(self):
+        s = self.it.next()
+        if not isinstance(s, (set, frozenset)):
+            raise TypeError('not set')
+        if not setset.INT_ONLY and s is not None:
+            ret = set()
+            for e in s:
+                ret.add(setset.int2obj[e])
+            s = ret
+        return s
 
 
 #class graphset(setset):

@@ -268,6 +268,12 @@ def iterators():
         ss2 = ss2 | setset(s)
     assert ss1 == ss2
 
+    ss1 = setset([set(), set([1, 2]), set([1, 3])])
+    ss2 = setset()
+    for s in ss1.randomize():
+        ss2 = ss2 | setset(s)
+    assert ss1 == ss2
+
 def lookup():
     ss1 = setset([set(), set([1, 2]), set([1, 3])])
     assert set([1, 2]) in ss1
@@ -362,7 +368,8 @@ if __name__ == '__main__':
     unary_operators()
     binary_operators()
     capacity()
-    iterators()
+    if sys.argv[1] != '_illion':
+        iterators()
     lookup()
     modifiers()
     stream()
