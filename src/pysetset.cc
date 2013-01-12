@@ -185,7 +185,7 @@ static PyObject* setset_new(PyTypeObject* type, PyObject* args, PyObject* kwds) 
   return reinterpret_cast<PyObject*>(self);
 }
 
-static int setset_init(PySetsetObject* self, PyObject* args, PyObject* kwds) {
+static int setset_do_init(PySetsetObject* self, PyObject* args, PyObject* kwds) {
   PyObject* obj = nullptr;
   if (!PyArg_ParseTuple(args, "|O", &obj))
     return -1;
@@ -233,6 +233,10 @@ static int setset_init(PySetsetObject* self, PyObject* args, PyObject* kwds) {
   if (PyErr_Occurred())
     return -1;
   return 0;
+}
+
+static int setset_init(PySetsetObject* self, PyObject* args, PyObject* kwds) {
+  return setset_do_init(self, args, kwds);
 }
 
 static void setset_dealloc(PySetsetObject* self) {
@@ -596,6 +600,7 @@ static PyMemberDef setset_members[] = {
 };
 
 static PyMethodDef setset_methods[] = {
+  {"_init", reinterpret_cast<PyCFunction>(setset_do_init), METH_VARARGS | METH_KEYWORDS, ""},
   {"copy", reinterpret_cast<PyCFunction>(setset_copy), METH_NOARGS, ""},
   {"complement", reinterpret_cast<PyCFunction>(setset_complement), METH_NOARGS, ""},
   {"intersection", reinterpret_cast<PyCFunction>(setset_intersection), METH_O, ""},

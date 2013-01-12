@@ -270,17 +270,6 @@ def iterators():
         ss2 = ss2 | setset(s)
     assert ss1 == ss2
 
-    # TODO: test for illion.setset
-#    ss = setset([set(), set([1]), set([1, 2]), set([1, 2, 3]), set([1, 2, 3, 4]),
-#                 set([1, 3, 4]), set([1, 4]), set([4])])
-#    r = []
-#    for s in ss.optimize([0, 3, -2, -2, 4]):  # 1-offset list
-#        r.append(s)
-#    assert len(r) == 8
-#    assert r[0] == set([1, 4])
-#    assert r[1] == set([1, 3, 4])
-#    assert r[2] == set([4])
-
 def lookup():
     ss1 = setset([set(), set([1, 2]), set([1, 3])])
     assert set([1, 2]) in ss1
@@ -362,4 +351,4 @@ if __name__ == '__main__':
     lookup()
     modifiers()
     stream()
-    print 'ok'
+    print __file__, 'ok'
