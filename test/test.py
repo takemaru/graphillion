@@ -1,40 +1,42 @@
-from illion import setset
+from _illion import setset
+
+name = '_illion.setset'
 
 def constructors():
     ss = setset()
     assert isinstance(ss, setset)
-    assert repr(ss) == '<setset object of 0x8000000000>'
-    assert ss._enums() == 'setset([])'
+    assert repr(ss) == '<%s object of 0x8000000000>' % name
+    assert ss._enums() == name + '([])'
 
     ss = setset(set())
-    assert ss._enums() == 'setset([set([])])'
+    assert ss._enums() == name + '([set([])])'
 
     ss = setset(frozenset([1, 2]))
-    assert ss._enums() == 'setset([set([1, 2])])'
+    assert ss._enums() == name + '([set([1, 2])])'
 
     ss = setset([set(), set([1, 2]), set([1, 3])])
-    assert ss._enums() == 'setset([set([1, 2]), set([1, 3]), set([])])'
+    assert ss._enums() == name + '([set([1, 2]), set([1, 3]), set([])])'
 
     ss = setset({'include': set([1, 2]), 'exclude': set([4])})
-    assert ss._enums() == 'setset([set([1, 2, 3]), set([1, 2])])'
+    assert ss._enums() == name + '([set([1, 2, 3]), set([1, 2])])'
 
     ss = setset([{'include': set([1, 2]), 'exclude': set([4])},
                  {'include': set([1, 3, 4])},
                  {'exclude': set([2, 3])}])
-    assert ss._enums() == ('setset([set([1, 2, 3, 4]), set([1, 2, 3]), '
-                                   'set([1, 2]), set([1, 3, 4]), set([1, 4]), '
-                                   'set([1]), set([4]), set([])])')
+    assert ss._enums() == (name + '([set([1, 2, 3, 4]), set([1, 2, 3]), '
+                                    'set([1, 2]), set([1, 3, 4]), set([1, 4]), '
+                                    'set([1]), set([4]), set([])])')
 
     # copy constructor
     ss = setset([set(), set([1, 2]), set([1, 3])])
-    assert ss._enums() == 'setset([set([1, 2]), set([1, 3]), set([])])'
+    assert ss._enums() == name + '([set([1, 2]), set([1, 3]), set([])])'
 
     ss1 = setset([set(), set([1, 2]), set([1, 3])])
     ss2 = ss1.copy()
     assert isinstance(ss2, setset)
     ss1.clear()
-    assert ss1._enums() == 'setset([])'
-    assert ss2._enums() == 'setset([set([1, 2]), set([1, 3]), set([])])'
+    assert ss1._enums() == name + '([])'
+    assert ss2._enums() == name + '([set([1, 2]), set([1, 3]), set([])])'
 
 def comparison():
     ss = setset(set([1, 2]))
@@ -85,8 +87,7 @@ def unary_operators():
 
     ss = setset([set([1, 2]), set([1, 2, 3]), set([1, 2, 3, 4]), set([2, 4, 5])])
     assert ss.minimal() == setset([set([1, 2]), set([2, 4, 5])])
-    # TODO: fix a bug on maximal
-#    assert ss.maximal() == setset([set([1, 2, 3, 4]), set([2, 4, 5])])
+    assert ss.maximal() == setset([set([1, 2, 3, 4]), set([2, 4, 5])])
 
 def binary_operators():
     u = [set(), set([1]), set([1, 2]), set([1, 2, 3]), set([1, 2, 3, 4]),
@@ -269,15 +270,16 @@ def iterators():
         ss2 = ss2 | setset(s)
     assert ss1 == ss2
 
-    ss = setset([set(), set([1]), set([1, 2]), set([1, 2, 3]), set([1, 2, 3, 4]),
-                 set([1, 3, 4]), set([1, 4]), set([4])])
-    r = []
-    for s in ss.optimize([0, 3, -2, -2, 4]):  # 1-offset list
-        r.append(s)
-    assert len(r) == 8
-    assert r[0] == set([1, 4])
-    assert r[1] == set([1, 3, 4])
-    assert r[2] == set([4])
+    # TODO: test for illion.setset
+#    ss = setset([set(), set([1]), set([1, 2]), set([1, 2, 3]), set([1, 2, 3, 4]),
+#                 set([1, 3, 4]), set([1, 4]), set([4])])
+#    r = []
+#    for s in ss.optimize([0, 3, -2, -2, 4]):  # 1-offset list
+#        r.append(s)
+#    assert len(r) == 8
+#    assert r[0] == set([1, 4])
+#    assert r[1] == set([1, 3, 4])
+#    assert r[2] == set([4])
 
 def lookup():
     ss1 = setset([set(), set([1, 2]), set([1, 3])])
