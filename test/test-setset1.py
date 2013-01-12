@@ -1,12 +1,5 @@
 import sys
 
-if sys.argv[1] == '_illion':
-    from _illion import setset
-    name = '_illion.setset'
-else:
-    from illion import setset
-    name = 'setset'
-
 def constructors():
     ss = setset()
     assert isinstance(ss, setset)
@@ -289,7 +282,7 @@ def lookup():
     assert ss2 == setset([set(), set([1, 3])])
 
 def modifiers():
-    v = [set(), set([1, 2]), set([1, 3])]
+    v = [set([1, 2]), set([1, 3])]
     ss = setset(v)
     ss.add(set([1]))
     assert set([1]) in ss
@@ -311,11 +304,18 @@ def modifiers():
 
     s = ss.pop()
     assert s not in ss
-    assert ss | setset(s) == setset([set(), set([1, 2]), set([1, 3])])
+    assert ss | setset(s) == setset(v)
 
     assert ss
     ss.clear()
     assert not ss
+
+    try:
+        ss.pop()
+    except KeyError:
+        pass
+    else:
+        assert False
 
 def stream():
     ss = setset()
@@ -347,6 +347,14 @@ def stream():
     assert ss == setset(v)
 
 if __name__ == '__main__':
+    if sys.argv[1] == '_illion':
+        from _illion import setset
+        name = '_illion.setset'
+    else:
+        from illion import setset
+        name = 'setset'
+        setset.INT_ONLY = True
+
     constructors()
     comparison()
     unary_operators()

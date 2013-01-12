@@ -441,7 +441,10 @@ static PyObject* setset_discard(PySetsetObject* self, PyObject* so) {
 
 static PyObject* setset_pop(PySetsetObject* self) {
   setset::iterator i = self->ss->begin();
-  if (i == setset::end()) return nullptr;
+  if (i == setset::end()) {
+    PyErr_SetString(PyExc_KeyError, "not found");
+    return nullptr;
+  }
   set<int> s = *i;
   self->ss->erase(s);
   return setset_build_set(s);
