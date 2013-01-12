@@ -126,14 +126,17 @@ typedef struct {
   setset::iterator* it;
 } PySetsetIterObject;
 
+static PyObject* setsetiter_new(PyTypeObject* type, PyObject* args, PyObject* kwds) {
+  PySetsetIterObject* self;
+  self = reinterpret_cast<PySetsetIterObject*>(type->tp_alloc(type, 0));
+  if (self == nullptr) return nullptr;
+  return reinterpret_cast<PyObject*>(self);
+}
+
 static void setsetiter_dealloc(PySetsetIterObject* self) {
   delete self->it;
   PyObject_Del(self);
 }
-
-static PyMethodDef setsetiter_methods[] = {
-  {nullptr,           nullptr}           /* sentinel */
-};
 
 static PyObject* setsetiter_iternext(PySetsetIterObject* self) {
   if (*(self->it) == setset::end())
@@ -142,6 +145,10 @@ static PyObject* setsetiter_iternext(PySetsetIterObject* self) {
   ++(*self->it);
   return setset_build_set(s);
 }
+
+static PyMethodDef setsetiter_methods[] = {
+  {nullptr,           nullptr}           /* sentinel */
+};
 
 static PyTypeObject PySetsetIter_Type = {
   PyVarObject_HEAD_INIT(&PyType_Type, 0)
@@ -173,7 +180,16 @@ static PyTypeObject PySetsetIter_Type = {
   PyObject_SelfIter,                          /* tp_iter */
   reinterpret_cast<iternextfunc>(setsetiter_iternext), /* tp_iternext */
   setsetiter_methods,                           /* tp_methods */
-  0,
+  0,              /* tp_members */
+  0,                         /* tp_getset */
+  0,                         /* tp_base */
+  0,                         /* tp_dict */
+  0,                         /* tp_descr_get */
+  0,                         /* tp_descr_set */
+  0,                         /* tp_dictoffset */
+  0, /* tp_init */
+  PyType_GenericAlloc,       /* tp_alloc */
+  setsetiter_new                  /* tp_new */
 };
 
 // setset
@@ -353,11 +369,16 @@ static PyObject* setset_long_len(PyObject* obj) {
   return PyLong_FromString(buf.data(), nullptr, 0);
 }
 
+static PyObject* setset_init_iter(PySetsetObject* self, PyObject* obj) {
+  PySetsetIterObject* ssi = reinterpret_cast<PySetsetIterObject*>(obj);
+  ssi->it = new setset::iterator(self->ss->begin());
+  return reinterpret_cast<PyObject*>(ssi);
+}
+
 static PyObject* setset_iter(PySetsetObject* self) {
   PySetsetIterObject* ssi = PyObject_New(PySetsetIterObject, &PySetsetIter_Type);
   if (ssi == nullptr) return nullptr;
-  ssi->it = new setset::iterator(self->ss->begin());
-  return reinterpret_cast<PyObject*>(ssi);
+  return setset_init_iter(self, reinterpret_cast<PyObject*>(ssi));
 }
 
 static PyObject* setset_opt_iter(PySetsetObject* self, PyObject* weights) {
@@ -378,8 +399,7 @@ static PyObject* setset_opt_iter(PySetsetObject* self, PyObject* weights) {
   Py_DECREF(i);
   PySetsetIterObject* ssi = PyObject_New(PySetsetIterObject, &PySetsetIter_Type);
   if (ssi == nullptr) return nullptr;
-  ssi->it = new setset::iterator(self->ss->begin(w));
-  return reinterpret_cast<PyObject*>(ssi);
+  return setset_init_iter(self, reinterpret_cast<PyObject*>(ssi));
 }
 
 // If an item in o is equal to value, return 1, otherwise return 0. On error, return -1.
@@ -619,6 +639,7 @@ static PyMethodDef setset_methods[] = {
   {"issubset", reinterpret_cast<PyCFunction>(setset_issubset), METH_O, ""},
   {"issuperset", reinterpret_cast<PyCFunction>(setset_issuperset), METH_O, ""},
   {"len", reinterpret_cast<PyCFunction>(setset_long_len), METH_NOARGS, ""},
+  {"init_iter", reinterpret_cast<PyCFunction>(setset_init_iter), METH_O, ""},
   {"opt_iter", reinterpret_cast<PyCFunction>(setset_opt_iter), METH_O, ""},
   {"find", reinterpret_cast<PyCFunction>(setset_find), METH_O, ""},
   {"not_find", reinterpret_cast<PyCFunction>(setset_not_find), METH_O, ""},
