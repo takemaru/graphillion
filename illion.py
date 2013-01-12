@@ -1,5 +1,8 @@
 import _illion
 
+class setset_iterator(_illion.setset_iterator):
+    pass
+
 class setset(_illion.setset):
     INT_ONLY = False
     obj2int = {}

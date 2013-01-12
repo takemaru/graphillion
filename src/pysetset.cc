@@ -124,9 +124,9 @@ static int setset_parse_map(PyObject* dict_obj, map<string, set<int> >* m) {
 typedef struct {
   PyObject_HEAD
   setset::iterator* it;
-} setsetiterobject;
+} PySetsetIterObject;
 
-static void setsetiter_dealloc(setsetiterobject* self) {
+static void setsetiter_dealloc(PySetsetIterObject* self) {
   delete self->it;
   PyObject_Del(self);
 }
@@ -135,7 +135,7 @@ static PyMethodDef setsetiter_methods[] = {
   {nullptr,           nullptr}           /* sentinel */
 };
 
-static PyObject* setsetiter_iternext(setsetiterobject* self) {
+static PyObject* setsetiter_iternext(PySetsetIterObject* self) {
   if (*(self->it) == setset::end())
     return nullptr;
   set<int> s = *(*self->it);
@@ -143,10 +143,10 @@ static PyObject* setsetiter_iternext(setsetiterobject* self) {
   return setset_build_set(s);
 }
 
-static PyTypeObject SetsetIter_Type = {
+static PyTypeObject PySetsetIter_Type = {
   PyVarObject_HEAD_INIT(&PyType_Type, 0)
-  "setsetiterator",                             /* tp_name */
-  sizeof(setsetiterobject),                     /* tp_basicsize */
+  "setset_iterator",                             /* tp_name */
+  sizeof(PySetsetIterObject),                     /* tp_basicsize */
   0,                                          /* tp_itemsize */
   /* methods */
   reinterpret_cast<destructor>(setsetiter_dealloc), /* tp_dealloc */
@@ -164,7 +164,7 @@ static PyTypeObject SetsetIter_Type = {
   PyObject_GenericGetAttr,                    /* tp_getattro */
   0,                                          /* tp_setattro */
   0,                                          /* tp_as_buffer */
-  Py_TPFLAGS_DEFAULT,                         /* tp_flags */
+  Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,                         /* tp_flags */
   0,                                          /* tp_doc */
   0,                                          /* tp_traverse */
   0,                                          /* tp_clear */
@@ -354,7 +354,7 @@ static PyObject* setset_long_len(PyObject* obj) {
 }
 
 static PyObject* setset_iter(PySetsetObject* self) {
-  setsetiterobject* ssi = PyObject_New(setsetiterobject, &SetsetIter_Type);
+  PySetsetIterObject* ssi = PyObject_New(PySetsetIterObject, &PySetsetIter_Type);
   if (ssi == nullptr) return nullptr;
   ssi->it = new setset::iterator(self->ss->begin());
   return reinterpret_cast<PyObject*>(ssi);
@@ -376,7 +376,7 @@ static PyObject* setset_opt_iter(PySetsetObject* self, PyObject* weights) {
     Py_DECREF(eo);
   }
   Py_DECREF(i);
-  setsetiterobject* ssi = PyObject_New(setsetiterobject, &SetsetIter_Type);
+  PySetsetIterObject* ssi = PyObject_New(PySetsetIterObject, &PySetsetIter_Type);
   if (ssi == nullptr) return nullptr;
   ssi->it = new setset::iterator(self->ss->begin(w));
   return reinterpret_cast<PyObject*>(ssi);
@@ -744,9 +744,13 @@ static PyMethodDef module_methods[] = {
 PyMODINIT_FUNC init_illion(void) {
   PyObject* m;
   if (PyType_Ready(&PySetset_Type) < 0) return;
+  if (PyType_Ready(&PySetsetIter_Type) < 0) return;
   m = Py_InitModule3("_illion", module_methods,
                      "Hidden module to implement illion objects.");
   if (m == nullptr) return;
   Py_INCREF(&PySetset_Type);
+  Py_INCREF(&PySetsetIter_Type);
   PyModule_AddObject(m, "setset", reinterpret_cast<PyObject*>(&PySetset_Type));
+  PyModule_AddObject(m, "setset_iterator",
+                     reinterpret_cast<PyObject*>(&PySetsetIter_Type));
 }
