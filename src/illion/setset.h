@@ -27,6 +27,8 @@ class setset {
     iterator(const iterator& i)
         : zdd_(i.zdd_), weights_(i.weights_), s_(i.s_) {}
 
+    virtual ~iterator() {}
+
     void operator=(const iterator& i) {
       this->zdd_ = i.zdd_;
       this->weights_ = i.weights_;
