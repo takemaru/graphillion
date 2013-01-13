@@ -222,8 +222,8 @@ zdd_t choose_random(zdd_t f, vector<elem_t>* stack, int* idum) {
   double ch = algo_c(hi(f)).get_d();
   double cl = algo_c(lo(f)).get_d();
 #else
-  double ch = algo_c(hi(f))
-  double cl = algo_c(lo(f))
+  double ch = algo_c(hi(f));
+  double cl = algo_c(lo(f));
 #endif
   if (ran3(idum) > cl / (ch + cl)) {
     stack->push_back(elem(f));
