@@ -118,6 +118,7 @@ setset setset::operator-(const setset& ss) const {
   return setset(this->zdd_ - ss.zdd_);
 }
 
+// this operation is the same as Knuth's join operation
 setset setset::operator*(const setset& ss) const {
   return setset(this->zdd_ * ss.zdd_);
 }
