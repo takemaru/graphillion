@@ -22,9 +22,9 @@ typedef mpz_class intx_t;
 typedef double intx_t;
 #endif
 
-void init(elem_t num_elems);
-void new_elems(elem_t max_elem);
-elem_t num_elems();
+void init();
+elem_t new_elems(elem_t max_elem);
+elem_t num_elems(elem_t num_elems = 0);
 
 zdd_t single(elem_t e);
 inline word_t id(zdd_t f) { return f.GetID(); }

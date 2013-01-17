@@ -344,11 +344,18 @@ void setset::_enum(FILE* fp,
   illion::_enum(this->zdd_, fp, outer_braces, inner_braces);
 }
 
-vector<int> setset::universe() {
-  vector<int> v;
-  for (int i = 1; i <= illion::num_elems(); ++i)
-    v.push_back(i);
-  return v;
+vector<elem_t> setset::universe() {
+  vector<elem_t> u;
+  for (elem_t e = 1; e <= num_elems(); ++e)
+    u.push_back(e);
+  return u;
+}
+
+vector<elem_t> setset::universe(vector<elem_t>& universe) {
+  for (int i = 0; i < static_cast<int>(universe.size()); ++i)
+    assert(universe[i] == i+1);
+  num_elems(universe.size());
+  return universe;
 }
 
 ostream& operator<<(ostream& out, const setset& ss) {

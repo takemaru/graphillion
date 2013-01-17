@@ -24,32 +24,38 @@ static const string WORD_FMT = sizeof(word_t) == 8 ? ("%" PRId64) : ("%" PRId32)
 
 bool initialized_ = false;
 static elem_t num_elems_ = 0;
+static elem_t max_elem_ = 0;
 
 ZBDD operator|(const ZBDD& f, const ZBDD& g) {
   return f + g;
 }
 
-void init(elem_t num_elems) {
+void init() {
   if (initialized_) return;
-  assert(num_elems <= BDD_MaxVar);
   BDD_Init(1000000, 8000000000LL);
   initialized_ = true;
-  new_elems(num_elems);
 }
 
-void new_elems(elem_t max_elem) {
+elem_t new_elems(elem_t max_elem) {
   assert(max_elem <= BDD_MaxVar);
-  for (; num_elems_ < max_elem; ++num_elems_)
+  if (!initialized_) init();
+  while (max_elem_ < max_elem) {
     top().Change(BDD_NewVarOfLev(1));
+    num_elems_ = ++max_elem_;
+  }
+  return max_elem_;
 }
 
-elem_t num_elems() {
+elem_t num_elems(elem_t num_elems) {
+  if (num_elems > 0) {
+    new_elems(num_elems);
+    num_elems_ = num_elems;
+  }
   return num_elems_;
 }
 
 zdd_t single(elem_t e) {
   assert(e > 0);
-  if (!initialized_) init(e);
   new_elems(e);
   return top().Change(e);
 }

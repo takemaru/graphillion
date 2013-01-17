@@ -25,41 +25,63 @@ extern bool initialized_;
 
 class TestSetset {
  public:
-  static void init() {
+  void run() {
+    this->init();
+    this->constructors();
+    this->comparison();
+    this->unary_operators();
+    this->binary_operators();
+    this->capacity();
+    this->iterators();
+    this->lookup();
+    this->modifiers();
+    this->io();
+  }
+
+  void init() {
     assert(!initialized_);
     assert(num_elems() == 0);
     assert(setset::universe() == vector<int>());
+
+    vector<int> universe = {1, 2};
+    setset::universe(universe);
+    assert(setset::universe() == vector<int>({1, 2}));
+
+    map<string, set<int> > m;
+    setset ss(m);
+    assert(ss.zdd_ == e0 + e1 + e1*e2 + e2);
+
+    universe = {1};
+    setset::universe(universe);
+    assert(setset::universe() == vector<int>({1}));
+
+    ss = setset(m);
+    assert(ss.zdd_ == e0 + e1);
   }
 
-  static void constructors() {
+  void constructors() {
     setset ss;
     assert(ss.empty());
 
     set<int> s = {};
     ss = setset(s);
-    assert(!initialized_);
-    assert(setset::universe() == vector<int>());
     assert(ss.zdd_ == e0);
 
     s = {1, 2};
     ss = setset(s);
-    assert(initialized_);
-    assert(setset::universe() == vector<int>({1, 2}));
     assert(ss.zdd_ == e1*e2);
 
-    vector<set<int>> v = {{}, {1, 2}, {1, 3}};
+    vector<set<int> > v = {{}, {1, 2}, {1, 3}};
     ss = setset(v);
-    assert(setset::universe() == vector<int>({1, 2, 3}));
     assert(ss.zdd_ == e0 + e1*e2 + e1*e3);
 
-    map<string, set<int>> m = {{"include", {1, 2}}, {"exclude", {4}}};
+    map<string, set<int> > m = {{"include", {1, 2}}, {"exclude", {4}}};
     ss = setset(m);
-    assert(setset::universe() == vector<int>({1, 2, 3, 4}));
     assert(ss.zdd_ == e1*e2 + e1*e2*e3);
 
-    vector<map<string, set<int>>> u = {{{"include", {1, 2}}, {"exclude", {4}}},
-                                       {{"include", {1, 3, 4}}},
-                                       {{"exclude", {2, 3}}}};
+    vector<map<string, set<int> > > u = {{{"include", {1, 2}}, {"exclude", {4}}},
+                                         {{"include", {1, 3, 4}}},
+                                         {{"exclude", {2, 3}}}};
     ss = setset(u);
     assert(ss.zdd_ == e0 + e1 + e1*e2 + e1*e2*e3 + e1*e2*e3*e4 + e1*e3*e4
            + e1*e4 + e4);
@@ -76,7 +98,7 @@ class TestSetset {
     assert(ss.zdd_ == e1 + e2);
   }
 
-  static void comparison() {
+  void comparison() {
     setset ss({{1, 2}});
     assert(ss == setset({{1, 2}}));
     assert(ss != setset({{1, 3}}));
@@ -101,28 +123,27 @@ class TestSetset {
     assert(!(ss > setset(v)));
   }
 
-  static void unary_operators() {
+  void unary_operators() {
+    vector<int> universe = {1, 2, 3, 4};
+    setset::universe(universe);
+    assert(setset::universe() == vector<int>({1, 2, 3, 4}));
+
     setset ss({{}, {1}, {1, 2}, {1, 2, 3}, {1, 2, 3, 4}, {1, 3, 4}, {1, 4},
                {4}});
-    assert(setset::universe() == vector<int>({1, 2, 3, 4}));
     assert((~ss).zdd_ == e1*e2*e4 + e1*e3 + e2 + e2*e3 + e2*e3*e4 + e2*e4 + e3
            + e3*e4);
     assert(ss.smaller(2).zdd_ == e0 + e1 + e1*e2 + e1*e4 + e4);
 
     ss = setset({{1, 2}, {1, 4}, {2, 3}, {3, 4}});
-    assert(setset::universe() == vector<int>({1, 2, 3, 4}));
     assert(ss.hitting().zdd_ == e1*e2*e3 + e1*e2*e3*e4 + e1*e2*e4 + e1*e3
            + e1*e3*e4 + e2*e3*e4 + e2*e4);
 
     ss = setset({{1, 2}, {1, 2, 3}, {1, 2, 3, 4}, {2, 4, 5}});
     assert(ss.minimal().zdd_ == e1*e2 + e2*e4*e5);
     assert(ss.maximal().zdd_ == e1*e2*e3*e4 + e2*e4*e5);
-
-    // TODO: test operator~() and hitting() after e5 inserted; add max_elem_
-    // member to setset objects for the tests
   }
 
-  static void binary_operators() {
+  void binary_operators() {
     vector<set<int>> u = {{}, {1}, {1, 2}, {1, 2, 3}, {1, 2, 3, 4}, {1, 3, 4},
                           {1, 4}, {4}};
     vector<set<int>> v = {{1, 2}, {1, 4}, {2, 3}, {3, 4}};
@@ -204,7 +225,7 @@ class TestSetset {
     assert(ss.zdd_ == e0 + e1 + e4);
   }
 
-  static void capacity() {
+  void capacity() {
     setset ss;
     assert(ss.empty());
 
@@ -214,7 +235,7 @@ class TestSetset {
     assert(ss.size() == "3");
   }
 
-  static void iterators() {
+  void iterators() {
     setset ss1({{}, {1, 2}, {1, 3}});
     setset ss2;
     for (const auto& s : ss1)
@@ -236,7 +257,7 @@ class TestSetset {
     assert(*i == set<int>({4}));
   }
 
-  static void lookup() {
+  void lookup() {
     setset ss({{}, {1, 2}, {1, 3}});
     setset::const_iterator i = ss.find({1, 2});
     assert(i != setset::end());
@@ -253,7 +274,7 @@ class TestSetset {
     assert(ss.count({2, 3}) == 0);
   }
 
-  static void modifiers() {
+  void modifiers() {
     vector<set<int>> v = {{}, {1, 2}, {1, 3}};
     setset ss(v);
     pair<setset::iterator, bool> p = ss.insert({1});
@@ -298,7 +319,7 @@ class TestSetset {
     assert(ss2 == setset(s));
   }
 
-  static void io() {
+  void io() {
     stringstream sstr;
     setset ss;
     sstr << ss;
@@ -360,16 +381,7 @@ class TestSetset {
 }  // namespace illion
 
 int main() {
-  illion::TestSetset::init();
-  illion::TestSetset::constructors();
-  illion::TestSetset::comparison();
-  illion::TestSetset::unary_operators();
-  illion::TestSetset::binary_operators();
-  illion::TestSetset::capacity();
-  illion::TestSetset::iterators();
-  illion::TestSetset::lookup();
-  illion::TestSetset::modifiers();
-  illion::TestSetset::io();
+  illion::TestSetset().run();
   printf("ok\n");
   return 0;
 }
