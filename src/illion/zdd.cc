@@ -54,7 +54,7 @@ zdd_t single(elem_t e) {
   return top().Change(e);
 }
 
-zdd_t _not(zdd_t f) {
+zdd_t complement(zdd_t f) {
   vector<zdd_t> n(num_elems_ + 2);
   n[0] = bot(), n[1] = top();
   for (elem_t v = num_elems_; v > 0; --v) {

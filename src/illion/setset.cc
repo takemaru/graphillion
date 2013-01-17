@@ -103,7 +103,7 @@ setset::setset(const initializer_list<int>& s) : zdd_(top()) {
 }
 */
 setset setset::operator~() const {
-  return setset(_not(this->zdd_));
+  return setset(complement(this->zdd_));
 }
 
 setset setset::operator&(const setset& ss) const {

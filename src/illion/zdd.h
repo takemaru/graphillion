@@ -49,7 +49,7 @@ inline elem_t elem(zdd_t f) {
 
 zdd_t operator|(const zdd_t& f, const zdd_t& g);
 
-zdd_t _not(zdd_t f);
+zdd_t complement(zdd_t f);
 zdd_t minimal(zdd_t f);
 zdd_t maximal(zdd_t f);
 zdd_t hitting(zdd_t f);
