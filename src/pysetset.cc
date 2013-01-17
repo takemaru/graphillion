@@ -293,7 +293,7 @@ static PyObject* setset_difference_update(PySetsetObject* self, PyObject* other)
   CHECK_SETSET_OR_ERROR(other);
   RETURN_SELF_SETSET(self, other, _other, (*self->ss) -= (*_other->ss));
 }
-
+/*
 static PyObject* setset_product(PySetsetObject* self, PyObject* other) {
   CHECK_SETSET_OR_ERROR(other);
   RETURN_NEW_SETSET2(self, other, _other, (*self->ss) * (*_other->ss));
@@ -303,7 +303,7 @@ static PyObject* setset_product_update(PySetsetObject* self, PyObject* other) {
   CHECK_SETSET_OR_ERROR(other);
   RETURN_SELF_SETSET(self, other, _other, (*self->ss) *= (*_other->ss));
 }
-
+*/
 static PyObject* setset_symmetric_difference(PySetsetObject* self, PyObject* other) {
   CHECK_SETSET_OR_ERROR(other);
   RETURN_NEW_SETSET2(self, other, _other, (*self->ss) ^ (*_other->ss));
@@ -491,6 +491,16 @@ static PyObject* setset_smaller(PySetsetObject* self, PyObject* other) {
   RETURN_NEW_SETSET(self, self->ss->smaller(max_set_size));
 }
 
+static PyObject* setset_join(PySetsetObject* self, PyObject* other) {
+  CHECK_SETSET_OR_ERROR(other);
+  RETURN_NEW_SETSET2(self, other, _other, self->ss->join(*_other->ss));
+}
+
+static PyObject* setset_meet(PySetsetObject* self, PyObject* other) {
+  CHECK_SETSET_OR_ERROR(other);
+  RETURN_NEW_SETSET2(self, other, _other, self->ss->meet(*_other->ss));
+}
+
 static PyObject* setset_subsets(PySetsetObject* self, PyObject* other) {
   CHECK_SETSET_OR_ERROR(other);
   RETURN_NEW_SETSET2(self, other, _other, self->ss->subsets(*_other->ss));
@@ -631,8 +641,8 @@ static PyMethodDef setset_methods[] = {
   {"update", reinterpret_cast<PyCFunction>(setset_update), METH_O, ""},
   {"difference", reinterpret_cast<PyCFunction>(setset_difference), METH_O, ""},
   {"difference_update", reinterpret_cast<PyCFunction>(setset_difference_update), METH_O, ""},
-  {"product", reinterpret_cast<PyCFunction>(setset_product), METH_O, ""},
-  {"product_update", reinterpret_cast<PyCFunction>(setset_product_update), METH_O, ""},
+//  {"product", reinterpret_cast<PyCFunction>(setset_product), METH_O, ""},
+//  {"product_update", reinterpret_cast<PyCFunction>(setset_product_update), METH_O, ""},
   {"symmetric_difference", reinterpret_cast<PyCFunction>(setset_symmetric_difference), METH_O, ""},
   {"symmetric_difference_update", reinterpret_cast<PyCFunction>(setset_symmetric_difference_update), METH_O, ""},
   {"divide", reinterpret_cast<PyCFunction>(setset_divide), METH_O, ""},
@@ -656,6 +666,8 @@ static PyMethodDef setset_methods[] = {
   {"maximal", reinterpret_cast<PyCFunction>(setset_maximal), METH_NOARGS, ""},
   {"hitting", reinterpret_cast<PyCFunction>(setset_hitting), METH_NOARGS, ""},
   {"smaller", reinterpret_cast<PyCFunction>(setset_smaller), METH_O, ""},
+  {"join", reinterpret_cast<PyCFunction>(setset_join), METH_O, ""},
+  {"meet", reinterpret_cast<PyCFunction>(setset_meet), METH_O, ""},
   {"subsets", reinterpret_cast<PyCFunction>(setset_subsets), METH_O, ""},
   {"supersets", reinterpret_cast<PyCFunction>(setset_supersets), METH_O, ""},
   {"nonsubsets", reinterpret_cast<PyCFunction>(setset_nonsubsets), METH_O, ""},
@@ -672,7 +684,7 @@ static PyMethodDef setset_methods[] = {
 static PyNumberMethods setset_as_number = {
   0,                                  /*nb_add*/
   reinterpret_cast<binaryfunc>(setset_difference), /*nb_subtract*/
-  reinterpret_cast<binaryfunc>(setset_product), /*nb_multiply*/
+  0/*reinterpret_cast<binaryfunc>(setset_product)*/, /*nb_multiply*/
   reinterpret_cast<binaryfunc>(setset_divide), /*nb_divide*/
   reinterpret_cast<binaryfunc>(setset_remainder), /*nb_remainder*/
   0,                                  /*nb_divmod*/
@@ -695,7 +707,7 @@ static PyNumberMethods setset_as_number = {
   0,                                  /*nb_hex*/
   0,                                  /*nb_inplace_add*/
   reinterpret_cast<binaryfunc>(setset_difference_update), /*nb_inplace_subtract*/
-  reinterpret_cast<binaryfunc>(setset_product_update), /*nb_inplace_multiply*/
+  0/*reinterpret_cast<binaryfunc>(setset_product_update)*/, /*nb_inplace_multiply*/
   reinterpret_cast<binaryfunc>(setset_divide_update), /*nb_inplace_divide*/
   reinterpret_cast<binaryfunc>(setset_remainder_update), /*nb_inplace_remainder*/
   0,                                  /*nb_inplace_power*/

@@ -53,6 +53,8 @@ zdd_t _not(zdd_t f);
 zdd_t minimal(zdd_t f);
 zdd_t maximal(zdd_t f);
 zdd_t hitting(zdd_t f);
+zdd_t join(zdd_t f, zdd_t g);
+zdd_t meet(zdd_t f, zdd_t g);
 zdd_t nonsubsets(zdd_t f, zdd_t g);
 zdd_t nonsupersets(zdd_t f, zdd_t g);
 zdd_t choose_random(zdd_t f, std::vector<elem_t>* stack, int* idum);

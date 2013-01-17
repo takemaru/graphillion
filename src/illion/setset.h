@@ -77,14 +77,14 @@ class setset {
   setset operator&(const setset& ss) const;
   setset operator|(const setset& ss) const;
   setset operator-(const setset& ss) const;
-  setset operator*(const setset& ss) const;
+//  setset operator*(const setset& ss) const;
   setset operator^(const setset& ss) const;
   setset operator/(const setset& ss) const;
   setset operator%(const setset& ss) const;
   void operator&=(const setset& ss);
   void operator|=(const setset& ss);
   void operator-=(const setset& ss);
-  void operator*=(const setset& ss);
+//  void operator*=(const setset& ss);
   void operator^=(const setset& ss);
   void operator/=(const setset& ss);
   void operator%=(const setset& ss);
@@ -122,6 +122,8 @@ class setset {
   setset hitting() const;
   setset smaller(size_t max_set_size) const;
 
+  setset join(const setset& ss) const;
+  setset meet(const setset& ss) const;
   setset subsets(const setset& ss) const;
   setset supersets(const setset& ss) const;
   setset nonsubsets(const setset& ss) const;

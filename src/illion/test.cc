@@ -148,7 +148,7 @@ class TestSetset {
     ss = setset(u);
     ss -= setset(v);
     assert(ss.zdd_ == e0 + e1 + e1*e2*e3 + e1*e2*e3*e4 + e1*e3*e4 + e4);
-
+    /*
     ss = setset(u) * setset(v);
     assert(ss.zdd_ == e1*e2 + e1*e2*e3 + e1*e2*e4 + e1*e2*e3*e4 + e1*e3*e4
            + e1*e4 + e2*e3 + e2*e3*e4 + e3*e4);
@@ -157,7 +157,7 @@ class TestSetset {
     ss *= setset(v);
     assert(ss.zdd_ == e1*e2 + e1*e2*e3 + e1*e2*e4 + e1*e2*e3*e4 + e1*e3*e4
            + e1*e4 + e2*e3 + e2*e3*e4 + e3*e4);
-
+    */
     ss = setset(u) ^ setset(v);
     assert(ss.zdd_ == e0 + e1 + e1*e2*e3 + e1*e2*e3*e4 + e1*e3*e4 + e2*e3
            + e3*e4 + e4);
@@ -181,6 +181,14 @@ class TestSetset {
     ss = setset(u);
     ss %= setset(v);
     assert(ss.zdd_ == e0 + e1 + e1*e3*e4 + e1*e4 + e4);
+
+    v = {{1, 2}, {1, 4}, {2, 3}, {3, 4}};
+    ss = setset(u).join(setset(v));
+    assert(ss.zdd_ == e1*e2 + e1*e2*e3 + e1*e2*e4 + e1*e2*e3*e4 + e1*e3*e4
+           + e1*e4 + e2*e3 + e2*e3*e4 + e3*e4);
+
+    ss = setset(u).meet(setset(v));
+    assert(ss.zdd_ == e0 + e1 + e1*e2 + e1*e4 + e2 + e2*e3 + e3 + e3*e4 + e4);
 
     v = {{1, 2}, {1, 4}, {2, 3}, {3, 4}};
     ss = setset(u).subsets(setset(v));

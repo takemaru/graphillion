@@ -117,21 +117,22 @@ setset setset::operator|(const setset& ss) const {
 setset setset::operator-(const setset& ss) const {
   return setset(this->zdd_ - ss.zdd_);
 }
-
-// this operation is the same as Knuth's join operation
+/*
 setset setset::operator*(const setset& ss) const {
   return setset(this->zdd_ * ss.zdd_);
 }
-
+*/
 setset setset::operator^(const setset& ss) const {
   return setset((this->zdd_ - ss.zdd_) + (ss.zdd_ - this->zdd_));
 }
 
 setset setset::operator/(const setset& ss) const {
+  assert(!is_bot(ss.zdd_) || is_term(this->zdd_))
   return setset(this->zdd_ / ss.zdd_);
 }
 
 setset setset::operator%(const setset& ss) const {
+  assert(!is_bot(ss.zdd_) || is_term(this->zdd_))
   return setset(this->zdd_ % ss.zdd_);
 }
 
@@ -146,11 +147,11 @@ void setset::operator|=(const setset& ss) {
 void setset::operator-=(const setset& ss) {
   this->zdd_ -= ss.zdd_;
 }
-
+/*
 void setset::operator*=(const setset& ss) {
   this->zdd_ *= ss.zdd_;
 }
-
+*/
 void setset::operator^=(const setset& ss) {
   this->zdd_ = (this->zdd_ - ss.zdd_) + (ss.zdd_ - this->zdd_);
 }
@@ -289,6 +290,14 @@ setset setset::hitting() const {  // a.k.a cross elements
 
 setset setset::smaller(size_t max_set_size) const {
   return setset(this->zdd_.PermitSym(max_set_size));
+}
+
+setset setset::join(const setset& ss) const {
+  return setset(illion::join(this->zdd_, ss.zdd_));
+}
+
+setset setset::meet(const setset& ss) const {
+  return setset(illion::meet(this->zdd_, ss.zdd_));
 }
 
 setset setset::subsets(const setset& ss) const {

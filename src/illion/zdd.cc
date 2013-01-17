@@ -132,6 +132,14 @@ zdd_t hitting(zdd_t f) {
   return g;
 }
 
+zdd_t join(zdd_t f, zdd_t g) {
+  return f * g;
+}
+
+zdd_t meet(zdd_t f, zdd_t g) {
+  return ZBDD_Meet(f, g);
+}
+
 struct bdd_pair_hash {
   size_t operator()(const pair<word_t, word_t>& o) const {
     return (o.first << 4*sizeof(o.first)) ^ o.second;
