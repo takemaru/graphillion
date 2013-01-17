@@ -771,18 +771,29 @@ PyTypeObject PySetset_Type = {
   setset_new,                  /* tp_new */
 };
 
-static PyObject* setset_num_elems(PyObject*, PyObject*) {
-  PyObject* eo = PyInt_FromLong(setset::num_elems());
-  if (eo == nullptr) {
-    PyErr_SetString(PyExc_TypeError, "not int set");
-    Py_DECREF(eo);
+static PyObject* setset_universe(PyObject*, PyObject*) {
+  vector<int> v = setset::universe();
+  PyObject* lo = PyList_New(v.size());
+  if (lo == nullptr)
     return nullptr;
+  for (int i = 0; i < static_cast<int>(v.size()); ++i) {
+    PyObject* eo = PyInt_FromLong(v[i]);
+    if (eo == nullptr) {
+      PyErr_SetString(PyExc_TypeError, "not int");
+      Py_DECREF(eo);
+      return nullptr;
+    }
+    if (PyList_SetItem(lo, i, eo) == -1) {
+      PyErr_SetString(PyExc_TypeError, "can't add elements to a list");
+      return nullptr;
+    }
+    Py_DECREF(eo);
   }
-  return eo;
+  return lo;
 }
 
 static PyMethodDef module_methods[] = {
-  {"num_elems", setset_num_elems, METH_NOARGS, ""},
+  {"universe", setset_universe, METH_NOARGS, ""},
   {nullptr}  /* Sentinel */
 };
 

@@ -127,7 +127,7 @@ class setset(_illion.setset):
             if args:
                 pass
             else:
-                return range(1, _illion.num_elems() + 1)
+                return range(1, len(_illion.universe()) + 1)
         else:
             if args:
                 setset._obj2int = {}

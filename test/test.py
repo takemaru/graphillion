@@ -23,33 +23,33 @@ class TestSetset(object):
 
         ss = setset()
         assert isinstance(ss, setset)
+        assert setset._obj2int == {} and setset._int2obj == [None]
+        assert setset.universe() == []
         assert repr(ss) == '<%s object of 0x8000000000>' % name
         assert ss._enums() == name + '([])'
-        assert setset._obj2int == {} and setset._int2obj == [None]
-        assert setset.universe() == []
 
         ss = setset(set())
-        assert ss._enums() == name + '([set([])])'
         assert setset._obj2int == {} and setset._int2obj == [None]
         assert setset.universe() == []
+        assert ss._enums() == name + '([set([])])'
 
         ss = setset(frozenset(['1', '2']))
-        assert ss._enums() == name + '([set([1, 2])])'
         assert setset._obj2int == {'1': 1, '2': 2}
         assert setset._int2obj == [None, '1', '2']
         assert setset.universe() == ['1', '2']
+        assert ss._enums() == name + '([set([1, 2])])'
 
         ss = setset([set(), set(['1', '2']), set(['1', '3'])])
-        assert ss._enums() == name + '([set([1, 2]), set([1, 3]), set([])])'
         assert setset._obj2int == {'1': 1, '2': 2, '3': 3}
         assert setset._int2obj == [None, '1', '2', '3']
         assert setset.universe() == ['1', '2', '3']
+        assert ss._enums() == name + '([set([1, 2]), set([1, 3]), set([])])'
 
         ss = setset({'include': set(['1', '2']), 'exclude': set(['4'])})
-        assert ss._enums() == name + '([set([1, 2, 3]), set([1, 2])])'
         assert setset._obj2int == {'1': 1, '2': 2, '3': 3, '4': 4}
         assert setset._int2obj == [None, '1', '2', '3', '4']
         assert setset.universe() == ['1', '2', '3', '4']
+        assert ss._enums() == name + '([set([1, 2, 3]), set([1, 2])])'
 
         ss = setset([{'include': set(['1', '2']), 'exclude': set(['4'])},
                      {'include': set(['1', '3', '4'])},

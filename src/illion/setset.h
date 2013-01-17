@@ -145,7 +145,7 @@ class setset {
                = std::make_pair("{", "}")) const;
 
   static iterator end() { return iterator(); }
-  static elem_t num_elems();
+  static std::vector<int> universe();
 
   friend std::ostream& operator<<(std::ostream& out, const setset& ss);
   friend std::istream& operator>>(std::istream& in, setset& ss);
