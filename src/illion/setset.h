@@ -104,7 +104,6 @@ class setset {
   iterator begin(std::vector<int> weights = std::vector<int>()) const {
     return iterator(*this, weights);
   }
-  static iterator end() { return iterator(); }
   iterator find(const std::set<elem_t>& s) const;
   setset find(elem_t e) const;
   setset not_find(elem_t e) const;
@@ -142,6 +141,9 @@ class setset {
                = std::make_pair("{", "}"),
              const std::pair<const char*, const char*> inner_braces
                = std::make_pair("{", "}")) const;
+
+  static iterator end() { return iterator(); }
+  static elem_t num_elems();
 
   friend std::ostream& operator<<(std::ostream& out, const setset& ss);
   friend std::istream& operator>>(std::istream& in, setset& ss);
