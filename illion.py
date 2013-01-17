@@ -4,7 +4,7 @@ def add_elem(e):
     setset.obj2int[e] = len(setset.int2obj)
     setset.int2obj.append(e)
 
-def conv(obj):
+def conv_arg(obj):
     if isinstance(obj, (set, frozenset)):
         s = set()
         for e in obj:
@@ -15,7 +15,7 @@ def conv(obj):
     elif isinstance(obj, dict):
         d = {}
         for k, s in obj.iteritems():
-            d[k] = conv(s)
+            d[k] = conv_arg(s)
         return d
     else:
         e = obj
@@ -23,7 +23,18 @@ def conv(obj):
             add_elem(e)
         return setset.obj2int[e]
 
-def hookarg(func):
+def conv_ret(s):
+    if setset.INT_ONLY or s is None:
+        return s
+    elif isinstance(s, (set, frozenset)):
+        ret = set()
+        for e in s:
+            ret.add(setset.int2obj[e])
+        return ret
+    else:
+        raise TypeError('not set')
+
+def hook_arg(func):
     def wrapper(self, *args, **kwds):
         if setset.INT_ONLY or not args:
             return func(self, *args, **kwds)
@@ -33,37 +44,30 @@ def hookarg(func):
             if isinstance(obj, list):
                 l = []
                 for o in obj:
-                    l.append(conv(o))
+                    l.append(conv_arg(o))
                 args2.append(l)
             else:
-                args2.append(conv(obj))
+                args2.append(conv_arg(obj))
             return func(self, *args2, **kwds)
     return wrapper
 
-def hookret(func):
+def hook_ret(func):
     def wrapper(self, *args, **kwds):
-        s = func(self, *args, **kwds);
-        if setset.INT_ONLY or s is None:
-            return s
-        elif isinstance(s, (set, frozenset)):
-            ret = set()
-            for e in s:
-                ret.add(setset.int2obj[e])
-            return ret
-        else:
-            raise TypeError('not set')
+        return conv_ret(func(self, *args, **kwds))
     return wrapper
 
 
-class setset_iterator(_illion.setset_iterator):
+class setset_iterator(object):
 
-    def __init__(self, *args, **kwds):
-        _illion.setset_iterator.__init__(self, *args, **kwds)
+    def __init__(self, it):
+        self.it = it
 
-    @hookret
+    def __iter__(self):
+        return self
+
+    @hook_ret
     def next(self):
-        s = _illion.setset_iterator.next(self)
-        return s
+        return self.it.next()
 
 
 class setset(_illion.setset):
@@ -72,113 +76,70 @@ class setset(_illion.setset):
     obj2int = {}
     int2obj = [None]
 
-    @hookarg
+    @hook_arg
     def __init__(self, *args, **kwds):
         _illion.setset.__init__(self, *args, **kwds);
 
-    @hookarg
+    @hook_arg
     def __contains__(self, *args, **kwds):
         return _illion.setset.__contains__(self, *args, **kwds);
 
-    @hookarg
+    @hook_arg
     def find(self, *args, **kwds):
         return _illion.setset.find(self, *args, **kwds);
 
-    @hookarg
+    @hook_arg
     def not_find(self, *args, **kwds):
         return _illion.setset.not_find(self, *args, **kwds);
 
-    @hookarg
+    @hook_arg
     def add(self, *args, **kwds):
         return _illion.setset.add(self, *args, **kwds)
 
-    @hookarg
+    @hook_arg
     def remove(self, *args, **kwds):
         return _illion.setset.remove(self, *args, **kwds)
 
-    @hookarg
+    @hook_arg
     def discard(self, *args, **kwds):
         return _illion.setset.discard(self, *args, **kwds)
 
-    @hookret
+    @hook_ret
     def pop(self, *args, **kwds):
         return _illion.setset.pop(self, *args, **kwds)
 
     def __iter__(self):
-        return my_iterator(self.rand_iter())
+        return setset_iterator(self.rand_iter())
 
-#    @hookret
     def randomize(self):
         i = self.rand_iter()
         while (True):
-#            yield i.next()
-            # TODO: the followng procedure found in optimize, my_iterator and hookret
-            s = i.next()
-            if not isinstance(s, (set, frozenset)):
-                raise TypeError('not set')
-            if not setset.INT_ONLY and s is not None:
-                ret = set()
-                for e in s:
-                    ret.add(setset.int2obj[e])
-                s = ret
-            yield s
+            yield conv_ret(i.next())
 
-#    @hookret
-    def optimize(self, weights):
-        ws = [0]
-        max = 0
-        # TODO: fix the following dirty and inefficient code
-        for o, w in weights.iteritems():
+    def optimize(self, weights_arg):
+        weights = [0] * (len(setset.universe()) + 1)
+        for o, w in weights_arg.iteritems():
             i = setset.obj2int[o]
-            if i > max: max = i
-        for i in xrange(max):
-            ws.append(None)
-        for o, w in weights.iteritems():
-            i = setset.obj2int[o]
-            ws[i] = w
-        i = self.opt_iter(ws)
+            weights[i] = w
+        i = self.opt_iter(weights)
         while (True):
-#            yield i.next()
-            s = i.next()
-            if not isinstance(s, (set, frozenset)):
-                raise TypeError('not set')
-            if not setset.INT_ONLY and s is not None:
-                ret = set()
-                for e in s:
-                    ret.add(setset.int2obj[e])
-                s = ret
-            yield s
+            yield conv_ret(i.next())
 
     @staticmethod
     def universe(*args):
-        if args:
-            setset.obj2int = {}
-            setset.int2obj = [None]
-            for e in args[0]:
-                add_elem(e)
+        if setset.INT_ONLY:
+            if args:
+                pass
+            else:
+                return range(1, _illion.num_elems() + 1)
         else:
-            return setset.int2obj[1:]
-
-
-class my_iterator(object):  # TODO: rename
-
-    def __init__(self, it):
-        self.it = it
-
-    def __iter__(self):
-        return self
-
-    def next(self):
-        s = self.it.next()
-        if not isinstance(s, (set, frozenset)):
-            raise TypeError('not set')
-        if not setset.INT_ONLY and s is not None:
-            ret = set()
-            for e in s:
-                ret.add(setset.int2obj[e])
-            s = ret
-        return s
-
+            if args:
+                setset.obj2int = {}
+                setset.int2obj = [None]
+                for e in args[0]:
+                    add_elem(e)
+            else:
+                return setset.int2obj[1:]
 
 #class graphset(setset):
 #    pass
