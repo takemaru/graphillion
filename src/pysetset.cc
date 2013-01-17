@@ -74,7 +74,7 @@ static PyObject* setset_build_set(const set<int>& s) {
       return nullptr;
     }
     if (PySet_Add(so, eo) == -1) {
-      PyErr_SetString(PyExc_TypeError, "can't add elements to a set");
+      PyErr_SetString(PyExc_RuntimeError, "can't add elements to a set");
       Py_DECREF(eo);
       return nullptr;
     }
@@ -771,29 +771,54 @@ PyTypeObject PySetset_Type = {
   setset_new,                  /* tp_new */
 };
 
-static PyObject* setset_universe(PyObject*, PyObject*) {
-  vector<int> v = setset::universe();
-  PyObject* lo = PyList_New(v.size());
-  if (lo == nullptr)
-    return nullptr;
-  for (int i = 0; i < static_cast<int>(v.size()); ++i) {
-    PyObject* eo = PyInt_FromLong(v[i]);
-    if (eo == nullptr) {
-      PyErr_SetString(PyExc_TypeError, "not int");
+static PyObject* setset_universe(PyObject*, PyObject* args) {
+  PyObject* obj = nullptr;
+  if (!PyArg_ParseTuple(args, "|O", &obj)) return nullptr;
+  if (obj == nullptr) {
+    vector<int> universe = setset::universe();
+    PyObject* lo = PyList_New(universe.size());
+    if (lo == nullptr)
+      return nullptr;
+    for (int i = 0; i < static_cast<int>(universe.size()); ++i) {
+      PyObject* eo = PyInt_FromLong(universe[i]);
+      if (eo == nullptr) {
+        PyErr_SetString(PyExc_TypeError, "not int");
+        Py_DECREF(eo);
+        return nullptr;
+      }
+      if (PyList_SetItem(lo, i, eo) == -1) {
+        PyErr_SetString(PyExc_RuntimeError, "can't add elements to a list");
+        return nullptr;
+      }
       Py_DECREF(eo);
+    }
+    return lo;
+  } else {
+    if (!PyList_Check(obj)) {
+      PyErr_SetString(PyExc_TypeError, "not list");
       return nullptr;
     }
-    if (PyList_SetItem(lo, i, eo) == -1) {
-      PyErr_SetString(PyExc_TypeError, "can't add elements to a list");
-      return nullptr;
+    PyObject* i = PyObject_GetIter(obj);
+    if (i == nullptr) return nullptr;
+    vector<int> universe;
+    PyObject* eo;
+    while ((eo = PyIter_Next(i))) {
+      if (!PyInt_Check(eo)) {
+        PyErr_SetString(PyExc_TypeError, "not int");
+        Py_DECREF(eo);
+        return nullptr;
+      }
+      universe.push_back(PyInt_AsLong(eo));
     }
-    Py_DECREF(eo);
+    Py_DECREF(i);
+    setset::universe(universe);
+    Py_INCREF(obj);
+    return obj;
   }
-  return lo;
 }
 
 static PyMethodDef module_methods[] = {
-  {"universe", setset_universe, METH_NOARGS, ""},
+  {"universe", setset_universe, METH_VARARGS, ""},
   {nullptr}  /* Sentinel */
 };
 

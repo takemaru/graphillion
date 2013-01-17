@@ -125,7 +125,7 @@ class setset(_illion.setset):
     def universe(*args):
         if setset.INT_ELEM_ONLY:
             if args:
-                pass
+                return _illion.universe(range(1, len(*args) + 1))
             else:
                 return range(1, len(_illion.universe()) + 1)
         else:
@@ -134,7 +134,12 @@ class setset(_illion.setset):
                 setset._int2obj = [None]
                 for e in args[0]:
                     add_elem(e)
+                universe = []
+                for i in _illion.universe(range(1, len(*args) + 1)):
+                    universe.append(setset._int2obj[i])
+                return universe
             else:
+                assert len(setset._int2obj) == len(_illion.universe()) + 1
                 return setset._int2obj[1:]
 
     INT_ELEM_ONLY = False

@@ -345,10 +345,10 @@ void setset::_enum(FILE* fp,
 }
 
 vector<elem_t> setset::universe() {
-  vector<elem_t> u;
+  vector<elem_t> universe;
   for (elem_t e = 1; e <= num_elems(); ++e)
-    u.push_back(e);
-  return u;
+    universe.push_back(e);
+  return universe;
 }
 
 vector<elem_t> setset::universe(vector<elem_t>& universe) {

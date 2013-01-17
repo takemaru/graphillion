@@ -18,37 +18,40 @@ class TestSetset(object):
         assert setset._obj2int == {} and setset._int2obj  == [None]
         assert setset.universe() == []
 
+        setset.universe(['i', 'ii'])
+        assert setset._obj2int == {'i': 1, 'ii': 2}
+        assert setset._int2obj == [None, 'i', 'ii']
+        assert setset.universe() == ['i', 'ii']
+
+        ss = setset({})
+        assert ss == setset([set(), set(['i']), set(['i', 'ii']), set(['ii'])])
+
+        setset.universe(['1'])
+        assert setset._obj2int == {'1': 1}
+        assert setset._int2obj == [None, '1']
+        assert setset.universe() == ['1']
+
+        ss = setset({})
+        assert ss == setset([set(), set(['1'])])
+
     def constructors(self):
         name = 'setset'
 
         ss = setset()
         assert isinstance(ss, setset)
-        assert setset._obj2int == {} and setset._int2obj == [None]
-        assert setset.universe() == []
         assert repr(ss) == '<%s object of 0x8000000000>' % name
         assert ss._enums() == name + '([])'
 
         ss = setset(set())
-        assert setset._obj2int == {} and setset._int2obj == [None]
-        assert setset.universe() == []
         assert ss._enums() == name + '([set([])])'
 
         ss = setset(frozenset(['1', '2']))
-        assert setset._obj2int == {'1': 1, '2': 2}
-        assert setset._int2obj == [None, '1', '2']
-        assert setset.universe() == ['1', '2']
         assert ss._enums() == name + '([set([1, 2])])'
 
         ss = setset([set(), set(['1', '2']), set(['1', '3'])])
-        assert setset._obj2int == {'1': 1, '2': 2, '3': 3}
-        assert setset._int2obj == [None, '1', '2', '3']
-        assert setset.universe() == ['1', '2', '3']
         assert ss._enums() == name + '([set([1, 2]), set([1, 3]), set([])])'
 
         ss = setset({'include': set(['1', '2']), 'exclude': set(['4'])})
-        assert setset._obj2int == {'1': 1, '2': 2, '3': 3, '4': 4}
-        assert setset._int2obj == [None, '1', '2', '3', '4']
-        assert setset.universe() == ['1', '2', '3', '4']
         assert ss._enums() == name + '([set([1, 2, 3]), set([1, 2])])'
 
         ss = setset([{'include': set(['1', '2']), 'exclude': set(['4'])},
@@ -97,25 +100,23 @@ class TestSetset(object):
         ss = setset([set(), set(['1']), set(['1', '2']), set(['1', '2', '3']),
                      set(['1', '2', '3', '4']), set(['1', '3', '4']),
                      set(['1', '4']), set(['4'])])
-        assert isinstance(~ss, setset)
-        assert isinstance(ss.complement(), setset)
-        assert isinstance(ss.smaller(2), setset)
-        assert isinstance(ss.hitting(), setset)
-        assert isinstance(ss.minimal(), setset)
-        assert isinstance(ss.maximal(), setset)
 
+        assert isinstance(~ss, setset)
         assert ~ss == setset([set(['1', '2', '4']), set(['1', '3']), set(['2']),
                               set(['2', '3']), set(['2', '3', '4']),
                               set(['2', '4']), set(['3']), set(['3', '4'])])
+        assert isinstance(ss.complement(), setset)
         assert ss.complement() == setset([set(['1', '2', '4']), set(['1', '3']),
                                           set(['2']), set(['2', '3']),
                                           set(['2', '3', '4']), set(['2', '4']),
                                           set(['3']), set(['3', '4'])])
+        assert isinstance(ss.smaller(2), setset)
         assert ss.smaller(2) == setset([set(), set(['1']), set(['1', '2']),
                                         set(['1', '4']), set(['4'])])
 
         ss = setset([set(['1', '2']), set(['1', '4']), set(['2', '3']),
                      set(['3', '4'])])
+        assert isinstance(ss.hitting(), setset)
         assert ss.hitting() == setset([set(['1', '2', '3']),
                                        set(['1', '2', '3', '4']),
                                        set(['1', '2', '4']), set(['1', '3']),
@@ -124,7 +125,9 @@ class TestSetset(object):
 
         ss = setset([set(['1', '2']), set(['1', '2', '3']),
                      set(['1', '2', '3', '4']), set(['2', '4', '5'])])
+        assert isinstance(ss.minimal(), setset)
         assert ss.minimal() == setset([set(['1', '2']), set(['2', '4', '5'])])
+        assert isinstance(ss.maximal(), setset)
         assert ss.maximal() == setset([set(['1', '2', '3', '4']),
                                        set(['2', '4', '5'])])
 
