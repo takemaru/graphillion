@@ -97,6 +97,8 @@ class TestSetset(object):
         assert not (ss > setset(v))
 
     def unary_operators(self):
+        assert setset.universe() == ['1', '2', '3', '4']
+
         ss = setset([set(), set(['1']), set(['1', '2']), set(['1', '2', '3']),
                      set(['1', '2', '3', '4']), set(['1', '3', '4']),
                      set(['1', '4']), set(['4'])])
