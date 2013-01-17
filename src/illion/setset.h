@@ -50,7 +50,7 @@ class setset {
     std::vector<int> weights_ = std::vector<int>();
     std::set<elem_t> s_ = std::set<elem_t>();
 
-    friend class setset_test;
+    friend class TestSetset;
   };
 
   typedef iterator const_iterator;
@@ -153,7 +153,7 @@ class setset {
 
   zdd_t zdd_;
 
-  friend class setset_test;
+  friend class TestSetset;
 };
 
 }  // namespace illion

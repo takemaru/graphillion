@@ -23,8 +23,13 @@ using namespace std;
 
 extern bool initialized_;
 
-class setset_test {
+class TestSetset {
  public:
+  static void init() {
+    assert(!initialized_);
+    assert(setset::num_elems() == 0);
+  }
+
   static void constructors() {
     setset ss;
     assert(ss.empty());
@@ -285,7 +290,7 @@ class setset_test {
     assert(ss2 == setset(s));
   }
 
-  static void stream() {
+  static void io() {
     stringstream sstr;
     setset ss;
     sstr << ss;
@@ -347,15 +352,16 @@ class setset_test {
 }  // namespace illion
 
 int main() {
-  illion::setset_test::constructors();
-  illion::setset_test::comparison();
-  illion::setset_test::unary_operators();
-  illion::setset_test::binary_operators();
-  illion::setset_test::capacity();
-  illion::setset_test::iterators();
-  illion::setset_test::lookup();
-  illion::setset_test::modifiers();
-  illion::setset_test::stream();
+  illion::TestSetset::init();
+  illion::TestSetset::constructors();
+  illion::TestSetset::comparison();
+  illion::TestSetset::unary_operators();
+  illion::TestSetset::binary_operators();
+  illion::TestSetset::capacity();
+  illion::TestSetset::iterators();
+  illion::TestSetset::lookup();
+  illion::TestSetset::modifiers();
+  illion::TestSetset::io();
   printf("ok\n");
   return 0;
 }
