@@ -759,7 +759,18 @@ PyTypeObject PySetset_Type = {
   setset_new,                  /* tp_new */
 };
 
+static PyObject* setset_num_elems(PyObject*, PyObject*) {
+  PyObject* eo = PyInt_FromLong(setset::num_elems());
+  if (eo == nullptr) {
+    PyErr_SetString(PyExc_TypeError, "not int set");
+    Py_DECREF(eo);
+    return nullptr;
+  }
+  return eo;
+}
+
 static PyMethodDef module_methods[] = {
+  {"num_elems", setset_num_elems, METH_NOARGS, ""},
   {nullptr}  /* Sentinel */
 };
 
