@@ -25,7 +25,7 @@ class setset {
     iterator(const setset& ss, std::vector<int> weights = std::vector<int>());
     explicit iterator(const std::set<elem_t>& s);
     iterator(const iterator& i)
-        : zdd_(i.zdd_), weights_(i.weights_), s_(i.s_) {}
+        : zdd_(i.zdd_), s_(i.s_), weights_(i.weights_) {}
 
     virtual ~iterator() {}
 
@@ -47,8 +47,8 @@ class setset {
     void next();
 
     zdd_t zdd_;
-    std::vector<int> weights_ = std::vector<int>();
     std::set<elem_t> s_ = std::set<elem_t>();
+    std::vector<int> weights_ = std::vector<int>();
 
     friend class TestSetset;
   };
