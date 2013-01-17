@@ -1,16 +1,16 @@
 import _illion
 
 def add_elem(e):
-    setset.obj2int[e] = len(setset.int2obj)
-    setset.int2obj.append(e)
+    setset._obj2int[e] = len(setset._int2obj)
+    setset._int2obj.append(e)
 
 def conv_arg(obj):
     if isinstance(obj, (set, frozenset)):
         s = set()
         for e in obj:
-            if e not in setset.obj2int:
+            if e not in setset._obj2int:
                 add_elem(e)
-            s.add(setset.obj2int[e])
+            s.add(setset._obj2int[e])
         return s
     elif isinstance(obj, dict):
         d = {}
@@ -19,24 +19,24 @@ def conv_arg(obj):
         return d
     else:
         e = obj
-        if e not in setset.obj2int:
+        if e not in setset._obj2int:
             add_elem(e)
-        return setset.obj2int[e]
+        return setset._obj2int[e]
 
 def conv_ret(s):
-    if setset.INT_ONLY or s is None:
+    if setset.INT_ELEM_ONLY or s is None:
         return s
     elif isinstance(s, (set, frozenset)):
         ret = set()
         for e in s:
-            ret.add(setset.int2obj[e])
+            ret.add(setset._int2obj[e])
         return ret
     else:
         raise TypeError('not set')
 
 def hook_arg(func):
     def wrapper(self, *args, **kwds):
-        if setset.INT_ONLY or not args:
+        if setset.INT_ELEM_ONLY or not args:
             return func(self, *args, **kwds)
         else:
             obj = args[0]
@@ -71,10 +71,6 @@ class setset_iterator(object):
 
 
 class setset(_illion.setset):
-
-    INT_ONLY = False
-    obj2int = {}
-    int2obj = [None]
 
     @hook_arg
     def __init__(self, *args, **kwds):
@@ -119,7 +115,7 @@ class setset(_illion.setset):
     def optimize(self, weights_arg):
         weights = [0] * (len(setset.universe()) + 1)
         for o, w in weights_arg.iteritems():
-            i = setset.obj2int[o]
+            i = setset._obj2int[o]
             weights[i] = w
         i = self.opt_iter(weights)
         while (True):
@@ -127,19 +123,23 @@ class setset(_illion.setset):
 
     @staticmethod
     def universe(*args):
-        if setset.INT_ONLY:
+        if setset.INT_ELEM_ONLY:
             if args:
                 pass
             else:
                 return range(1, _illion.num_elems() + 1)
         else:
             if args:
-                setset.obj2int = {}
-                setset.int2obj = [None]
+                setset._obj2int = {}
+                setset._int2obj = [None]
                 for e in args[0]:
                     add_elem(e)
             else:
-                return setset.int2obj[1:]
+                return setset._int2obj[1:]
+
+    INT_ELEM_ONLY = False
+    _obj2int = {}
+    _int2obj = [None]
 
 #class graphset(setset):
 #    pass

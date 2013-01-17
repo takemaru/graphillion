@@ -14,8 +14,8 @@ class TestSetset(object):
         self.io()
 
     def init(self):
-        assert not setset.INT_ONLY
-        assert setset.obj2int == {} and setset.int2obj  == [None]
+        assert not setset.INT_ELEM_ONLY
+        assert setset._obj2int == {} and setset._int2obj  == [None]
         assert setset.universe() == []
 
     def constructors(self):
@@ -25,30 +25,30 @@ class TestSetset(object):
         assert isinstance(ss, setset)
         assert repr(ss) == '<%s object of 0x8000000000>' % name
         assert ss._enums() == name + '([])'
-        assert setset.obj2int == {} and setset.int2obj == [None]
+        assert setset._obj2int == {} and setset._int2obj == [None]
         assert setset.universe() == []
 
         ss = setset(set())
         assert ss._enums() == name + '([set([])])'
-        assert setset.obj2int == {} and setset.int2obj == [None]
+        assert setset._obj2int == {} and setset._int2obj == [None]
         assert setset.universe() == []
 
         ss = setset(frozenset(['1', '2']))
         assert ss._enums() == name + '([set([1, 2])])'
-        assert setset.obj2int == {'1': 1, '2': 2}
-        assert setset.int2obj == [None, '1', '2']
+        assert setset._obj2int == {'1': 1, '2': 2}
+        assert setset._int2obj == [None, '1', '2']
         assert setset.universe() == ['1', '2']
 
         ss = setset([set(), set(['1', '2']), set(['1', '3'])])
         assert ss._enums() == name + '([set([1, 2]), set([1, 3]), set([])])'
-        assert setset.obj2int == {'1': 1, '2': 2, '3': 3}
-        assert setset.int2obj == [None, '1', '2', '3']
+        assert setset._obj2int == {'1': 1, '2': 2, '3': 3}
+        assert setset._int2obj == [None, '1', '2', '3']
         assert setset.universe() == ['1', '2', '3']
 
         ss = setset({'include': set(['1', '2']), 'exclude': set(['4'])})
         assert ss._enums() == name + '([set([1, 2, 3]), set([1, 2])])'
-        assert setset.obj2int == {'1': 1, '2': 2, '3': 3, '4': 4}
-        assert setset.int2obj == [None, '1', '2', '3', '4']
+        assert setset._obj2int == {'1': 1, '2': 2, '3': 3, '4': 4}
+        assert setset._int2obj == [None, '1', '2', '3', '4']
         assert setset.universe() == ['1', '2', '3', '4']
 
         ss = setset([{'include': set(['1', '2']), 'exclude': set(['4'])},
