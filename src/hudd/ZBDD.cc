@@ -816,11 +816,7 @@ int operator!=(const ZBDDV& fv1, const ZBDDV& fv2)
 
 #define IMPORTHASH(x) (((x >> 1) ^ (x >> 16)) & (hashsize - 1))
 
-#ifdef B_64
-#  define B_STRTOI strtoll
-#else
-#  define B_STRTOI strtol
-#endif
+#define B_STRTOI strtoll
 
 ZBDDV ZBDDV_Import(FILE *strm)
 {

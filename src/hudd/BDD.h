@@ -21,11 +21,6 @@ class BDDV;
 /*using namespace std;*/
 
 //--------- Definition of "bddword" type --------
-/*#ifdef B_64
-  typedef unsigned long long bddword;
-#else
-  typedef unsigned int bddword;
-#endif*/
 typedef uint64_t bddword;
 
 //--------- External data for BDD ---------

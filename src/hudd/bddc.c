@@ -38,20 +38,11 @@
   (type *)realloc(ptr, sizeof(type) * size)
 
 /* Printf format of bddp */
-#ifdef B_64
-#  define B_BDDP_FD "%"PRId64
-#  define B_BDDP_FX "0x%"PRIx64
-#else
-#  define B_BDDP_FD "%"PRId32
-#  define B_BDDP_FX "0x%"PRIx32
-#endif
+#define B_BDDP_FD "%lld"
+#define B_BDDP_FX "0x%llx"
 
 /* strtol or strtoll */
-#ifdef B_64
-#  define B_STRTOI strtoll
-#else
-#  define B_STRTOI strtol
-#endif
+#define B_STRTOI strtoll
 
 /* Table spaces */
 #define B_NODE_MAX (B_VAL_MASK>>1U) /* Max number of BDD nodes */
@@ -75,23 +66,16 @@
 #define B_BDDP_NP(p)  ((bddp)((p)-Node) << 1U)
 
 /* Read & Write of bddp field in the tables */
-#ifdef B_64
-#  define B_LOW32(f) ((bddp_32)((f)&((1ULL<<32U)-1U)))
-#  define B_HIGH8(f) ((bddp_h8)((f)>>32U))
-#  define B_SET_NXP(p, f, i) \
+#define B_LOW32(f) ((bddp_32)((f)&((1ULL<<32U)-1U)))
+#define B_HIGH8(f) ((bddp_h8)((f)>>32U))
+#define B_SET_NXP(p, f, i) \
     (p ## _h8 = f ## _h8 + i, p ## _32 = f ## _32 + i)
-#  define B_GET_BDDP(f) \
+#define B_GET_BDDP(f) \
     ((bddp) f ## _32 | ((bddp) f ## _h8 << 32U))
-#  define B_SET_BDDP(f, g) \
+#define B_SET_BDDP(f, g) \
     (f ## _h8 = B_HIGH8(g), f ## _32 = B_LOW32(g))
-#  define B_CPY_BDDP(f, g) \
+#define B_CPY_BDDP(f, g) \
     (f ## _h8 = g ## _h8, f ## _32 = g ## _32)
-#else
-#  define B_SET_NXP(p, f, i) (p ## _32 = f ## _32 + i)
-#  define B_GET_BDDP(f) (f ## _32)
-#  define B_SET_BDDP(f, g) (f ## _32 = g)
-#  define B_CPY_BDDP(f, g) (f ## _32 = g ## _32)
-#endif /* B_64 */
 
 /* var & rfc manipulation */
 #define B_VAR_NP(p)    ((p)->varrfc & B_VAR_MASK)
@@ -139,9 +123,7 @@ int BDD_RecurCount = 0;
 /* ------- Declaration of static (internal) data ------- */
 /* typedef of bddp field in the tables */
 typedef unsigned int bddp_32;
-#ifdef B_64
-  typedef unsigned char bddp_h8;
-#endif
+typedef unsigned char bddp_h8;
 
 /* Declaration of Node table */
 struct B_NodeTable
@@ -150,11 +132,9 @@ struct B_NodeTable
   bddp_32      f1_32;  /* 1-edge */
   bddp_32      nx_32;  /* Node index */
   unsigned int varrfc; /* VarID & Reference counter */
-#ifdef B_64
   bddp_h8      f0_h8;  /* Extention of 0-edge */
   bddp_h8      f1_h8;  /* Extention of 1-edge */
   bddp_h8      nx_h8;  /* Extention of node index */
-#endif /* B_64 */
 };
 static struct B_NodeTable *Node = 0; /* Node Table */
 static bddp NodeLimit = 0;    /* Final limit size */
@@ -169,9 +149,7 @@ struct B_VarTable
   bddp    hashUsed;  /* Current used entries */
   bddvar  lev;      /* Level of the variable */
   bddp_32 *hash_32; /* Hash-table */
-#ifdef B_64
   bddp_h8 *hash_h8; /* Extension of hash-table */
-#endif /* B_64 */
 };
 static struct B_VarTable *Var = 0; /* Var-tables */
 static bddvar *VarID = 0;     /* VarID reverse table */
@@ -185,11 +163,9 @@ struct B_CacheTable
   bddp_32       g_32; /* an operand BDD */
   bddp_32       h_32; /* Result BDD */
   unsigned char op;   /* Operation code */
-#ifdef B_64
   bddp_h8       f_h8; /* Extention of an operand BDD */
   bddp_h8       g_h8; /* Extention of an operand BDD */
   bddp_h8       h_h8; /* Extention of result BDD */
-#endif /* B_64 */
 };
 static struct B_CacheTable *Cache = 0; /* Opeartion cache */
 static bddp CacheSpc = 0;           /* Current cache size */
@@ -199,10 +175,8 @@ struct B_RFC_Table
 {
   bddp_32 nx_32;   /* Node index */
   bddp_32 rfc_32;  /* RFC */
-#ifdef B_64
   bddp_h8 nx_h8;   /* Extension of Node index */
   bddp_h8 rfc_h8;  /* Extension of RFC */
-#endif /* B_64 */
 };
 static struct B_RFC_Table *RFCT = 0; /* RFC-Table */
 static bddp RFCT_Spc;   /* Current RFC-table size */
@@ -246,9 +220,7 @@ bddp limitsize;
     for(i=0; i<VarSpc; i++)
     {
       if(Var[i].hash_32) free(Var[i].hash_32);
-#ifdef B_64
       if(Var[i].hash_h8) free(Var[i].hash_h8);
-#endif
     }
     free(Var);
   }
@@ -309,9 +281,7 @@ bddp limitsize;
     Var[i].lev = i;
     VarID[i] = i;
     Var[i].hash_32 = 0;
-#ifdef B_64
     Var[i].hash_h8 = 0;
-#endif
   }
 
   for(ix=0; ix<CacheSpc; ix++) Cache[ix].op = BC_NULL;
@@ -360,9 +330,7 @@ int bddgc()
   bddvar v;
   bddp oldSpc, newSpc, nx, key/*, f0, f1*/;
   bddp_32 *newhash_32, *p_32, *p2_32;
-#ifdef B_64
   bddp_h8 *newhash_h8, *p_h8, *p2_h8;
-#endif
 
   n = NodeUsed; 
   for(fp=Node; fp<Node+NodeSpc; fp++)
@@ -451,7 +419,6 @@ int bddgc()
     if(newSpc == oldSpc) continue;
 
     /* Reduce space */
-#ifdef B_64
     newhash_32 = B_MALLOC(bddp_32, newSpc);
     newhash_h8 = B_MALLOC(bddp_h8, newSpc);
     if(!newhash_32 || !newhash_h8)
@@ -460,10 +427,6 @@ int bddgc()
       if(newhash_h8) free(newhash_h8);
       break; /* Not enough memory */
     }
-#else
-    newhash_32 = B_MALLOC(bddp_32, newSpc);
-    if(!newhash_32) break; /* Not enough memory */
-#endif
 
     /* Initialize new hash entry */
     for(i=0; i<newSpc; i++)
@@ -495,10 +458,8 @@ int bddgc()
     varp->hashSpc = newSpc;
     free(varp->hash_32);
     varp->hash_32 = newhash_32;
-#ifdef B_64
     free(varp->hash_h8);
     varp->hash_h8 = newhash_h8;
-#endif
   }
   return 0;
 }
@@ -1288,9 +1249,7 @@ static void var_enlarge()
       newVar[i].lev = Var[i].lev;
       newVar[i].hash_32 = Var[i].hash_32;
       newVarID[i] = VarID[i];
-#ifdef B_64
       newVar[i].hash_h8 = Var[i].hash_h8;
-#endif
     }
     free(Var);
     free(VarID);
@@ -1312,9 +1271,7 @@ static void var_enlarge()
     Var[i].lev = i;
     Var[i].hash_32 = 0;
     VarID[i] = i;
-#ifdef B_64
     Var[i].hash_h8 = 0;
-#endif
   }
   VarSpc = newSpc;
 }
@@ -1341,11 +1298,9 @@ static int node_enlarge()
       newNode[i].f0_32 = Node[i].f0_32;
       newNode[i].f1_32 = Node[i].f1_32;
       newNode[i].nx_32 = Node[i].nx_32;
-#ifdef B_64
       newNode[i].f0_h8 = Node[i].f0_h8;
       newNode[i].f1_h8 = Node[i].f1_h8;
       newNode[i].nx_h8 = Node[i].nx_h8;
-#endif /* B_64 */
     }
     free(Node);
     Node = newNode;
@@ -1406,9 +1361,7 @@ bddvar v;
   struct B_VarTable *varp;
   bddp i, oldSpc, newSpc, nx, key, f0, f1;
   bddp_32 *newhash_32, *p_32;
-#ifdef B_64
   bddp_h8 *newhash_h8, *p_h8;
-#endif
   
   varp = &Var[v];
   /* Get new size */
@@ -1418,7 +1371,6 @@ bddvar v;
   newSpc = oldSpc << 1U;
 
   /* Enlarge space */
-#ifdef B_64
   newhash_32 = B_MALLOC(bddp_32, newSpc);
   newhash_h8 = B_MALLOC(bddp_h8, newSpc);
   if(newhash_32 && newhash_h8)
@@ -1439,16 +1391,6 @@ bddvar v;
     if(newhash_h8) free(newhash_h8);
     return 1;
   }
-#else
-  newhash_32 = B_MALLOC(bddp_32, newSpc);
-  if(newhash_32)
-  {
-    for(i=0; i<varp->hashSpc; i++) newhash_32[i] = varp->hash_32[i];
-    free(varp->hash_32);
-    varp->hash_32 = newhash_32;
-  }
-  else return 1; /* Not enough memory */
-#endif
   varp->hashSpc = newSpc;
 
   /* Initialize new hash entry */
@@ -1496,9 +1438,7 @@ bddp    f0, f1;
   struct B_VarTable *varp;
   bddp ix, nx, key;
   bddp_32 *p_32;
-#ifdef B_64
   bddp_h8 *p_h8;
-#endif
 
   varp = &Var[v];
   if(varp->hashSpc == 0)
@@ -1506,14 +1446,12 @@ bddp    f0, f1;
   {
     varp->hash_32 = B_MALLOC(bddp_32, B_HASH_SPC0);
     if(!varp->hash_32) return bddnull;
-#ifdef B_64
     varp->hash_h8 = B_MALLOC(bddp_h8, B_HASH_SPC0);
     if(!varp->hash_h8)
     {
       free(varp->hash_32);
       return bddnull;
     }
-#endif
     for(ix=0; ix<B_HASH_SPC0; ix++)
     {
       B_SET_NXP(p, varp->hash, ix);
@@ -2161,9 +2099,7 @@ struct B_NodeTable *np;
   struct B_VarTable *varp;
   struct B_NodeTable *np1, *np2;
   bddp_32 *p_32;
-#ifdef B_64
   bddp_h8 *p_h8;
-#endif
 
   /* remove the node from hash list */
   varp = Var + B_VAR_NP(np);

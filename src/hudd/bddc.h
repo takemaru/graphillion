@@ -19,13 +19,8 @@
 #define B_VAR_MASK       ((1U << B_VAR_WIDTH) - 1U)
 
 /***************** Internal macro for bddp *****************/
-#ifdef B_64
-#  define B_MSB_POS   39ULL
-#  define B_LSB_MASK  1ULL
-#else
-#  define B_MSB_POS   31U
-#  define B_LSB_MASK  1U
-#endif
+#define B_MSB_POS   39ULL
+#define B_LSB_MASK  1ULL
 #define B_MSB_MASK  (B_LSB_MASK << B_MSB_POS)
 #define B_INV_MASK  B_LSB_MASK /* Mask of inverter-flag */
 #define B_CST_MASK  B_MSB_MASK /* Mask of constant-flag */
@@ -38,11 +33,7 @@ extern int BDD_RecurCount;
  
 /***************** External typedef *****************/
 typedef uint32_t bddvar;
-#ifdef B_64
-  typedef uint64_t bddp;
-#else
-  typedef uint32_t bddp;
-#endif
+typedef uint64_t bddp;
 
 /***************** External Macro *****************/
 #define bddvarmax B_VAR_MASK /* Max value of variable index */
