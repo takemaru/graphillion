@@ -1,6 +1,8 @@
 from illion import setset
 
+
 class TestSetset(object):
+
     def run(self):
         self.init()
         self.constructors()
@@ -379,11 +381,11 @@ class TestSetset(object):
         assert set(['1', '2']) in ss1
         assert set(['1']) not in ss1
 
-        ss2 = ss1.find('1')
+        ss2 = ss1.include('1')
         assert isinstance(ss2, setset)
         assert ss2 == setset([set(['1', '2']), set(['1', '3'])])
 
-        ss2 = ss1.not_find('2')
+        ss2 = ss1.exclude('2')
         assert isinstance(ss2, setset)
         assert ss2 == setset([set(), set(['1', '3'])])
 
@@ -455,6 +457,7 @@ class TestSetset(object):
         ss = setset()
         ss.load(open('/tmp/illion_'))
         assert ss == setset(v)
+
 
 if __name__ == '__main__':
     TestSetset().run()

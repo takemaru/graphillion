@@ -414,19 +414,19 @@ static int setset_contains(PySetsetObject* self, PyObject* so) {
   return self->ss->find(s) != setset::end() ? 1 : 0;
 }
 
-static PyObject* setset_find(PySetsetObject* self, PyObject* eo) {
+static PyObject* setset_include(PySetsetObject* self, PyObject* eo) {
   CHECK_OR_ERROR(eo, PyInt_Check, "int", nullptr);
   PySetsetObject* sso = reinterpret_cast<PySetsetObject*>(
       self->ob_type->tp_alloc(self->ob_type, 0));
-  sso->ss = new setset(self->ss->find(PyInt_AsLong(eo)));
+  sso->ss = new setset(self->ss->include(PyInt_AsLong(eo)));
   return reinterpret_cast<PyObject*>(sso);
 }
 
-static PyObject* setset_not_find(PySetsetObject* self, PyObject* eo) {
+static PyObject* setset_exclude(PySetsetObject* self, PyObject* eo) {
   CHECK_OR_ERROR(eo, PyInt_Check, "int", nullptr);
   PySetsetObject* sso = reinterpret_cast<PySetsetObject*>(
       self->ob_type->tp_alloc(self->ob_type, 0));
-  sso->ss = new setset(self->ss->not_find(PyInt_AsLong(eo)));
+  sso->ss = new setset(self->ss->exclude(PyInt_AsLong(eo)));
   return reinterpret_cast<PyObject*>(sso);
 }
 
@@ -655,8 +655,8 @@ static PyMethodDef setset_methods[] = {
   {"len", reinterpret_cast<PyCFunction>(setset_long_len), METH_NOARGS, ""},
   {"rand_iter", reinterpret_cast<PyCFunction>(setset_rand_iter), METH_NOARGS, ""},
   {"opt_iter", reinterpret_cast<PyCFunction>(setset_opt_iter), METH_O, ""},
-  {"find", reinterpret_cast<PyCFunction>(setset_find), METH_O, ""},
-  {"not_find", reinterpret_cast<PyCFunction>(setset_not_find), METH_O, ""},
+  {"include", reinterpret_cast<PyCFunction>(setset_include), METH_O, ""},
+  {"exclude", reinterpret_cast<PyCFunction>(setset_exclude), METH_O, ""},
   {"add", reinterpret_cast<PyCFunction>(setset_add), METH_O, ""},
   {"remove", reinterpret_cast<PyCFunction>(setset_remove), METH_O, ""},
   {"discard", reinterpret_cast<PyCFunction>(setset_discard), METH_O, ""},

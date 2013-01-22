@@ -1,5 +1,6 @@
 import _illion
 
+
 def add_elem(e):
     setset._obj2int[e] = len(setset._int2obj)
     setset._int2obj.append(e)
@@ -81,12 +82,12 @@ class setset(_illion.setset):
         return _illion.setset.__contains__(self, *args, **kwds);
 
     @hook_arg
-    def find(self, *args, **kwds):
-        return _illion.setset.find(self, *args, **kwds);
+    def include(self, *args, **kwds):
+        return _illion.setset.include(self, *args, **kwds);
 
     @hook_arg
-    def not_find(self, *args, **kwds):
-        return _illion.setset.not_find(self, *args, **kwds);
+    def exclude(self, *args, **kwds):
+        return _illion.setset.exclude(self, *args, **kwds);
 
     @hook_arg
     def add(self, *args, **kwds):
@@ -145,6 +146,7 @@ class setset(_illion.setset):
     INT_ELEM_ONLY = False
     _obj2int = {}
     _int2obj = [None]
+
 
 #class graphset(setset):
 #    pass
