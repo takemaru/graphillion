@@ -213,13 +213,13 @@ setset::iterator setset::find(const set<elem_t>& s) const {
     return setset::iterator();
 }
 
-setset setset::find(elem_t e) const {
+setset setset::include(elem_t e) const {
   zdd_t z1 = setset({{e}}).zdd_;
   zdd_t z2 = this->zdd_ / z1;
   return setset(z2 * z1);
 }
 
-setset setset::not_find(elem_t e) const {
+setset setset::exclude(elem_t e) const {
   return setset(this->zdd_ % setset({{e}}).zdd_);
 }
 
@@ -261,7 +261,7 @@ size_t setset::erase(const set<elem_t>& s) {
 }
 
 size_t setset::erase(elem_t e) {
-  setset ss = this->find(e);
+  setset ss = this->include(e);
   *this -= ss;
   return strtoll(ss.size().c_str(), nullptr, 0);
 }

@@ -266,9 +266,9 @@ class TestSetset {
     i = ss.find(set<int>({1}));
     assert(i == setset::end());
 
-    assert(ss.find(1).zdd_ == e1*e2 + e1*e3);
+    assert(ss.include(1).zdd_ == e1*e2 + e1*e3);
 
-    assert(ss.not_find(2).zdd_ == e0 + e1*e3);
+    assert(ss.exclude(2).zdd_ == e0 + e1*e3);
 
     assert(ss.count({1, 2}) == 1);
     assert(ss.count({2, 3}) == 0);
