@@ -549,7 +549,7 @@ double ran3(int* idum) {
 }
 
 void sort_zdd(zdd_t f, vector<vector<zdd_t> >* stacks,
-                   unordered_set<word_t>* visited, elem_t* max_elem) {
+              unordered_set<word_t>* visited, elem_t* max_elem) {
   assert(stacks != nullptr && visited != nullptr);
   if (is_term(f)) return;
   if (visited->find(id(f)) != visited->end()) return;
