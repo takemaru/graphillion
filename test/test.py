@@ -268,7 +268,7 @@ class TestSetset(object):
         ss = setset(u) / setset(v)
         assert isinstance(ss, setset)
         assert ss == setset([set(), set(['3']), set(['3', '4'])])
-        ss = setset(u).divide(setset(v))
+        ss = setset(u).quotient(setset(v))
         assert isinstance(ss, setset)
         assert ss == setset([set(), set(['3']), set(['3', '4'])])
 
@@ -277,7 +277,7 @@ class TestSetset(object):
         assert isinstance(ss, setset)
         assert ss == setset([set(), set(['3']), set(['3', '4'])])
         ss = setset(u)
-        ss.divide_update(setset(v))
+        ss.quotient_update(setset(v))
         assert isinstance(ss, setset)
         assert ss == setset([set(), set(['3']), set(['3', '4'])])
 

@@ -314,12 +314,12 @@ static PyObject* setset_symmetric_difference_update(PySetsetObject* self, PyObje
   RETURN_SELF_SETSET(self, other, _other, (*self->ss) ^= (*_other->ss));
 }
 
-static PyObject* setset_divide(PySetsetObject* self, PyObject* other) {
+static PyObject* setset_quotient(PySetsetObject* self, PyObject* other) {
   CHECK_SETSET_OR_ERROR(other);
   RETURN_NEW_SETSET2(self, other, _other, (*self->ss) / (*_other->ss));
 }
 
-static PyObject* setset_divide_update(PySetsetObject* self, PyObject* other) {
+static PyObject* setset_quotient_update(PySetsetObject* self, PyObject* other) {
   CHECK_SETSET_OR_ERROR(other);
   RETURN_SELF_SETSET(self, other, _other, (*self->ss) /= (*_other->ss));
 }
@@ -645,8 +645,8 @@ static PyMethodDef setset_methods[] = {
 //  {"product_update", reinterpret_cast<PyCFunction>(setset_product_update), METH_O, ""},
   {"symmetric_difference", reinterpret_cast<PyCFunction>(setset_symmetric_difference), METH_O, ""},
   {"symmetric_difference_update", reinterpret_cast<PyCFunction>(setset_symmetric_difference_update), METH_O, ""},
-  {"divide", reinterpret_cast<PyCFunction>(setset_divide), METH_O, ""},
-  {"divide_update", reinterpret_cast<PyCFunction>(setset_divide_update), METH_O, ""},
+  {"quotient", reinterpret_cast<PyCFunction>(setset_quotient), METH_O, ""},
+  {"quotient_update", reinterpret_cast<PyCFunction>(setset_quotient_update), METH_O, ""},
   {"remainder", reinterpret_cast<PyCFunction>(setset_remainder), METH_O, ""},
   {"remainder_update", reinterpret_cast<PyCFunction>(setset_remainder_update), METH_O, ""},
   {"isdisjoint", reinterpret_cast<PyCFunction>(setset_isdisjoint), METH_O, ""},
@@ -685,7 +685,7 @@ static PyNumberMethods setset_as_number = {
   0,                                  /*nb_add*/
   reinterpret_cast<binaryfunc>(setset_difference), /*nb_subtract*/
   0/*reinterpret_cast<binaryfunc>(setset_product)*/, /*nb_multiply*/
-  reinterpret_cast<binaryfunc>(setset_divide), /*nb_divide*/
+  reinterpret_cast<binaryfunc>(setset_quotient), /*nb_divide*/
   reinterpret_cast<binaryfunc>(setset_remainder), /*nb_remainder*/
   0,                                  /*nb_divmod*/
   0,                                  /*nb_power*/
@@ -708,7 +708,7 @@ static PyNumberMethods setset_as_number = {
   0,                                  /*nb_inplace_add*/
   reinterpret_cast<binaryfunc>(setset_difference_update), /*nb_inplace_subtract*/
   0/*reinterpret_cast<binaryfunc>(setset_product_update)*/, /*nb_inplace_multiply*/
-  reinterpret_cast<binaryfunc>(setset_divide_update), /*nb_inplace_divide*/
+  reinterpret_cast<binaryfunc>(setset_quotient_update), /*nb_inplace_divide*/
   reinterpret_cast<binaryfunc>(setset_remainder_update), /*nb_inplace_remainder*/
   0,                                  /*nb_inplace_power*/
   0,                                  /*nb_inplace_lshift*/
