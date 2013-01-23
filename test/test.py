@@ -1,4 +1,5 @@
-from illion import setset
+from illion import setset, graphset
+import networkx as nx
 
 
 class TestSetset(object):
@@ -361,7 +362,7 @@ class TestSetset(object):
                      set(['1', '2', '3', '4']), set(['1', '3', '4']),
                      set(['1', '4']), set(['4'])])
         r = []
-        for s in ss.optimize({'1': 3, '2': -2, '3': -2, '4': 4}):
+        for s in ss.optimize({'1': .3, '2': -.2, '3': -.2, '4': .4}):
             r.append(s)
         assert len(r) == 8
         assert r[0] == set(['1', '4'])
@@ -451,6 +452,143 @@ class TestSetset(object):
         assert ss == setset(v)
 
 
+class TestGraphset(object):
+
+    def run(self):
+        self.init()
+        self.constructors()
+        self.subgraphs()
+        self.iterators()
+        self.lookup()
+        self.modifiers()
+
+    def init(self):
+        g = nx.Graph()
+        g.add_edge('i', 'ii')
+        graphset.universe(g)
+        g = graphset.universe()
+        assert g.edges() == [('i', 'ii')]
+        assert 'weight' not in g.edge['i']['ii']
+
+        gs = graphset({})
+        assert len(gs) == 2**1
+
+        g = nx.Graph()
+        edges = [(1, 2, .3), (1, 3, -.2), (2, 4, -.2), (3, 4, .4)]
+        g.add_weighted_edges_from(edges)
+        graphset.universe(g)
+        g = graphset.universe()
+        assert g.edges() == [(1, 2), (1, 3), (2, 4), (3, 4)]
+        assert g.edge[1][2]['weight'] == .3
+
+        gs = graphset({})
+        assert len(gs) == 2**4
+
+    def constructors(self):
+        gs = graphset()
+        assert isinstance(gs, graphset)
+        assert len(gs) == 0
+
+        gs = graphset(set([(1, 2)]))
+        assert len(gs) == 1
+        assert set([(1, 2)]) in gs
+
+        gs = graphset([set([(1, 2)]), set([(1, 3)])])
+        assert len(gs) == 2
+        assert set([(1, 2)]) in gs
+        assert set([(1, 3)]) in gs
+
+        gs = graphset({'include': [(1, 2), (1, 3)], 'exclude': [(3, 4)]})
+        assert len(gs) == 2
+        assert set([(1, 2), (1, 3)]) in gs
+        assert set([(1, 2), (1, 3), (2, 4)]) in gs
+
+        try:
+            gs = graphset(set([(1, 4)]))
+        except KeyError:
+            pass
+        else:
+            assert False
+
+        try:
+            gs = graphset([set([(1, 4)])])
+        except KeyError:
+            pass
+        else:
+            assert False
+
+        try:
+            gs = graphset({'include': [(1, 4)]})
+        except KeyError:
+            pass
+        else:
+            assert False
+
+        g = graphset.universe()
+        assert g.edges() == [(1, 2), (1, 3), (2, 4), (3, 4)]
+
+    def subgraphs(self):
+        pass
+
+    def iterators(self):
+        gs = graphset({})
+        r = []
+        for s in gs.optimize():
+            r.append(s)
+        assert len(r) == 16
+        assert r[0] == set([(1, 2), (3, 4)])
+        assert r[-1] == set([(1, 3), (2, 4)])
+
+    def lookup(self):
+        gs1 = graphset({}) - graphset([set([(1, 2)]), set([(2, 4), (3, 4)])])
+
+        assert set([(1, 2), (1, 3)]) in gs1
+        assert set([(1, 2)]) not in gs1
+
+        gs2 = gs1.include((1, 2))
+        assert len(gs2) == 7
+
+        gs2 = gs1.exclude((1, 3))
+        assert len(gs2) == 6
+
+        assert len(gs1.include_vertex(1)) == 11
+        assert len(gs1.exclude_vertex(1)) == 3
+
+    def modifiers(self):
+        gs = graphset({}) - graphset([set([(1, 2)]), set([(2, 4), (3, 4)])])
+
+        gs.add(set([(1, 2)]))
+        assert len(gs) == 15
+
+        gs.remove(set([(1, 2)]))
+        assert len(gs) == 14
+
+        gs.discard(set([(1, 2)]))
+        assert len(gs) == 14
+
+        try:
+            gs.add(set([(1, 4)]))
+        except KeyError:
+            pass
+        else:
+            assert False
+
+        try:
+            gs.remove(set([(1, 4)]))
+        except KeyError:
+            pass
+        else:
+            assert False
+
+        try:
+            gs.discard(set([(1, 4)]))
+        except KeyError:
+            pass
+        else:
+            assert False
+
+
 if __name__ == '__main__':
     TestSetset().run()
+    TestGraphset().run()
     print __file__, 'ok'
