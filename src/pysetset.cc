@@ -78,7 +78,7 @@ static PyObject* setset_build_set(const set<int>& s) {
       Py_DECREF(eo);
       return nullptr;
     }
-    Py_DECREF(eo);
+    Py_DECREF(eo); // TODO: shouldn't do decref?
   }
   return so;
 }
