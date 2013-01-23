@@ -111,11 +111,7 @@ setset setset::operator|(const setset& ss) const {
 setset setset::operator-(const setset& ss) const {
   return setset(this->zdd_ - ss.zdd_);
 }
-/*
-setset setset::operator*(const setset& ss) const {
-  return setset(this->zdd_ * ss.zdd_);
-}
-*/
+
 setset setset::operator^(const setset& ss) const {
   return setset((this->zdd_ - ss.zdd_) + (ss.zdd_ - this->zdd_));
 }
@@ -141,11 +137,7 @@ void setset::operator|=(const setset& ss) {
 void setset::operator-=(const setset& ss) {
   this->zdd_ -= ss.zdd_;
 }
-/*
-void setset::operator*=(const setset& ss) {
-  this->zdd_ *= ss.zdd_;
-}
-*/
+
 void setset::operator^=(const setset& ss) {
   this->zdd_ = (this->zdd_ - ss.zdd_) + (ss.zdd_ - this->zdd_);
 }

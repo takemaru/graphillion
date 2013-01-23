@@ -77,14 +77,12 @@ class setset {
   setset operator&(const setset& ss) const;
   setset operator|(const setset& ss) const;
   setset operator-(const setset& ss) const;
-//  setset operator*(const setset& ss) const;
   setset operator^(const setset& ss) const;
   setset operator/(const setset& ss) const;
   setset operator%(const setset& ss) const;
   void operator&=(const setset& ss);
   void operator|=(const setset& ss);
   void operator-=(const setset& ss);
-//  void operator*=(const setset& ss);
   void operator^=(const setset& ss);
   void operator/=(const setset& ss);
   void operator%=(const setset& ss);

@@ -201,38 +201,6 @@ class TestSetset(object):
                              set(['1', '2', '3', '4']), set(['1', '3', '4']),
                              set(['4'])])
 
-#        ss = setset(u) * setset(v)
-#        assert isinstance(ss, setset)
-#        assert ss == setset([set(['1', '2']), set(['1', '2', '3']),
-#                             set(['1', '2', '4']), set(['1', '2', '3', '4']),
-#                             set(['1', '3', '4']), set(['1', '4']),
-#                             set(['2', '3']), set(['2', '3', '4']),
-#                             set(['3', '4'])])
-#        ss = setset(u).product(setset(v))
-#        assert isinstance(ss, setset)
-#        assert ss == setset([set(['1', '2']), set(['1', '2', '3']),
-#                             set(['1', '2', '4']), set(['1', '2', '3', '4']),
-#                             set(['1', '3', '4']), set(['1', '4']),
-#                             set(['2', '3']), set(['2', '3', '4']),
-#                             set(['3', '4'])])
-#
-#        ss = setset(u)
-#        ss *= setset(v)
-#        assert isinstance(ss, setset)
-#        assert ss == setset([set(['1', '2']), set(['1', '2', '3']),
-#                             set(['1', '2', '4']), set(['1', '2', '3', '4']),
-#                             set(['1', '3', '4']), set(['1', '4']),
-#                             set(['2', '3']), set(['2', '3', '4']),
-#                             set(['3', '4'])])
-#        ss = setset(u)
-#        ss.product_update(setset(v))
-#        assert isinstance(ss, setset)
-#        assert ss == setset([set(['1', '2']), set(['1', '2', '3']),
-#                             set(['1', '2', '4']), set(['1', '2', '3', '4']),
-#                             set(['1', '3', '4']), set(['1', '4']),
-#                             set(['2', '3']), set(['2', '3', '4']),
-#                             set(['3', '4'])])
-
         ss = setset(u) ^ setset(v)
         assert isinstance(ss, setset)
         assert ss == setset([set(), set(['1']), set(['1', '2', '3']),
