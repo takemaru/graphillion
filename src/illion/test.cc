@@ -21,8 +21,6 @@ namespace illion {
 
 using namespace std;
 
-extern bool initialized_;
-
 class TestSetset {
  public:
   void run() {
@@ -39,7 +37,6 @@ class TestSetset {
   }
 
   void init() {
-    assert(!initialized_);
     assert(num_elems() == 0);
     assert(setset::universe() == vector<int>());
 

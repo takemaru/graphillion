@@ -799,10 +799,6 @@ static PyObject* setset_universe(PyObject*, PyObject* args) {
     }
     return lo;
   } else {
-    if (!PyList_Check(obj)) {
-      PyErr_SetString(PyExc_TypeError, "not list");
-      return nullptr;
-    }
     PyObject* i = PyObject_GetIter(obj);
     if (i == nullptr) return nullptr;
     vector<int> universe;

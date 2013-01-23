@@ -23,8 +23,9 @@ typedef double intx_t;
 #endif
 
 void init();
-elem_t new_elems(elem_t max_elem);
-elem_t num_elems(elem_t num_elems = 0);
+void new_elems(elem_t max_elem);
+elem_t num_elems();
+void num_elems(elem_t num_elems);
 
 zdd_t single(elem_t e);
 inline word_t id(zdd_t f) { return f.GetID(); }

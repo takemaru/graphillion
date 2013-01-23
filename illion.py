@@ -2,13 +2,18 @@ import _illion
 
 
 def add_elem(e):
-    setset._obj2int[e] = len(setset._int2obj)
+    if e in setset._obj2int:
+        return
+    i = len(setset._int2obj)
+    _illion.setset(set([i]))
+    setset._obj2int[e] = i
     setset._int2obj.append(e)
+    assert len(setset._int2obj) == len(_illion.universe()) + 1
+    assert setset._int2obj[i] == e
+    assert setset._obj2int[e] == i
 
-def conv_arg(obj):
-    e = obj
-    if e not in setset._obj2int:
-        add_elem(e)
+def conv_arg(e):
+    add_elem(e)
     return setset._obj2int[e]
 
 def hook_arg(func):
@@ -117,13 +122,19 @@ class setset(_illion.setset):
     @staticmethod
     def universe(*args):
         if args:
+            _illion.universe([])
             setset._obj2int = {}
             setset._int2obj = [None]
             for e in args[0]:
                 add_elem(e)
-            _illion.universe(range(1, len(*args) + 1))
+            _illion.universe(xrange(1, len(*args) + 1))
         else:
             assert len(setset._int2obj) == len(_illion.universe()) + 1
+            for e, i in setset._obj2int.iteritems():
+                assert e == setset._int2obj[i]
+            for i in xrange(1, len(setset._int2obj)):
+                e = setset._int2obj[i]
+                assert i == setset._obj2int[e]
             return setset._int2obj[1:]
 
     _obj2int = {}
