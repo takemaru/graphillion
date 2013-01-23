@@ -38,19 +38,17 @@ class TestSetset {
 
   void init() {
     assert(num_elems() == 0);
-    assert(setset::universe() == vector<int>());
+    assert(setset::num_elems() == 0);
 
-    vector<int> universe = {1, 2};
-    setset::universe(universe);
-    assert(setset::universe() == vector<int>({1, 2}));
+    setset::num_elems(2);
+    assert(setset::num_elems() == 2);
 
     map<string, vector<int> > m;
     setset ss(m);
     assert(ss.zdd_ == e0 + e1 + e1*e2 + e2);
 
-    universe = {1};
-    setset::universe(universe);
-    assert(setset::universe() == vector<int>({1}));
+    setset::num_elems(1);
+    assert(setset::num_elems() == 1);
 
     ss = setset(m);
     assert(ss.zdd_ == e0 + e1);
@@ -114,9 +112,8 @@ class TestSetset {
   }
 
   void unary_operators() {
-    vector<int> universe = {1, 2, 3, 4};
-    setset::universe(universe);
-    assert(setset::universe() == vector<int>({1, 2, 3, 4}));
+    setset::num_elems(4);
+    assert(setset::num_elems() == 4);
 
     setset ss({{}, {1}, {1, 2}, {1, 2, 3}, {1, 2, 3, 4}, {1, 3, 4}, {1, 4},
                {4}});

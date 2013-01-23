@@ -126,7 +126,7 @@ static int setset_parse_map(PyObject* dict_obj, map<string, vector<int> >* m) {
       Py_DECREF(eo);
     }
     Py_DECREF(i);
-    (*m)[key] = v;    
+    (*m)[key] = v;
   }
   return 0;
 }
@@ -391,8 +391,8 @@ static PyObject* setset_opt_iter(PySetsetObject* self, PyObject* weights) {
       w.push_back(static_cast<double>(PyInt_AsLong(eo)));
     }
     else {
-      Py_DECREF(eo);
       PyErr_SetString(PyExc_TypeError, "not a number");
+      Py_DECREF(eo);
       return nullptr;
     }
     Py_DECREF(eo);
@@ -771,49 +771,19 @@ PyTypeObject PySetset_Type = {
   setset_new,                  /* tp_new */
 };
 
-static PyObject* setset_universe(PyObject*, PyObject* args) {
+static PyObject* setset_num_elems(PyObject*, PyObject* args) {
   PyObject* obj = nullptr;
   if (!PyArg_ParseTuple(args, "|O", &obj)) return nullptr;
   if (obj == nullptr) {
-    vector<int> universe = setset::universe();
-    PyObject* lo = PyList_New(universe.size());
-    if (lo == nullptr)
-      return nullptr;
-    for (int i = 0; i < static_cast<int>(universe.size()); ++i) {
-      PyObject* eo = PyInt_FromLong(universe[i]);
-      if (eo == nullptr) {
-        PyErr_SetString(PyExc_TypeError, "not int");
-        Py_DECREF(eo);
-        return nullptr;
-      }
-      if (PyList_SetItem(lo, i, eo) == -1) {
-        PyErr_SetString(PyExc_RuntimeError, "can't add elements to a list");
-        return nullptr;
-      }
-      Py_DECREF(eo);
-    }
-    return lo;
+    return PyInt_FromLong(setset::num_elems());
   } else {
-    PyObject* i = PyObject_GetIter(obj);
-    if (i == nullptr) return nullptr;
-    vector<int> universe;
-    PyObject* eo;
-    while ((eo = PyIter_Next(i))) {
-      if (!PyInt_Check(eo)) {
-        PyErr_SetString(PyExc_TypeError, "not int");
-        Py_DECREF(eo);
-        return nullptr;
-      }
-      universe.push_back(PyInt_AsLong(eo));
-    }
-    Py_DECREF(i);
-    setset::universe(universe);
+    setset::num_elems(PyInt_AsLong(obj));
     Py_RETURN_NONE;
   }
 }
 
 static PyMethodDef module_methods[] = {
-  {"universe", setset_universe, METH_VARARGS, ""},
+  {"num_elems", setset_num_elems, METH_VARARGS, ""},
   {nullptr}  /* Sentinel */
 };
 

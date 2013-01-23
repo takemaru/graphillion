@@ -8,7 +8,7 @@ def add_elem(e):
     _illion.setset(set([i]))
     setset._obj2int[e] = i
     setset._int2obj.append(e)
-    assert len(setset._int2obj) == len(_illion.universe()) + 1
+    assert len(setset._int2obj) == _illion.num_elems() + 1
     assert setset._int2obj[i] == e
     assert setset._obj2int[e] == i
 
@@ -112,7 +112,7 @@ class setset(_illion.setset):
             yield do_conv_ret(i.next())
 
     def optimize(self, weights_arg):
-        weights = [1] * (len(setset.universe()) + 1)
+        weights = [1] * (_illion.num_elems() + 1)
         for e, w in weights_arg.iteritems():
             i = setset._obj2int[e]
             weights[i] = w
@@ -123,20 +123,24 @@ class setset(_illion.setset):
     @staticmethod
     def universe(*args):
         if args:
-            _illion.universe([])
+            _illion.num_elems(0)
             setset._obj2int = {}
             setset._int2obj = [None]
             for e in args[0]:
                 add_elem(e)
-            _illion.universe(xrange(1, len(*args) + 1))
+            setset._check_universe()
         else:
-            assert len(setset._int2obj) == len(_illion.universe()) + 1
-            for e, i in setset._obj2int.iteritems():
-                assert e == setset._int2obj[i]
-            for i in xrange(1, len(setset._int2obj)):
-                e = setset._int2obj[i]
-                assert i == setset._obj2int[e]
+            setset._check_universe()
             return setset._int2obj[1:]
+
+    @staticmethod
+    def _check_universe():
+        assert len(setset._int2obj) == _illion.num_elems() + 1
+        for e, i in setset._obj2int.iteritems():
+            assert e == setset._int2obj[i]
+        for i in xrange(1, len(setset._int2obj)):
+            e = setset._int2obj[i]
+            assert i == setset._obj2int[e]
 
     _obj2int = {}
     _int2obj = [None]
