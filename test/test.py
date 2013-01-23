@@ -16,7 +16,6 @@ class TestSetset(object):
         self.io()
 
     def init(self):
-        assert not setset.INT_ELEM_ONLY
         assert setset._obj2int == {} and setset._int2obj  == [None]
         assert setset.universe() == []
 

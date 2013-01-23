@@ -13,38 +13,36 @@ def conv_arg(obj):
 
 def hook_arg(func):
     def wrapper(self, *args, **kwds):
-        if setset.INT_ELEM_ONLY or not args:
+        if not args:
             return func(self, *args, **kwds)
         else:
             obj = args[0]
-            args2 = []
+            args = [None] + list(args)[1:]
             if isinstance(obj, list):
                 l = []
                 for s in obj:
                     l.append(set([conv_arg(e) for e in s]))
-                args2.append(l)
+                args[0] = l
             elif isinstance(obj, dict):
                 d = {}
                 for k, l in obj.iteritems():
                     d[k] = [conv_arg(e) for e in l]
-                args2.append(d)
+                args[0] = d
             elif isinstance(obj, (set, frozenset, tuple)):
-                args2.append(set([conv_arg(e) for e in obj]))
+                args[0] = set([conv_arg(e) for e in obj])
             else:
-                args2.append(conv_arg(obj))
-            return func(self, *args2, **kwds)
+                args[0] = conv_arg(obj)
+            return func(self, *args, **kwds)
     return wrapper
 
 def conv_ret(s):
-    if setset.INT_ELEM_ONLY or s is None:
-        return s
-    elif isinstance(s, (set, frozenset, tuple, list)):
+    if isinstance(s, (set, frozenset, tuple, list)):
         ret = set()
         for e in s:
             ret.add(setset._int2obj[e])
         return ret
     else:
-        raise TypeError('not set')
+        return setset._int2obj[e]
 
 def hook_ret(func):
     def wrapper(self, *args, **kwds):
@@ -118,23 +116,16 @@ class setset(_illion.setset):
 
     @staticmethod
     def universe(*args):
-        if setset.INT_ELEM_ONLY:
-            if args:
-                _illion.universe(range(1, len(*args) + 1))
-            else:
-                return range(1, len(_illion.universe()) + 1)
+        if args:
+            setset._obj2int = {}
+            setset._int2obj = [None]
+            for e in args[0]:
+                add_elem(e)
+            _illion.universe(range(1, len(*args) + 1))
         else:
-            if args:
-                setset._obj2int = {}
-                setset._int2obj = [None]
-                for e in args[0]:
-                    add_elem(e)
-                _illion.universe(range(1, len(*args) + 1))
-            else:
-                assert len(setset._int2obj) == len(_illion.universe()) + 1
-                return setset._int2obj[1:]
+            assert len(setset._int2obj) == len(_illion.universe()) + 1
+            return setset._int2obj[1:]
 
-    INT_ELEM_ONLY = False
     _obj2int = {}
     _int2obj = [None]
 
