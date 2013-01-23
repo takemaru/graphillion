@@ -34,6 +34,7 @@ class TestSetset {
     this->lookup();
     this->modifiers();
     this->io();
+    this->large();
   }
 
   void init() {
@@ -353,6 +354,13 @@ class TestSetset {
     ss.load(fp);
     fclose(fp);
     assert(ss == setset(v));
+  }
+
+  void large() {
+    setset::num_elems(10000);
+    map<string, vector<int> > m;
+    setset ss = setset(m) - setset({{1}, {1, 2}});
+    assert(ss.size().size() == 3011);
   }
 };
 

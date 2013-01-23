@@ -15,6 +15,7 @@ class TestSetset(object):
         self.lookup()
         self.modifiers()
         self.io()
+        self.large()
 
     def init(self):
         assert setset._obj2int == {} and setset._int2obj  == [None]
@@ -419,6 +420,11 @@ class TestSetset(object):
         ss.load(open('/tmp/illion_'))
         assert ss == setset(v)
 
+    def large(self):
+        setset.universe(xrange(10000))
+        ss = setset({}) - setset([set([1]) - set([1, 2])])
+        assert len(str(ss.len())) == 3011
+
 
 class TestGraphset(object):
 
@@ -429,6 +435,7 @@ class TestGraphset(object):
         self.iterators()
         self.lookup()
         self.modifiers()
+        self.large()
 
     def init(self):
         g = nx.Graph()
@@ -554,6 +561,16 @@ class TestGraphset(object):
             pass
         else:
             assert False
+
+    def large(self):
+        g = nx.grid_2d_graph(11, 11)
+        graphset.universe(g)
+        assert len(graphset.universe().edges()) == 220
+
+        gs = graphset({});
+        gs -= graphset([set([((0, 1), (0, 0))]),
+                        set([((0, 1), (0, 0)), ((1, 0), (0, 0))])])
+        assert gs.len() == 2**220 - 2
 
 
 if __name__ == '__main__':
