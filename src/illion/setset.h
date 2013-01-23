@@ -60,7 +60,6 @@ class setset {
   explicit setset(const std::set<elem_t>& s);
   explicit setset(const std::vector<std::set<elem_t> >& v);
   explicit setset(const std::map<std::string, std::set<elem_t> >& m);
-  explicit setset(const std::vector<std::map<std::string, std::set<elem_t> > >& v);
   explicit setset(const std::initializer_list<std::set<elem_t> >& v);
   explicit setset(std::istream& in);
 

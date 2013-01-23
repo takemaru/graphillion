@@ -84,11 +84,6 @@ setset::setset(const map<string, set<elem_t> >& m) {
   this->zdd_ = n[num_elems() + 1];
 }
 
-setset::setset(const vector<map<string, set<elem_t> > >& v) : zdd_(bot()) {
-  for (const auto& m : v)
-    this->zdd_ += setset(m).zdd_;
-}
-
 setset::setset(const initializer_list<set<elem_t> >& v) : zdd_(bot()) {
   for (auto i = v.begin(); i != v.end(); ++i)
     this->zdd_ += setset(*i).zdd_;
@@ -96,12 +91,7 @@ setset::setset(const initializer_list<set<elem_t> >& v) : zdd_(bot()) {
 
 setset::setset(istream& in) : zdd_(illion::load(in)) {
 }
-/*
-setset::setset(const initializer_list<int>& s) : zdd_(top()) {
-  for (auto i = s.begin(); i != s.end(); ++i)
-    this->zdd_ *= single(*i);
-}
-*/
+
 setset setset::operator~() const {
   return setset(complement(this->zdd_));
 }

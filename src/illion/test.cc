@@ -79,13 +79,6 @@ class TestSetset {
     ss = setset(m);
     assert(ss.zdd_ == e1*e2 + e1*e2*e3);
 
-    vector<map<string, set<int> > > u = {{{"include", {1, 2}}, {"exclude", {4}}},
-                                         {{"include", {1, 3, 4}}},
-                                         {{"exclude", {2, 3}}}};
-    ss = setset(u);
-    assert(ss.zdd_ == e0 + e1 + e1*e2 + e1*e2*e3 + e1*e2*e3*e4 + e1*e3*e4
-           + e1*e4 + e4);
-
     // initializer_list
     ss = setset({{1}, {2}});
     assert(ss.zdd_ == e1 + e2);

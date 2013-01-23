@@ -218,33 +218,26 @@ static int setset_init(PySetsetObject* self, PyObject* args, PyObject* kwds) {
     map<string, set<int> > m;
     if (setset_parse_map(obj, &m) == -1) return -1;
     self->ss = new setset(m);
-  } else if (PyString_Check(obj)) {
-    stringstream sstr(PyString_AsString(obj));
-    self->ss = new setset();
-    self->ss->load(sstr);
-  } else {
+  } else if (PyList_Check(obj)) {
     PyObject* i = PyObject_GetIter(obj);
-    if (i == nullptr) {
-      PyErr_SetString(PyExc_TypeError, "not list of sets or dicts");
-      return -1;
-    }
+    if (i == nullptr) return -1;
     vector<set<int> > vs;
-    vector<map<string, set<int> > > vm;
     PyObject* o;
     while ((o = PyIter_Next(i))) {
-      if (PyAnySet_Check(o)) {
-        set<int> s;
-        if (setset_parse_set(o, &s) == -1) return -1;
-        vs.push_back(s);
-      } else if (PyDict_Check(o)) {
-        map<string, set<int> > m;
-        if (setset_parse_map(o, &m) == -1) return -1;
-        vm.push_back(m);
+      if (!PyAnySet_Check(o)) {
+        PyErr_SetString(PyExc_TypeError, "not set");
+        return -1;
       }
+      set<int> s;
+      if (setset_parse_set(o, &s) == -1) return -1;
+      vs.push_back(s);
       Py_DECREF(o);
     }
     Py_DECREF(i);
-    self->ss = new setset(setset(vs) | setset(vm));
+    self->ss = new setset(vs);
+  } else {
+    PyErr_SetString(PyExc_TypeError, "invalid argumet type");
+    return -1;
   }
   if (PyErr_Occurred())
     return -1;
