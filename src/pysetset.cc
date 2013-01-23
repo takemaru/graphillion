@@ -389,14 +389,22 @@ static PyObject* setset_opt_iter(PySetsetObject* self, PyObject* weights) {
   PyObject* i = PyObject_GetIter(weights);
   if (i == nullptr) return nullptr;
   PyObject* eo;
-  vector<int> w;
+  vector<double> w;
   while ((eo = PyIter_Next(i))) {
-    if (!PyInt_Check(eo)) {
+    if (PyFloat_Check(eo)) {
+      w.push_back(PyFloat_AsDouble(eo));
+    }
+    else if (PyLong_Check(eo)) {
+      w.push_back(static_cast<double>(PyLong_AsLong(eo)));
+    }
+    else if (PyInt_Check(eo)) {
+      w.push_back(static_cast<double>(PyInt_AsLong(eo)));
+    }
+    else {
       Py_DECREF(eo);
-      PyErr_SetString(PyExc_TypeError, "not int list");
+      PyErr_SetString(PyExc_TypeError, "not a number");
       return nullptr;
     }
-    w.push_back(PyInt_AsLong(eo));
     Py_DECREF(eo);
   }
   Py_DECREF(i);

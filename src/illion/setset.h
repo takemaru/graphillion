@@ -22,7 +22,8 @@ class setset {
       : public std::iterator<std::forward_iterator_tag, std::set<elem_t> > {
    public:
     iterator();
-    iterator(const setset& ss, std::vector<int> weights = std::vector<int>());
+    iterator(const setset& ss,
+             std::vector<double> weights = std::vector<double>());
     explicit iterator(const std::set<elem_t>& s);
     iterator(const iterator& i)
         : zdd_(i.zdd_), s_(i.s_), weights_(i.weights_) {}
@@ -48,7 +49,7 @@ class setset {
 
     zdd_t zdd_;
     std::set<elem_t> s_ = std::set<elem_t>();
-    std::vector<int> weights_ = std::vector<int>();
+    std::vector<double> weights_ = std::vector<double>();
 
     friend class TestSetset;
   };
@@ -100,7 +101,7 @@ class setset {
 
   bool empty() const;
   std::string size() const;
-  iterator begin(std::vector<int> weights = std::vector<int>()) const {
+  iterator begin(std::vector<double> weights = std::vector<double>()) const {
     return iterator(*this, weights);
   }
   iterator find(const std::set<elem_t>& s) const;

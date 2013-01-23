@@ -23,7 +23,7 @@ using std::vector;
 setset::iterator::iterator() : zdd_(null()) {
 }
 
-setset::iterator::iterator(const setset& ss, vector<int> weights)
+setset::iterator::iterator(const setset& ss, vector<double> weights)
     : zdd_(ss.zdd_), weights_(weights) {
   this->next();
 }

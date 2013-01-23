@@ -255,7 +255,7 @@ zdd_t choose_random(zdd_t f, vector<elem_t>* stack, int* idum) {
   }
 }
 
-zdd_t choose_best(zdd_t f, const vector<int>& weights, set<elem_t>* s) {
+zdd_t choose_best(zdd_t f, const vector<double>& weights, set<elem_t>* s) {
   assert(s != nullptr);
   if (is_bot(f)) return bot();
   vector<bool> x;
@@ -456,7 +456,7 @@ void _enum(zdd_t f, FILE* fp, vector<elem_t>* stack, bool* first,
 }
 
 // Algorithm B modified for ZDD, from Knuth vol. 4 fascicle 1 sec. 7.1.4.
-void algo_b(zdd_t f, const vector<int>& w, vector<bool>* x) {
+void algo_b(zdd_t f, const vector<double>& w, vector<bool>* x) {
   assert(x != nullptr);
   assert(!is_bot(f));
   if (is_top(f)) return;
@@ -468,7 +468,7 @@ void algo_b(zdd_t f, const vector<int>& w, vector<bool>* x) {
   x->clear();
   x->resize(max_elem + 1, false);
   unordered_map<word_t, bool> t;
-  unordered_map<word_t, int> ms = {{id(bot()), INT_MIN}, {id(top()), 0}};
+  unordered_map<word_t, double> ms = {{id(bot()), INT_MIN}, {id(top()), 0}};
   for (elem_t v = max_elem; v > 0; --v) {
     while (!stacks[v].empty()) {
       zdd_t g = stacks[v].back();
@@ -480,7 +480,7 @@ void algo_b(zdd_t f, const vector<int>& w, vector<bool>* x) {
       if (!is_bot(lo(g)))
         ms[k] = ms.at(l);
       if (!is_bot(hi(g))) {
-        int m = ms.at(h) + w[v];
+        double m = ms.at(h) + w[v];
         if (is_bot(lo(g)) || m > ms.at(k)) {
           ms[k] = m;
           t[k] = true;

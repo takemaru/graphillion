@@ -239,7 +239,7 @@ class TestSetset {
 
     setset ss({{}, {1}, {1, 2}, {1, 2, 3}, {1, 2, 3, 4}, {1, 3, 4}, {1, 4},
                {4}});
-    setset::iterator i = ss.begin({0 /* 1-offset */, 3, -2, -2, 4});
+    setset::iterator i = ss.begin({0 /* 1-offset */, .3, -.2, -.2, .4});
     assert(*i == set<int>({1, 4}));
     ++i;
     assert(*i == set<int>({1, 3, 4}));
