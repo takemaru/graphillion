@@ -386,7 +386,6 @@ static PyObject* setset_rand_iter(PySetsetObject* self) {
 }
 
 static PyObject* setset_opt_iter(PySetsetObject* self, PyObject* weights) {
-  CHECK_OR_ERROR(weights, PyList_Check, "list", nullptr);
   PyObject* i = PyObject_GetIter(weights);
   if (i == nullptr) return nullptr;
   PyObject* eo;
