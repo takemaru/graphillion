@@ -812,8 +812,7 @@ static PyObject* setset_universe(PyObject*, PyObject* args) {
     }
     Py_DECREF(i);
     setset::universe(universe);
-    Py_INCREF(obj);
-    return obj;
+    Py_RETURN_NONE;
   }
 }
 

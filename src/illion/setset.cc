@@ -351,11 +351,10 @@ vector<elem_t> setset::universe() {
   return universe;
 }
 
-vector<elem_t> setset::universe(vector<elem_t>& universe) {
+void setset::universe(vector<elem_t>& universe) {
   for (int i = 0; i < static_cast<int>(universe.size()); ++i)
     assert(universe[i] == i+1);
   num_elems(universe.size());
-  return universe;
 }
 
 ostream& operator<<(ostream& out, const setset& ss) {
