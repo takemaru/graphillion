@@ -47,7 +47,7 @@ class TestSetset {
     setset::universe(universe);
     assert(setset::universe() == vector<int>({1, 2}));
 
-    map<string, set<int> > m;
+    map<string, vector<int> > m;
     setset ss(m);
     assert(ss.zdd_ == e0 + e1 + e1*e2 + e2);
 
@@ -75,7 +75,7 @@ class TestSetset {
     ss = setset(v);
     assert(ss.zdd_ == e0 + e1*e2 + e1*e3);
 
-    map<string, set<int> > m = {{"include", {1, 2}}, {"exclude", {4}}};
+    map<string, vector<int> > m = {{"include", {1, 2}}, {"exclude", {4}}};
     ss = setset(m);
     assert(ss.zdd_ == e1*e2 + e1*e2*e3);
 

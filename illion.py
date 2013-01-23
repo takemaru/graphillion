@@ -6,7 +6,7 @@ def add_elem(e):
     setset._int2obj.append(e)
 
 def conv_arg(obj):
-    if isinstance(obj, (set, frozenset)):
+    if isinstance(obj, (set, frozenset, tuplea)):
         s = set()
         for e in obj:
             if e not in setset._obj2int:
@@ -27,7 +27,7 @@ def conv_arg(obj):
 def conv_ret(s):
     if setset.INT_ELEM_ONLY or s is None:
         return s
-    elif isinstance(s, (set, frozenset)):
+    elif isinstance(s, (set, frozenset, tuple)):
         ret = set()
         for e in s:
             ret.add(setset._int2obj[e])

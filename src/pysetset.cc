@@ -101,20 +101,32 @@ static int setset_parse_set(PyObject* so, set<int>* s) {
   return 0;
 }
 
-static int setset_parse_map(PyObject* dict_obj, map<string, set<int> >* m) {
+static int setset_parse_map(PyObject* dict_obj, map<string, vector<int> >* m) {
   assert(m != nullptr);
   PyObject* key_obj;
-  PyObject* so;
+  PyObject* lo;
   Py_ssize_t pos = 0;
-  while (PyDict_Next(dict_obj, &pos, &key_obj, &so)) {
-    if (!PyString_Check(key_obj) || !PyAnySet_Check(so)) {
-      PyErr_SetString(PyExc_TypeError, "not list of sets or dicts");
+  while (PyDict_Next(dict_obj, &pos, &key_obj, &lo)) {
+    if (!PyString_Check(key_obj)) {
+      PyErr_SetString(PyExc_TypeError, "invalid argument");
       return -1;
     }
     string key = PyString_AsString(key_obj);
-    set<int> s;
-    if (setset_parse_set(so, &s) == -1) return -1;
-    (*m)[key] = s;
+    PyObject* i = PyObject_GetIter(lo);
+    if (i == nullptr) return -1;
+    vector<int> v;
+    PyObject* eo;
+    while ((eo = PyIter_Next(i))) {
+      if (!PyInt_Check(eo)) {
+        Py_DECREF(eo);
+        PyErr_SetString(PyExc_TypeError, "not int");
+        return -1;
+      }
+      v.push_back(PyInt_AsLong(eo));
+      Py_DECREF(eo);
+    }
+    Py_DECREF(i);
+    (*m)[key] = v;    
   }
   return 0;
 }
@@ -215,7 +227,7 @@ static int setset_init(PySetsetObject* self, PyObject* args, PyObject* kwds) {
     if (setset_parse_set(obj, &s) == -1) return -1;
     self->ss = new setset(s);
   } else if (PyDict_Check(obj)) {
-    map<string, set<int> > m;
+    map<string, vector<int> > m;
     if (setset_parse_map(obj, &m) == -1) return -1;
     self->ss = new setset(m);
   } else if (PyList_Check(obj)) {
@@ -236,7 +248,7 @@ static int setset_init(PySetsetObject* self, PyObject* args, PyObject* kwds) {
     Py_DECREF(i);
     self->ss = new setset(vs);
   } else {
-    PyErr_SetString(PyExc_TypeError, "invalid argumet type");
+    PyErr_SetString(PyExc_TypeError, "invalid argumet");
     return -1;
   }
   if (PyErr_Occurred())

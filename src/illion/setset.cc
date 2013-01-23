@@ -2,6 +2,7 @@
 
 #include <cstdlib>
 
+#include <algorithm>
 #include <sstream>
 
 #include "illion/zdd.h"
@@ -64,22 +65,25 @@ setset::setset(const vector<set<elem_t> >& v) : zdd_(bot()) {
     this->zdd_ += setset(s).zdd_;
 }
 
-setset::setset(const map<string, set<elem_t> >& m) {
-  // TODO: check map keys that are not include/exclude
-  // TODO: check if common elements found in include and exclude
-  const auto in_it = m.find("include");
-  const auto ex_it = m.find("exclude");
-  const set<elem_t>& in_s = in_it != m.end() ? in_it->second : set<elem_t>();
-  const set<elem_t>& ex_s = ex_it != m.end() ? ex_it->second : set<elem_t>();
-  for (const auto& e : in_s) single(e);
-  for (const auto& e : ex_s) single(e);
+setset::setset(const map<string, vector<elem_t> >& m) {
+  for (const auto& i : m)
+    assert(i.first == "include" || i.first == "exclude");
+  const auto in_i = m.find("include");
+  const auto ex_i = m.find("exclude");
+  const vector<elem_t>& in_v = in_i != m.end() ? in_i->second : vector<elem_t>();
+  const vector<elem_t>& ex_v = ex_i != m.end() ? ex_i->second : vector<elem_t>();
+  for (const auto& e : in_v) single(e);
+  for (const auto& e : ex_v) single(e);
   vector<zdd_t> n(num_elems() + 2);
   n[0] = bot(), n[1] = top();
   for (elem_t v = num_elems(); v > 0; --v) {
+    bool in_found = std::find(in_v.begin(), in_v.end(), v) != in_v.end();
+    bool ex_found = std::find(ex_v.begin(), ex_v.end(), v) != ex_v.end();
+    assert(!(in_found && ex_found));
     elem_t i = num_elems() - v + 2;
-    n[i] = in_s.find(v) != in_s.end() ? n[0]   + single(v) * n[i-1]
-         : ex_s.find(v) != ex_s.end() ? n[i-1] + single(v) * n[0]
-         :                              n[i-1] + single(v) * n[i-1];
+    n[i] = in_found ? n[0]   + single(v) * n[i-1]
+         : ex_found ? n[i-1] + single(v) * n[0]
+         :            n[i-1] + single(v) * n[i-1];
   }
   this->zdd_ = n[num_elems() + 1];
 }
