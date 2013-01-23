@@ -53,7 +53,7 @@ class TestSetset(object):
         ss = setset([set(), set(['1', '2']), set(['1', '3'])])
         assert ss._enums() == name + '([set([1, 2]), set([1, 3]), set([])])'
 
-        ss = setset({'include': ('1', '2'), 'exclude': ('4')})
+        ss = setset({'include': ['1', '2'], 'exclude': ['4']})
         assert ss._enums() == name + '([set([1, 2, 3]), set([1, 2])])'
 
         # copy constructor

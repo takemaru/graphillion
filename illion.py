@@ -6,34 +6,10 @@ def add_elem(e):
     setset._int2obj.append(e)
 
 def conv_arg(obj):
-    if isinstance(obj, (set, frozenset, tuplea)):
-        s = set()
-        for e in obj:
-            if e not in setset._obj2int:
-                add_elem(e)
-            s.add(setset._obj2int[e])
-        return s
-    elif isinstance(obj, dict):
-        d = {}
-        for k, s in obj.iteritems():
-            d[k] = conv_arg(s)
-        return d
-    else:
-        e = obj
-        if e not in setset._obj2int:
-            add_elem(e)
-        return setset._obj2int[e]
-
-def conv_ret(s):
-    if setset.INT_ELEM_ONLY or s is None:
-        return s
-    elif isinstance(s, (set, frozenset, tuple)):
-        ret = set()
-        for e in s:
-            ret.add(setset._int2obj[e])
-        return ret
-    else:
-        raise TypeError('not set')
+    e = obj
+    if e not in setset._obj2int:
+        add_elem(e)
+    return setset._obj2int[e]
 
 def hook_arg(func):
     def wrapper(self, *args, **kwds):
@@ -44,13 +20,31 @@ def hook_arg(func):
             args2 = []
             if isinstance(obj, list):
                 l = []
-                for o in obj:
-                    l.append(conv_arg(o))
+                for s in obj:
+                    l.append(set([conv_arg(e) for e in s]))
                 args2.append(l)
+            elif isinstance(obj, dict):
+                d = {}
+                for k, l in obj.iteritems():
+                    d[k] = [conv_arg(e) for e in l]
+                args2.append(d)
+            elif isinstance(obj, (set, frozenset, tuple)):
+                args2.append(set([conv_arg(e) for e in obj]))
             else:
                 args2.append(conv_arg(obj))
             return func(self, *args2, **kwds)
     return wrapper
+
+def conv_ret(s):
+    if setset.INT_ELEM_ONLY or s is None:
+        return s
+    elif isinstance(s, (set, frozenset, tuple, list)):
+        ret = set()
+        for e in s:
+            ret.add(setset._int2obj[e])
+        return ret
+    else:
+        raise TypeError('not set')
 
 def hook_ret(func):
     def wrapper(self, *args, **kwds):
