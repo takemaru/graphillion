@@ -149,7 +149,7 @@ class setset(_illion.setset):
 def do_check_arg(l):
     for e in l:
         if e not in setset._obj2int:
-            raise KeyError, 'not found'
+            raise KeyError, e
 
 def check_arg(func):
     def wrapper(self, *args, **kwds):
