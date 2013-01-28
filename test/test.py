@@ -38,35 +38,36 @@ class TestSetset(object):
         assert ss == setset([set(), set(['1'])])
 
     def constructors(self):
-        name = 'setset'
-
         ss = setset()
         assert isinstance(ss, setset)
-        assert repr(ss) == '<%s object of 0x8000000000>' % name
-        assert ss._enums() == name + '([])'
+        assert repr(ss) == 'setset([])'
 
         ss = setset(set())
-        assert ss._enums() == name + '([set([])])'
+        assert repr(ss) == 'setset([set([])])'
 
         ss = setset(frozenset(['1', '2']))
-        assert ss._enums() == name + '([set([1, 2])])'
+        assert repr(ss) == "setset([set(['1', '2'])])"
 
         ss = setset([set(), set(['1', '2']), set(['1', '3'])])
-        assert ss._enums() == name + '([set([1, 2]), set([1, 3]), set([])])'
+        assert repr(ss) == "setset([set([]), set(['1', '2']), set(['1', '3'])])"
 
         ss = setset({'include': ('1', '2'), 'exclude': ('4',)})
-        assert ss._enums() == name + '([set([1, 2, 3]), set([1, 2])])'
+        assert repr(ss) == "setset([set(['1', '2']), set(['1', '3', '2'])])"
 
         # copy constructor
         ss = setset([set(), set(['1', '2']), set(['1', '3'])])
-        assert ss._enums() == name + '([set([1, 2]), set([1, 3]), set([])])'
+        assert repr(ss) == "setset([set([]), set(['1', '2']), set(['1', '3'])])"
 
         ss1 = setset([set(), set(['1', '2']), set(['1', '3'])])
         ss2 = ss1.copy()
         assert isinstance(ss2, setset)
         ss1.clear()
-        assert ss1._enums() == name + '([])'
-        assert ss2._enums() == name + '([set([1, 2]), set([1, 3]), set([])])'
+        assert repr(ss1) == 'setset([])'
+        assert repr(ss2) == "setset([set([]), set(['1', '2']), set(['1', '3'])])"
+
+        ss = setset([set(), set(['1']), set(['1', '2']), set(['1', '4']),
+                     set(['4'])])
+        assert repr(ss) == "setset([set([]), set(['1']), set(['4']), set(['1', '2']), ...])"
 
     def comparison(self):
         ss = setset(set(['1', '2']))

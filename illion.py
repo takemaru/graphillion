@@ -75,6 +75,26 @@ class setset(_illion.setset):
     def __init__(self, *args, **kwds):
         _illion.setset.__init__(self, *args, **kwds)
 
+    def __repr__(self):
+        w = {}
+        for i in range(1, _illion.num_elems() + 1):
+            e = setset._int2obj[i]
+            w[e] = -1 * ((1.000001)**(i - 1))
+        ret = self.__class__.__name__ + '(['
+        i = 1
+        for s in self.optimize(w):
+            if i >= 2:
+                ret += ', '
+            ret += str(s)
+            if i >= 4:
+                i = -1
+                break
+            else:
+                i += 1
+        if i < 0:
+            ret += ', ...'
+        return ret + '])'
+
     @conv_arg
     def __contains__(self, *args, **kwds):
         return _illion.setset.__contains__(self, *args, **kwds)
