@@ -120,7 +120,7 @@ class TestSetset {
                {4}});
     assert((~ss).zdd_ == e1*e2*e4 + e1*e3 + e2 + e2*e3 + e2*e3*e4 + e2*e4 + e3
            + e3*e4);
-    assert(ss.smaller(2).zdd_ == e0 + e1 + e1*e2 + e1*e4 + e4);
+    assert(ss.smaller(3).zdd_ == e0 + e1 + e1*e2 + e1*e4 + e4);
 
     ss = setset({{1, 2}, {1, 4}, {2, 3}, {3, 4}});
     assert(ss.hitting().zdd_ == e1*e2*e3 + e1*e2*e3*e4 + e1*e2*e4 + e1*e3

@@ -118,7 +118,7 @@ class setset {
   setset minimal() const;
   setset maximal() const;
   setset hitting() const;
-  setset smaller(size_t max_set_size) const;
+  setset smaller(size_t set_size) const;
 
   setset join(const setset& ss) const;
   setset meet(const setset& ss) const;

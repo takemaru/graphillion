@@ -489,8 +489,12 @@ static PyObject* setset_hitting(PySetsetObject* self) {
 
 static PyObject* setset_smaller(PySetsetObject* self, PyObject* other) {
   CHECK_OR_ERROR(other, PyInt_Check, "int", nullptr);
-  int max_set_size = PyLong_AsLong(other);
-  RETURN_NEW_SETSET(self, self->ss->smaller(max_set_size));
+  int set_size = PyLong_AsLong(other);
+  if (set_size < 0) {
+    PyErr_SetString(PyExc_ValueError, "not unsigned int");
+    return nullptr;
+  }
+  RETURN_NEW_SETSET(self, self->ss->smaller(set_size));
 }
 
 static PyObject* setset_join(PySetsetObject* self, PyObject* other) {

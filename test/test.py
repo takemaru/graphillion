@@ -108,8 +108,8 @@ class TestSetset(object):
                                           set(['2']), set(['2', '3']),
                                           set(['2', '3', '4']), set(['2', '4']),
                                           set(['3']), set(['3', '4'])])
-        assert isinstance(ss.smaller(2), setset)
-        assert ss.smaller(2) == setset([set(), set(['1']), set(['1', '2']),
+        assert isinstance(ss.smaller(3), setset)
+        assert ss.smaller(3) == setset([set(), set(['1']), set(['1', '2']),
                                         set(['1', '4']), set(['4'])])
 
         ss = setset([set(['1', '2']), set(['1', '4']), set(['2', '3']),

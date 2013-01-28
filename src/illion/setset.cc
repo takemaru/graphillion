@@ -274,8 +274,8 @@ setset setset::hitting() const {  // a.k.a cross elements
   return setset(illion::hitting(this->zdd_));
 }
 
-setset setset::smaller(size_t max_set_size) const {
-  return setset(this->zdd_.PermitSym(max_set_size));
+setset setset::smaller(size_t set_size) const {
+  return setset(this->zdd_.PermitSym(set_size - 1));
 }
 
 setset setset::join(const setset& ss) const {
