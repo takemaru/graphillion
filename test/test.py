@@ -423,6 +423,7 @@ class TestSetset(object):
     def large(self):
         setset.universe(xrange(10000))
         ss = setset({}) - setset([set([1]) - set([1, 2])])
+        assert not not ss
         assert len(str(ss.len())) == 3011
 
 

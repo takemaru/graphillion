@@ -344,6 +344,10 @@ static PyObject* setset_issuperset(PySetsetObject* self, PyObject* other) {
   RETURN_TRUE_IF(self, other, _other, self->ss->is_superset(*_other->ss));
 }
 
+static int setset_nonzero(PySetsetObject* self) {
+  return !self->ss->empty();
+}
+
 static Py_ssize_t setset_len(PyObject* obj) {
   PySetsetObject* self = reinterpret_cast<PySetsetObject*>(obj);
   long long int len = strtoll(self->ss->size().c_str(), nullptr, 0);
@@ -696,7 +700,7 @@ static PyNumberMethods setset_as_number = {
   0,                                  /*nb_negative*/
   0,                                  /*nb_positive*/
   0,                                  /*nb_absolute*/
-  0,                                  /*nb_nonzero*/
+  reinterpret_cast<inquiry>(setset_nonzero), /*nb_nonzero*/
   reinterpret_cast<unaryfunc>(setset_complement), /*nb_invert*/
   0,                                  /*nb_lshift*/
   0,                                  /*nb_rshift*/
