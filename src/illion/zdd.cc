@@ -36,7 +36,7 @@ ZBDD operator|(const ZBDD& f, const ZBDD& g) {
 
 void init() {
   if (initialized_) return;
-  BDD_Init(1000000, 8000000000LL);
+  BDD_Init(10000, 8000000000LL);
   initialized_ = true;
 }
 
