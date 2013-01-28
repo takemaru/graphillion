@@ -522,10 +522,10 @@ class TestGraphset(object):
         assert set([(1, 2), (1, 3)]) in gs1
         assert set([(1, 2)]) not in gs1
 
-        gs2 = gs1.include((1, 2))
+        gs2 = gs1.include_edge((1, 2))
         assert len(gs2) == 7
 
-        gs2 = gs1.exclude((1, 3))
+        gs2 = gs1.exclude_edge((1, 3))
         assert len(gs2) == 6
 
         assert len(gs1.include_vertex(1)) == 11

@@ -76,10 +76,11 @@ class setset(_illion.setset):
         _illion.setset.__init__(self, *args, **kwds)
 
     def __repr__(self):
+        n = _illion.num_elems()
         w = {}
-        for i in range(1, _illion.num_elems() + 1):
+        for i in range(1, n + 1):
             e = setset._int2obj[i]
-            w[e] = -1 * ((1.000001)**(i - 1))
+            w[e] = - (1 + float(i) / n**2)
         ret = self.__class__.__name__ + '(['
         i = 1
         for s in self.optimize(w):
@@ -210,6 +211,21 @@ class graphset(setset):
     def include(self, *args, **kwds):
         return setset.include(self, *args, **kwds)
 
+    def include_edge(self, *args, **kwds):
+        return graphset.include(self, *args, **kwds)
+
+    def exclude_edge(self, *args, **kwds):
+        return graphset.exclude(self, *args, **kwds)
+
+    def include_vertex(self, v):
+        gs = graphset()
+        for edge in [e for e in setset.universe() if v in e]:
+            gs |= self.include(edge)
+        return gs & self
+
+    def exclude_vertex(self, v):
+        return self - self.include_vertex(v)
+
     @check_arg
     def exclude(self, *args, **kwds):
         return setset.exclude(self, *args, **kwds)
@@ -225,15 +241,6 @@ class graphset(setset):
     @check_arg
     def discard(self, *args, **kwds):
         return setset.discard(self, *args, **kwds)
-
-    def include_vertex(self, v):
-        gs = graphset()
-        for edge in [e for e in setset.universe() if v in e]:
-            gs |= self.include(edge)
-        return gs & self
-
-    def exclude_vertex(self, v):
-        return self - self.include_vertex(v)
 
     def optimize(self):
         for i in setset.optimize(self, graphset._weights):
