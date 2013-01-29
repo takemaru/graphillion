@@ -1,5 +1,8 @@
 from setuptools import setup, find_packages, Extension
-import sys, os
+import os
+
+extra_include_dirs = ['/opt/local/include']
+extra_link_args = ['-L/opt/local/lib']
 
 setup(name='illion',
       version='0.1',
@@ -29,15 +32,13 @@ setup(name='illion',
                            os.path.join('src', 'illion', 'zdd.cc'),
                            os.path.join('src', 'hudd', 'bddc.c'),
                            os.path.join('src', 'hudd', 'BDD.cc'),
-                           os.path.join('src', 'hudd', 'ZBDD.cc'),
-                           ],
-                  include_dirs=['src', '/opt/local/include'],
+                           os.path.join('src', 'hudd', 'ZBDD.cc')],
+                  include_dirs=['src'] + extra_include_dirs,
                   libraries=['gmp', 'gmpxx'],
                   define_macros=[('B_64', None),
                                  ('HAVE_LIBGMP', None),
-                                 ('HAVE_LIBGMPXX', None),
-                                 ],
-                  extra_link_args=['-L/opt/local/lib'],
+                                 ('HAVE_LIBGMPXX', None)],
+                  extra_link_args=extra_link_args,
                   ),
         ],
       )
