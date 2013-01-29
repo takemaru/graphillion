@@ -453,10 +453,11 @@ class TestGraphset(object):
         g = nx.Graph()
         edges = [(1, 2, .3), (1, 3, -.2), (2, 4, -.2), (3, 4, .4)]
         g.add_weighted_edges_from(edges)
-        graphset.universe(g)
+        graphset.universe(g, traversal='dfs', source=1)
         g = graphset.universe()
-        assert g.edges() == [(1, 2), (1, 3), (2, 4), (3, 4)]
+        assert len(g.edges()) == 4
         assert g.edge[1][2]['weight'] == .3
+        assert setset._int2obj[1:] == [(1, 2), (2, 4), (3, 4), (1, 3)]
 
         gs = graphset({})
         assert len(gs) == 2**4
@@ -566,8 +567,9 @@ class TestGraphset(object):
 
     def large(self):
         g = nx.grid_2d_graph(11, 11)
-        graphset.universe(g)
+        graphset.universe(g, traversal='bfs', source=(0, 0))
         assert len(graphset.universe().edges()) == 220
+        assert setset._int2obj[1:3] == [((0, 1), (0, 0)), ((1, 0), (0, 0))]
 
         gs = graphset({});
         gs -= graphset([set([((0, 1), (0, 0))]),

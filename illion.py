@@ -55,6 +55,26 @@ def conv_ret(func):
         return do_conv_ret(func(self, *args, **kwds))
     return wrapper
 
+def do_check_arg(l):
+    for e in l:
+        if e not in setset._obj2int:
+            raise KeyError, e
+
+def check_arg(func):
+    def wrapper(self, *args, **kwds):
+        if args:
+            obj = args[0]
+            if isinstance(obj, (set, frozenset)):
+                do_check_arg(obj)
+            elif isinstance(obj, dict):
+                for k, l in obj.iteritems():
+                    do_check_arg(l)
+            elif isinstance(obj, list):
+                for s in obj:
+                    do_check_arg(s)
+        return func(self, *args, **kwds)
+    return wrapper
+
 
 class setset_iterator(object):
 
@@ -167,27 +187,6 @@ class setset(_illion.setset):
     _int2obj = [None]
 
 
-def do_check_arg(l):
-    for e in l:
-        if e not in setset._obj2int:
-            raise KeyError, e
-
-def check_arg(func):
-    def wrapper(self, *args, **kwds):
-        if args:
-            obj = args[0]
-            if isinstance(obj, (set, frozenset)):
-                do_check_arg(obj)
-            elif isinstance(obj, dict):
-                for k, l in obj.iteritems():
-                    do_check_arg(l)
-            elif isinstance(obj, list):
-                for s in obj:
-                    do_check_arg(s)
-        return func(self, *args, **kwds)
-    return wrapper
-
-
 class graphset(setset):
 
     @check_arg
@@ -195,6 +194,9 @@ class graphset(setset):
         setset.__init__(self, *args, **kwds)
 
     def paths(self, u, v):
+        assert False, 'not implemented'
+
+    def cycles(self):
         assert False, 'not implemented'
 
     def trees(self):
@@ -247,12 +249,26 @@ class graphset(setset):
             yield i
 
     @staticmethod
-    def universe(*args):
+    def universe(*args, **kwds):
+        def parse_kwds(key, default):
+            return kwds[key] if key in kwds else default
+
         if args:
-            g = args[0]
-            assert isinstance(g, nx.Graph) and not isinstance(g, nx.DiGraph)
+            if isinstance(args[0], nx.Graph):
+                g = args[0]
+                assert not isinstance(g, nx.DiGraph)
+                traversal = parse_kwds('traversal', 'bfs')
+                source = parse_kwds('source', sorted(g.nodes())[0])
+                edges = graphset.traverse_edges(g, traversal, source)
+            else:
+                edges = args[0]
+                g = nx.Graph()
+                if len(edges[0]) == 2:
+                    g.add_edges_from(edges)
+                else:
+                    g.add_weighted_edges_from(edges)
+            setset.universe(edges)
             graphset._weights = {}
-            setset.universe(g.edges())
             for e in g.edges():
                 if 'weight' in g[e[0]][e[1]]:
                     graphset._weights[e] = g[e[0]][e[1]]['weight']
@@ -264,5 +280,36 @@ class graphset(setset):
                 else:
                     g.add_edge(*e)
             return g
+
+    @staticmethod
+    def traverse_edges(g, traversal, source):
+        def append_edge(e):
+            if e in g.edges() and e not in edges:
+                edges.append(e)
+                return
+            e = (e[1], e[0])
+            if e in g.edges() and e not in edges:
+                edges.append(e)
+
+        edges = []
+        visited = set()
+        if traversal == 'dfs':
+            func = nx.dfs_edges
+        elif traversal == 'bfs':
+            func = nx.bfs_edges
+        else:
+            raise ValueError, traversal
+        for e in apply(func, (g, source)):
+            e = tuple(sorted([e[0], e[1]]))
+            append_edge(e)
+            for v in visited:
+                if v in g.edge[e[0]]:
+                    append_edge((v, e[0]))
+                if v in g.edge[e[1]]:
+                    append_edge((v, e[1]))
+            visited.add(e[0])
+            visited.add(e[1])
+        assert len(edges) == g.number_of_edges()
+        return edges
 
     _weights = {}
