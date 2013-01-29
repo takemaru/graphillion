@@ -1,9 +1,11 @@
 #ifndef ILLION_TYPE_H_
 #define ILLION_TYPE_H_
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "hudd/ZBDD.h"
+
+#define nullptr (NULL)
 
 namespace illion {
 

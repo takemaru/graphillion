@@ -1,7 +1,6 @@
 #ifndef ILLION_SETSET_H_
 #define ILLION_SETSET_H_
 
-#include <initializer_list>
 #include <iostream>
 #include <iterator>
 #include <map>
@@ -48,8 +47,8 @@ class setset {
     void next();
 
     zdd_t zdd_;
-    std::set<elem_t> s_ = std::set<elem_t>();
-    std::vector<double> weights_ = std::vector<double>();
+    std::set<elem_t> s_;
+    std::vector<double> weights_;
 
     friend class TestSetset;
   };
@@ -61,7 +60,7 @@ class setset {
   explicit setset(const std::set<elem_t>& s);
   explicit setset(const std::vector<std::set<elem_t> >& v);
   explicit setset(const std::map<std::string, std::vector<elem_t> >& m);
-  explicit setset(const std::initializer_list<std::set<elem_t> >& v);
+//  explicit setset(const std::initializer_list<std::set<elem_t> >& v);
   explicit setset(std::istream& in);
 
   // Disable this constructor to avoid ambiguity, because compilers
@@ -108,7 +107,6 @@ class setset {
   size_t count(const std::set<elem_t>& s) const;
   std::pair<iterator, bool> insert(const std::set<elem_t>& s);
   iterator insert(const_iterator hint, const std::set<elem_t>& s);
-  void insert(const std::initializer_list<std::set<elem_t> >& v);
   iterator erase(const_iterator position);
   size_t erase(const std::set<elem_t>& s);
   size_t erase(elem_t e);

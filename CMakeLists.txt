@@ -7,7 +7,7 @@ SET(${PROJECT_NAME}_PATCH_LEVEL 0)
 
 SET(CMAKE_BUILD_TYPE None) # None, Debug, Release
 SET(CMAKE_C_FLAGS "-Wall -O3")
-SET(CMAKE_CXX_FLAGS "-Wall -O3 -std=c++11")
+SET(CMAKE_CXX_FLAGS "-Wall -O3")
 
 #OPTION(ENABLE_64BIT "Set to OFF to build 64-bit version" ON)
 #IF (ENABLE_64BIT)

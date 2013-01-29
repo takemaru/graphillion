@@ -1,26 +1,24 @@
 #include "illion/zdd.h"
 
 //#include <cassert>
-#include <cinttypes>
 #include <climits>
 
+#include <map>
 #include <string>
-#include <unordered_map>
 
 namespace illion {
 
 using std::endl;
 using std::getline;
 using std::istream;
+using std::map;
 using std::ostream;
 using std::pair;
 using std::set;
 using std::string;
-using std::unordered_map;
-using std::unordered_set;
 using std::vector;
 
-static const string WORD_FMT = sizeof(word_t) == 8 ? ("%" PRId64) : ("%" PRId32);
+static const string WORD_FMT = "%lld";
 
 static bool initialized_ = false;
 
@@ -79,9 +77,9 @@ zdd_t complement(zdd_t f) {
 }
 
 zdd_t minimal(zdd_t f) {
-  static unordered_map<word_t, zdd_t> cache;
+  static map<word_t, zdd_t> cache;
   if (is_term(f)) return f;
-  auto i = cache.find(id(f));
+  map<word_t, zdd_t>::iterator i = cache.find(id(f));
   if (i != cache.end())
     return i->second;
   zdd_t rl = minimal(lo(f));
@@ -92,9 +90,9 @@ zdd_t minimal(zdd_t f) {
 }
 
 zdd_t maximal(zdd_t f) {
-  static unordered_map<word_t, zdd_t> cache;
+  static map<word_t, zdd_t> cache;
   if (is_term(f)) return f;
-  auto i = cache.find(id(f));
+  map<word_t, zdd_t>::iterator i = cache.find(id(f));
   if (i != cache.end())
     return i->second;
   zdd_t r = maximal(lo(f));
@@ -108,10 +106,11 @@ zdd_t hitting(zdd_t f) {
   if (is_bot(f)) return top();
   if (is_top(f)) return bot();
   vector<vector<zdd_t> > stacks(num_elems_ + 1);
-  unordered_set<word_t> visited;
+  set<word_t> visited;
   sort_zdd(f, &stacks, &visited);
-  unordered_map<word_t, zdd_t> cache
-    = { {id(bot()), bot()}, {id(top()), bot()} };
+  map<word_t, zdd_t> cache;
+  cache[id(bot())] = bot();
+  cache[id(top())] = bot();
   for (elem_t v = num_elems_; v > 0; --v) {
     while (!stacks[v].empty()) {
       zdd_t n = stacks[v].back();
@@ -154,20 +153,8 @@ zdd_t meet(zdd_t f, zdd_t g) {
   return ZBDD_Meet(f, g);
 }
 
-struct bdd_pair_hash {
-  size_t operator()(const pair<word_t, word_t>& o) const {
-    return (o.first << 4*sizeof(o.first)) ^ o.second;
-  }
-};
-
-struct bdd_pair_eq {
-  bool operator()(const pair<word_t,word_t>& a, const pair<word_t, word_t>& b) const {
-    return a.first == b.first && a.second == b.second;
-  }
-};
-
 zdd_t nonsubsets(zdd_t f, zdd_t g) {
-  static unordered_map<pair<word_t, word_t>, zdd_t, bdd_pair_hash, bdd_pair_eq> cache;
+  static map<pair<word_t, word_t>, zdd_t> cache;
   if (is_bot(g))
     return f;
   else if (is_top(g))
@@ -175,7 +162,7 @@ zdd_t nonsubsets(zdd_t f, zdd_t g) {
   else if (is_bot(f) || is_top(f) || f == g)
     return bot();
   pair<word_t, word_t> k = make_key(f, g);
-  auto i = cache.find(k);
+  map<pair<word_t, word_t>, zdd_t>::iterator i = cache.find(k);
   if (i != cache.end())
     return i->second;
   zdd_t r, r2, rl, rh;
@@ -199,7 +186,7 @@ zdd_t nonsubsets(zdd_t f, zdd_t g) {
 }
 
 zdd_t nonsupersets(zdd_t f, zdd_t g) {
-  static unordered_map<pair<word_t, word_t>, zdd_t, bdd_pair_hash, bdd_pair_eq> cache;
+  static map<pair<word_t, word_t>, zdd_t> cache;
   if (is_bot(g))
     return f;
   else if (is_bot(f) || is_top(g) || f == g)
@@ -209,7 +196,7 @@ zdd_t nonsupersets(zdd_t f, zdd_t g) {
   else if (elem(f) > elem(g))
     return nonsupersets(f, lo(g));
   pair<word_t, word_t> k = make_key(f, g);
-  auto i = cache.find(k);
+  map<pair<word_t, word_t>, zdd_t>::iterator i = cache.find(k);
   if (i != cache.end())
     return i->second;
   elem_t v = elem(f);
@@ -278,7 +265,7 @@ void dump(zdd_t f, ostream& out) {
     out << "T" << endl;
   } else {
     vector<vector<zdd_t> > stacks(num_elems_ + 1);
-    unordered_set<word_t> visited;
+    set<word_t> visited;
     sort_zdd(f, &stacks, &visited);
     for (elem_t v = num_elems_; v > 0; --v) {
       while (!stacks[v].empty()) {
@@ -308,7 +295,7 @@ void dump(zdd_t f, FILE* fp) {
     fprintf(fp, "T\n");
   } else {
     vector<vector<zdd_t> > stacks(num_elems_ + 1);
-    unordered_set<word_t> visited;
+    set<word_t> visited;
     sort_zdd(f, &stacks, &visited);
     for (elem_t v = num_elems_; v > 0; --v) {
       while (!stacks[v].empty()) {
@@ -336,7 +323,9 @@ zdd_t load(istream& in) {
   getline(in, line);
   if      (line == "B") return bot();
   else if (line == "T") return top();
-  unordered_map<word_t, zdd_t> n = {{id(bot()), bot()}, {id(top()), top()}};
+  map<word_t, zdd_t> n;
+  n[id(bot())] = bot();
+  n[id(top())] = top();
   zdd_t root;
   do {
     if (line.empty() || is_space(line)) continue;  // skip preceding empty lines
@@ -368,7 +357,9 @@ zdd_t load(FILE* fp) {
   string line = buf;
   if      (line == "B") return bot();
   else if (line == "T") return top();
-  unordered_map<word_t, zdd_t> n = {{id(bot()), bot()}, {id(top()), top()}};
+  map<word_t, zdd_t> n;
+  n[id(bot())] = bot();
+  n[id(top())] = top();
   zdd_t root;
   do {
     line = string(buf);
@@ -408,10 +399,10 @@ void _enum(zdd_t f, FILE* fp,
            const pair<const char*, const char*>& outer_braces,
            const pair<const char*, const char*>& inner_braces) {
   vector<elem_t> stack;
-  fprintf(fp, outer_braces.first);
+  fprintf(fp, "%s", outer_braces.first);
   bool first = true;
   _enum(f, fp, &stack, &first, inner_braces);
-  fprintf(fp, outer_braces.second);
+  fprintf(fp, "%s", outer_braces.second);
   if (fp == stdout || fp == stderr)
     fprintf(fp, "\n");
 }
@@ -461,14 +452,16 @@ void algo_b(zdd_t f, const vector<double>& w, vector<bool>* x) {
   assert(!is_bot(f));
   if (is_top(f)) return;
   vector<vector<zdd_t> > stacks(num_elems_ + 1);
-  unordered_set<word_t> visited;
+  set<word_t> visited;
   elem_t max_elem = 0;
   sort_zdd(f, &stacks, &visited, &max_elem);
   assert(w.size() > static_cast<size_t>(max_elem));
   x->clear();
   x->resize(max_elem + 1, false);
-  unordered_map<word_t, bool> t;
-  unordered_map<word_t, double> ms = {{id(bot()), INT_MIN}, {id(top()), 0}};
+  map<word_t, bool> t;
+  map<word_t, double> ms;
+  ms[id(bot())] = INT_MIN;
+  ms[id(top())] = 0;
   for (elem_t v = max_elem; v > 0; --v) {
     while (!stacks[v].empty()) {
       zdd_t g = stacks[v].back();
@@ -500,7 +493,7 @@ void algo_b(zdd_t f, const vector<double>& w, vector<bool>* x) {
 
 // Algorithm C modified for ZDD, from Knuth vol. 4 fascicle 1 sec. 7.1.4 (p.75).
 intx_t algo_c(zdd_t f) {
-    static unordered_map<word_t, intx_t> counts;
+    static map<word_t, intx_t> counts;
     if (is_term(f))
         return is_top(f) ? 1 : 0;
     else if (counts.find(id(f)) != counts.end())
@@ -557,7 +550,7 @@ double ran3(int* idum) {
 }
 
 void sort_zdd(zdd_t f, vector<vector<zdd_t> >* stacks,
-              unordered_set<word_t>* visited, elem_t* max_elem) {
+              set<word_t>* visited, elem_t* max_elem) {
   assert(stacks != nullptr && visited != nullptr);
   if (is_term(f)) return;
   if (visited->find(id(f)) != visited->end()) return;
