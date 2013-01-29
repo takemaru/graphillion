@@ -37,7 +37,7 @@ setup(name='illion',
                                  ('HAVE_LIBGMP', None),
                                  ('HAVE_LIBGMPXX', None),
                                  ],
-                  extra_compile_args=['-L/opt/local/lib'],
+                  extra_link_args=['-L/opt/local/lib'],
                   ),
         ],
       )
