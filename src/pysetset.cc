@@ -66,8 +66,8 @@ using std::vector;
 
 static PyObject* setset_build_set(const set<int>& s) {
   PyObject* so = PySet_New(nullptr);
-  for (const auto& e : s) {
-    PyObject* eo = PyInt_FromLong(e);
+  for (set<int>::const_iterator e = s.begin(); e != s.end(); ++e) {
+    PyObject* eo = PyInt_FromLong(*e);
     if (eo == nullptr) {
       PyErr_SetString(PyExc_TypeError, "not int set");
       Py_DECREF(eo);
@@ -362,8 +362,9 @@ static Py_ssize_t setset_len(PyObject* obj) {
 static PyObject* setset_long_len(PyObject* obj) {
   PySetsetObject* self = reinterpret_cast<PySetsetObject*>(obj);
   vector<char> buf;
-  for (const auto& c : self->ss->size())
-    buf.push_back(c);
+  string size = self->ss->size();
+  for (string::const_iterator c = size.begin(); c != size.end(); ++c)
+    buf.push_back(*c);
   buf.push_back('\0');
   return PyLong_FromString(buf.data(), nullptr, 0);
 }

@@ -1,14 +1,18 @@
 #include "illion/util.h"
 
+#include "illion/type.h"
+
 namespace illion {
 
-std::vector<std::string> split(const std::string& str,
-                               const std::string sep) {
-  std::vector<char> buf;
-  for (const auto& c : str)
-    buf.push_back(c);
+using std::string;
+using std::vector;
+
+vector<string> split(const string& str, const string sep) {
+  vector<char> buf;
+  for (string::const_iterator c = str.begin(); c != str.end(); ++c)
+    buf.push_back(*c);
   buf.push_back('\0');
-  std::vector<std::string> v;
+  vector<string> v;
   char* last;
   char* p = strtok_r(buf.data(), sep.c_str(), &last);
   while (p != nullptr) {

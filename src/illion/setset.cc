@@ -9,7 +9,6 @@
 
 namespace illion {
 
-using std::initializer_list;
 using std::istream;
 using std::make_pair;
 using std::map;
@@ -20,15 +19,17 @@ using std::string;
 using std::stringstream;
 using std::vector;
 
-setset::iterator::iterator() : zdd_(null()) {
+setset::iterator::iterator()
+    : zdd_(null()), s_(set<elem_t>()), weights_(vector<double>()) {
 }
 
 setset::iterator::iterator(const setset& ss, vector<double> weights)
-    : zdd_(ss.zdd_), weights_(weights) {
+    : zdd_(ss.zdd_), s_(set<elem_t>()), weights_(weights) {
   this->next();
 }
 
-setset::iterator::iterator(const set<elem_t>& s) : zdd_(bot()), s_(s) {
+setset::iterator::iterator(const set<elem_t>& s)
+    : zdd_(bot()), s_(s), weights_(vector<double>()) {
 }
 
 setset::iterator& setset::iterator::operator++() {
@@ -56,24 +57,27 @@ setset::setset() : zdd_(bot()) {
 }
 
 setset::setset(const set<elem_t>& s) : zdd_(top()) {
-  for (const auto& e : s)
-    this->zdd_ *= single(e);
+  for (set<elem_t>::const_iterator e = s.begin(); e != s.end(); ++e)
+    this->zdd_ *= single(*e);
 }
 
 setset::setset(const vector<set<elem_t> >& v) : zdd_(bot()) {
-  for (const auto& s : v)
-    this->zdd_ += setset(s).zdd_;
+  for (vector<set<elem_t> >::const_iterator s = v.begin(); s != v.end(); ++s)
+    this->zdd_ += setset(*s).zdd_;
 }
 
 setset::setset(const map<string, vector<elem_t> >& m) {
-  for (const auto& i : m)
-    assert(i.first == "include" || i.first == "exclude");
-  const auto in_i = m.find("include");
-  const auto ex_i = m.find("exclude");
+  for (map<string, vector<elem_t> >::const_iterator i = m.begin();
+       i != m.end(); ++i)
+    assert(i->first == "include" || i->first == "exclude");
+  map<string, vector<elem_t> >::const_iterator in_i = m.find("include");
+  map<string, vector<elem_t> >::const_iterator ex_i = m.find("exclude");
   const vector<elem_t>& in_v = in_i != m.end() ? in_i->second : vector<elem_t>();
   const vector<elem_t>& ex_v = ex_i != m.end() ? ex_i->second : vector<elem_t>();
-  for (const auto& e : in_v) single(e);
-  for (const auto& e : ex_v) single(e);
+  for (vector<elem_t>::const_iterator e = in_v.begin(); e != in_v.end(); ++e)
+    single(*e);
+  for (vector<elem_t>::const_iterator e = ex_v.begin(); e != ex_v.end(); ++e)
+    single(*e);
   vector<zdd_t> n(num_elems() + 2);
   n[0] = bot(), n[1] = top();
   for (elem_t v = num_elems(); v > 0; --v) {
@@ -86,11 +90,6 @@ setset::setset(const map<string, vector<elem_t> >& m) {
          :            n[i-1] + single(v) * n[i-1];
   }
   this->zdd_ = n[num_elems() + 1];
-}
-
-setset::setset(const initializer_list<set<elem_t> >& v) : zdd_(bot()) {
-  for (auto i = v.begin(); i != v.end(); ++i)
-    this->zdd_ += setset(*i).zdd_;
 }
 
 setset::setset(istream& in) : zdd_(illion::load(in)) {
@@ -200,13 +199,17 @@ setset::iterator setset::find(const set<elem_t>& s) const {
 }
 
 setset setset::include(elem_t e) const {
-  zdd_t z1 = setset({{e}}).zdd_;
+  set<elem_t> s;
+  s.insert(e);
+  zdd_t z1 = setset(s).zdd_;
   zdd_t z2 = this->zdd_ / z1;
   return setset(z2 * z1);
 }
 
 setset setset::exclude(elem_t e) const {
-  return setset(this->zdd_ % setset({{e}}).zdd_);
+  set<elem_t> s;
+  s.insert(e);
+  return setset(this->zdd_ % setset(s).zdd_);
 }
 
 size_t setset::count(const set<elem_t>& s) const {
@@ -225,11 +228,6 @@ pair<setset::iterator, bool> setset::insert(const set<elem_t>& s) {
 setset::iterator setset::insert(const_iterator /*hint*/, const set<elem_t>& s) {
   pair<iterator, bool> p = this->insert(s);
   return p.first;
-}
-
-void setset::insert(const initializer_list<set<elem_t> >& v) {
-  for (auto i = v.begin(); i != v.end(); ++i)
-    this->insert(*i);
 }
 
 setset::iterator setset::erase(const_iterator position) {
