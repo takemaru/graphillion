@@ -36,7 +36,7 @@ setup(name='illion',
                   define_macros=[('B_64', None),
                                  ('HAVE_LIBGMP', None),
                                  ('HAVE_LIBGMPXX', None)],
-                  extra_compile_args=['-std=c++0x'],
+                  extra_compile_args=['-std=c++11'],
                   ),
         ],
       )
