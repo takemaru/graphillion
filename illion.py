@@ -155,8 +155,9 @@ class setset(_illion.setset):
         while (True):
             yield _do_conv_ret(i.next())
 
-    def optimize(self, weights_arg):
-        weights = [1] * (_illion.num_elems() + 1)
+    def optimize(self, weights_arg, **kwds):
+        default = kwds['default'] if 'default' in kwds else 1
+        weights = [default] * (_illion.num_elems() + 1)
         for e, w in weights_arg.iteritems():
             i = setset._obj2int[e]
             weights[i] = w
