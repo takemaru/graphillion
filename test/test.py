@@ -458,16 +458,16 @@ class TestGraphset(object):
         assert isinstance(gs, graphset)
         assert len(gs) == 0
 
-        gs = graphset(set([(1, 2)]))
+        gs = graphset(set([(2, 1)]))
         assert len(gs) == 1
         assert set([(1, 2)]) in gs
 
-        gs = graphset([set([(1, 2)]), set([(1, 3)])])
+        gs = graphset([set([(1, 2)]), set([(3, 1)])])
         assert len(gs) == 2
         assert set([(1, 2)]) in gs
         assert set([(1, 3)]) in gs
 
-        gs = graphset({'include': [(1, 2), (1, 3)], 'exclude': [(3, 4)]})
+        gs = graphset({'include': [(1, 2), (1, 3)], 'exclude': [(4, 3)]})
         assert len(gs) == 2
         assert set([(1, 2), (1, 3)]) in gs
         assert set([(1, 2), (1, 3), (2, 4)]) in gs
@@ -511,7 +511,7 @@ class TestGraphset(object):
         assert set([(1, 2), (1, 3)]) in gs1
         assert set([(1, 2)]) not in gs1
 
-        gs2 = gs1.include_edge((1, 2))
+        gs2 = gs1.include_edge((2, 1))
         assert len(gs2) == 7
 
         gs2 = gs1.exclude_edge((1, 3))

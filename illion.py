@@ -18,26 +18,22 @@ def conv_elem(e):
 
 def conv_arg(func):
     def wrapper(self, *args, **kwds):
-        if not args:
-            return func(self, *args, **kwds)
-        else:
+        if args:
             obj = args[0]
             args = [None] + list(args)[1:]
             if isinstance(obj, (set, frozenset)):
                 args[0] = set([conv_elem(e) for e in obj])
             elif isinstance(obj, dict):
-                d = {}
+                args[0] = {}
                 for k, l in obj.iteritems():
-                    d[k] = [conv_elem(e) for e in l]
-                args[0] = d
+                    args[0][k] = [conv_elem(e) for e in l]
             elif isinstance(obj, list):
-                l = []
+                args[0] = []
                 for s in obj:
-                    l.append(set([conv_elem(e) for e in s]))
-                args[0] = l
+                    args[0].append(set([conv_elem(e) for e in s]))
             else:
                 args[0] = conv_elem(obj)
-            return func(self, *args, **kwds)
+        return func(self, *args, **kwds)
     return wrapper
 
 def do_conv_ret(obj):
@@ -54,23 +50,31 @@ def conv_ret(func):
         return do_conv_ret(func(self, *args, **kwds))
     return wrapper
 
-def do_check_arg(l):
-    for e in l:
-        if e not in setset._obj2int:
-            raise KeyError, e
+def do_check_arg(e):
+    if e in setset._obj2int:
+        return e
+    elif (e[1], e[0]) in setset._obj2int:
+        return (e[1], e[0])
+    else:
+        raise KeyError, e
 
 def check_arg(func):
     def wrapper(self, *args, **kwds):
         if args:
             obj = args[0]
+            args = [None] + list(args)[1:]
             if isinstance(obj, (set, frozenset)):
-                do_check_arg(obj)
+                args[0] = set([do_check_arg(e) for e in obj])
             elif isinstance(obj, dict):
+                args[0] = {}
                 for k, l in obj.iteritems():
-                    do_check_arg(l)
+                    args[0][k] = [do_check_arg(e) for e in l]
             elif isinstance(obj, list):
+                args[0] = []
                 for s in obj:
-                    do_check_arg(s)
+                    args[0].append([do_check_arg(e) for e in s])
+            else:
+                args[0] = do_check_arg(obj)
         return func(self, *args, **kwds)
     return wrapper
 
@@ -102,7 +106,7 @@ class setset(_illion.setset):
             w[e] = - (1 + float(i) / n**2)
         ret = self.__class__.__name__ + '(['
         i = 1
-        for s in self.optimize(w):
+        for s in setset.optimize(self, w):
             if i >= 2:
                 ret += ', '
             ret += str(s)
