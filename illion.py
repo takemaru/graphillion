@@ -1,5 +1,4 @@
 import _illion
-import networkx as nx
 
 
 def add_elem(e):
@@ -250,66 +249,66 @@ class graphset(setset):
 
     @staticmethod
     def universe(*args, **kwds):
-        def parse_kwds(key, default):
-            return kwds[key] if key in kwds else default
-
         if args:
-            if isinstance(args[0], nx.Graph):
-                g = args[0]
-                assert not isinstance(g, nx.DiGraph)
-                traversal = parse_kwds('traversal', 'bfs')
-                source = parse_kwds('source', sorted(g.nodes())[0])
-                edges = graphset.traverse_edges(g, traversal, source)
-            else:
-                edges = args[0]
-                g = nx.Graph()
-                if len(edges[0]) == 2:
-                    g.add_edges_from(edges)
-                else:
-                    g.add_weighted_edges_from(edges)
-            setset.universe(edges)
+            edges = []
             graphset._weights = {}
-            for e in g.edges():
-                if 'weight' in g[e[0]][e[1]]:
-                    graphset._weights[e] = g[e[0]][e[1]]['weight']
+            for e in args[0]:
+                edges.append(e[:2])
+                if len(e) > 2:
+                    graphset._weights[e[:2]] = e[2]
+            if 'traversal' in kwds:
+                if 'source' in kwds:
+                    source = kwds['source']
+                else:
+                    source = edges[0][0]
+                    for e in edges:
+                        source = min(e[0], e[1], source)
+                edges = graphset._traverse(edges, kwds['traversal'], source)
+            setset.universe(edges)
         else:
-            g = nx.Graph()
+            edges = []
             for e in setset.universe():
                 if e in graphset._weights:
-                    g.add_edge(*e, weight=graphset._weights[e])
+                    edges.append((e[0], e[1], graphset._weights[e]))
                 else:
-                    g.add_edge(*e)
-            return g
+                    edges.append(e)
+            return edges
 
     @staticmethod
-    def traverse_edges(g, traversal, source):
-        def append_edge(e):
-            if e in g.edges() and e not in edges:
-                edges.append(e)
-                return
-            e = (e[1], e[0])
-            if e in g.edges() and e not in edges:
-                edges.append(e)
+    def _traverse(edges, traversal, source):
+        neighbors = {}
+        for u, v in edges:
+            if u not in neighbors:
+                neighbors[u] = set([v])
+            else:
+                neighbors[u].add(v)
+            if v not in neighbors:
+                neighbors[v] = set([u])
+            else:
+                neighbors[v].add(u)
+        assert source in neighbors
 
-        edges = []
-        visited = set()
-        if traversal == 'dfs':
-            func = nx.dfs_edges
-        elif traversal == 'bfs':
-            func = nx.bfs_edges
-        else:
-            raise ValueError, traversal
-        for e in apply(func, (g, source)):
-            e = tuple(sorted([e[0], e[1]]))
-            append_edge(e)
-            for v in visited:
-                if v in g.edge[e[0]]:
-                    append_edge((v, e[0]))
-                if v in g.edge[e[1]]:
-                    append_edge((v, e[1]))
-            visited.add(e[0])
-            visited.add(e[1])
-        assert len(edges) == g.number_of_edges()
-        return edges
+        sorted_edges = []
+        queue_or_stack = []
+        visited_vertices = set()
+        u = source
+        while True:
+            if u in visited_vertices:
+                continue
+            visited_vertices.add(u)
+            for v in sorted(neighbors[u]):
+                if v in visited_vertices:
+                    e = (u, v) if (u, v) in edges else (v, u)
+                    sorted_edges.append(e)
+            new_vertices = neighbors[u] - visited_vertices - set(queue_or_stack)
+            queue_or_stack.extend(new_vertices)
+            if not queue_or_stack:
+                break
+            if traversal == 'bfs':
+                u, queue_or_stack = queue_or_stack[0], queue_or_stack[1:]
+            else:
+                queue_or_stack, u = queue_or_stack[:-1], queue_or_stack[-1]
+        assert set(edges) == set(sorted_edges)
+        return sorted_edges
 
     _weights = {}

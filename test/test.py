@@ -1,5 +1,4 @@
 from illion import setset, graphset
-import networkx as nx
 
 
 class TestSetset(object):
@@ -440,24 +439,16 @@ class TestGraphset(object):
         self.large()
 
     def init(self):
-        g = nx.Graph()
-        g.add_edge('i', 'ii')
-        graphset.universe(g)
-        g = graphset.universe()
-        assert g.edges() == [('i', 'ii')]
-        assert 'weight' not in g.edge['i']['ii']
+        graphset.universe([('i', 'ii')])
+        assert graphset.universe() == [('i', 'ii')]
 
         gs = graphset({})
         assert len(gs) == 2**1
 
-        g = nx.Graph()
-        edges = [(1, 2, .3), (1, 3, -.2), (2, 4, -.2), (3, 4, .4)]
-        g.add_weighted_edges_from(edges)
-        graphset.universe(g, traversal='dfs', source=1)
-        g = graphset.universe()
-        assert len(g.edges()) == 4
-        assert g.edge[1][2]['weight'] == .3
-        assert setset._int2obj[1:] == [(1, 2), (2, 4), (3, 4), (1, 3)]
+        graphset.universe([(1, 2, .3), (1, 3, -.2), (2, 4, -.2), (3, 4, .4)],
+                          traversal='dfs', source=1)
+        assert graphset.universe() == [(1, 3, -.2), (3, 4, .4), (1, 2, .3),
+                                       (2, 4, -.2)]
 
         gs = graphset({})
         assert len(gs) == 2**4
@@ -501,9 +492,6 @@ class TestGraphset(object):
             pass
         else:
             assert False
-
-        g = graphset.universe()
-        assert g.edges() == [(1, 2), (1, 3), (2, 4), (3, 4)]
 
     def subgraphs(self):
         pass
@@ -566,15 +554,19 @@ class TestGraphset(object):
             assert False
 
     def large(self):
+        import networkx as nx
+
         g = nx.grid_2d_graph(11, 11)
-        graphset.universe(g, traversal='bfs', source=(0, 0))
-        assert len(graphset.universe().edges()) == 220
-        assert setset._int2obj[1:3] == [((0, 1), (0, 0)), ((1, 0), (0, 0))]
+        graphset.universe(g.edges(), traversal='bfs')
+        assert len(graphset.universe()) == 220
+        assert graphset.universe()[:2] == [((0, 1), (0, 0)), ((1, 0), (0, 0))]
 
         gs = graphset({});
         gs -= graphset([set([((0, 1), (0, 0))]),
                         set([((0, 1), (0, 0)), ((1, 0), (0, 0))])])
         assert gs.len() == 2**220 - 2
+
+        del nx
 
 
 if __name__ == '__main__':
