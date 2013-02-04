@@ -1,7 +1,7 @@
 import _illion
 
 
-def add_elem(e):
+def _add_elem(e):
     assert e not in setset._obj2int
     i = len(setset._int2obj)
     _illion.setset(set([i]))
@@ -11,32 +11,37 @@ def add_elem(e):
     assert setset._int2obj[i] == e
     assert setset._obj2int[e] == i
 
-def conv_elem(e):
+def _conv_elem(e):
     if e not in setset._obj2int:
-        add_elem(e)
+        _add_elem(e)
     return setset._obj2int[e]
 
-def conv_arg(func):
+def _conv_arg(func):
     def wrapper(self, *args, **kwds):
         if args:
             obj = args[0]
             args = [None] + list(args)[1:]
             if isinstance(obj, (set, frozenset)):
-                args[0] = set([conv_elem(e) for e in obj])
+                args[0] = set([_conv_elem(e) for e in obj])
             elif isinstance(obj, dict):
                 args[0] = {}
                 for k, l in obj.iteritems():
-                    args[0][k] = [conv_elem(e) for e in l]
+                    args[0][k] = [_conv_elem(e) for e in l]
             elif isinstance(obj, list):
                 args[0] = []
                 for s in obj:
-                    args[0].append(set([conv_elem(e) for e in s]))
+                    args[0].append(set([_conv_elem(e) for e in s]))
             else:
-                args[0] = conv_elem(obj)
+                args[0] = _conv_elem(obj)
         return func(self, *args, **kwds)
     return wrapper
 
-def do_conv_ret(obj):
+def _conv_ret(func):
+    def wrapper(self, *args, **kwds):
+        return _do_conv_ret(func(self, *args, **kwds))
+    return wrapper
+
+def _do_conv_ret(obj):
     if isinstance(obj, (set, frozenset)):
         ret = set()
         for e in obj:
@@ -45,38 +50,33 @@ def do_conv_ret(obj):
     else:
         return setset._int2obj[obj]
 
-def conv_ret(func):
+def _check_arg(func):
     def wrapper(self, *args, **kwds):
-        return do_conv_ret(func(self, *args, **kwds))
+        if args:
+            obj = args[0]
+            args = [None] + list(args)[1:]
+            if isinstance(obj, (set, frozenset)):
+                args[0] = set([_do_check_arg(e) for e in obj])
+            elif isinstance(obj, dict):
+                args[0] = {}
+                for k, l in obj.iteritems():
+                    args[0][k] = [_do_check_arg(e) for e in l]
+            elif isinstance(obj, list):
+                args[0] = []
+                for s in obj:
+                    args[0].append([_do_check_arg(e) for e in s])
+            else:
+                args[0] = _do_check_arg(obj)
+        return func(self, *args, **kwds)
     return wrapper
 
-def do_check_arg(e):
+def _do_check_arg(e):
     if e in setset._obj2int:
         return e
     elif (e[1], e[0]) in setset._obj2int:
         return (e[1], e[0])
     else:
         raise KeyError, e
-
-def check_arg(func):
-    def wrapper(self, *args, **kwds):
-        if args:
-            obj = args[0]
-            args = [None] + list(args)[1:]
-            if isinstance(obj, (set, frozenset)):
-                args[0] = set([do_check_arg(e) for e in obj])
-            elif isinstance(obj, dict):
-                args[0] = {}
-                for k, l in obj.iteritems():
-                    args[0][k] = [do_check_arg(e) for e in l]
-            elif isinstance(obj, list):
-                args[0] = []
-                for s in obj:
-                    args[0].append([do_check_arg(e) for e in s])
-            else:
-                args[0] = do_check_arg(obj)
-        return func(self, *args, **kwds)
-    return wrapper
 
 
 class setset_iterator(object):
@@ -87,14 +87,14 @@ class setset_iterator(object):
     def __iter__(self):
         return self
 
-    @conv_ret
+    @_conv_ret
     def next(self):
         return self.it.next()
 
 
 class setset(_illion.setset):
 
-    @conv_arg
+    @_conv_arg
     def __init__(self, *args, **kwds):
         _illion.setset.__init__(self, *args, **kwds)
 
@@ -119,31 +119,31 @@ class setset(_illion.setset):
             ret += ', ...'
         return ret + '])'
 
-    @conv_arg
+    @_conv_arg
     def __contains__(self, *args, **kwds):
         return _illion.setset.__contains__(self, *args, **kwds)
 
-    @conv_arg
+    @_conv_arg
     def include(self, *args, **kwds):
         return _illion.setset.include(self, *args, **kwds)
 
-    @conv_arg
+    @_conv_arg
     def exclude(self, *args, **kwds):
         return _illion.setset.exclude(self, *args, **kwds)
 
-    @conv_arg
+    @_conv_arg
     def add(self, *args, **kwds):
         return _illion.setset.add(self, *args, **kwds)
 
-    @conv_arg
+    @_conv_arg
     def remove(self, *args, **kwds):
         return _illion.setset.remove(self, *args, **kwds)
 
-    @conv_arg
+    @_conv_arg
     def discard(self, *args, **kwds):
         return _illion.setset.discard(self, *args, **kwds)
 
-    @conv_ret
+    @_conv_ret
     def pop(self, *args, **kwds):
         return _illion.setset.pop(self, *args, **kwds)
 
@@ -153,7 +153,7 @@ class setset(_illion.setset):
     def randomize(self):
         i = self.rand_iter()
         while (True):
-            yield do_conv_ret(i.next())
+            yield _do_conv_ret(i.next())
 
     def optimize(self, weights_arg):
         weights = [1] * (_illion.num_elems() + 1)
@@ -162,7 +162,7 @@ class setset(_illion.setset):
             weights[i] = w
         i = self.opt_iter(weights)
         while (True):
-            yield do_conv_ret(i.next())
+            yield _do_conv_ret(i.next())
 
     @staticmethod
     def universe(*args):
@@ -171,7 +171,7 @@ class setset(_illion.setset):
             setset._obj2int = {}
             setset._int2obj = [None]
             for e in args[0]:
-                add_elem(e)
+                _add_elem(e)
             setset._check_universe()
         else:
             setset._check_universe()
@@ -192,7 +192,7 @@ class setset(_illion.setset):
 
 class graphset(setset):
 
-    @check_arg
+    @_check_arg
     def __init__(self, *args, **kwds):
         setset.__init__(self, *args, **kwds)
 
@@ -208,11 +208,11 @@ class graphset(setset):
     def forests(self):
         assert False, 'not implemented'
 
-    @check_arg
+    @_check_arg
     def __contains__(self, *args, **kwds):
         return setset.__contains__(self, *args, **kwds)
 
-    @check_arg
+    @_check_arg
     def include(self, *args, **kwds):
         return setset.include(self, *args, **kwds)
 
@@ -231,19 +231,19 @@ class graphset(setset):
     def exclude_vertex(self, v):
         return self - self.include_vertex(v)
 
-    @check_arg
+    @_check_arg
     def exclude(self, *args, **kwds):
         return setset.exclude(self, *args, **kwds)
 
-    @check_arg
+    @_check_arg
     def add(self, *args, **kwds):
         return setset.add(self, *args, **kwds)
 
-    @check_arg
+    @_check_arg
     def remove(self, *args, **kwds):
         return setset.remove(self, *args, **kwds)
 
-    @check_arg
+    @_check_arg
     def discard(self, *args, **kwds):
         return setset.discard(self, *args, **kwds)
 
