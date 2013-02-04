@@ -3,6 +3,7 @@ import os
 
 extra_include_dirs = ['/opt/local/include']
 extra_link_args = ['-L/opt/local/lib']
+extra_macros = [('HAVE_LIBGMP', None), ('HAVE_LIBGMPXX', None)]
 
 setup(name='illion',
       version='0.1',
@@ -35,9 +36,7 @@ setup(name='illion',
                            os.path.join('src', 'hudd', 'ZBDD.cc')],
                   include_dirs=['src'] + extra_include_dirs,
                   libraries=['gmp', 'gmpxx'],
-                  define_macros=[('B_64', None),
-                                 ('HAVE_LIBGMP', None),
-                                 ('HAVE_LIBGMPXX', None)],
+                  define_macros=[('B_64', None)] + extra_macros,
                   extra_link_args=extra_link_args,
                   ),
         ],
