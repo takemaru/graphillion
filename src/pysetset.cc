@@ -502,6 +502,26 @@ static PyObject* setset_smaller(PySetsetObject* self, PyObject* other) {
   RETURN_NEW_SETSET(self, self->ss->smaller(set_size));
 }
 
+static PyObject* setset_larger(PySetsetObject* self, PyObject* other) {
+  CHECK_OR_ERROR(other, PyInt_Check, "int", nullptr);
+  int set_size = PyLong_AsLong(other);
+  if (set_size < 0) {
+    PyErr_SetString(PyExc_ValueError, "not unsigned int");
+    return nullptr;
+  }
+  RETURN_NEW_SETSET(self, self->ss->larger(set_size));
+}
+
+static PyObject* setset_equal(PySetsetObject* self, PyObject* other) {
+  CHECK_OR_ERROR(other, PyInt_Check, "int", nullptr);
+  int set_size = PyLong_AsLong(other);
+  if (set_size < 0) {
+    PyErr_SetString(PyExc_ValueError, "not unsigned int");
+    return nullptr;
+  }
+  RETURN_NEW_SETSET(self, self->ss->equal(set_size));
+}
+
 static PyObject* setset_join(PySetsetObject* self, PyObject* other) {
   CHECK_SETSET_OR_ERROR(other);
   RETURN_NEW_SETSET2(self, other, _other, self->ss->join(*_other->ss));
@@ -675,6 +695,8 @@ static PyMethodDef setset_methods[] = {
   {"maximal", reinterpret_cast<PyCFunction>(setset_maximal), METH_NOARGS, ""},
   {"hitting", reinterpret_cast<PyCFunction>(setset_hitting), METH_NOARGS, ""},
   {"smaller", reinterpret_cast<PyCFunction>(setset_smaller), METH_O, ""},
+  {"larger", reinterpret_cast<PyCFunction>(setset_larger), METH_O, ""},
+  {"equal", reinterpret_cast<PyCFunction>(setset_equal), METH_O, ""},
   {"join", reinterpret_cast<PyCFunction>(setset_join), METH_O, ""},
   {"meet", reinterpret_cast<PyCFunction>(setset_meet), METH_O, ""},
   {"subsets", reinterpret_cast<PyCFunction>(setset_subsets), METH_O, ""},

@@ -276,6 +276,15 @@ setset setset::smaller(size_t set_size) const {
   return setset(this->zdd_.PermitSym(set_size - 1));
 }
 
+setset setset::larger(size_t set_size) const {
+  return setset(this->zdd_ - this->zdd_.PermitSym(set_size));
+}
+
+setset setset::equal(size_t set_size) const {
+  zdd_t z = this->zdd_.PermitSym(set_size) - this->zdd_.PermitSym(set_size - 1);
+  return setset(z);
+}
+
 setset setset::join(const setset& ss) const {
   return setset(illion::join(this->zdd_, ss.zdd_));
 }

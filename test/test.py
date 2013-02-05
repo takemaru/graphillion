@@ -116,9 +116,15 @@ class TestSetset(unittest.TestCase):
                                                   set(['2']), set(['2', '3']),
                                                   set(['2', '3', '4']), set(['2', '4']),
                                                   set(['3']), set(['3', '4'])]))
+
         self.assertTrue(isinstance(ss.smaller(3), setset))
         self.assertEqual(ss.smaller(3), setset([set(), set(['1']), set(['1', '2']),
                                                 set(['1', '4']), set(['4'])]))
+        self.assertTrue(isinstance(ss.larger(3), setset))
+        self.assertEqual(ss.larger(3), setset([set(['1', '2', '3', '4'])]))
+        self.assertTrue(isinstance(ss.equal(3), setset))
+        self.assertEqual(ss.equal(3), setset([set(['1', '2', '3']),
+                                              set(['1', '3', '4'])]))
 
         ss = setset([set(['1', '2']), set(['1', '4']), set(['2', '3']),
                      set(['3', '4'])])
