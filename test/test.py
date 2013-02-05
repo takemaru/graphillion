@@ -5,25 +5,14 @@ from illion import setset, graphset
 class TestSetset(unittest.TestCase):
 
     def setUp(self):
-        setset.universe([])
+        setset.universe(['1', '2', '3', '4'])
 
     def tearDown(self):
         pass
 
-    def runTest(self):
-        self.init()
-        self.constructors()
-        self.comparison()
-        self.unary_operators()
-        self.binary_operators()
-        self.capacity()
-        self.iterators()
-        self.lookup()
-        self.modifiers()
-        self.io()
-        self.large()
+    def test_init(self):
+        setset.universe([])
 
-    def init(self):
         self.assertEqual(setset._obj2int, {})
         self.assertEqual(setset._int2obj, [None])
         self.assertEqual(setset.universe(), [])
@@ -46,7 +35,7 @@ class TestSetset(unittest.TestCase):
         ss = setset({})
         self.assertEqual(ss, setset([set(), set(['1'])]))
 
-    def constructors(self):
+    def test_constructors(self):
         ss = setset()
         self.assertTrue(isinstance(ss, setset))
         self.assertEqual(repr(ss), 'setset([])')
@@ -85,7 +74,7 @@ class TestSetset(unittest.TestCase):
             repr(ss),
             "setset([set([]), set(['1']), set(['4']), set(['1', '2']), ...])")
 
-    def comparison(self):
+    def test_comparison(self):
         ss = setset(set(['1', '2']))
         self.assertEqual(ss, setset(set(['1', '2'])))
         self.assertNotEqual(ss, setset(set(['1', '3'])))
@@ -111,9 +100,7 @@ class TestSetset(unittest.TestCase):
         self.assertTrue(ss > setset([set(), set(['1', '2'])]))
         self.assertFalse(ss > setset(v))
 
-    def unary_operators(self):
-        self.assertEqual(setset.universe(), ['1', '2', '3', '4'])
-
+    def test_unary_operators(self):
         ss = setset([set(), set(['1']), set(['1', '2']), set(['1', '2', '3']),
                      set(['1', '2', '3', '4']), set(['1', '3', '4']),
                      set(['1', '4']), set(['4'])])
@@ -161,7 +148,7 @@ class TestSetset(unittest.TestCase):
             ss.maximal(),
             setset([set(['1', '2', '3', '4']), set(['2', '4', '5'])]))
 
-    def binary_operators(self):
+    def test_binary_operators(self):
         u = [set(), set(['1']), set(['1', '2']), set(['1', '2', '3']),
              set(['1', '2', '3', '4']), set(['1', '3', '4']), set(['1', '4']),
              set(['4'])]
@@ -374,7 +361,7 @@ class TestSetset(unittest.TestCase):
         self.assertEqual(len(ss), 3)
         self.assertEqual(ss.len(), 3)
 
-    def iterators(self):
+    def test_iterators(self):
         ss1 = setset([set(), set(['1', '2']), set(['1', '3'])])
         ss2 = setset()
         for s in ss1:
@@ -410,7 +397,7 @@ class TestSetset(unittest.TestCase):
         self.assertEqual(r[0], set(['1', '2', '3', '4']))
         self.assertEqual(r[-1], set())
 
-    def lookup(self):
+    def test_lookup(self):
         ss1 = setset([set(), set(['1', '2']), set(['1', '3'])])
         self.assertTrue(set(['1', '2']) in ss1)
         self.assertTrue(set(['1']) not in ss1)
@@ -423,7 +410,7 @@ class TestSetset(unittest.TestCase):
         self.assertTrue(isinstance(ss2, setset))
         self.assertEqual(ss2, setset([set(), set(['1', '3'])]))
 
-    def modifiers(self):
+    def test_modifiers(self):
         v = [set(), set(['1', '2']), set(['1', '3'])]
         ss = setset(v)
         ss.add(set(['1']))
@@ -451,7 +438,7 @@ class TestSetset(unittest.TestCase):
 
         self.assertRaises(KeyError, ss.pop)
 
-    def io(self):
+    def test_io(self):
         ss = setset()
         st = ss.dumps()
         self.assertEqual(st, "B\n.\n")
@@ -482,7 +469,7 @@ class TestSetset(unittest.TestCase):
         ss.load(open('/tmp/illion_'))
         self.assertEqual(ss, setset(v))
 
-    def large(self):
+    def test_large(self):
         setset.universe(xrange(10000))
         ss = setset({}) - setset([set([1]) - set([1, 2])])
         self.assertTrue(ss)
@@ -492,21 +479,15 @@ class TestSetset(unittest.TestCase):
 class TestGraphset(unittest.TestCase):
 
     def setUp(self):
-        setset.universe([])
+        graphset.universe([(1, 2, .3), (1, 3, -.2), (2, 4, -.2), (3, 4, .4)],
+                          traversal='dfs', source=1)
 
     def tearDown(self):
         pass
 
-    def runTest(self):
-        self.init()
-        self.constructors()
-        self.subgraphs()
-        self.iterators()
-        self.lookup()
-        self.modifiers()
-        self.large()
+    def test_init(self):
+        setset.universe([])
 
-    def init(self):
         graphset.universe([('i', 'ii')])
         self.assertEqual(graphset.universe(), [('i', 'ii')])
 
@@ -521,7 +502,7 @@ class TestGraphset(unittest.TestCase):
         gs = graphset({})
         self.assertEqual(len(gs), 2**4)
 
-    def constructors(self):
+    def test_constructors(self):
         gs = graphset()
         self.assertTrue(isinstance(gs, graphset))
         self.assertEqual(len(gs), 0)
@@ -544,10 +525,10 @@ class TestGraphset(unittest.TestCase):
         self.assertRaises(KeyError, graphset, [set([(1, 4)])])
         self.assertRaises(KeyError, graphset, {'include': [(1, 4)]})
 
-    def subgraphs(self):
+    def test_subgraphs(self):
         pass
 
-    def iterators(self):
+    def test_iterators(self):
         gs = graphset({})
         r = []
         for s in gs.optimize():
@@ -556,7 +537,7 @@ class TestGraphset(unittest.TestCase):
         self.assertEqual(r[0], set([(1, 2), (3, 4)]))
         self.assertEqual(r[-1], set([(1, 3), (2, 4)]))
 
-    def lookup(self):
+    def test_lookup(self):
         gs1 = graphset({}) - graphset([set([(1, 2)]), set([(2, 4), (3, 4)])])
 
         self.assertTrue(set([(1, 2), (1, 3)]) in gs1)
@@ -571,7 +552,7 @@ class TestGraphset(unittest.TestCase):
         self.assertEqual(len(gs1.include_vertex(1)), 11)
         self.assertEqual(len(gs1.exclude_vertex(1)), 3)
 
-    def modifiers(self):
+    def test_modifiers(self):
         gs = graphset({}) - graphset([set([(1, 2)]), set([(2, 4), (3, 4)])])
 
         gs.add(set([(1, 2)]))
@@ -587,7 +568,7 @@ class TestGraphset(unittest.TestCase):
         self.assertRaises(KeyError, gs.remove, set([(1, 4)]))
         self.assertRaises(KeyError, gs.discard, set([(1, 4)]))
 
-    def large(self):
+    def test_large(self):
         import networkx as nx
 
         g = nx.grid_2d_graph(11, 11)
