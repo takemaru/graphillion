@@ -391,11 +391,18 @@ class TestSetset(unittest.TestCase):
         self.assertEqual(r[2], set(['4']))
 
         r = []
-        for s in ss.optimize({}):
+        for s in ss.optimize():
             r.append(s)
         self.assertEqual(len(r), 8)
         self.assertEqual(r[0], set(['1', '2', '3', '4']))
         self.assertEqual(r[-1], set())
+
+        r = []
+        for s in ss.optimize(weight=-1):
+            r.append(s)
+        self.assertEqual(len(r), 8)
+        self.assertEqual(r[0], set())
+        self.assertEqual(r[-1], set(['1', '2', '3', '4']))
 
     def test_lookup(self):
         ss1 = setset([set(), set(['1', '2']), set(['1', '3'])])
