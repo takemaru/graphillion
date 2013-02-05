@@ -34,7 +34,9 @@ class TestSetset(unittest.TestCase):
         self.assertEqual(setset.universe(), ['i', 'ii'])
 
         ss = setset({})
-        self.assertEqual(ss, setset([set(), set(['i']), set(['i', 'ii']), set(['ii'])]))
+        self.assertEqual(
+            ss,
+            setset([set(), set(['i']), set(['i', 'ii']), set(['ii'])]))
 
         setset.universe(['1'])
         self.assertEqual(setset._obj2int, {'1': 1})
@@ -56,25 +58,32 @@ class TestSetset(unittest.TestCase):
         self.assertEqual(repr(ss), "setset([set(['1', '2'])])")
 
         ss = setset([set(), set(['1', '2']), set(['1', '3'])])
-        self.assertEqual(repr(ss), "setset([set([]), set(['1', '2']), set(['1', '3'])])")
+        self.assertEqual(repr(ss),
+                         "setset([set([]), set(['1', '2']), set(['1', '3'])])")
 
         ss = setset({'include': ('1', '2'), 'exclude': ('4',)})
-        self.assertEqual(repr(ss), "setset([set(['1', '2']), set(['1', '3', '2'])])")
+        self.assertEqual(repr(ss),
+                         "setset([set(['1', '2']), set(['1', '3', '2'])])")
 
         # copy constructor
         ss = setset([set(), set(['1', '2']), set(['1', '3'])])
-        self.assertEqual(repr(ss), "setset([set([]), set(['1', '2']), set(['1', '3'])])")
+        self.assertEqual(repr(ss),
+                         "setset([set([]), set(['1', '2']), set(['1', '3'])])")
 
         ss1 = setset([set(), set(['1', '2']), set(['1', '3'])])
         ss2 = ss1.copy()
         self.assertTrue(isinstance(ss2, setset))
         ss1.clear()
         self.assertEqual(repr(ss1), 'setset([])')
-        self.assertEqual(repr(ss2), "setset([set([]), set(['1', '2']), set(['1', '3'])])")
+        self.assertEqual(repr(ss2),
+                         "setset([set([]), set(['1', '2']), set(['1', '3'])])")
 
+        # more than four sets
         ss = setset([set(), set(['1']), set(['1', '2']), set(['1', '4']),
                      set(['4'])])
-        self.assertEqual(repr(ss), "setset([set([]), set(['1']), set(['4']), set(['1', '2']), ...])")
+        self.assertEqual(
+            repr(ss),
+            "setset([set([]), set(['1']), set(['4']), set(['1', '2']), ...])")
 
     def comparison(self):
         ss = setset(set(['1', '2']))
@@ -83,14 +92,16 @@ class TestSetset(unittest.TestCase):
 
         v = [set(), set(['1', '2']), set(['1', '3'])]
         ss = setset(v)
-        self.assertTrue(ss.isdisjoint(setset([set(['1']), set(['1', '2', '3'])])))
+        self.assertTrue(
+            ss.isdisjoint(setset([set(['1']), set(['1', '2', '3'])])))
         self.assertFalse(ss.isdisjoint(setset([set(['1']), set(['1', '2'])])))
 
         self.assertTrue(ss.issubset(setset(v)))
         self.assertFalse(ss.issubset(setset([set(), set(['1', '2'])])))
         self.assertTrue(ss <= setset(v))
         self.assertFalse(ss <= setset([set(), set(['1', '2'])]))
-        self.assertTrue(ss < setset([set(), set(['1']), set(['1', '2']), set(['1', '3'])]))
+        self.assertTrue(
+            ss < setset([set(), set(['1']), set(['1', '2']), set(['1', '3'])]))
         self.assertFalse(ss < setset(v))
 
         self.assertTrue(ss.issuperset(setset(v)))
@@ -108,18 +119,23 @@ class TestSetset(unittest.TestCase):
                      set(['1', '4']), set(['4'])])
 
         self.assertTrue(isinstance(~ss, setset))
-        self.assertEqual(~ss, setset([set(['1', '2', '4']), set(['1', '3']), set(['2']),
-                                      set(['2', '3']), set(['2', '3', '4']),
-                                      set(['2', '4']), set(['3']), set(['3', '4'])]))
+        self.assertEqual(
+            ~ss,
+             setset([set(['1', '2', '4']), set(['1', '3']), set(['2']),
+                     set(['2', '3']), set(['2', '3', '4']), set(['2', '4']),
+                     set(['3']), set(['3', '4'])]))
         self.assertTrue(isinstance(ss.complement(), setset))
-        self.assertEqual(ss.complement(), setset([set(['1', '2', '4']), set(['1', '3']),
-                                                  set(['2']), set(['2', '3']),
-                                                  set(['2', '3', '4']), set(['2', '4']),
-                                                  set(['3']), set(['3', '4'])]))
+        self.assertEqual(
+            ss.complement(),
+            setset([set(['1', '2', '4']), set(['1', '3']), set(['2']),
+                    set(['2', '3']), set(['2', '3', '4']), set(['2', '4']),
+                    set(['3']), set(['3', '4'])]))
 
         self.assertTrue(isinstance(ss.smaller(3), setset))
-        self.assertEqual(ss.smaller(3), setset([set(), set(['1']), set(['1', '2']),
-                                                set(['1', '4']), set(['4'])]))
+        self.assertEqual(
+            ss.smaller(3),
+            setset([set(), set(['1']), set(['1', '2']), set(['1', '4']),
+                    set(['4'])]))
         self.assertTrue(isinstance(ss.larger(3), setset))
         self.assertEqual(ss.larger(3), setset([set(['1', '2', '3', '4'])]))
         self.assertTrue(isinstance(ss.equal(3), setset))
@@ -129,24 +145,26 @@ class TestSetset(unittest.TestCase):
         ss = setset([set(['1', '2']), set(['1', '4']), set(['2', '3']),
                      set(['3', '4'])])
         self.assertTrue(isinstance(ss.hitting(), setset))
-        self.assertEqual(ss.hitting(), setset([set(['1', '2', '3']),
-                                               set(['1', '2', '3', '4']),
-                                               set(['1', '2', '4']), set(['1', '3']),
-                                               set(['1', '3', '4']),
-                                               set(['2', '3', '4']), set(['2', '4'])]))
+        self.assertEqual(
+            ss.hitting(),
+            setset([set(['1', '2', '3']), set(['1', '2', '3', '4']),
+                    set(['1', '2', '4']), set(['1', '3']), set(['1', '3', '4']),
+                    set(['2', '3', '4']), set(['2', '4'])]))
 
         ss = setset([set(['1', '2']), set(['1', '2', '3']),
                      set(['1', '2', '3', '4']), set(['2', '4', '5'])])
         self.assertTrue(isinstance(ss.minimal(), setset))
-        self.assertEqual(ss.minimal(), setset([set(['1', '2']), set(['2', '4', '5'])]))
+        self.assertEqual(ss.minimal(),
+                         setset([set(['1', '2']), set(['2', '4', '5'])]))
         self.assertTrue(isinstance(ss.maximal(), setset))
-        self.assertEqual(ss.maximal(), setset([set(['1', '2', '3', '4']),
-                                               set(['2', '4', '5'])]))
+        self.assertEqual(
+            ss.maximal(),
+            setset([set(['1', '2', '3', '4']), set(['2', '4', '5'])]))
 
     def binary_operators(self):
         u = [set(), set(['1']), set(['1', '2']), set(['1', '2', '3']),
-             set(['1', '2', '3', '4']),
-             set(['1', '3', '4']), set(['1', '4']), set(['4'])]
+             set(['1', '2', '3', '4']), set(['1', '3', '4']), set(['1', '4']),
+             set(['4'])]
         v = [set(['1', '2']), set(['1', '4']), set(['2', '3']), set(['3', '4'])]
         ss = setset(u) & setset(v)
         self.assertTrue(isinstance(ss, setset))
@@ -166,79 +184,103 @@ class TestSetset(unittest.TestCase):
 
         ss = setset(u) | setset(v)
         self.assertTrue(isinstance(ss, setset))
-        self.assertEqual(ss, setset([set(), set(['1']), set(['1', '2']),
-                                     set(['1', '2', '3']), set(['1', '2', '3', '4']),
-                                     set(['1', '3', '4']), set(['1', '4']),
-                                     set(['2', '3']), set(['3', '4']), set(['4'])]))
+        self.assertEqual(
+            ss,
+            setset([set(), set(['1']), set(['1', '2']), set(['1', '2', '3']),
+                    set(['1', '2', '3', '4']), set(['1', '3', '4']),
+                    set(['1', '4']), set(['2', '3']), set(['3', '4']),
+                    set(['4'])]))
         ss = setset(u).union(setset(v))
         self.assertTrue(isinstance(ss, setset))
-        self.assertEqual(ss, setset([set(), set(['1']), set(['1', '2']),
-                                     set(['1', '2', '3']), set(['1', '2', '3', '4']),
-                                     set(['1', '3', '4']), set(['1', '4']),
-                                     set(['2', '3']), set(['3', '4']), set(['4'])]))
+        self.assertEqual(
+            ss,
+            setset([set(), set(['1']), set(['1', '2']), set(['1', '2', '3']),
+                    set(['1', '2', '3', '4']), set(['1', '3', '4']),
+                    set(['1', '4']), set(['2', '3']), set(['3', '4']),
+                    set(['4'])]))
 
         ss = setset(u)
         ss |= setset(v)
         self.assertTrue(isinstance(ss, setset))
-        self.assertEqual(ss, setset([set(), set(['1']), set(['1', '2']),
-                                     set(['1', '2', '3']), set(['1', '2', '3', '4']),
-                                     set(['1', '3', '4']), set(['1', '4']),
-                                     set(['2', '3']), set(['3', '4']), set(['4'])]))
+        self.assertEqual(
+            ss,
+            setset([set(), set(['1']), set(['1', '2']), set(['1', '2', '3']),
+                    set(['1', '2', '3', '4']), set(['1', '3', '4']),
+                    set(['1', '4']), set(['2', '3']), set(['3', '4']),
+                    set(['4'])]))
         ss = setset(u)
         ss.update(setset(v))
         self.assertTrue(isinstance(ss, setset))
-        self.assertEqual(ss, setset([set(), set(['1']), set(['1', '2']),
-                                     set(['1', '2', '3']), set(['1', '2', '3', '4']),
-                                     set(['1', '3', '4']), set(['1', '4']),
-                                     set(['2', '3']), set(['3', '4']), set(['4'])]))
+        self.assertEqual(
+            ss,
+            setset([set(), set(['1']), set(['1', '2']), set(['1', '2', '3']),
+                    set(['1', '2', '3', '4']), set(['1', '3', '4']),
+                    set(['1', '4']), set(['2', '3']), set(['3', '4']),
+                    set(['4'])]))
 
         ss = setset(u) - setset(v)
         self.assertTrue(isinstance(ss, setset))
-        self.assertEqual(ss, setset([set(), set(['1']), set(['1', '2', '3']),
-                                     set(['1', '2', '3', '4']), set(['1', '3', '4']),
-                                     set(['4'])]))
+        self.assertEqual(
+            ss,
+            setset([set(), set(['1']), set(['1', '2', '3']),
+                    set(['1', '2', '3', '4']), set(['1', '3', '4']),
+                    set(['4'])]))
         ss = setset(u).difference(setset(v))
         self.assertTrue(isinstance(ss, setset))
-        self.assertEqual(ss, setset([set(), set(['1']), set(['1', '2', '3']),
-                                     set(['1', '2', '3', '4']), set(['1', '3', '4']),
-                                     set(['4'])]))
+        self.assertEqual(
+            ss,
+            setset([set(), set(['1']), set(['1', '2', '3']),
+                    set(['1', '2', '3', '4']), set(['1', '3', '4']),
+                    set(['4'])]))
 
         ss = setset(u)
         ss -= setset(v)
         self.assertTrue(isinstance(ss, setset))
-        self.assertEqual(ss, setset([set(), set(['1']), set(['1', '2', '3']),
-                                     set(['1', '2', '3', '4']), set(['1', '3', '4']),
-                                     set(['4'])]))
+        self.assertEqual(
+            ss,
+            setset([set(), set(['1']), set(['1', '2', '3']),
+                    set(['1', '2', '3', '4']), set(['1', '3', '4']),
+                    set(['4'])]))
         ss = setset(u)
         ss.difference_update(setset(v))
         self.assertTrue(isinstance(ss, setset))
-        self.assertEqual(ss, setset([set(), set(['1']), set(['1', '2', '3']),
-                                     set(['1', '2', '3', '4']), set(['1', '3', '4']),
-                                     set(['4'])]))
+        self.assertEqual(
+            ss,
+            setset([set(), set(['1']), set(['1', '2', '3']),
+                    set(['1', '2', '3', '4']), set(['1', '3', '4']),
+                    set(['4'])]))
 
         ss = setset(u) ^ setset(v)
         self.assertTrue(isinstance(ss, setset))
-        self.assertEqual(ss, setset([set(), set(['1']), set(['1', '2', '3']),
-                                     set(['1', '2', '3', '4']), set(['1', '3', '4']),
-                                     set(['2', '3']), set(['3', '4']), set(['4'])]))
+        self.assertEqual(
+            ss
+            , setset([set(), set(['1']), set(['1', '2', '3']),
+                      set(['1', '2', '3', '4']), set(['1', '3', '4']),
+                      set(['2', '3']), set(['3', '4']), set(['4'])]))
         ss = setset(u).symmetric_difference(setset(v))
         self.assertTrue(isinstance(ss, setset))
-        self.assertEqual(ss, setset([set(), set(['1']), set(['1', '2', '3']),
-                                     set(['1', '2', '3', '4']), set(['1', '3', '4']),
-                                     set(['2', '3']), set(['3', '4']), set(['4'])]))
+        self.assertEqual(
+            ss,
+            setset([set(), set(['1']), set(['1', '2', '3']),
+                    set(['1', '2', '3', '4']), set(['1', '3', '4']),
+                    set(['2', '3']), set(['3', '4']), set(['4'])]))
 
         ss = setset(u)
         ss ^= setset(v)
         self.assertTrue(isinstance(ss, setset))
-        self.assertEqual(ss, setset([set(), set(['1']), set(['1', '2', '3']),
-                                     set(['1', '2', '3', '4']), set(['1', '3', '4']),
-                                     set(['2', '3']), set(['3', '4']), set(['4'])]))
+        self.assertEqual(
+            ss,
+            setset([set(), set(['1']), set(['1', '2', '3']),
+                    set(['1', '2', '3', '4']), set(['1', '3', '4']),
+                    set(['2', '3']), set(['3', '4']), set(['4'])]))
         ss = setset(u)
         ss.symmetric_difference_update(setset(v))
         self.assertTrue(isinstance(ss, setset))
-        self.assertEqual(ss, setset([set(), set(['1']), set(['1', '2', '3']),
-                                     set(['1', '2', '3', '4']), set(['1', '3', '4']),
-                                     set(['2', '3']), set(['3', '4']), set(['4'])]))
+        self.assertEqual(
+            ss,
+            setset([set(), set(['1']), set(['1', '2', '3']),
+                    set(['1', '2', '3', '4']), set(['1', '3', '4']),
+                    set(['2', '3']), set(['3', '4']), set(['4'])]))
 
         v = [set(['1', '2'])]
         ss = setset(u) / setset(v)
@@ -280,34 +322,43 @@ class TestSetset(unittest.TestCase):
         v = [set(['1', '2']), set(['1', '4']), set(['2', '3']), set(['3', '4'])]
         ss = setset(u).join(setset(v))
         self.assertTrue(isinstance(ss, setset))
-        self.assertEqual(ss, setset([set(['1', '2']), set(['1', '2', '3']),
-                                     set(['1', '2', '4']), set(['1', '2', '3', '4']),
-                                     set(['1', '3', '4']), set(['1', '4']),
-                                     set(['2', '3']), set(['2', '3', '4']),
-                                     set(['3', '4'])]))
+        self.assertEqual(
+            ss,
+            setset([set(['1', '2']), set(['1', '2', '3']), set(['1', '2', '4']),
+                    set(['1', '2', '3', '4']), set(['1', '3', '4']),
+                    set(['1', '4']), set(['2', '3']), set(['2', '3', '4']),
+                    set(['3', '4'])]))
 
         ss = setset(u).meet(setset(v))
         self.assertTrue(isinstance(ss, setset))
-        self.assertEqual(ss, setset([set(), set(['1']), set(['1', '2']), set(['1', '4']),
-                                     set(['2']), set(['2', '3']), set(['3']),
-                                     set(['3', '4']), set(['4'])]))
+        self.assertEqual(
+            ss,
+            setset([set(), set(['1']), set(['1', '2']), set(['1', '4']),
+                    set(['2']), set(['2', '3']), set(['3']), set(['3', '4']),
+                    set(['4'])]))
 
         v = [set(['1', '2']), set(['1', '4']), set(['2', '3']), set(['3', '4'])]
         ss = setset(u).subsets(setset(v))
         self.assertTrue(isinstance(ss, setset))
-        self.assertEqual(ss, setset([set(), set(['1']), set(['1', '2']), set(['1', '4']),
-                                     set(['4'])]))
+        self.assertEqual(
+            ss,
+            setset([set(), set(['1']), set(['1', '2']), set(['1', '4']),
+                    set(['4'])]))
 
         ss = setset(u).supersets(setset(v))
         self.assertTrue(isinstance(ss, setset))
-        self.assertEqual(ss, setset([set(['1', '2']), set(['1', '2', '3']),
-                                     set(['1', '2', '3', '4']), set(['1', '3', '4']),
-                                     set(['1', '4'])]))
+        self.assertEqual(
+            ss,
+            setset([set(['1', '2']), set(['1', '2', '3']),
+                    set(['1', '2', '3', '4']), set(['1', '3', '4']),
+                    set(['1', '4'])]))
 
         ss = setset(u).nonsubsets(setset(v))
         self.assertTrue(isinstance(ss, setset))
-        self.assertEqual(ss, setset([set(['1', '2', '3']), set(['1', '2', '3', '4']),
-                                     set(['1', '3', '4'])]))
+        self.assertEqual(
+            ss,
+            setset([set(['1', '2', '3']), set(['1', '2', '3', '4']),
+                    set(['1', '3', '4'])]))
 
         ss = setset(u).nonsupersets(setset(v))
         self.assertTrue(isinstance(ss, setset))
@@ -542,7 +593,8 @@ class TestGraphset(unittest.TestCase):
         g = nx.grid_2d_graph(11, 11)
         graphset.universe(g.edges(), traversal='bfs')
         self.assertEqual(len(graphset.universe()), 220)
-        self.assertEqual(graphset.universe()[:2], [((0, 1), (0, 0)), ((1, 0), (0, 0))])
+        self.assertEqual(graphset.universe()[:2],
+                         [((0, 1), (0, 0)), ((1, 0), (0, 0))])
 
         gs = graphset({});
         gs -= graphset([set([((0, 1), (0, 0))]),
