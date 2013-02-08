@@ -493,7 +493,7 @@ class TestSetset(unittest.TestCase):
         ss.loads(st)
         self.assertEqual(ss, setset(v))
 
-        # skip this test, becasue string is treated as an element in hook_arg()
+        # skip this test, becasue string is treated as an element
 #        ss = setset(st)
 #        self.assertEqual(ss, setset(v))
 
@@ -507,6 +507,11 @@ class TestSetset(unittest.TestCase):
         ss = setset({}) - setset([set([1]) - set([1, 2])])
         self.assertTrue(ss)
         self.assertEqual(len(str(ss.len())), 3011)
+
+        i = 0
+        for s in ss:
+            if i > 10: break
+            i += 1
 
 
 class TestGraphSet(unittest.TestCase):
@@ -625,6 +630,11 @@ class TestGraphSet(unittest.TestCase):
         gs -= GraphSet([set([((0, 1), (0, 0))]),
                         set([((0, 1), (0, 0)), ((1, 0), (0, 0))])])
         self.assertEqual(gs.len(), 2**220 - 2)
+
+        i = 0
+        for s in gs:
+            if i > 100: break
+            i += 1
 
         del nx
 

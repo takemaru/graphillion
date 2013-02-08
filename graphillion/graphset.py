@@ -1,50 +1,18 @@
 from graphillion import setset
 
-def _hook_args(func):
-    def wrapper(self, *args, **kwds):
-        if args:
-            obj = args[0]
-            args = [None] + list(args)[1:]
-            if obj is None:
-                args[0] = None
-            elif isinstance(obj, (set, frozenset)):
-                args[0] = set([_do_hook_args(e) for e in obj])
-            elif isinstance(obj, dict):
-                args[0] = {}
-                for k, l in obj.iteritems():
-                    args[0][k] = [_do_hook_args(e) for e in l]
-            elif isinstance(obj, list):
-                args[0] = []
-                for s in obj:
-                    args[0].append([_do_hook_args(e) for e in s])
-            else:
-                args[0] = _do_hook_args(obj)
-        return func(self, *args, **kwds)
-    return wrapper
-
-def _do_hook_args(e):
-    if not isinstance(e, tuple):
-        raise KeyError, e
-    if e in setset._obj2int:
-        return e
-    elif (e[1], e[0]) in setset._obj2int:
-        return (e[1], e[0])
-    raise KeyError, e
-
-
 class GraphSet(setset):
 
-    @_hook_args
     def __init__(self, obj=None):
+        obj = GraphSet._conv_obj(obj)
         setset.__init__(self, obj)
 
-    @_hook_args
     def __contains__(self, s):
+        s = GraphSet._conv_obj(s)
         return setset.__contains__(self, s)
 
     def include(self, obj):
         try:  # if obj is edge
-            return setset.include(self, _do_hook_args(obj))
+            return setset.include(self, GraphSet._conv_edge(obj))
         except KeyError:  # else obj is vertex
             gs = GraphSet()
             for edge in [e for e in setset.universe() if obj in e]:
@@ -53,20 +21,20 @@ class GraphSet(setset):
 
     def exclude(self, obj):
         try:  # if obj is edge
-            return setset.exclude(self, _do_hook_args(obj))
+            return setset.exclude(self, GraphSet._conv_edge(obj))
         except KeyError:  # else obj is vertex
             return self - self.include(obj)
 
-    @_hook_args
     def add(self, obj):
+        obj = GraphSet._conv_obj(obj)
         return setset.add(self, obj)
 
-    @_hook_args
     def remove(self, obj):
+        obj = GraphSet._conv_obj(obj)
         return setset.remove(self, obj)
 
-    @_hook_args
     def discard(self, obj):
+        obj = GraphSet._conv_obj(obj)
         return setset.discard(self, obj)
 
     def maximize(self):
@@ -138,5 +106,34 @@ class GraphSet(setset):
                 queue_or_stack, u = queue_or_stack[:-1], queue_or_stack[-1]
         assert set(edges) == set(sorted_edges)
         return sorted_edges
+
+    @staticmethod
+    def _conv_obj(obj):
+        if obj is None:
+            return None
+        elif isinstance(obj, (set, frozenset)):
+            return set([GraphSet._conv_edge(e) for e in obj])
+        elif isinstance(obj, dict):  # obj is constraints
+            d = {}
+            for k, l in obj.iteritems():
+                d[k] = [GraphSet._conv_edge(e) for e in l]
+            return d
+        elif isinstance(obj, list):  # obj is [set+]
+            l = []
+            for s in obj:
+                l.append([GraphSet._conv_edge(e) for e in s])
+            return l
+        else:  # obj is edge
+            return GraphSet._conv_edge(obj)
+
+    @staticmethod
+    def _conv_edge(e):
+        if not isinstance(e, tuple):
+            raise KeyError, e
+        if e in setset._obj2int:
+            return e
+        elif (e[1], e[0]) in setset._obj2int:
+            return (e[1], e[0])
+        raise KeyError, e
 
     _weights = {}

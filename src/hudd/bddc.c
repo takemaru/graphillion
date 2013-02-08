@@ -94,7 +94,7 @@
     ((p)->varrfc -= B_RFC_UNIT, 0))
 
 /* ----------- Stack overflow limitter ------------ */
-const int BDD_RecurLimit = 8192;
+const int BDD_RecurLimit = 65536;
 int BDD_RecurCount = 0;
 #define BDD_RECUR_INC \
   {if(++BDD_RecurCount >= BDD_RecurLimit) \

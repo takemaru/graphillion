@@ -1,75 +1,10 @@
 import _graphillion
 
 
-def _add_elem(e):
-    assert e not in setset._obj2int
-    i = len(setset._int2obj)
-    _graphillion.setset(set([i]))
-    setset._obj2int[e] = i
-    setset._int2obj.append(e)
-    assert len(setset._int2obj) == _graphillion.num_elems() + 1
-    assert setset._int2obj[i] == e
-    assert setset._obj2int[e] == i
-
-def _hook_args(func):
-    def wrapper(self, *args, **kwds):
-        if args:
-            obj = args[0]
-            args = [None] + list(args)[1:]
-            if obj is None:
-                args[0] = None
-            elif isinstance(obj, (set, frozenset)):
-                args[0] = set([_do_hook_args(e) for e in obj])
-            elif isinstance(obj, dict):  # obj is constraints
-                args[0] = {}
-                for k, l in obj.iteritems():
-                    args[0][k] = [_do_hook_args(e) for e in l]
-            elif isinstance(obj, list):  # obj is [set+]
-                args[0] = []
-                for s in obj:
-                    args[0].append(set([_do_hook_args(e) for e in s]))
-            else:  # obj is element
-                args[0] = _do_hook_args(obj)
-        return func(self, *args, **kwds)
-    return wrapper
-
-def _do_hook_args(e):
-    if e not in setset._obj2int:
-        _add_elem(e)
-    return setset._obj2int[e]
-
-def _hook_ret(func):
-    def wrapper(self, *args, **kwds):
-        return _do_hook_ret(func(self, *args, **kwds))
-    return wrapper
-
-def _do_hook_ret(obj):
-    if isinstance(obj, (set, frozenset)):
-        ret = set()
-        for e in obj:
-            ret.add(setset._int2obj[e])
-        return ret
-    else:
-        return setset._int2obj[obj]
-
-
-class setset_iterator(object):
-
-    def __init__(self, it):
-        self.it = it
-
-    def __iter__(self):
-        return self
-
-    @_hook_ret
-    def next(self):
-        return self.it.next()
-
-
 class setset(_graphillion.setset):
 
-    @_hook_args
     def __init__(self, obj=None):
+        obj = setset._conv_arg(obj)
         _graphillion.setset.__init__(self, obj)
 
     def __repr__(self):
@@ -89,42 +24,42 @@ class setset(_graphillion.setset):
             if len(ret) > 78: break
         return ret + '])' if len(ret) <= 78 else ret[:76] + ' ...'
 
-    @_hook_args
     def __contains__(self, s):
+        s = setset._conv_arg(s)
         return _graphillion.setset.__contains__(self, s)
 
-    @_hook_args
     def include(self, e):
+        e = setset._conv_elem(e)
         return _graphillion.setset.include(self, e)
 
-    @_hook_args
     def exclude(self, e):
+        e = setset._conv_elem(e)
         return _graphillion.setset.exclude(self, e)
 
-    @_hook_args
     def add(self, obj):
+        obj = setset._conv_arg(obj)
         return _graphillion.setset.add(self, obj)
 
-    @_hook_args
     def remove(self, obj):
+        obj = setset._conv_arg(obj)
         return _graphillion.setset.remove(self, obj)
 
-    @_hook_args
     def discard(self, obj):
+        obj = setset._conv_arg(obj)
         return _graphillion.setset.discard(self, obj)
 
-    @_hook_ret
     def pop(self):
-        return _graphillion.setset.pop(self)
+        s = _graphillion.setset.pop(self)
+        return setset._conv_ret(s)
 
-    @_hook_args
     def invert(self, e):
+        e = setset._conv_elem(e)
         return _graphillion.setset.invert(self, e)
 
     def randomize(self):
         i = _graphillion.setset.randomize(self)
         while (True):
-            yield _do_hook_ret(i.next())
+            yield setset._conv_ret(i.next())
 
     def maximize(self, weights=None, default=1):
         return self._optimize(weights, default, _graphillion.setset.maximize)
@@ -140,7 +75,7 @@ class setset(_graphillion.setset):
                 ws[i] = w
         i = generator(self, ws)
         while (True):
-            yield _do_hook_ret(i.next())
+            yield setset._conv_ret(i.next())
 
     __iter__ = randomize
 
@@ -151,7 +86,7 @@ class setset(_graphillion.setset):
             setset._obj2int = {}
             setset._int2obj = [None]
             for e in universe:
-                _add_elem(e)
+                setset._add_elem(e)
             setset._check_universe()
         else:
             setset._check_universe()
@@ -165,6 +100,50 @@ class setset(_graphillion.setset):
         for i in xrange(1, len(setset._int2obj)):
             e = setset._int2obj[i]
             assert i == setset._obj2int[e]
+
+    @staticmethod
+    def _add_elem(e):
+        assert e not in setset._obj2int
+        i = len(setset._int2obj)
+        _graphillion.setset(set([i]))
+        setset._obj2int[e] = i
+        setset._int2obj.append(e)
+        assert len(setset._int2obj) == _graphillion.num_elems() + 1
+        assert setset._int2obj[i] == e
+        assert setset._obj2int[e] == i
+
+    @staticmethod
+    def _conv_elem(e):
+        if e not in setset._obj2int:
+            setset._add_elem(e)
+        return setset._obj2int[e]
+
+    @staticmethod
+    def _conv_arg(obj):
+        if obj is None:
+            return None
+        elif isinstance(obj, (set, frozenset)):
+            return set([setset._conv_elem(e) for e in obj])
+        elif isinstance(obj, dict):  # obj is constraints
+            d = {}
+            for k, l in obj.iteritems():
+                d[k] = [setset._conv_elem(e) for e in l]
+            return d
+        elif isinstance(obj, list):  # obj is [set+]
+            l = []
+            for s in obj:
+                l.append(set([setset._conv_elem(e) for e in s]))
+            return l
+        else:  # obj is element
+            return setset._conv_elem(obj)
+
+    @staticmethod
+    def _conv_ret(obj):
+        assert isinstance(obj, (set, frozenset))
+        ret = set()
+        for e in obj:
+            ret.add(setset._int2obj[e])
+        return ret
 
     _obj2int = {}
     _int2obj = [None]
