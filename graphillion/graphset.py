@@ -43,45 +43,31 @@ class graphset(setset):
         return setset.__contains__(self, s)
 
     def include(self, obj):
-        try:
-            e = _do_hook_args(obj)
-            return setset.include(self, e)
-        except KeyError:
-            v = obj
+        try:  # if obj is edge
+            return setset.include(self, _do_hook_args(obj))
+        except KeyError:  # else obj is vertex
             gs = graphset()
-            for edge in [e for e in setset.universe() if v in e]:
+            for edge in [e for e in setset.universe() if obj in e]:
                 gs |= setset.include(self, edge)
             return gs & self
 
     def exclude(self, obj):
-        try:
-            e = _do_hook_args(obj)
-            return setset.exclude(self, e)
-        except KeyError:
-            v = obj
-            return self - self.include(v)
+        try:  # if obj is edge
+            return setset.exclude(self, _do_hook_args(obj))
+        except KeyError:  # else obj is vertex
+            return self - self.include(obj)
 
     @_hook_args
-    def add(self, s):
-        return setset.add(self, s)
+    def add(self, obj):
+        return setset.add(self, obj)
 
     @_hook_args
-    def remove(self, s):
-        return setset.remove(self, s)
+    def remove(self, obj):
+        return setset.remove(self, obj)
 
     @_hook_args
-    def discard(self, s):
-        return setset.discard(self, s)
-
-    @_hook_args
-    def graft(self, e):
-        self.join_update(graphset(set([e])))
-        return self
-
-    @_hook_args
-    def prune(self, e):
-        self.meet_update(graphset(set(setset.universe()) - set([e])))
-        return self
+    def discard(self, obj):
+        return setset.discard(self, obj)
 
     def maximize(self):
         for s in setset.maximize(self, graphset._weights):

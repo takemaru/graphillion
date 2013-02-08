@@ -447,30 +447,56 @@ static PyObject* setset_exclude(PySetsetObject* self, PyObject* eo) {
   return reinterpret_cast<PyObject*>(sso);
 }
 
-static PyObject* setset_add(PySetsetObject* self, PyObject* so) {
-  CHECK_OR_ERROR(so, PyAnySet_Check, "set", nullptr);
-  set<int> s;
-  if (setset_parse_set(so, &s) == -1) return nullptr;
-  self->ss->insert(s);
-  Py_RETURN_NONE;
-}
-
-static PyObject* setset_remove(PySetsetObject* self, PyObject* so) {
-  CHECK_OR_ERROR(so, PyAnySet_Check, "set", nullptr);
-  set<int> s;
-  if (setset_parse_set(so, &s) == -1) return nullptr;
-  if (self->ss->erase(s) == 0) {
-    PyErr_SetString(PyExc_KeyError, "not found");
+static PyObject* setset_add(PySetsetObject* self, PyObject* obj) {
+  if (PyAnySet_Check(obj)) {
+    set<int> s;
+    if (setset_parse_set(obj, &s) == -1) return nullptr;
+    self->ss->insert(s);
+  } else if (PyInt_Check(obj)) {
+    int e = PyLong_AsLong(obj);
+    self->ss->insert(e);
+  } else {
+    PyErr_SetString(PyExc_TypeError, "not set nor int");
     return nullptr;
   }
   Py_RETURN_NONE;
 }
 
-static PyObject* setset_discard(PySetsetObject* self, PyObject* so) {
-  CHECK_OR_ERROR(so, PyAnySet_Check, "set", nullptr);
-  set<int> s;
-  if (setset_parse_set(so, &s) == -1) return nullptr;
-  self->ss->erase(s);
+static PyObject* setset_remove(PySetsetObject* self, PyObject* obj) {
+  if (PyAnySet_Check(obj)) {
+    set<int> s;
+    if (setset_parse_set(obj, &s) == -1) return nullptr;
+    if (self->ss->erase(s) == 0) {
+      PyErr_SetString(PyExc_KeyError, "not found");
+      return nullptr;
+    }
+    self->ss->erase(s);
+  } else if (PyInt_Check(obj)) {
+    int e = PyLong_AsLong(obj);
+    if (self->ss->include(e).empty()) {
+      PyErr_SetString(PyExc_KeyError, "not found");
+      return nullptr;
+    }
+    self->ss->erase(e);
+  } else {
+    PyErr_SetString(PyExc_TypeError, "not set nor int");
+    return nullptr;
+  }
+  Py_RETURN_NONE;
+}
+
+static PyObject* setset_discard(PySetsetObject* self, PyObject* obj) {
+  if (PyAnySet_Check(obj)) {
+    set<int> s;
+    if (setset_parse_set(obj, &s) == -1) return nullptr;
+    self->ss->erase(s);
+  } else if (PyInt_Check(obj)) {
+    int e = PyLong_AsLong(obj);
+    self->ss->erase(e);
+  } else {
+    PyErr_SetString(PyExc_TypeError, "not set nor int");
+    return nullptr;
+  }
   Py_RETURN_NONE;
 }
 
@@ -502,9 +528,9 @@ static PyObject* setset_hitting(PySetsetObject* self) {
   RETURN_NEW_SETSET(self, self->ss->hitting());
 }
 
-static PyObject* setset_smaller(PySetsetObject* self, PyObject* other) {
-  CHECK_OR_ERROR(other, PyInt_Check, "int", nullptr);
-  int set_size = PyLong_AsLong(other);
+static PyObject* setset_smaller(PySetsetObject* self, PyObject* io) {
+  CHECK_OR_ERROR(io, PyInt_Check, "int", nullptr);
+  int set_size = PyLong_AsLong(io);
   if (set_size < 0) {
     PyErr_SetString(PyExc_ValueError, "not unsigned int");
     return nullptr;
@@ -512,9 +538,9 @@ static PyObject* setset_smaller(PySetsetObject* self, PyObject* other) {
   RETURN_NEW_SETSET(self, self->ss->smaller(set_size));
 }
 
-static PyObject* setset_larger(PySetsetObject* self, PyObject* other) {
-  CHECK_OR_ERROR(other, PyInt_Check, "int", nullptr);
-  int set_size = PyLong_AsLong(other);
+static PyObject* setset_larger(PySetsetObject* self, PyObject* io) {
+  CHECK_OR_ERROR(io, PyInt_Check, "int", nullptr);
+  int set_size = PyLong_AsLong(io);
   if (set_size < 0) {
     PyErr_SetString(PyExc_ValueError, "not unsigned int");
     return nullptr;
@@ -522,9 +548,9 @@ static PyObject* setset_larger(PySetsetObject* self, PyObject* other) {
   RETURN_NEW_SETSET(self, self->ss->larger(set_size));
 }
 
-static PyObject* setset_equal(PySetsetObject* self, PyObject* other) {
-  CHECK_OR_ERROR(other, PyInt_Check, "int", nullptr);
-  int set_size = PyLong_AsLong(other);
+static PyObject* setset_equal(PySetsetObject* self, PyObject* io) {
+  CHECK_OR_ERROR(io, PyInt_Check, "int", nullptr);
+  int set_size = PyLong_AsLong(io);
   if (set_size < 0) {
     PyErr_SetString(PyExc_ValueError, "not unsigned int");
     return nullptr;
@@ -532,32 +558,20 @@ static PyObject* setset_equal(PySetsetObject* self, PyObject* other) {
   RETURN_NEW_SETSET(self, self->ss->equal(set_size));
 }
 
+static PyObject* setset_invert(PySetsetObject* self, PyObject* eo) {
+  CHECK_OR_ERROR(eo, PyInt_Check, "int", nullptr);
+  int e = PyLong_AsLong(eo);
+  RETURN_NEW_SETSET(self, self->ss->invert(e));
+}
+
 static PyObject* setset_join(PySetsetObject* self, PyObject* other) {
   CHECK_SETSET_OR_ERROR(other);
   RETURN_NEW_SETSET2(self, other, _other, self->ss->join(*_other->ss));
 }
 
-static PyObject* setset_join_update(PySetsetObject* self, PyObject* other) {
-  CHECK_SETSET_OR_ERROR(other);
-  PySetsetObject* _other = reinterpret_cast<PySetsetObject*>(other);
-  delete self->ss;
-  self->ss = new setset(self->ss->join(*_other->ss));
-  Py_INCREF(self);
-  return reinterpret_cast<PyObject*>(self);
-}
-
 static PyObject* setset_meet(PySetsetObject* self, PyObject* other) {
   CHECK_SETSET_OR_ERROR(other);
   RETURN_NEW_SETSET2(self, other, _other, self->ss->meet(*_other->ss));
-}
-
-static PyObject* setset_meet_update(PySetsetObject* self, PyObject* other) {
-  CHECK_SETSET_OR_ERROR(other);
-  PySetsetObject* _other = reinterpret_cast<PySetsetObject*>(other);
-  delete self->ss;
-  self->ss = new setset(self->ss->meet(*_other->ss));
-  Py_INCREF(self);
-  return reinterpret_cast<PyObject*>(self);
 }
 
 static PyObject* setset_subsets(PySetsetObject* self, PyObject* other) {
@@ -726,10 +740,9 @@ static PyMethodDef setset_methods[] = {
   {"smaller", reinterpret_cast<PyCFunction>(setset_smaller), METH_O, ""},
   {"larger", reinterpret_cast<PyCFunction>(setset_larger), METH_O, ""},
   {"equal", reinterpret_cast<PyCFunction>(setset_equal), METH_O, ""},
+  {"invert", reinterpret_cast<PyCFunction>(setset_invert), METH_O, ""},
   {"join", reinterpret_cast<PyCFunction>(setset_join), METH_O, ""},
-  {"join_update", reinterpret_cast<PyCFunction>(setset_join_update), METH_O, ""},
   {"meet", reinterpret_cast<PyCFunction>(setset_meet), METH_O, ""},
-  {"meet_update", reinterpret_cast<PyCFunction>(setset_meet_update), METH_O, ""},
   {"subsets", reinterpret_cast<PyCFunction>(setset_subsets), METH_O, ""},
   {"supersets", reinterpret_cast<PyCFunction>(setset_supersets), METH_O, ""},
   {"nonsubsets", reinterpret_cast<PyCFunction>(setset_nonsubsets), METH_O, ""},

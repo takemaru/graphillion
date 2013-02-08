@@ -305,6 +305,11 @@ class TestSetset(unittest.TestCase):
         self.assertEqual(ss, setset([set(), set(['1']), set(['1', '3', '4']),
                                      set(['1', '4']), set(['4'])]))
 
+        ss = setset(u).invert('1')
+        self.assertEqual(ss, setset([set(), set(['1']), set(['1', '4']), set(['2']),
+                                     set(['2', '3']), set(['2', '3', '4']),
+                                     set(['3', '4']), set(['4'])]))
+
         v = [set(['1', '2']), set(['1', '4']), set(['2', '3']), set(['3', '4'])]
         ss = setset(u).join(setset(v))
         self.assertTrue(isinstance(ss, setset))
@@ -432,13 +437,27 @@ class TestSetset(unittest.TestCase):
 
         ss.remove(set(['1']))
         self.assertTrue(set(['1']) not in ss)
-
         self.assertRaises(KeyError, ss.remove, set(['1']))
 
         ss.add(set(['1']))
         ss.discard(set(['1']))
         self.assertTrue(set(['1']) not in ss)
         ss.discard(set(['1']))  # no exception raised
+
+        ss = setset(v)
+        ss.add('2')
+        self.assertEqual(ss, setset([set(['1', '2']), set(['1', '2', '3']),
+                                     set(['2'])]))
+
+        ss = setset(v)
+        ss.remove('2')
+        self.assertEqual(ss, setset([set(), set(['1']), set(['1', '3'])]))
+        self.assertRaises(KeyError, ss.remove, '4')
+
+        ss = setset(v)
+        ss.discard('2')
+        self.assertEqual(ss, setset([set(), set(['1']), set(['1', '3'])]))
+        ss.discard('4')  # no exception raised
 
         v = [set(['1']), set(['1', '2']), set(['1', '3'])]
         ss = setset(v)
@@ -583,15 +602,15 @@ class TestGraphset(unittest.TestCase):
         self.assertRaises(KeyError, gs.discard, set([(1, 4)]))
 
         gs = graphset([set([(1, 2)]), set([(3, 4)])])
-        gs.graft((3, 4))
+        gs.add((3, 4))
         self.assertEqual(gs, graphset([set([(1, 2), (3, 4)]), set([(3, 4)])]))
 
         gs = graphset([set([(1, 2), (3, 4)]), set([(1, 2)]), set([(1, 3)])])
-        gs.prune((3, 4))
+        gs.remove((3, 4))
         self.assertEqual(gs, graphset([set([(1, 2)]), set([(1, 3)])]))
 
-        self.assertRaises(KeyError, gs.graft, (1, 4))
-        self.assertRaises(KeyError, gs.prune, (1, 4))
+        self.assertRaises(KeyError, gs.add, (1, 4))
+        self.assertRaises(KeyError, gs.remove, (1, 4))
 
     def test_large(self):
         import networkx as nx

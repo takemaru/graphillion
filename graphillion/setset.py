@@ -20,15 +20,15 @@ def _hook_args(func):
                 args[0] = None
             elif isinstance(obj, (set, frozenset)):
                 args[0] = set([_do_hook_args(e) for e in obj])
-            elif isinstance(obj, dict):
+            elif isinstance(obj, dict):  # obj is constraints
                 args[0] = {}
                 for k, l in obj.iteritems():
                     args[0][k] = [_do_hook_args(e) for e in l]
-            elif isinstance(obj, list):
+            elif isinstance(obj, list):  # obj is [set+]
                 args[0] = []
                 for s in obj:
                     args[0].append(set([_do_hook_args(e) for e in s]))
-            else:
+            else:  # obj is element
                 args[0] = _do_hook_args(obj)
         return func(self, *args, **kwds)
     return wrapper
@@ -102,23 +102,24 @@ class setset(_graphillion.setset):
         return _graphillion.setset.exclude(self, e)
 
     @_hook_args
-    def add(self, s):
-        _graphillion.setset.add(self, s)
-        return self
+    def add(self, obj):
+        return _graphillion.setset.add(self, obj)
 
     @_hook_args
-    def remove(self, s):
-        _graphillion.setset.remove(self, s)
-        return self
+    def remove(self, obj):
+        return _graphillion.setset.remove(self, obj)
 
     @_hook_args
-    def discard(self, s):
-        _graphillion.setset.discard(self, s)
-        return self
+    def discard(self, obj):
+        return _graphillion.setset.discard(self, obj)
 
     @_hook_ret
     def pop(self):
         return _graphillion.setset.pop(self)
+
+    @_hook_args
+    def invert(self, e):
+        return _graphillion.setset.invert(self, e)
 
     def randomize(self):
         i = _graphillion.setset.randomize(self)
