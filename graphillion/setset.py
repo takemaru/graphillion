@@ -77,19 +77,15 @@ class setset(_graphillion.setset):
             e = setset._int2obj[i]
             w[e] = - (1 + float(i) / n**2)
         ret = self.__class__.__name__ + '(['
-        i = 1
+        no_comma = True
         for s in setset.optimize(self, w):
-            if i >= 2:
+            if no_comma:
+                no_comma = False
+            else:
                 ret += ', '
             ret += str(s)
-            if i >= 4:
-                i = -1
-                break
-            else:
-                i += 1
-        if i < 0:
-            ret += ', ...'
-        return ret + '])'
+            if len(ret) > 78: break
+        return ret + '])' if len(ret) <= 78 else ret[:76] + ' ...'
 
     @_hook_args
     def __contains__(self, *args, **kwds):
@@ -128,7 +124,7 @@ class setset(_graphillion.setset):
             yield _do_hook_ret(i.next())
 
     def optimize(self, *args, **kwds):
-        default = kwds['weight'] if 'weight' in kwds else 1
+        default = kwds['default'] if 'default' in kwds else 1
         weights = [default] * (_graphillion.num_elems() + 1)
         if args:
             for e, w in args[0].iteritems():

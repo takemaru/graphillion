@@ -217,7 +217,7 @@ static int setset_init(PySetsetObject* self, PyObject* args, PyObject* kwds) {
   PyObject* obj = nullptr;
   if (!PyArg_ParseTuple(args, "|O", &obj))
     return -1;
-  if (obj == nullptr) {
+  if (obj == nullptr || obj == Py_None) {
     self->ss = new setset();
   } else if (PySetset_Check(obj)) {
     PySetsetObject* sso = reinterpret_cast<PySetsetObject*>(obj);

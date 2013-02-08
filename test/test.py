@@ -67,12 +67,11 @@ class TestSetset(unittest.TestCase):
         self.assertEqual(repr(ss2),
                          "setset([set([]), set(['1', '2']), set(['1', '3'])])")
 
-        # more than four sets
-        ss = setset([set(), set(['1']), set(['1', '2']), set(['1', '4']),
-                     set(['4'])])
+        # large set of sets
+        ss = setset({})
         self.assertEqual(
             repr(ss),
-            "setset([set([]), set(['1']), set(['4']), set(['1', '2']), ...])")
+            "setset([set([]), set(['1']), set(['2']), set(['3']), set(['4']), set(['1', ' ...")
 
     def test_comparison(self):
         ss = setset(set(['1', '2']))
@@ -398,7 +397,7 @@ class TestSetset(unittest.TestCase):
         self.assertEqual(r[-1], set())
 
         r = []
-        for s in ss.optimize(weight=-1):
+        for s in ss.optimize(default=-1):
             r.append(s)
         self.assertEqual(len(r), 8)
         self.assertEqual(r[0], set())
