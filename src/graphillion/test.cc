@@ -399,14 +399,14 @@ class TestSetset {
   }
 
   void large() {
-    setset::num_elems(10000);
+    setset::num_elems(5000);
     map<string, vector<int> > m;
     setset ss = setset(m) - setset(V("{{1}, {1, 2}}"));
-    assert(ss.size().size() == 3011);
+    assert(ss.size().size() == 1506);
 
     int i = 0;
     for (setset::const_iterator s = ss.begin(); s != ss.end(); ++s)
-      if (++i > 10) break;
+      if (++i > 3) break;
   }
 };
 

@@ -503,14 +503,14 @@ class TestSetset(unittest.TestCase):
         self.assertEqual(ss, setset(v))
 
     def test_large(self):
-        setset.universe(xrange(10000))
+        setset.universe(xrange(5000))
         ss = setset({}) - setset([set([1]) - set([1, 2])])
         self.assertTrue(ss)
-        self.assertEqual(len(str(ss.len())), 3011)
+        self.assertEqual(len(str(ss.len())), 1506)
 
         i = 0
         for s in ss:
-            if i > 10: break
+            if i > 3: break
             i += 1
 
 
@@ -633,7 +633,7 @@ class TestGraphSet(unittest.TestCase):
 
         i = 0
         for s in gs:
-            if i > 100: break
+            if i > 50: break
             i += 1
 
         del nx
