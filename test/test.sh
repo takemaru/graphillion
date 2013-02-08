@@ -1,1 +1,1 @@
-../src/illion_test
+../src/graphillion_test

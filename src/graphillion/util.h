@@ -1,5 +1,5 @@
-#ifndef ILLION_UTIL_H_
-#define ILLION_UTIL_H_
+#ifndef GRAPHILLION_UTIL_H_
+#define GRAPHILLION_UTIL_H_
 
 #include <cstring>
 
@@ -7,7 +7,7 @@
 #include <string>
 #include <vector>
 
-namespace illion {
+namespace graphillion {
 
 #ifdef __PRETTY_FUNCTION__
 #define __FUNC__ (__PRETTY_FUNCTION__)
@@ -56,6 +56,6 @@ inline bool is_digit(std::string s) {
   return s.find_first_not_of("0123456789") == std::string::npos;
 }
 
-}  // namespace illion
+}  // namespace graphillion
 
-#endif  // ILLION_UTIL_H_
+#endif  // GRAPHILLION_UTIL_H_

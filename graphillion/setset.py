@@ -1,13 +1,13 @@
-import _illion
+import _graphillion
 
 
 def _add_elem(e):
     assert e not in setset._obj2int
     i = len(setset._int2obj)
-    _illion.setset(set([i]))
+    _graphillion.setset(set([i]))
     setset._obj2int[e] = i
     setset._int2obj.append(e)
-    assert len(setset._int2obj) == _illion.num_elems() + 1
+    assert len(setset._int2obj) == _graphillion.num_elems() + 1
     assert setset._int2obj[i] == e
     assert setset._obj2int[e] == i
 
@@ -64,14 +64,14 @@ class setset_iterator(object):
         return self.it.next()
 
 
-class setset(_illion.setset):
+class setset(_graphillion.setset):
 
     @_hook_args
     def __init__(self, *args, **kwds):
-        _illion.setset.__init__(self, *args, **kwds)
+        _graphillion.setset.__init__(self, *args, **kwds)
 
     def __repr__(self):
-        n = _illion.num_elems()
+        n = _graphillion.num_elems()
         w = {}
         for i in range(1, n + 1):
             e = setset._int2obj[i]
@@ -93,31 +93,31 @@ class setset(_illion.setset):
 
     @_hook_args
     def __contains__(self, *args, **kwds):
-        return _illion.setset.__contains__(self, *args, **kwds)
+        return _graphillion.setset.__contains__(self, *args, **kwds)
 
     @_hook_args
     def include(self, *args, **kwds):
-        return _illion.setset.include(self, *args, **kwds)
+        return _graphillion.setset.include(self, *args, **kwds)
 
     @_hook_args
     def exclude(self, *args, **kwds):
-        return _illion.setset.exclude(self, *args, **kwds)
+        return _graphillion.setset.exclude(self, *args, **kwds)
 
     @_hook_args
     def add(self, *args, **kwds):
-        return _illion.setset.add(self, *args, **kwds)
+        return _graphillion.setset.add(self, *args, **kwds)
 
     @_hook_args
     def remove(self, *args, **kwds):
-        return _illion.setset.remove(self, *args, **kwds)
+        return _graphillion.setset.remove(self, *args, **kwds)
 
     @_hook_args
     def discard(self, *args, **kwds):
-        return _illion.setset.discard(self, *args, **kwds)
+        return _graphillion.setset.discard(self, *args, **kwds)
 
     @_hook_ret
     def pop(self, *args, **kwds):
-        return _illion.setset.pop(self, *args, **kwds)
+        return _graphillion.setset.pop(self, *args, **kwds)
 
     def __iter__(self):
         return setset_iterator(self.rand_iter())
@@ -129,7 +129,7 @@ class setset(_illion.setset):
 
     def optimize(self, *args, **kwds):
         default = kwds['weight'] if 'weight' in kwds else 1
-        weights = [default] * (_illion.num_elems() + 1)
+        weights = [default] * (_graphillion.num_elems() + 1)
         if args:
             for e, w in args[0].iteritems():
                 i = setset._obj2int[e]
@@ -141,7 +141,7 @@ class setset(_illion.setset):
     @staticmethod
     def universe(*args):
         if args:
-            _illion.num_elems(0)
+            _graphillion.num_elems(0)
             setset._obj2int = {}
             setset._int2obj = [None]
             for e in args[0]:
@@ -153,7 +153,7 @@ class setset(_illion.setset):
 
     @staticmethod
     def _check_universe():
-        assert len(setset._int2obj) == _illion.num_elems() + 1
+        assert len(setset._int2obj) == _graphillion.num_elems() + 1
         for e, i in setset._obj2int.iteritems():
             assert e == setset._int2obj[i]
         for i in xrange(1, len(setset._int2obj)):

@@ -1,5 +1,5 @@
-#ifndef ILLION_TYPE_H_
-#define ILLION_TYPE_H_
+#ifndef GRAPHILLION_TYPE_H_
+#define GRAPHILLION_TYPE_H_
 
 #include <stdint.h>
 
@@ -7,12 +7,12 @@
 
 #define nullptr (NULL)
 
-namespace illion {
+namespace graphillion {
 
 typedef ZBDD zdd_t;
 typedef bddword word_t;
 typedef int32_t elem_t;  // bddvar
 
-}  // namespace illion
+}  // namespace graphillion
 
-#endif  // ILLION_TYPE_H_
+#endif  // GRAPHILLION_TYPE_H_

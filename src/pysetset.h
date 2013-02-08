@@ -1,11 +1,11 @@
-#ifndef ILLION_PYSETSET_H_
-#define ILLION_PYSETSET_H_
+#ifndef GRAPHILLION_PYSETSET_H_
+#define GRAPHILLION_PYSETSET_H_
 
-#include "illion/setset.h"
+#include "graphillion/setset.h"
 
 typedef struct {
   PyObject_HEAD
-  illion::setset* ss;
+  graphillion::setset* ss;
 } PySetsetObject;
 
 PyAPI_DATA(PyTypeObject) PySetset_Type;
@@ -14,4 +14,4 @@ PyAPI_DATA(PyTypeObject) PySetset_Type;
   (Py_TYPE(ob) == &PySetset_Type ||                     \
    PyType_IsSubtype(Py_TYPE(ob), &PySetset_Type))
 
-#endif  // ILLION_PYSETSET_H_
+#endif  // GRAPHILLION_PYSETSET_H_

@@ -7,17 +7,17 @@
 #include <sstream>
 #include <vector>
 
-#include "illion/zdd.h"
-#include "illion/setset.h"
+#include "graphillion/zdd.h"
+#include "graphillion/setset.h"
 
-#define e0 (illion::top())
-#define e1 (illion::single(1))
-#define e2 (illion::single(2))
-#define e3 (illion::single(3))
-#define e4 (illion::single(4))
-#define e5 (illion::single(5))
+#define e0 (graphillion::top())
+#define e1 (graphillion::single(1))
+#define e2 (graphillion::single(2))
+#define e3 (graphillion::single(3))
+#define e4 (graphillion::single(4))
+#define e5 (graphillion::single(5))
 
-namespace illion {
+namespace graphillion {
 
 using namespace std;
 
@@ -372,11 +372,11 @@ class TestSetset {
     ss.load(sstr);
     assert(ss == setset(v));
 
-    FILE* fp = fopen("/tmp/illion_", "w");
+    FILE* fp = fopen("/tmp/graphillion_", "w");
     ss.dump(fp);
     fclose(fp);
     ss.clear();
-    fp = fopen("/tmp/illion_", "r");
+    fp = fopen("/tmp/graphillion_", "r");
     ss.load(fp);
     fclose(fp);
     assert(ss == setset(v));
@@ -390,10 +390,10 @@ class TestSetset {
   }
 };
 
-}  // namespace illion
+}  // namespace graphillion
 
 int main() {
-  illion::TestSetset().run();
+  graphillion::TestSetset().run();
   printf("ok\n");
   return 0;
 }

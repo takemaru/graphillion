@@ -1,5 +1,5 @@
 import unittest
-from illion import setset, graphset
+from graphillion import setset, graphset
 
 
 class TestSetset(unittest.TestCase):
@@ -471,9 +471,9 @@ class TestSetset(unittest.TestCase):
 #        ss = setset(st)
 #        self.assertEqual(ss, setset(v))
 
-        ss.dump(open('/tmp/illion_', 'w'))
+        ss.dump(open('/tmp/graphillion_', 'w'))
         ss = setset()
-        ss.load(open('/tmp/illion_'))
+        ss.load(open('/tmp/graphillion_'))
         self.assertEqual(ss, setset(v))
 
     def test_large(self):

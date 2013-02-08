@@ -12,7 +12,7 @@
 #include <sstream>
 #include <vector>
 
-using illion::setset;
+using graphillion::setset;
 using std::map;
 using std::set;
 using std::string;
@@ -164,8 +164,8 @@ static PyMethodDef setsetiter_methods[] = {
 
 static PyTypeObject PySetsetIter_Type = {
   PyVarObject_HEAD_INIT(&PyType_Type, 0)
-  "setset_iterator",                             /* tp_name */
-  sizeof(PySetsetIterObject),                     /* tp_basicsize */
+  "setset_iterator",                          /* tp_name */
+  sizeof(PySetsetIterObject),                 /* tp_basicsize */
   0,                                          /* tp_itemsize */
   /* methods */
   reinterpret_cast<destructor>(setsetiter_dealloc), /* tp_dealloc */
@@ -183,7 +183,7 @@ static PyTypeObject PySetsetIter_Type = {
   PyObject_GenericGetAttr,                    /* tp_getattro */
   0,                                          /* tp_setattro */
   0,                                          /* tp_as_buffer */
-  Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_ITER,                         /* tp_flags */
+  Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_ITER, /* tp_flags */
   0,                                          /* tp_doc */
   0,                                          /* tp_traverse */
   0,                                          /* tp_clear */
@@ -191,17 +191,17 @@ static PyTypeObject PySetsetIter_Type = {
   0,                                          /* tp_weaklistoffset */
   PyObject_SelfIter,                          /* tp_iter */
   reinterpret_cast<iternextfunc>(setsetiter_next), /* tp_iternext */
-  setsetiter_methods,                           /* tp_methods */
-  0,              /* tp_members */
-  0,                         /* tp_getset */
-  0,                         /* tp_base */
-  0,                         /* tp_dict */
-  0,                         /* tp_descr_get */
-  0,                         /* tp_descr_set */
-  0,                         /* tp_dictoffset */
-  0, /* tp_init */
-  PyType_GenericAlloc,       /* tp_alloc */
-  setsetiter_new                  /* tp_new */
+  setsetiter_methods,                         /* tp_methods */
+  0,                                          /* tp_members */
+  0,                                          /* tp_getset */
+  0,                                          /* tp_base */
+  0,                                          /* tp_dict */
+  0,                                          /* tp_descr_get */
+  0,                                          /* tp_descr_set */
+  0,                                          /* tp_dictoffset */
+  0,                                          /* tp_init */
+  PyType_GenericAlloc,                        /* tp_alloc */
+  setsetiter_new                              /* tp_new */
 };
 
 // setset
@@ -750,7 +750,7 @@ static PyNumberMethods setset_as_number = {
 };
 
 static PySequenceMethods setset_as_sequence = {
-  setset_len,                           /* sq_length */
+  setset_len,                         /* sq_length */
   0,                                  /* sq_concat */
   0,                                  /* sq_repeat */
   0,                                  /* sq_item */
@@ -762,44 +762,44 @@ static PySequenceMethods setset_as_sequence = {
 
 PyTypeObject PySetset_Type = {
   PyObject_HEAD_INIT(NULL)
-  0,                         /*ob_size*/
-  "_illion.setset",            /*tp_name*/
-  sizeof(PySetsetObject),        /*tp_basicsize*/
-  0,                         /*tp_itemsize*/
+  0,                                  /*ob_size*/
+  "_graphillion.setset",              /*tp_name*/
+  sizeof(PySetsetObject),             /*tp_basicsize*/
+  0,                                  /*tp_itemsize*/
   reinterpret_cast<destructor>(setset_dealloc), /*tp_dealloc*/
-  0,                         /*tp_print*/
-  0,                         /*tp_getattr*/
-  0,                         /*tp_setattr*/
-  setset_nocmp,                         /*tp_compare*/
+  0,                                  /*tp_print*/
+  0,                                  /*tp_getattr*/
+  0,                                  /*tp_setattr*/
+  setset_nocmp,                       /*tp_compare*/
   reinterpret_cast<reprfunc>(setset_repr), /*tp_repr*/
-  &setset_as_number,           /*tp_as_number*/
-  &setset_as_sequence,         /*tp_as_sequence*/
-  0,                         /*tp_as_mapping*/
-  setset_hash,                         /*tp_hash */
-  0,                         /*tp_call*/
-  0,                         /*tp_str*/
-  0,                         /*tp_getattro*/
-  0,                         /*tp_setattro*/
-  0,                         /*tp_as_buffer*/
+  &setset_as_number,                  /*tp_as_number*/
+  &setset_as_sequence,                /*tp_as_sequence*/
+  0,                                  /*tp_as_mapping*/
+  setset_hash,                        /*tp_hash */
+  0,                                  /*tp_call*/
+  0,                                  /*tp_str*/
+  0,                                  /*tp_getattro*/
+  0,                                  /*tp_setattro*/
+  0,                                  /*tp_as_buffer*/
   Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
-  "Base class for set of sets", /* tp_doc */
-  0,		               /* tp_traverse */
-  0,		               /* tp_clear */
+  "Base class for set of sets",       /* tp_doc */
+  0,		                      /* tp_traverse */
+  0,		                      /* tp_clear */
   reinterpret_cast<richcmpfunc>(setset_richcompare), /* tp_richcompare */
-  0,		               /* tp_weaklistoffset */
-  0, /* tp_iter */
-  0,                          /* tp_iternext */
-  setset_methods,              /* tp_methods */
-  setset_members,              /* tp_members */
-  0,                         /* tp_getset */
-  0,                         /* tp_base */
-  0,                         /* tp_dict */
-  0,                         /* tp_descr_get */
-  0,                         /* tp_descr_set */
-  0,                         /* tp_dictoffset */
+  0,		                      /* tp_weaklistoffset */
+  0,                                  /* tp_iter */
+  0,                                  /* tp_iternext */
+  setset_methods,                     /* tp_methods */
+  setset_members,                     /* tp_members */
+  0,                                  /* tp_getset */
+  0,                                  /* tp_base */
+  0,                                  /* tp_dict */
+  0,                                  /* tp_descr_get */
+  0,                                  /* tp_descr_set */
+  0,                                  /* tp_dictoffset */
   reinterpret_cast<initproc>(setset_init), /* tp_init */
-  PyType_GenericAlloc,       /* tp_alloc */
-  setset_new,                  /* tp_new */
+  PyType_GenericAlloc,                /* tp_alloc */
+  setset_new,                         /* tp_new */
 };
 
 static PyObject* setset_num_elems(PyObject*, PyObject* args) {
@@ -821,12 +821,12 @@ static PyMethodDef module_methods[] = {
 #ifndef PyMODINIT_FUNC  /* declarations for DLL import/export */
 #define PyMODINIT_FUNC void
 #endif
-PyMODINIT_FUNC init_illion(void) {
+PyMODINIT_FUNC init_graphillion(void) {
   PyObject* m;
   if (PyType_Ready(&PySetset_Type) < 0) return;
   if (PyType_Ready(&PySetsetIter_Type) < 0) return;
-  m = Py_InitModule3("_illion", module_methods,
-                     "Hidden module to implement illion objects.");
+  m = Py_InitModule3("_graphillion", module_methods,
+                     "Hidden module to implement graphillion objects.");
   if (m == nullptr) return;
   Py_INCREF(&PySetset_Type);
   Py_INCREF(&PySetsetIter_Type);

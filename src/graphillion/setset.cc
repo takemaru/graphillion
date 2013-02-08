@@ -1,13 +1,13 @@
-#include "illion/setset.h"
+#include "graphillion/setset.h"
 
 #include <cstdlib>
 
 #include <algorithm>
 #include <sstream>
 
-#include "illion/zdd.h"
+#include "graphillion/zdd.h"
 
-namespace illion {
+namespace graphillion {
 
 using std::istream;
 using std::make_pair;
@@ -92,7 +92,7 @@ setset::setset(const map<string, vector<elem_t> >& m) {
   this->zdd_ = n[num_elems() + 1];
 }
 
-setset::setset(istream& in) : zdd_(illion::load(in)) {
+setset::setset(istream& in) : zdd_(graphillion::load(in)) {
 }
 
 setset setset::operator~() const {
@@ -166,7 +166,7 @@ bool setset::operator>(const setset& ss) const {
 }
 
 word_t setset::id() const {
-  return illion::id(this->zdd_);
+  return graphillion::id(this->zdd_);
 }
 
 bool setset::is_disjoint(const setset& ss) const {
@@ -261,15 +261,15 @@ void setset::swap(setset& ss) {
 }
 
 setset setset::minimal() const {
-  return setset(illion::minimal(this->zdd_));
+  return setset(graphillion::minimal(this->zdd_));
 }
 
 setset setset::maximal() const {
-  return setset(illion::maximal(this->zdd_));
+  return setset(graphillion::maximal(this->zdd_));
 }
 
 setset setset::hitting() const {  // a.k.a cross elements
-  return setset(illion::hitting(this->zdd_));
+  return setset(graphillion::hitting(this->zdd_));
 }
 
 setset setset::smaller(size_t set_size) const {
@@ -286,11 +286,11 @@ setset setset::equal(size_t set_size) const {
 }
 
 setset setset::join(const setset& ss) const {
-  return setset(illion::join(this->zdd_, ss.zdd_));
+  return setset(graphillion::join(this->zdd_, ss.zdd_));
 }
 
 setset setset::meet(const setset& ss) const {
-  return setset(illion::meet(this->zdd_, ss.zdd_));
+  return setset(graphillion::meet(this->zdd_, ss.zdd_));
 }
 
 setset setset::subsets(const setset& ss) const {
@@ -302,57 +302,57 @@ setset setset::supersets(const setset& ss) const {
 }
 
 setset setset::nonsubsets(const setset& ss) const {
-  return setset(illion::nonsubsets(this->zdd_, ss.zdd_));
+  return setset(graphillion::nonsubsets(this->zdd_, ss.zdd_));
 }
 
 setset setset::nonsupersets(const setset& ss) const {
-  return setset(illion::nonsupersets(this->zdd_, ss.zdd_));
+  return setset(graphillion::nonsupersets(this->zdd_, ss.zdd_));
 }
 
 void setset::dump(ostream& out) const {
-  illion::dump(this->zdd_, out);
+  graphillion::dump(this->zdd_, out);
 }
 
 void setset::dump(FILE* fp) const {
-  illion::dump(this->zdd_, fp);
+  graphillion::dump(this->zdd_, fp);
 }
 
 void setset::load(istream& in) {
-  this->zdd_ = illion::load(in);
+  this->zdd_ = graphillion::load(in);
 }
 
 void setset::load(FILE* fp) {
-  this->zdd_ = illion::load(fp);
+  this->zdd_ = graphillion::load(fp);
 }
 
 void setset::_enum(ostream& out,
                    const pair<const char*, const char*> outer_braces,
                    const pair<const char*, const char*> inner_braces) const {
-  illion::_enum(this->zdd_, out, outer_braces, inner_braces);
+  graphillion::_enum(this->zdd_, out, outer_braces, inner_braces);
 }
 
 void setset::_enum(FILE* fp,
                    const pair<const char*, const char*> outer_braces,
                    const pair<const char*, const char*> inner_braces) const {
-  illion::_enum(this->zdd_, fp, outer_braces, inner_braces);
+  graphillion::_enum(this->zdd_, fp, outer_braces, inner_braces);
 }
 
 elem_t setset::num_elems() {
-  return illion::num_elems();
+  return graphillion::num_elems();
 }
 
 void setset::num_elems(elem_t num_elems) {
-  illion::num_elems(num_elems);
+  graphillion::num_elems(num_elems);
 }
 
 ostream& operator<<(ostream& out, const setset& ss) {
-  illion::dump(ss.zdd_, out);
+  graphillion::dump(ss.zdd_, out);
   return out;
 }
 
 istream& operator>>(istream& in, setset& ss) {
-  ss.zdd_ = illion::load(in);
+  ss.zdd_ = graphillion::load(in);
   return in;
 }
 
-}  // namespace illion
+}  // namespace graphillion

@@ -5,9 +5,9 @@ extra_include_dirs = ['/opt/local/include']
 extra_link_args = ['-L/opt/local/lib']
 extra_macros = [('HAVE_LIBGMP', None), ('HAVE_LIBGMPXX', None)]
 
-setup(name='illion',
+setup(name='graphillion',
       version='0.1',
-      description='Python package for manipulating x-illions of sets and graphs',
+      description='Python package for manipulating a set of graphs',
       long_description="""\
 """,
       classifiers=[], # Get strings from http://pypi.python.org/pypi?%3Aaction=list_classifiers
@@ -26,11 +26,11 @@ setup(name='illion',
       # -*- Entry points: -*-
       """,
       ext_modules=[
-        Extension('_illion', 
+        Extension('_graphillion', 
                   sources=[os.path.join('src', 'pysetset.cc'),
-                           os.path.join('src', 'illion', 'setset.cc'),
-                           os.path.join('src', 'illion', 'util.cc'),
-                           os.path.join('src', 'illion', 'zdd.cc'),
+                           os.path.join('src', 'graphillion', 'setset.cc'),
+                           os.path.join('src', 'graphillion', 'util.cc'),
+                           os.path.join('src', 'graphillion', 'zdd.cc'),
                            os.path.join('src', 'hudd', 'bddc.c'),
                            os.path.join('src', 'hudd', 'BDD.cc'),
                            os.path.join('src', 'hudd', 'ZBDD.cc')],

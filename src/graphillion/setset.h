@@ -1,5 +1,5 @@
-#ifndef ILLION_SETSET_H_
-#define ILLION_SETSET_H_
+#ifndef GRAPHILLION_SETSET_H_
+#define GRAPHILLION_SETSET_H_
 
 #include <iostream>
 #include <iterator>
@@ -9,9 +9,9 @@
 #include <utility>
 #include <vector>
 
-#include "illion/type.h"
+#include "graphillion/type.h"
 
-namespace illion {
+namespace graphillion {
 
 class setset_test;
 
@@ -157,6 +157,6 @@ class setset {
   friend class TestSetset;
 };
 
-}  // namespace illion
+}  // namespace graphillion
 
-#endif  // ILLION_SETSET_H_
+#endif  // GRAPHILLION_SETSET_H_

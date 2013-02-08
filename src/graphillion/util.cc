@@ -1,8 +1,8 @@
-#include "illion/util.h"
+#include "graphillion/util.h"
 
-#include "illion/type.h"
+#include "graphillion/type.h"
 
-namespace illion {
+namespace graphillion {
 
 using std::string;
 using std::vector;
@@ -22,4 +22,4 @@ vector<string> split(const string& str, const string sep) {
   return v;
 }
 
-}  // namespace illion
+}  // namespace graphillion

@@ -1,4 +1,4 @@
-#include "illion/zdd.h"
+#include "graphillion/zdd.h"
 
 //#include <cassert>
 #include <climits>
@@ -6,7 +6,7 @@
 #include <map>
 #include <string>
 
-namespace illion {
+namespace graphillion {
 
 using std::endl;
 using std::getline;
@@ -562,4 +562,4 @@ void sort_zdd(zdd_t f, vector<vector<zdd_t> >* stacks,
   sort_zdd(hi(f), stacks, visited, max_elem);
 }
 
-}  // namespace illion
+}  // namespace graphillion

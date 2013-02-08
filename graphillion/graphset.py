@@ -1,4 +1,4 @@
-from illion import setset
+from graphillion import setset
 
 def _hook_args(func):
     def wrapper(self, *args, **kwds):

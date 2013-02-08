@@ -1,5 +1,5 @@
-#ifndef ILLION_ZDD_H_
-#define ILLION_ZDD_H_
+#ifndef GRAPHILLION_ZDD_H_
+#define GRAPHILLION_ZDD_H_
 
 #include <iostream>
 #include <set>
@@ -10,10 +10,10 @@
 #include <gmpxx.h>
 #endif
 
-#include "illion/type.h"
-#include "illion/util.h"
+#include "graphillion/type.h"
+#include "graphillion/util.h"
 
-namespace illion {
+namespace graphillion {
 
 #ifdef HAVE_LIBGMPXX
 typedef mpz_class intx_t;
@@ -85,6 +85,6 @@ inline std::pair<word_t, word_t> make_key(zdd_t f, zdd_t g) {
   return std::make_pair(id(f), id(g));
 }
 
-}  // namespace illion
+}  // namespace graphillion
 
-#endif  // ILLION_ZDD_H_
+#endif  // GRAPHILLION_ZDD_H_
