@@ -107,9 +107,10 @@ class setset {
   size_t count(const std::set<elem_t>& s) const;
   std::pair<iterator, bool> insert(const std::set<elem_t>& s);
   iterator insert(const_iterator hint, const std::set<elem_t>& s);
+  void insert(elem_t e);
   iterator erase(const_iterator position);
   size_t erase(const std::set<elem_t>& s);
-  size_t erase(elem_t e);
+  void erase(elem_t e);
   void clear();
   void swap(setset& ss);
 
@@ -120,6 +121,7 @@ class setset {
   setset larger(size_t set_size) const;
   setset equal(size_t set_size) const;
 
+  setset invert(elem_t e) const;
   setset join(const setset& ss) const;
   setset meet(const setset& ss) const;
   setset subsets(const setset& ss) const;

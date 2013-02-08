@@ -205,6 +205,9 @@ class TestSetset {
     ss %= setset(v);
     assert(ss.zdd_ == e0 + e1 + e1*e3*e4 + e1*e4 + e4);
 
+    ss = setset(u).invert(1);
+    assert(ss.zdd_ == e0 + e1 + e1*e4 + e2 + e2*e3 + e2*e3*e4 + e3*e4 + e4);
+
     v = V("{{1, 2}, {1, 4}, {2, 3}, {3, 4}}");
     ss = setset(u).join(setset(v));
     assert(ss.zdd_ == e1*e2 + e1*e2*e3 + e1*e2*e4 + e1*e2*e3*e4 + e1*e3*e4
@@ -307,6 +310,10 @@ class TestSetset {
     assert(i != setset::end());
     assert(i.s_ == S("{1}"));
 
+    ss = setset(v);
+    ss.insert(2);
+    assert(ss == setset(V("{{1, 2}, {1, 2, 3}, {2}}")));
+
     i = ss.erase(i);
     assert(ss.find(S("{1}")) == setset::end());
     assert(i == setset::end());
@@ -316,8 +323,8 @@ class TestSetset {
     assert(ss.find(S("{1, 2}")) == setset::end());
 
     ss = setset(v);
-    assert(ss.erase(1) == 2);
-    assert(ss.find(S("{2, 3}")) == setset::end());
+    ss.erase(2);
+    assert(ss == setset(V("{{}, {1}, {1, 3}}")));
 
     ss = setset(v);
     assert(!ss.empty());

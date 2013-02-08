@@ -251,6 +251,12 @@ setset::iterator setset::insert(const_iterator /*hint*/, const set<elem_t>& s) {
   return p.first;
 }
 
+void setset::insert(elem_t e) {
+  set<elem_t> s;
+  s.insert(e);
+  this->zdd_ = graphillion::join(this->zdd_, setset(s).zdd_);
+}
+
 setset::iterator setset::erase(const_iterator position) {
   this->erase(*position);
   return setset::iterator();
@@ -265,10 +271,11 @@ size_t setset::erase(const set<elem_t>& s) {
   }
 }
 
-size_t setset::erase(elem_t e) {
-  setset ss = this->include(e);
-  *this -= ss;
-  return strtoll(ss.size().c_str(), nullptr, 0);
+void setset::erase(elem_t e) {
+  set<elem_t> s;
+  for (elem_t e2 = 1; e2 <= num_elems(); ++e2)
+    if (e != e2) s.insert(e2);
+  this->zdd_ = graphillion::meet(this->zdd_, setset(s).zdd_);
 }
 
 void setset::clear() {
@@ -304,6 +311,10 @@ setset setset::larger(size_t set_size) const {
 setset setset::equal(size_t set_size) const {
   zdd_t z = this->zdd_.PermitSym(set_size) - this->zdd_.PermitSym(set_size - 1);
   return setset(z);
+}
+
+setset setset::invert(elem_t e) const {
+  return setset(this->zdd_.Change(e));
 }
 
 setset setset::join(const setset& ss) const {
