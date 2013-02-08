@@ -16,7 +16,9 @@ def _hook_args(func):
         if args:
             obj = args[0]
             args = [None] + list(args)[1:]
-            if isinstance(obj, (set, frozenset)):
+            if obj is None:
+                args[0] = None
+            elif isinstance(obj, (set, frozenset)):
                 args[0] = set([_do_hook_args(e) for e in obj])
             elif isinstance(obj, dict):
                 args[0] = {}
@@ -67,8 +69,8 @@ class setset_iterator(object):
 class setset(_graphillion.setset):
 
     @_hook_args
-    def __init__(self, *args, **kwds):
-        _graphillion.setset.__init__(self, *args, **kwds)
+    def __init__(self, obj=None):
+        _graphillion.setset.__init__(self, obj)
 
     def __repr__(self):
         n = _graphillion.num_elems()
@@ -88,66 +90,63 @@ class setset(_graphillion.setset):
         return ret + '])' if len(ret) <= 78 else ret[:76] + ' ...'
 
     @_hook_args
-    def __contains__(self, *args, **kwds):
-        return _graphillion.setset.__contains__(self, *args, **kwds)
+    def __contains__(self, s):
+        return _graphillion.setset.__contains__(self, s)
 
     @_hook_args
-    def include(self, *args, **kwds):
-        return _graphillion.setset.include(self, *args, **kwds)
+    def include(self, e):
+        return _graphillion.setset.include(self, e)
 
     @_hook_args
-    def exclude(self, *args, **kwds):
-        return _graphillion.setset.exclude(self, *args, **kwds)
+    def exclude(self, e):
+        return _graphillion.setset.exclude(self, e)
 
     @_hook_args
-    def add(self, *args, **kwds):
-        return _graphillion.setset.add(self, *args, **kwds)
+    def add(self, s):
+        return _graphillion.setset.add(self, s)
 
     @_hook_args
-    def remove(self, *args, **kwds):
-        return _graphillion.setset.remove(self, *args, **kwds)
+    def remove(self, s):
+        return _graphillion.setset.remove(self, s)
 
     @_hook_args
-    def discard(self, *args, **kwds):
-        return _graphillion.setset.discard(self, *args, **kwds)
+    def discard(self, s):
+        return _graphillion.setset.discard(self, s)
 
     @_hook_ret
-    def pop(self, *args, **kwds):
-        return _graphillion.setset.pop(self, *args, **kwds)
+    def pop(self):
+        return _graphillion.setset.pop(self)
 
     def randomize(self):
         i = _graphillion.setset.randomize(self)
         while (True):
             yield _do_hook_ret(i.next())
 
-    def maximize(self, *args, **kwds):
-        kwds['generator'] = _graphillion.setset.maximize;
-        return self._optimize(*args, **kwds)
+    def maximize(self, weights=None, default=1):
+        return self._optimize(weights, default, _graphillion.setset.maximize)
 
-    def minimize(self, *args, **kwds):
-        kwds['generator'] = _graphillion.setset.minimize;
-        return self._optimize(*args, **kwds)
+    def minimize(self, weights=None, default=1):
+        return self._optimize(weights, default, _graphillion.setset.minimize)
 
-    def _optimize(self, *args, **kwds):
-        default = kwds['default'] if 'default' in kwds else 1
-        weights = [default] * (_graphillion.num_elems() + 1)
-        if args:
-            for e, w in args[0].iteritems():
+    def _optimize(self, weights, default, generator):
+        ws = [default] * (_graphillion.num_elems() + 1)
+        if weights:
+            for e, w in weights.iteritems():
                 i = setset._obj2int[e]
-                weights[i] = w
-        i = kwds['generator'](self, weights)
+                ws[i] = w
+        i = generator(self, ws)
         while (True):
             yield _do_hook_ret(i.next())
 
     __iter__ = randomize
 
     @staticmethod
-    def universe(*args):
-        if args:
+    def universe(universe=None):
+        if universe is not None:
             _graphillion.num_elems(0)
             setset._obj2int = {}
             setset._int2obj = [None]
-            for e in args[0]:
+            for e in universe:
                 _add_elem(e)
             setset._check_universe()
         else:

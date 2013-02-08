@@ -5,7 +5,9 @@ def _hook_args(func):
         if args:
             obj = args[0]
             args = [None] + list(args)[1:]
-            if isinstance(obj, (set, frozenset)):
+            if obj is None:
+                args[0] = None
+            elif isinstance(obj, (set, frozenset)):
                 args[0] = set([_do_hook_args(e) for e in obj])
             elif isinstance(obj, dict):
                 args[0] = {}
@@ -21,54 +23,55 @@ def _hook_args(func):
     return wrapper
 
 def _do_hook_args(e):
+    if not isinstance(e, tuple):
+        raise KeyError, e
     if e in setset._obj2int:
         return e
     elif (e[1], e[0]) in setset._obj2int:
         return (e[1], e[0])
-    else:
-        raise KeyError, e
+    raise KeyError, e
 
 
 class graphset(setset):
 
     @_hook_args
-    def __init__(self, *args, **kwds):
-        setset.__init__(self, *args, **kwds)
+    def __init__(self, obj=None):
+        setset.__init__(self, obj)
 
     @_hook_args
-    def __contains__(self, *args, **kwds):
-        return setset.__contains__(self, *args, **kwds)
+    def __contains__(self, s):
+        return setset.__contains__(self, s)
 
     def include(self, obj):
         try:
-            edge = _do_hook_args(obj)
-            return setset.include(self, edge)
+            e = _do_hook_args(obj)
+            return setset.include(self, e)
         except KeyError:
             v = obj
             gs = graphset()
             for edge in [e for e in setset.universe() if v in e]:
-                gs |= self.include(edge)
+                gs |= setset.include(self, edge)
             return gs & self
 
     def exclude(self, obj):
         try:
-            edge = _do_hook_args(obj)
-            return setset.exclude(self, edge)
+            e = _do_hook_args(obj)
+            return setset.exclude(self, e)
         except KeyError:
             v = obj
             return self - self.include(v)
 
     @_hook_args
-    def add(self, *args, **kwds):
-        return setset.add(self, *args, **kwds)
+    def add(self, s):
+        return setset.add(self, s)
 
     @_hook_args
-    def remove(self, *args, **kwds):
-        return setset.remove(self, *args, **kwds)
+    def remove(self, s):
+        return setset.remove(self, s)
 
     @_hook_args
-    def discard(self, *args, **kwds):
-        return setset.discard(self, *args, **kwds)
+    def discard(self, s):
+        return setset.discard(self, s)
 
     def maximize(self):
         for s in setset.maximize(self, graphset._weights):
@@ -79,22 +82,20 @@ class graphset(setset):
             yield s
 
     @staticmethod
-    def universe(*args, **kwds):
-        if args:
+    def universe(universe=None, traversal=None, source=None):
+        if universe is not None:
             edges = []
             graphset._weights = {}
-            for e in args[0]:
+            for e in universe:
                 edges.append(e[:2])
                 if len(e) > 2:
                     graphset._weights[e[:2]] = e[2]
-            if 'traversal' in kwds:
-                if 'source' in kwds:
-                    source = kwds['source']
-                else:
+            if traversal:
+                if not source:
                     source = edges[0][0]
                     for e in edges:
                         source = min(e[0], e[1], source)
-                edges = graphset._traverse(edges, kwds['traversal'], source)
+                edges = graphset._traverse(edges, traversal, source)
             setset.universe(edges)
         else:
             edges = []
