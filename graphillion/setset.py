@@ -103,15 +103,18 @@ class setset(_graphillion.setset):
 
     @_hook_args
     def add(self, s):
-        return _graphillion.setset.add(self, s)
+        _graphillion.setset.add(self, s)
+        return self
 
     @_hook_args
     def remove(self, s):
-        return _graphillion.setset.remove(self, s)
+        _graphillion.setset.remove(self, s)
+        return self
 
     @_hook_args
     def discard(self, s):
-        return _graphillion.setset.discard(self, s)
+        _graphillion.setset.discard(self, s)
+        return self
 
     @_hook_ret
     def pop(self):

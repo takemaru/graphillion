@@ -582,6 +582,17 @@ class TestGraphset(unittest.TestCase):
         self.assertRaises(KeyError, gs.remove, set([(1, 4)]))
         self.assertRaises(KeyError, gs.discard, set([(1, 4)]))
 
+        gs = graphset([set([(1, 2)]), set([(3, 4)])])
+        gs.graft((3, 4))
+        self.assertEqual(gs, graphset([set([(1, 2), (3, 4)]), set([(3, 4)])]))
+
+        gs = graphset([set([(1, 2), (3, 4)]), set([(1, 2)]), set([(1, 3)])])
+        gs.prune((3, 4))
+        self.assertEqual(gs, graphset([set([(1, 2)]), set([(1, 3)])]))
+
+        self.assertRaises(KeyError, gs.graft, (1, 4))
+        self.assertRaises(KeyError, gs.prune, (1, 4))
+
     def test_large(self):
         import networkx as nx
 

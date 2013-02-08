@@ -73,6 +73,16 @@ class graphset(setset):
     def discard(self, s):
         return setset.discard(self, s)
 
+    @_hook_args
+    def graft(self, e):
+        self.join_update(graphset(set([e])))
+        return self
+
+    @_hook_args
+    def prune(self, e):
+        self.meet_update(graphset(set(setset.universe()) - set([e])))
+        return self
+
     def maximize(self):
         for s in setset.maximize(self, graphset._weights):
             yield s

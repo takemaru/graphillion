@@ -537,9 +537,27 @@ static PyObject* setset_join(PySetsetObject* self, PyObject* other) {
   RETURN_NEW_SETSET2(self, other, _other, self->ss->join(*_other->ss));
 }
 
+static PyObject* setset_join_update(PySetsetObject* self, PyObject* other) {
+  CHECK_SETSET_OR_ERROR(other);
+  PySetsetObject* _other = reinterpret_cast<PySetsetObject*>(other);
+  delete self->ss;
+  self->ss = new setset(self->ss->join(*_other->ss));
+  Py_INCREF(self);
+  return reinterpret_cast<PyObject*>(self);
+}
+
 static PyObject* setset_meet(PySetsetObject* self, PyObject* other) {
   CHECK_SETSET_OR_ERROR(other);
   RETURN_NEW_SETSET2(self, other, _other, self->ss->meet(*_other->ss));
+}
+
+static PyObject* setset_meet_update(PySetsetObject* self, PyObject* other) {
+  CHECK_SETSET_OR_ERROR(other);
+  PySetsetObject* _other = reinterpret_cast<PySetsetObject*>(other);
+  delete self->ss;
+  self->ss = new setset(self->ss->meet(*_other->ss));
+  Py_INCREF(self);
+  return reinterpret_cast<PyObject*>(self);
 }
 
 static PyObject* setset_subsets(PySetsetObject* self, PyObject* other) {
@@ -709,7 +727,9 @@ static PyMethodDef setset_methods[] = {
   {"larger", reinterpret_cast<PyCFunction>(setset_larger), METH_O, ""},
   {"equal", reinterpret_cast<PyCFunction>(setset_equal), METH_O, ""},
   {"join", reinterpret_cast<PyCFunction>(setset_join), METH_O, ""},
+  {"join_update", reinterpret_cast<PyCFunction>(setset_join_update), METH_O, ""},
   {"meet", reinterpret_cast<PyCFunction>(setset_meet), METH_O, ""},
+  {"meet_update", reinterpret_cast<PyCFunction>(setset_meet_update), METH_O, ""},
   {"subsets", reinterpret_cast<PyCFunction>(setset_subsets), METH_O, ""},
   {"supersets", reinterpret_cast<PyCFunction>(setset_supersets), METH_O, ""},
   {"nonsubsets", reinterpret_cast<PyCFunction>(setset_nonsubsets), METH_O, ""},
