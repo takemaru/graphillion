@@ -14,6 +14,7 @@ class setset(_graphillion.setset):
             e = setset._int2obj[i]
             w[e] = 1 + float(i) / n**2
         ret = self.__class__.__name__ + '(['
+        maxchar = 80
         no_comma = True
         for s in setset.minimize(self, w):
             if no_comma:
@@ -21,8 +22,12 @@ class setset(_graphillion.setset):
             else:
                 ret += ', '
             ret += str(s)
-            if len(ret) > 78: break
-        return ret + '])' if len(ret) <= 78 else ret[:76] + ' ...'
+            if len(ret) > maxchar - 2:
+                break
+        if len(ret) <= maxchar - 2:
+            return ret + '])'
+        else:
+            return ret[:(maxchar - 4)] + ' ...'
 
     def __contains__(self, s):
         s = setset._conv_arg(s)

@@ -128,8 +128,10 @@ class GraphSet(setset):
 
     @staticmethod
     def _conv_edge(e):
-        if not isinstance(e, tuple):
+        if not isinstance(e, tuple) or len(e) < 2:
             raise KeyError, e
+        if len(e) > 2:
+            e = e[:2]
         if e in setset._obj2int:
             return e
         elif (e[1], e[0]) in setset._obj2int:
