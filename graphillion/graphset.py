@@ -32,7 +32,7 @@ def _do_hook_args(e):
     raise KeyError, e
 
 
-class graphset(setset):
+class GraphSet(setset):
 
     @_hook_args
     def __init__(self, obj=None):
@@ -46,7 +46,7 @@ class graphset(setset):
         try:  # if obj is edge
             return setset.include(self, _do_hook_args(obj))
         except KeyError:  # else obj is vertex
-            gs = graphset()
+            gs = GraphSet()
             for edge in [e for e in setset.universe() if obj in e]:
                 gs |= setset.include(self, edge)
             return gs & self
@@ -70,34 +70,34 @@ class graphset(setset):
         return setset.discard(self, obj)
 
     def maximize(self):
-        for s in setset.maximize(self, graphset._weights):
+        for s in setset.maximize(self, GraphSet._weights):
             yield s
 
     def minimize(self):
-        for s in setset.minimize(self, graphset._weights):
+        for s in setset.minimize(self, GraphSet._weights):
             yield s
 
     @staticmethod
     def universe(universe=None, traversal=None, source=None):
         if universe is not None:
             edges = []
-            graphset._weights = {}
+            GraphSet._weights = {}
             for e in universe:
                 edges.append(e[:2])
                 if len(e) > 2:
-                    graphset._weights[e[:2]] = e[2]
+                    GraphSet._weights[e[:2]] = e[2]
             if traversal:
                 if not source:
                     source = edges[0][0]
                     for e in edges:
                         source = min(e[0], e[1], source)
-                edges = graphset._traverse(edges, traversal, source)
+                edges = GraphSet._traverse(edges, traversal, source)
             setset.universe(edges)
         else:
             edges = []
             for e in setset.universe():
-                if e in graphset._weights:
-                    edges.append((e[0], e[1], graphset._weights[e]))
+                if e in GraphSet._weights:
+                    edges.append((e[0], e[1], GraphSet._weights[e]))
                 else:
                     edges.append(e)
             return edges
