@@ -657,12 +657,12 @@ static PyObject* setset_repr(PySetsetObject* self) {
   return PyString_FromFormat("<%s object of %p>", self->ob_type->tp_name,
                              reinterpret_cast<void*>(self->ss->id()));
 }
-
+/*
 static long setset_hash(PyObject* self) {
   PySetsetObject* sso = reinterpret_cast<PySetsetObject*>(self);
   return sso->ss->id();
 }
-
+*/
 static int setset_nocmp(PyObject* self, PyObject* other) {
   PyErr_SetString(PyExc_TypeError, "cannot compare using cmp()");
   return -1;
@@ -819,7 +819,7 @@ PyTypeObject PySetset_Type = {
   &setset_as_number,                  /*tp_as_number*/
   &setset_as_sequence,                /*tp_as_sequence*/
   0,                                  /*tp_as_mapping*/
-  setset_hash,                        /*tp_hash */
+  0,                                  /*tp_hash */
   0,                                  /*tp_call*/
   0,                                  /*tp_str*/
   0,                                  /*tp_getattro*/
