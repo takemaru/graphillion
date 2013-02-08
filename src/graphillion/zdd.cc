@@ -217,7 +217,7 @@ zdd_t nonsupersets(zdd_t f, zdd_t g) {
 }
 
 zdd_t choose_random(zdd_t f, vector<elem_t>* stack, int* idum) {
-  assert(stack != nullptr && idum != nullptr);
+  assert(stack != NULL && idum != NULL);
   if (is_term(f)) {
     if (is_top(f)) {
       zdd_t g = top();
@@ -243,7 +243,7 @@ zdd_t choose_random(zdd_t f, vector<elem_t>* stack, int* idum) {
 }
 
 zdd_t choose_best(zdd_t f, const vector<double>& weights, set<elem_t>* s) {
-  assert(s != nullptr);
+  assert(s != NULL);
   if (is_bot(f)) return bot();
   vector<bool> x;
   algo_b(f, weights, &x);
@@ -338,10 +338,10 @@ zdd_t load(istream& in) {
     if (num != 4) goto error;
     word_t l = strcmp(sl, "B") == 0 ? id(bot())
              : strcmp(sl, "T") == 0 ? id(top())
-             :                        strtoll(sl, nullptr, 0);
+             :                        strtoll(sl, NULL, 0);
     word_t h = strcmp(sh, "B") == 0 ? id(bot())
              : strcmp(sh, "T") == 0 ? id(top())
-             :                        strtoll(sh, nullptr, 0);
+             :                        strtoll(sh, NULL, 0);
     if (l == LLONG_MAX || h == LLONG_MAX) goto error;
     n[k] = root = n.at(l) + single(v) * n.at(h);
   } while (getline(in, line));
@@ -373,10 +373,10 @@ zdd_t load(FILE* fp) {
     if (num != 4) return null();
     word_t l = strcmp(sl, "B") == 0 ? id(bot())
              : strcmp(sl, "T") == 0 ? id(top())
-             :                        strtoll(sl, nullptr, 0);
+             :                        strtoll(sl, NULL, 0);
     word_t h = strcmp(sh, "B") == 0 ? id(bot())
              : strcmp(sh, "T") == 0 ? id(top())
-             :                        strtoll(sh, nullptr, 0);
+             :                        strtoll(sh, NULL, 0);
     if (l == LLONG_MAX || h == LLONG_MAX) return null();
     n[k] = root = n.at(l) + single(v) * n.at(h);
   } while (fgets(buf, sizeof(buf), fp) != NULL);
@@ -409,7 +409,7 @@ void _enum(zdd_t f, FILE* fp,
 
 void _enum(zdd_t f, ostream& out, vector<elem_t>* stack, bool* first,
            const pair<const char*, const char*>& inner_braces) {
-  assert(stack != nullptr);
+  assert(stack != NULL);
   if (is_term(f)) {
     if (is_top(f)) {
       if (*first)
@@ -428,7 +428,7 @@ void _enum(zdd_t f, ostream& out, vector<elem_t>* stack, bool* first,
 
 void _enum(zdd_t f, FILE* fp, vector<elem_t>* stack, bool* first,
            const pair<const char*, const char*>& inner_braces) {
-  assert(stack != nullptr);
+  assert(stack != NULL);
   if (is_term(f)) {
     if (is_top(f)) {
       if (*first)
@@ -448,7 +448,7 @@ void _enum(zdd_t f, FILE* fp, vector<elem_t>* stack, bool* first,
 
 // Algorithm B modified for ZDD, from Knuth vol. 4 fascicle 1 sec. 7.1.4.
 void algo_b(zdd_t f, const vector<double>& w, vector<bool>* x) {
-  assert(x != nullptr);
+  assert(x != NULL);
   assert(!is_bot(f));
   if (is_top(f)) return;
   vector<vector<zdd_t> > stacks(num_elems_ + 1);
@@ -551,12 +551,12 @@ double ran3(int* idum) {
 
 void sort_zdd(zdd_t f, vector<vector<zdd_t> >* stacks,
               set<word_t>* visited, elem_t* max_elem) {
-  assert(stacks != nullptr && visited != nullptr);
+  assert(stacks != NULL && visited != NULL);
   if (is_term(f)) return;
   if (visited->find(id(f)) != visited->end()) return;
   (*stacks)[elem(f)].push_back(f);
   visited->insert(id(f));
-  if (max_elem != nullptr && elem(f) > *max_elem)
+  if (max_elem != NULL && elem(f) > *max_elem)
     *max_elem = elem(f);
   sort_zdd(lo(f), stacks, visited, max_elem);
   sort_zdd(hi(f), stacks, visited, max_elem);

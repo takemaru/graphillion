@@ -25,7 +25,7 @@ set<int> S(const string& str) {
   set<int> s;
   vector<string> v = split(str, "{}, ");
   for (vector<string>::const_iterator i = v.begin(); i != v.end(); ++i)
-    s.insert(strtol(i->c_str(), nullptr, nullptr));
+    s.insert(strtol(i->c_str(), NULL, NULL));
   return s;
 }
 

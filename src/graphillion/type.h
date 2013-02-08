@@ -5,8 +5,6 @@
 
 #include "hudd/ZBDD.h"
 
-#define nullptr (NULL)
-
 namespace graphillion {
 
 typedef ZBDD zdd_t;

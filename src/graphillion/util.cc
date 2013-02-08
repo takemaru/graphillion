@@ -15,9 +15,9 @@ vector<string> split(const string& str, const string sep) {
   vector<string> v;
   char* last;
   char* p = strtok_r(buf.data(), sep.c_str(), &last);
-  while (p != nullptr) {
+  while (p != NULL) {
     v.push_back(p);
-    p = strtok_r(nullptr, sep.c_str(), &last);
+    p = strtok_r(NULL, sep.c_str(), &last);
   }
   return v;
 }

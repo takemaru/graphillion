@@ -28,7 +28,7 @@ using std::vector;
   } while (0) ;
 
 #define CHECK_SETSET_OR_ERROR(obj)                              \
-  CHECK_OR_ERROR(obj, PySetset_Check, "setset", nullptr);
+  CHECK_OR_ERROR(obj, PySetset_Check, "setset", NULL);
 
 #define RETURN_NEW_SETSET(self, expr)                         \
   do {                                                        \
@@ -44,7 +44,7 @@ using std::vector;
     PySetsetObject* (_other) = reinterpret_cast<PySetsetObject*>(other); \
     PySetsetObject* _ret = reinterpret_cast<PySetsetObject*>(           \
         (self)->ob_type->tp_alloc((self)->ob_type, 0));                 \
-    if (_ret == nullptr) return nullptr;                                \
+    if (_ret == NULL) return NULL;                                      \
     _ret->ss = new setset(expr);                                        \
     return reinterpret_cast<PyObject*>(_ret);                           \
   } while (0);
@@ -65,18 +65,18 @@ using std::vector;
   } while (0);
 
 static PyObject* setset_build_set(const set<int>& s) {
-  PyObject* so = PySet_New(nullptr);
+  PyObject* so = PySet_New(NULL);
   for (set<int>::const_iterator e = s.begin(); e != s.end(); ++e) {
     PyObject* eo = PyInt_FromLong(*e);
-    if (eo == nullptr) {
+    if (eo == NULL) {
       PyErr_SetString(PyExc_TypeError, "not int set");
       Py_DECREF(eo);
-      return nullptr;
+      return NULL;
     }
     if (PySet_Add(so, eo) == -1) {
       PyErr_SetString(PyExc_RuntimeError, "can't add elements to a set");
       Py_DECREF(eo);
-      return nullptr;
+      return NULL;
     }
     Py_DECREF(eo); // TODO: no Py_DECREF required to obj of PyInt_FromLong?
   }
@@ -84,9 +84,9 @@ static PyObject* setset_build_set(const set<int>& s) {
 }
 
 static int setset_parse_set(PyObject* so, set<int>* s) {
-  assert(s != nullptr);
+  assert(s != NULL);
   PyObject* i = PyObject_GetIter(so);
-  if (i == nullptr) return -1;
+  if (i == NULL) return -1;
   PyObject* eo;
   while ((eo = PyIter_Next(i))) {
     if (!PyInt_Check(eo)) {
@@ -102,7 +102,7 @@ static int setset_parse_set(PyObject* so, set<int>* s) {
 }
 
 static int setset_parse_map(PyObject* dict_obj, map<string, vector<int> >* m) {
-  assert(m != nullptr);
+  assert(m != NULL);
   PyObject* key_obj;
   PyObject* lo;
   Py_ssize_t pos = 0;
@@ -113,7 +113,7 @@ static int setset_parse_map(PyObject* dict_obj, map<string, vector<int> >* m) {
     }
     string key = PyString_AsString(key_obj);
     PyObject* i = PyObject_GetIter(lo);
-    if (i == nullptr) return -1;
+    if (i == NULL) return -1;
     vector<int> v;
     PyObject* eo;
     while ((eo = PyIter_Next(i))) {
@@ -141,7 +141,7 @@ typedef struct {
 static PyObject* setsetiter_new(PyTypeObject* type, PyObject* args, PyObject* kwds) {
   PySetsetIterObject* self;
   self = reinterpret_cast<PySetsetIterObject*>(type->tp_alloc(type, 0));
-  if (self == nullptr) return nullptr;
+  if (self == NULL) return NULL;
   return reinterpret_cast<PyObject*>(self);
 }
 
@@ -152,14 +152,14 @@ static void setsetiter_dealloc(PySetsetIterObject* self) {
 
 static PyObject* setsetiter_next(PySetsetIterObject* self) {
   if (*(self->it) == setset::end())
-    return nullptr;
+    return NULL;
   set<int> s = *(*self->it);
   ++(*self->it);
   return setset_build_set(s);
 }
 
 static PyMethodDef setsetiter_methods[] = {
-  {nullptr,           nullptr}           /* sentinel */
+  {NULL,           NULL}           /* sentinel */
 };
 
 static PyTypeObject PySetsetIter_Type = {
@@ -209,15 +209,15 @@ static PyTypeObject PySetsetIter_Type = {
 static PyObject* setset_new(PyTypeObject* type, PyObject* args, PyObject* kwds) {
   PySetsetObject* self;
   self = reinterpret_cast<PySetsetObject*>(type->tp_alloc(type, 0));
-  if (self == nullptr) return nullptr;
+  if (self == NULL) return NULL;
   return reinterpret_cast<PyObject*>(self);
 }
 
 static int setset_init(PySetsetObject* self, PyObject* args, PyObject* kwds) {
-  PyObject* obj = nullptr;
+  PyObject* obj = NULL;
   if (!PyArg_ParseTuple(args, "|O", &obj))
     return -1;
-  if (obj == nullptr || obj == Py_None) {
+  if (obj == NULL || obj == Py_None) {
     self->ss = new setset();
   } else if (PySetset_Check(obj)) {
     PySetsetObject* sso = reinterpret_cast<PySetsetObject*>(obj);
@@ -232,7 +232,7 @@ static int setset_init(PySetsetObject* self, PyObject* args, PyObject* kwds) {
     self->ss = new setset(m);
   } else if (PyList_Check(obj)) {
     PyObject* i = PyObject_GetIter(obj);
-    if (i == nullptr) return -1;
+    if (i == NULL) return -1;
     vector<set<int> > vs;
     PyObject* o;
     while ((o = PyIter_Next(i))) {
@@ -350,7 +350,7 @@ static int setset_nonzero(PySetsetObject* self) {
 
 static Py_ssize_t setset_len(PyObject* obj) {
   PySetsetObject* self = reinterpret_cast<PySetsetObject*>(obj);
-  long long int len = strtoll(self->ss->size().c_str(), nullptr, 0);
+  long long int len = strtoll(self->ss->size().c_str(), NULL, 0);
   if (len != LLONG_MAX) {
     return len;
   } else {
@@ -366,16 +366,16 @@ static PyObject* setset_long_len(PyObject* obj) {
   for (string::const_iterator c = size.begin(); c != size.end(); ++c)
     buf.push_back(*c);
   buf.push_back('\0');
-  return PyLong_FromString(buf.data(), nullptr, 0);
+  return PyLong_FromString(buf.data(), NULL, 0);
 }
 
 static PyObject* setset_randomize(PySetsetObject* self) {
   PySetsetIterObject* ssi = PyObject_New(PySetsetIterObject, &PySetsetIter_Type);
-  if (ssi == nullptr) return nullptr;
+  if (ssi == NULL) return NULL;
   ssi->it = new setset::iterator(self->ss->begin());
-  if (ssi->it == nullptr) {
+  if (ssi->it == NULL) {
     PyErr_NoMemory();
-    return nullptr;
+    return NULL;
   }
   return reinterpret_cast<PyObject*>(ssi);
 }
@@ -383,7 +383,7 @@ static PyObject* setset_randomize(PySetsetObject* self) {
 static PyObject* setset_optimize(PySetsetObject* self, PyObject* weights,
                                  bool is_maximizing) {
   PyObject* i = PyObject_GetIter(weights);
-  if (i == nullptr) return nullptr;
+  if (i == NULL) return NULL;
   PyObject* eo;
   vector<double> w;
   while ((eo = PyIter_Next(i))) {
@@ -399,18 +399,18 @@ static PyObject* setset_optimize(PySetsetObject* self, PyObject* weights,
     else {
       PyErr_SetString(PyExc_TypeError, "not a number");
       Py_DECREF(eo);
-      return nullptr;
+      return NULL;
     }
     Py_DECREF(eo);
   }
   Py_DECREF(i);
   PySetsetIterObject* ssi = PyObject_New(PySetsetIterObject, &PySetsetIter_Type);
-  if (ssi == nullptr) return nullptr;
+  if (ssi == NULL) return NULL;
   ssi->it = new setset::iterator(
       is_maximizing ? self->ss->maximize(w) : self->ss->minimize(w));
-  if (ssi->it == nullptr) {
+  if (ssi->it == NULL) {
     PyErr_NoMemory();
-    return nullptr;
+    return NULL;
   }
   return reinterpret_cast<PyObject*>(ssi);
 }
@@ -432,7 +432,7 @@ static int setset_contains(PySetsetObject* self, PyObject* so) {
 }
 
 static PyObject* setset_include(PySetsetObject* self, PyObject* eo) {
-  CHECK_OR_ERROR(eo, PyInt_Check, "int", nullptr);
+  CHECK_OR_ERROR(eo, PyInt_Check, "int", NULL);
   PySetsetObject* sso = reinterpret_cast<PySetsetObject*>(
       self->ob_type->tp_alloc(self->ob_type, 0));
   sso->ss = new setset(self->ss->include(PyInt_AsLong(eo)));
@@ -440,7 +440,7 @@ static PyObject* setset_include(PySetsetObject* self, PyObject* eo) {
 }
 
 static PyObject* setset_exclude(PySetsetObject* self, PyObject* eo) {
-  CHECK_OR_ERROR(eo, PyInt_Check, "int", nullptr);
+  CHECK_OR_ERROR(eo, PyInt_Check, "int", NULL);
   PySetsetObject* sso = reinterpret_cast<PySetsetObject*>(
       self->ob_type->tp_alloc(self->ob_type, 0));
   sso->ss = new setset(self->ss->exclude(PyInt_AsLong(eo)));
@@ -450,14 +450,14 @@ static PyObject* setset_exclude(PySetsetObject* self, PyObject* eo) {
 static PyObject* setset_add(PySetsetObject* self, PyObject* obj) {
   if (PyAnySet_Check(obj)) {
     set<int> s;
-    if (setset_parse_set(obj, &s) == -1) return nullptr;
+    if (setset_parse_set(obj, &s) == -1) return NULL;
     self->ss->insert(s);
   } else if (PyInt_Check(obj)) {
     int e = PyLong_AsLong(obj);
     self->ss->insert(e);
   } else {
     PyErr_SetString(PyExc_TypeError, "not set nor int");
-    return nullptr;
+    return NULL;
   }
   Py_RETURN_NONE;
 }
@@ -465,22 +465,22 @@ static PyObject* setset_add(PySetsetObject* self, PyObject* obj) {
 static PyObject* setset_remove(PySetsetObject* self, PyObject* obj) {
   if (PyAnySet_Check(obj)) {
     set<int> s;
-    if (setset_parse_set(obj, &s) == -1) return nullptr;
+    if (setset_parse_set(obj, &s) == -1) return NULL;
     if (self->ss->erase(s) == 0) {
       PyErr_SetString(PyExc_KeyError, "not found");
-      return nullptr;
+      return NULL;
     }
     self->ss->erase(s);
   } else if (PyInt_Check(obj)) {
     int e = PyLong_AsLong(obj);
     if (self->ss->include(e).empty()) {
       PyErr_SetString(PyExc_KeyError, "not found");
-      return nullptr;
+      return NULL;
     }
     self->ss->erase(e);
   } else {
     PyErr_SetString(PyExc_TypeError, "not set nor int");
-    return nullptr;
+    return NULL;
   }
   Py_RETURN_NONE;
 }
@@ -488,14 +488,14 @@ static PyObject* setset_remove(PySetsetObject* self, PyObject* obj) {
 static PyObject* setset_discard(PySetsetObject* self, PyObject* obj) {
   if (PyAnySet_Check(obj)) {
     set<int> s;
-    if (setset_parse_set(obj, &s) == -1) return nullptr;
+    if (setset_parse_set(obj, &s) == -1) return NULL;
     self->ss->erase(s);
   } else if (PyInt_Check(obj)) {
     int e = PyLong_AsLong(obj);
     self->ss->erase(e);
   } else {
     PyErr_SetString(PyExc_TypeError, "not set nor int");
-    return nullptr;
+    return NULL;
   }
   Py_RETURN_NONE;
 }
@@ -504,7 +504,7 @@ static PyObject* setset_pop(PySetsetObject* self) {
   setset::iterator i = self->ss->begin();
   if (i == setset::end()) {
     PyErr_SetString(PyExc_KeyError, "not found");
-    return nullptr;
+    return NULL;
   }
   set<int> s = *i;
   self->ss->erase(s);
@@ -529,37 +529,37 @@ static PyObject* setset_hitting(PySetsetObject* self) {
 }
 
 static PyObject* setset_smaller(PySetsetObject* self, PyObject* io) {
-  CHECK_OR_ERROR(io, PyInt_Check, "int", nullptr);
+  CHECK_OR_ERROR(io, PyInt_Check, "int", NULL);
   int set_size = PyLong_AsLong(io);
   if (set_size < 0) {
     PyErr_SetString(PyExc_ValueError, "not unsigned int");
-    return nullptr;
+    return NULL;
   }
   RETURN_NEW_SETSET(self, self->ss->smaller(set_size));
 }
 
 static PyObject* setset_larger(PySetsetObject* self, PyObject* io) {
-  CHECK_OR_ERROR(io, PyInt_Check, "int", nullptr);
+  CHECK_OR_ERROR(io, PyInt_Check, "int", NULL);
   int set_size = PyLong_AsLong(io);
   if (set_size < 0) {
     PyErr_SetString(PyExc_ValueError, "not unsigned int");
-    return nullptr;
+    return NULL;
   }
   RETURN_NEW_SETSET(self, self->ss->larger(set_size));
 }
 
 static PyObject* setset_equal(PySetsetObject* self, PyObject* io) {
-  CHECK_OR_ERROR(io, PyInt_Check, "int", nullptr);
+  CHECK_OR_ERROR(io, PyInt_Check, "int", NULL);
   int set_size = PyLong_AsLong(io);
   if (set_size < 0) {
     PyErr_SetString(PyExc_ValueError, "not unsigned int");
-    return nullptr;
+    return NULL;
   }
   RETURN_NEW_SETSET(self, self->ss->equal(set_size));
 }
 
 static PyObject* setset_invert(PySetsetObject* self, PyObject* eo) {
-  CHECK_OR_ERROR(eo, PyInt_Check, "int", nullptr);
+  CHECK_OR_ERROR(eo, PyInt_Check, "int", NULL);
   int e = PyLong_AsLong(eo);
   RETURN_NEW_SETSET(self, self->ss->invert(e));
 }
@@ -595,7 +595,7 @@ static PyObject* setset_nonsupersets(PySetsetObject* self, PyObject* other) {
 }
 
 static PyObject* setset_dump(PySetsetObject* self, PyObject* obj) {
-  CHECK_OR_ERROR(obj, PyFile_Check, "file", nullptr);
+  CHECK_OR_ERROR(obj, PyFile_Check, "file", NULL);
   FILE* fp = PyFile_AsFile(obj);
   PyFileObject* file = reinterpret_cast<PyFileObject*>(obj);
   PyFile_IncUseCount(file);
@@ -613,7 +613,7 @@ static PyObject* setset_dumps(PySetsetObject* self) {
 }
 
 static PyObject* setset_load(PySetsetObject* self, PyObject* obj) {
-  CHECK_OR_ERROR(obj, PyFile_Check, "file", nullptr);
+  CHECK_OR_ERROR(obj, PyFile_Check, "file", NULL);
   FILE* fp = PyFile_AsFile(obj);
   PyFileObject* file = reinterpret_cast<PyFileObject*>(obj);
   PyFile_IncUseCount(file);
@@ -625,14 +625,14 @@ static PyObject* setset_load(PySetsetObject* self, PyObject* obj) {
 }
 
 static PyObject* setset_loads(PySetsetObject* self, PyObject* obj) {
-  CHECK_OR_ERROR(obj, PyString_Check, "str", nullptr);
+  CHECK_OR_ERROR(obj, PyString_Check, "str", NULL);
   stringstream sstr(PyString_AsString(obj));
   self->ss->load(sstr);
   Py_RETURN_NONE;
 }
 
 static PyObject* setset_enum(PySetsetObject* self, PyObject* obj) {
-  CHECK_OR_ERROR(obj, PyFile_Check, "file", nullptr);
+  CHECK_OR_ERROR(obj, PyFile_Check, "file", NULL);
   FILE* fp = PyFile_AsFile(obj);
   PyFileObject* file = reinterpret_cast<PyFileObject*>(obj);
   PyFile_IncUseCount(file);
@@ -674,7 +674,7 @@ static PyObject* setset_richcompare(PySetsetObject* self, PyObject* obj, int op)
     if (op == Py_EQ) Py_RETURN_FALSE;
     if (op == Py_NE) Py_RETURN_TRUE;
     PyErr_SetString(PyExc_TypeError, "can only compare to set of sets");
-    return nullptr;
+    return NULL;
   }
   sso = reinterpret_cast<PySetsetObject*>(obj);
   switch (op) {
@@ -702,7 +702,7 @@ static PyObject* setset_richcompare(PySetsetObject* self, PyObject* obj, int op)
 }
 
 static PyMemberDef setset_members[] = {
-  {nullptr}  /* Sentinel */
+  {NULL}  /* Sentinel */
 };
 
 static PyMethodDef setset_methods[] = {
@@ -753,7 +753,7 @@ static PyMethodDef setset_methods[] = {
   {"loads", reinterpret_cast<PyCFunction>(setset_loads), METH_O, ""},
   {"_enum", reinterpret_cast<PyCFunction>(setset_enum), METH_O, ""},
   {"_enums", reinterpret_cast<PyCFunction>(setset_enums), METH_NOARGS, ""},
-  {nullptr}  /* Sentinel */
+  {NULL}  /* Sentinel */
 };
 
 static PyNumberMethods setset_as_number = {
@@ -847,9 +847,9 @@ PyTypeObject PySetset_Type = {
 };
 
 static PyObject* setset_num_elems(PyObject*, PyObject* args) {
-  PyObject* obj = nullptr;
-  if (!PyArg_ParseTuple(args, "|O", &obj)) return nullptr;
-  if (obj == nullptr) {
+  PyObject* obj = NULL;
+  if (!PyArg_ParseTuple(args, "|O", &obj)) return NULL;
+  if (obj == NULL) {
     return PyInt_FromLong(setset::num_elems());
   } else {
     setset::num_elems(PyInt_AsLong(obj));
@@ -859,7 +859,7 @@ static PyObject* setset_num_elems(PyObject*, PyObject* args) {
 
 static PyMethodDef module_methods[] = {
   {"num_elems", setset_num_elems, METH_VARARGS, ""},
-  {nullptr}  /* Sentinel */
+  {NULL}  /* Sentinel */
 };
 
 #ifndef PyMODINIT_FUNC  /* declarations for DLL import/export */
@@ -871,7 +871,7 @@ PyMODINIT_FUNC init_graphillion(void) {
   if (PyType_Ready(&PySetsetIter_Type) < 0) return;
   m = Py_InitModule3("_graphillion", module_methods,
                      "Hidden module to implement graphillion objects.");
-  if (m == nullptr) return;
+  if (m == NULL) return;
   Py_INCREF(&PySetset_Type);
   Py_INCREF(&PySetsetIter_Type);
   PyModule_AddObject(m, "setset", reinterpret_cast<PyObject*>(&PySetset_Type));

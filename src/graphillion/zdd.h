@@ -79,8 +79,7 @@ intx_t algo_c(zdd_t f);
 zdd_t zuniq(elem_t v, zdd_t l, zdd_t h);
 double ran3(int* idum);
 void sort_zdd(zdd_t f, std::vector<std::vector<zdd_t> >* stacks,
-              std::set<word_t>* visited,
-              elem_t* max_elem = nullptr);
+              std::set<word_t>* visited, elem_t* max_elem = NULL);
 inline std::pair<word_t, word_t> make_key(zdd_t f, zdd_t g) {
   return std::make_pair(id(f), id(g));
 }
