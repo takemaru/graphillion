@@ -301,6 +301,7 @@ class TestSetset {
     assert(p.first != setset::end());
     assert(p.first.s_ == S("{1}"));
     assert(p.second);
+
     p = ss.insert(S("{1}"));
     assert(p.first != setset::end());
     assert(p.first.s_ == S("{1}"));
@@ -310,10 +311,6 @@ class TestSetset {
     assert(i != setset::end());
     assert(i.s_ == S("{1}"));
 
-    ss = setset(v);
-    ss.insert(2);
-    assert(ss == setset(V("{{1, 2}, {1, 2, 3}, {2}}")));
-
     i = ss.erase(i);
     assert(ss.find(S("{1}")) == setset::end());
     assert(i == setset::end());
@@ -321,6 +318,10 @@ class TestSetset {
     assert(ss.erase(S("{1}")) == 0);
     assert(ss.erase(S("{1, 2}")) == 1);
     assert(ss.find(S("{1, 2}")) == setset::end());
+
+    ss = setset(v);
+    ss.insert(2);
+    assert(ss == setset(V("{{1, 2}, {1, 2, 3}, {2}}")));
 
     ss = setset(v);
     ss.erase(2);
