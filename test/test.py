@@ -557,14 +557,14 @@ class TestGraphset(unittest.TestCase):
         self.assertTrue(set([(1, 2), (1, 3)]) in gs1)
         self.assertTrue(set([(1, 2)]) not in gs1)
 
-        gs2 = gs1.include_edge((2, 1))
+        gs2 = gs1.include((2, 1))
         self.assertEqual(len(gs2), 7)
 
-        gs2 = gs1.exclude_edge((1, 3))
+        gs2 = gs1.exclude((1, 3))
         self.assertEqual(len(gs2), 6)
 
-        self.assertEqual(len(gs1.include_vertex(1)), 11)
-        self.assertEqual(len(gs1.exclude_vertex(1)), 3)
+        self.assertEqual(len(gs1.include(1)), 11)
+        self.assertEqual(len(gs1.exclude(1)), 3)
 
     def test_modifiers(self):
         gs = graphset({}) - graphset([set([(1, 2)]), set([(2, 4), (3, 4)])])

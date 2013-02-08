@@ -39,28 +39,24 @@ class graphset(setset):
     def __contains__(self, *args, **kwds):
         return setset.__contains__(self, *args, **kwds)
 
-    @_hook_args
-    def include(self, *args, **kwds):
-        return setset.include(self, *args, **kwds)
+    def include(self, obj):
+        try:
+            edge = _do_hook_args(obj)
+            return setset.include(self, edge)
+        except KeyError:
+            v = obj
+            gs = graphset()
+            for edge in [e for e in setset.universe() if v in e]:
+                gs |= self.include(edge)
+            return gs & self
 
-    def include_edge(self, *args, **kwds):
-        return graphset.include(self, *args, **kwds)
-
-    def exclude_edge(self, *args, **kwds):
-        return graphset.exclude(self, *args, **kwds)
-
-    def include_vertex(self, v):
-        gs = graphset()
-        for edge in [e for e in setset.universe() if v in e]:
-            gs |= self.include(edge)
-        return gs & self
-
-    def exclude_vertex(self, v):
-        return self - self.include_vertex(v)
-
-    @_hook_args
-    def exclude(self, *args, **kwds):
-        return setset.exclude(self, *args, **kwds)
+    def exclude(self, obj):
+        try:
+            edge = _do_hook_args(obj)
+            return setset.exclude(self, edge)
+        except KeyError:
+            v = obj
+            return self - self.include(v)
 
     @_hook_args
     def add(self, *args, **kwds):
