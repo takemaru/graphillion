@@ -23,7 +23,12 @@ setset::iterator::iterator()
     : zdd_(null()), s_(set<elem_t>()), weights_(vector<double>()) {
 }
 
-setset::iterator::iterator(const setset& ss, vector<double> weights)
+setset::iterator::iterator(const setset& ss)
+    : zdd_(ss.zdd_), s_(set<elem_t>()), weights_(vector<double>()) {
+  this->next();
+}
+
+setset::iterator::iterator(const setset& ss, const vector<double>& weights)
     : zdd_(ss.zdd_), s_(set<elem_t>()), weights_(weights) {
   this->next();
 }
@@ -189,6 +194,22 @@ string setset::size() const {
   stringstream ss;
   ss << algo_c(this->zdd_);
   return ss.str();
+}
+
+setset::iterator setset::begin() const {
+  return setset::iterator(*this);
+}
+
+setset::iterator setset::maximize(const vector<double>& weights) const {
+  return setset::iterator(*this, weights);
+}
+
+setset::iterator setset::minimize(const vector<double>& weights) const {
+  vector<double> inverted_weights;
+  for (vector<double>::const_iterator i = weights.begin();
+       i != weights.end(); ++i)
+    inverted_weights.push_back(-1 * (*i));
+  return setset::iterator(*this, inverted_weights);
 }
 
 setset::iterator setset::find(const set<elem_t>& s) const {

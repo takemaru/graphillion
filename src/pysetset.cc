@@ -369,7 +369,7 @@ static PyObject* setset_long_len(PyObject* obj) {
   return PyLong_FromString(buf.data(), nullptr, 0);
 }
 
-static PyObject* setset_rand_iter(PySetsetObject* self) {
+static PyObject* setset_randomize(PySetsetObject* self) {
   PySetsetIterObject* ssi = PyObject_New(PySetsetIterObject, &PySetsetIter_Type);
   if (ssi == nullptr) return nullptr;
   ssi->it = new setset::iterator(self->ss->begin());
@@ -380,7 +380,8 @@ static PyObject* setset_rand_iter(PySetsetObject* self) {
   return reinterpret_cast<PyObject*>(ssi);
 }
 
-static PyObject* setset_opt_iter(PySetsetObject* self, PyObject* weights) {
+static PyObject* setset_optimize(PySetsetObject* self, PyObject* weights,
+                                 bool is_maximizing) {
   PyObject* i = PyObject_GetIter(weights);
   if (i == nullptr) return nullptr;
   PyObject* eo;
@@ -405,12 +406,21 @@ static PyObject* setset_opt_iter(PySetsetObject* self, PyObject* weights) {
   Py_DECREF(i);
   PySetsetIterObject* ssi = PyObject_New(PySetsetIterObject, &PySetsetIter_Type);
   if (ssi == nullptr) return nullptr;
-  ssi->it = new setset::iterator(self->ss->begin(w));
+  ssi->it = new setset::iterator(
+      is_maximizing ? self->ss->maximize(w) : self->ss->minimize(w));
   if (ssi->it == nullptr) {
     PyErr_NoMemory();
     return nullptr;
   }
   return reinterpret_cast<PyObject*>(ssi);
+}
+
+static PyObject* setset_maximize(PySetsetObject* self, PyObject* weights) {
+  return setset_optimize(self, weights, true);
+}
+
+static PyObject* setset_minimize(PySetsetObject* self, PyObject* weights) {
+  return setset_optimize(self, weights, false);
 }
 
 // If an item in o is equal to value, return 1, otherwise return 0. On error, return -1.
@@ -682,8 +692,9 @@ static PyMethodDef setset_methods[] = {
   {"issubset", reinterpret_cast<PyCFunction>(setset_issubset), METH_O, ""},
   {"issuperset", reinterpret_cast<PyCFunction>(setset_issuperset), METH_O, ""},
   {"len", reinterpret_cast<PyCFunction>(setset_long_len), METH_NOARGS, ""},
-  {"rand_iter", reinterpret_cast<PyCFunction>(setset_rand_iter), METH_NOARGS, ""},
-  {"opt_iter", reinterpret_cast<PyCFunction>(setset_opt_iter), METH_O, ""},
+  {"randomize", reinterpret_cast<PyCFunction>(setset_randomize), METH_NOARGS, ""},
+  {"maximize", reinterpret_cast<PyCFunction>(setset_maximize), METH_O, ""},
+  {"minimize", reinterpret_cast<PyCFunction>(setset_minimize), METH_O, ""},
   {"include", reinterpret_cast<PyCFunction>(setset_include), METH_O, ""},
   {"exclude", reinterpret_cast<PyCFunction>(setset_exclude), METH_O, ""},
   {"add", reinterpret_cast<PyCFunction>(setset_add), METH_O, ""},

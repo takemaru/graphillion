@@ -257,12 +257,20 @@ class TestSetset {
     w.push_back(-.2);
     w.push_back(-.2);
     w.push_back(.4);
-    setset::iterator i = ss.begin(w);
+
+    setset::iterator i = ss.maximize(w);
     assert(*i == S("{1, 4}"));
     ++i;
     assert(*i == S("{1, 3, 4}"));
     ++i;
     assert(*i == S("{4}"));
+
+    i = ss.minimize(w);
+    assert(*i == S("{1, 2, 3}"));
+    ++i;
+    assert(*i == S("{}"));
+    ++i;
+    assert(*i == S("{1, 2}"));
   }
 
   void lookup() {

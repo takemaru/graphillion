@@ -75,10 +75,10 @@ class setset(_graphillion.setset):
         w = {}
         for i in range(1, n + 1):
             e = setset._int2obj[i]
-            w[e] = - (1 + float(i) / n**2)
+            w[e] = 1 + float(i) / n**2
         ret = self.__class__.__name__ + '(['
         no_comma = True
-        for s in setset.optimize(self, w):
+        for s in setset.minimize(self, w):
             if no_comma:
                 no_comma = False
             else:
@@ -115,24 +115,31 @@ class setset(_graphillion.setset):
     def pop(self, *args, **kwds):
         return _graphillion.setset.pop(self, *args, **kwds)
 
-    def __iter__(self):
-        return setset_iterator(self.rand_iter())
-
     def randomize(self):
-        i = self.rand_iter()
+        i = _graphillion.setset.randomize(self)
         while (True):
             yield _do_hook_ret(i.next())
 
-    def optimize(self, *args, **kwds):
+    def maximize(self, *args, **kwds):
+        kwds['generator'] = _graphillion.setset.maximize;
+        return self._optimize(*args, **kwds)
+
+    def minimize(self, *args, **kwds):
+        kwds['generator'] = _graphillion.setset.minimize;
+        return self._optimize(*args, **kwds)
+
+    def _optimize(self, *args, **kwds):
         default = kwds['default'] if 'default' in kwds else 1
         weights = [default] * (_graphillion.num_elems() + 1)
         if args:
             for e, w in args[0].iteritems():
                 i = setset._obj2int[e]
                 weights[i] = w
-        i = self.opt_iter(weights)
+        i = kwds['generator'](self, weights)
         while (True):
             yield _do_hook_ret(i.next())
+
+    __iter__ = randomize
 
     @staticmethod
     def universe(*args):

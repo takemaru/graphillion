@@ -382,7 +382,7 @@ class TestSetset(unittest.TestCase):
                      set(['1', '2', '3', '4']), set(['1', '3', '4']),
                      set(['1', '4']), set(['4'])])
         r = []
-        for s in ss.optimize({'1': .3, '2': -.2, '3': -.2, '4': .4}):
+        for s in ss.maximize({'1': .3, '2': -.2, '3': -.2}, default=.4):
             r.append(s)
         self.assertEqual(len(r), 8)
         self.assertEqual(r[0], set(['1', '4']))
@@ -390,14 +390,22 @@ class TestSetset(unittest.TestCase):
         self.assertEqual(r[2], set(['4']))
 
         r = []
-        for s in ss.optimize():
+        for s in ss.maximize():
             r.append(s)
         self.assertEqual(len(r), 8)
         self.assertEqual(r[0], set(['1', '2', '3', '4']))
         self.assertEqual(r[-1], set())
 
         r = []
-        for s in ss.optimize(default=-1):
+        for s in ss.minimize({'1': .3, '2': -.2, '3': -.2}, default=.4):
+            r.append(s)
+        self.assertEqual(len(r), 8)
+        self.assertEqual(r[0], set(['1', '2', '3']))
+        self.assertEqual(r[1], set())
+        self.assertEqual(r[2], set(['1', '2']))
+
+        r = []
+        for s in ss.minimize():
             r.append(s)
         self.assertEqual(len(r), 8)
         self.assertEqual(r[0], set())
@@ -537,7 +545,7 @@ class TestGraphset(unittest.TestCase):
     def test_iterators(self):
         gs = graphset({})
         r = []
-        for s in gs.optimize():
+        for s in gs.maximize():
             r.append(s)
         self.assertEqual(len(r), 16)
         self.assertEqual(r[0], set([(1, 2), (3, 4)]))

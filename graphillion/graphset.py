@@ -74,8 +74,12 @@ class graphset(setset):
     def discard(self, *args, **kwds):
         return setset.discard(self, *args, **kwds)
 
-    def optimize(self):
-        for s in setset.optimize(self, graphset._weights):
+    def maximize(self):
+        for s in setset.maximize(self, graphset._weights):
+            yield s
+
+    def minimize(self):
+        for s in setset.minimize(self, graphset._weights):
             yield s
 
     @staticmethod
