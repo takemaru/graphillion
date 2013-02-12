@@ -570,6 +570,11 @@ class TestGraphSet(unittest.TestCase):
     def test_subgraphs(self):
         pass
 
+    def test_binary_operators(self):
+        gs = GraphSet([set([(1, 2)]), set([(2, 4), (3, 4)])])
+        gs = gs.invert((4, 2))
+        self.assertEqual(gs, GraphSet([set([(1, 2), (2, 4)]), set([(3, 4)])]))
+
     def test_iterators(self):
         gs = GraphSet({})
         r = []

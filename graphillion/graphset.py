@@ -37,6 +37,10 @@ class GraphSet(setset):
         graph_or_edge = GraphSet._conv_arg(graph_or_edge)
         return setset.discard(self, graph_or_edge)
 
+    def invert(self, edge):
+        edge = GraphSet._conv_edge(edge)
+        return setset.invert(self, edge)
+
     def maximize(self):
         for s in setset.maximize(self, GraphSet._weights):
             yield s
