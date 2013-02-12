@@ -1,9 +1,23 @@
-from setuptools import setup, find_packages, Extension
 import os
+from setuptools import setup, find_packages, Extension
 
-extra_include_dirs = ['/opt/local/include']
-extra_link_args = ['-L/opt/local/lib']
-extra_macros = [('HAVE_LIBGMP', None), ('HAVE_LIBGMPXX', None)]
+prefixes = [os.path.join('/usr'), os.path.join('/usr', 'local'),
+            os.path.join('/usr', 'share'), os.path.join('/opt', 'local'),
+            os.path.join('/sw', 'local')]
+
+include_dirs = ['src']
+link_args = []
+macros = []
+libraries = []
+
+for prefix in prefixes:
+    path = os.path.join(prefix, 'include', 'gmpxx.h')
+    if os.path.isfile(path):
+        include_dirs.extend([os.path.join(prefix, 'include')])
+        link_args.extend(['-L' + os.path.join(prefix, 'lib')])
+        macros.extend([('HAVE_LIBGMP', None), ('HAVE_LIBGMPXX', None)])
+        libraries.extend(['gmp', 'gmpxx'])
+        break
 
 setup(name='graphillion',
       version='0.1',
@@ -34,10 +48,10 @@ setup(name='graphillion',
                            os.path.join('src', 'hudd', 'bddc.c'),
                            os.path.join('src', 'hudd', 'BDD.cc'),
                            os.path.join('src', 'hudd', 'ZBDD.cc')],
-                  include_dirs=['src'] + extra_include_dirs,
-                  libraries=['gmp', 'gmpxx'],
-                  define_macros=[('B_64', None)] + extra_macros,
-                  extra_link_args=extra_link_args,
+                  include_dirs=include_dirs,
+                  extra_link_args=link_args,
+                  define_macros=macros,
+                  libraries=libraries,
                   ),
         ],
       )

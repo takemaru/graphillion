@@ -366,7 +366,11 @@ static PyObject* setset_long_len(PyObject* obj) {
   for (string::const_iterator c = size.begin(); c != size.end(); ++c)
     buf.push_back(*c);
   buf.push_back('\0');
+#ifdef HAVE_LIBGMPXX
   return PyLong_FromString(buf.data(), NULL, 0);
+#else
+  return PyLong_FromDouble(strtod(buf.data(), NULL));
+#endif
 }
 
 static PyObject* setset_randomize(PySetsetObject* self) {

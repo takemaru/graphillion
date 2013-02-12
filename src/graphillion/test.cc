@@ -1,4 +1,5 @@
 #include <cassert>
+#include <cmath>
 #include <cstdio>
 
 #include <map>
@@ -399,10 +400,12 @@ class TestSetset {
   }
 
   void large() {
-    setset::num_elems(5000);
+    setset::num_elems(1000);
     map<string, vector<int> > m;
     setset ss = setset(m) - setset(V("{{1}, {1, 2}}"));
-    assert(ss.size().size() == 1506);
+    double radix = static_cast<double>(2);
+    double ratio = strtod(ss.size().c_str(), NULL) / (pow(radix, 1000) - 2);
+    assert(0.99999 < ratio && ratio < 1.00001);
 
     int i = 0;
     for (setset::const_iterator s = ss.begin(); s != ss.end(); ++s)
