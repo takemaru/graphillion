@@ -40,7 +40,7 @@ class BDDV;
 #include <iostream>
 
 #define BDD_CPP
-#include "hudd/bddc.h"
+#include "SAPPOROBDD/bddc.h"
 
 /*using namespace std;*/
 

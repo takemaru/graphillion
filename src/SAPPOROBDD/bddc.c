@@ -31,7 +31,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "hudd/bddc.h"
+#include "SAPPOROBDD/bddc.h"
 
 /* ----------------- MACRO Definitions ---------------- */
 /* Operation IDs in Cache */

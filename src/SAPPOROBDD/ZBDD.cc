@@ -28,10 +28,10 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  * (C) Shin-ichi MINATO (Dec. 11, 2012) *
  ****************************************/
 
-#include "hudd/ZBDD.h"
+#include "SAPPOROBDD/ZBDD.h"
 
 #define BDD_CPP
-#include "hudd/bddc.h"
+#include "SAPPOROBDD/bddc.h"
 
 using std::cout;
 using std::cerr;

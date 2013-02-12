@@ -27,7 +27,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include <stdint.h>
 
-#include "hudd/ZBDD.h"
+#include "SAPPOROBDD/ZBDD.h"
 
 namespace graphillion {
 

@@ -33,7 +33,7 @@ class ZBDDV;
 #ifndef _ZBDD_
 #define _ZBDD_
 
-#include "hudd/BDD.h"
+#include "SAPPOROBDD/BDD.h"
 
 class SeqBDD;
 

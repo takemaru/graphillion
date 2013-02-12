@@ -28,7 +28,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  * (C) Shin-ichi MINATO (Dec. 11, 2012) *
  ****************************************/
 
-#include "hudd/BDD.h"
+#include "SAPPOROBDD/BDD.h"
 
 using std::cout;
 using std::cerr;

@@ -1,5 +1,5 @@
-SET(SRCS hudd/bddc hudd/BDD hudd/ZBDD graphillion/setset graphillion/util
-  graphillion/zdd)
+SET(SRCS SAPPOROBDD/bddc SAPPOROBDD/BDD SAPPOROBDD/ZBDD
+  graphillion/setset graphillion/util graphillion/zdd)
 
 ADD_LIBRARY(${PROJECT_NAME} ${SRCS})
 INSTALL(TARGETS ${PROJECT_NAME} ARCHIVE DESTINATION lib)
