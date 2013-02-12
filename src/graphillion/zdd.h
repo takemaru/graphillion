@@ -57,7 +57,7 @@ zdd_t join(zdd_t f, zdd_t g);
 zdd_t meet(zdd_t f, zdd_t g);
 zdd_t nonsubsets(zdd_t f, zdd_t g);
 zdd_t nonsupersets(zdd_t f, zdd_t g);
-zdd_t choose_random(zdd_t f, std::vector<elem_t>* stack, int* idum);
+zdd_t choose_random(zdd_t f, std::vector<elem_t>* stack);
 zdd_t choose_best(zdd_t f, const std::vector<double>& weights,
                   std::set<elem_t>* s);
 void dump(zdd_t f, std::ostream& out);
@@ -77,7 +77,7 @@ void _enum(zdd_t f, FILE* fp, std::vector<elem_t>* stack, bool* first,
 void algo_b(zdd_t f, const std::vector<double>& w, std::vector<bool>* x);
 intx_t algo_c(zdd_t f);
 zdd_t zuniq(elem_t v, zdd_t l, zdd_t h);
-double ran3(int* idum);
+double rand_xor128();
 void sort_zdd(zdd_t f, std::vector<std::vector<zdd_t> >* stacks,
               std::set<word_t>* visited, elem_t* max_elem = NULL);
 inline std::pair<word_t, word_t> make_key(zdd_t f, zdd_t g) {

@@ -48,8 +48,7 @@ void setset::iterator::next() {
     this->s_ = set<elem_t>();
   } else if (this->weights_.empty()) {  // random sampling
     vector<elem_t> stack;
-    static int idum = -1;  // TODO: can be set by users
-    this->zdd_ -= choose_random(this->zdd_, &stack, &idum);
+    this->zdd_ -= choose_random(this->zdd_, &stack);
     this->s_ = set<elem_t>(stack.begin(), stack.end());
   } else {  // optimization
     set<elem_t> s;

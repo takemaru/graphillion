@@ -216,8 +216,8 @@ zdd_t nonsupersets(zdd_t f, zdd_t g) {
   return cache[k] = r;
 }
 
-zdd_t choose_random(zdd_t f, vector<elem_t>* stack, int* idum) {
-  assert(stack != NULL && idum != NULL);
+zdd_t choose_random(zdd_t f, vector<elem_t>* stack) {
+  assert(stack != NULL);
   if (is_term(f)) {
     if (is_top(f)) {
       zdd_t g = top();
@@ -234,11 +234,11 @@ zdd_t choose_random(zdd_t f, vector<elem_t>* stack, int* idum) {
   double ch = algo_c(hi(f));
   double cl = algo_c(lo(f));
 #endif
-  if (ran3(idum) > cl / (ch + cl)) {
+  if (rand_xor128() > cl / (ch + cl)) {
     stack->push_back(elem(f));
-    return choose_random(hi(f), stack, idum);
+    return choose_random(hi(f), stack);
   } else {
-    return choose_random(lo(f), stack, idum);
+    return choose_random(lo(f), stack);
   }
 }
 
@@ -507,46 +507,18 @@ zdd_t zuniq(elem_t v, zdd_t l, zdd_t h) {
   return l + single(v) * h;
 }
 
-// Seminumerical Algorithms from Knuth vol. 2, sec. 3.2-3.3.
-#define MBIG 1000000000
-#define MSEED 161803398
-#define MZ 0
-#define FAC (1.0/MBIG)
-double ran3(int* idum) {
-  static int inext, inextp;
-  static long ma[56];
-  static int iff = 0;
-  long mj, mk;
-  int i, ii, k;
-
-  if (*idum < 0 || iff == 0) {
-    iff = 1;
-    mj = labs(MSEED - labs(*idum));
-    mj %= MBIG;
-    ma[55] = mj;
-    mk = 1;
-    for (i = 1; i <= 54; ++i) {
-      ii = (21*i) % 55;
-      ma[ii] = mk;
-      mk = mj - mk;
-      if (mk < MZ) mk += MBIG;
-      mj = ma[ii];
-    }
-    for (k = 1; k <= 4; ++k)
-      for (i = 1; i <= 55; ++i) {
-        ma[i] -= ma[1 + (i+30) % 55];
-        if (ma[i] < MZ) ma[i] += MBIG;
-      }
-    inext = 0;
-    inextp = 31;
-    *idum = 1;
-  }
-  if (++inext == 56) inext = 1;
-  if (++inextp == 56) inextp = 1;
-  mj = ma[inext] - ma[inextp];
-  if (mj < MZ) mj += MBIG;
-  ma[inext] = mj;
-  return mj * FAC;
+// G. Marsaglia, "Xorshift RNGs," Journal of Statistical Software, vol.8,
+// issue.14, 2003.  http://www.jstatsoft.org/v08/i14/
+double rand_xor128() {
+    static unsigned long x = 123456789, y = 362436069, z = 521288629,
+        w = 88675123;
+    unsigned long t;
+    t = (x^(x << 11));
+    x = y;
+    y = z;
+    z = w;
+    w = (w^(w >> 19))^(t^(t >> 8));
+    return static_cast<double>(w) / ULONG_MAX;
 }
 
 void sort_zdd(zdd_t f, vector<vector<zdd_t> >* stacks,
