@@ -1,3 +1,27 @@
+/*********************************************************************
+Copyright 2013  JST ERATO Minato project and other contributors
+http://www-erato.ist.hokudai.ac.jp/?language=en
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+**********************************************************************/
+
 /****************************************
  * ZBDD+ Manipulator (SAPPORO-1.55)     *
  * (Main part)                          *
@@ -279,7 +303,7 @@ static ZBDD ZBDD_SymSet(const ZBDD& f0, const ZBDD& f1)
   ZBDD f01 = f0.OnSet0(t);
   ZBDD f10 = f1.OffSet(t);
   ZBDD f11 = f1.OnSet0(t);
-  
+
   ZBDD h;
   if(f11 == 0) h = ZBDD_SymSet(f00, f10) - f01.Support();
   else if(f10 == 0) h = ZBDD_SymSet(f01, f11) - f00.Support();
@@ -361,7 +385,7 @@ static ZBDD ZBDD_CoImplySet(const ZBDD& f0, const ZBDD& f1)
   ZBDD f01 = f0.OnSet0(t);
   ZBDD f10 = f1.OffSet(t);
   ZBDD f11 = f1.OnSet0(t);
-  
+
   ZBDD h;
   if(f11 == 0) h = ZBDD_CoImplySet(f00, f10);
   else if(f10 == 0) h = ZBDD_CoImplySet(f01, f11);
@@ -475,7 +499,7 @@ ZBDD operator/(const ZBDD& f, const ZBDD& p)
   bddword fx = f.GetID();
   bddword px = p.GetID();
   ZBDD_CACHE_CHK_RETURN(BC_ZBDD_DIV, fx, px);
-  
+
   ZBDD q = f.OnSet0(top) / p.OnSet0(top);
   if(q != 0)
   {
@@ -678,7 +702,7 @@ ZBDDV ZBDDV::Mask(int start, int len) const
     BDDerr("ZBDDV::Mask(): Illegal len.", len);
   ZBDDV tmp;
   for(int i=start; i<start+len; i++)
-  	tmp += ZBDDV(this -> GetZBDD(i), i);
+    tmp += ZBDDV(this -> GetZBDD(i), i);
   return tmp;
 }
 
@@ -706,7 +730,7 @@ bddword ZBDDV::Size() const
 {
   int len = this -> Last() + 1;
   bddword* bddv = new bddword[len];
-  for(int i=0; i<len; i++) bddv[i] = GetZBDD(i).GetID(); 
+  for(int i=0; i<len; i++) bddv[i] = GetZBDD(i).GetID();
   bddword s = bddvsize(bddv, len);
   delete[] bddv;
   return s;
@@ -728,7 +752,7 @@ void ZBDDV::Export(FILE *strm) const
 {
   int len = this -> Last() + 1;
   bddword* bddv = new bddword[len];
-  for(int i=0; i<len; i++) bddv[i] = GetZBDD(i).GetID(); 
+  for(int i=0; i<len; i++) bddv[i] = GetZBDD(i).GetID();
   bddexport(strm, bddv, len);
   delete[] bddv;
 }
@@ -860,7 +884,7 @@ ZBDDV ZBDDV_Import(FILE *strm)
   {
     if(fscanf(strm, "%s", s) == EOF) { e = 1; break; }
     bddword nd = B_STRTOI(s, NULL, 10);
-    
+
     if(fscanf(strm, "%s", s) == EOF) { e = 1; break; }
     int lev = strtol(s, NULL, 10);
     int var = bddvaroflev(lev);
@@ -891,7 +915,7 @@ ZBDDV ZBDDV_Import(FILE *strm)
       bddword nd1 = B_STRTOI(s, NULL, 10);
       if(nd1 & 1) { inv = 1; nd1 ^= 1; }
       else inv = 0;
-  
+
       bddword ixx = IMPORTHASH(nd1);
       while(hash1[ixx] != nd1)
       {
@@ -941,7 +965,7 @@ ZBDDV ZBDDV_Import(FILE *strm)
     {
       if(nd & 1) { inv = 1; nd ^= 1; }
       else inv = 0;
-  
+
       bddword ixx = IMPORTHASH(nd);
       while(hash1[ixx] != nd)
       {
