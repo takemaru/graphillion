@@ -20,9 +20,9 @@ class GraphSet(setset):
             return gs & self
 
     def exclude(self, edge_or_vertex):
-        try:  # if obj is edge
+        try:  # if edge
             return setset.exclude(self, GraphSet._conv_edge(edge_or_vertex))
-        except KeyError:  # else obj is vertex
+        except KeyError:  # else
             return self - self.include(edge_or_vertex)
 
     def add(self, graph_or_edge):
@@ -109,33 +109,33 @@ class GraphSet(setset):
 
     @staticmethod
     def _conv_arg(obj):
-        if obj is None:
-            return None
-        elif isinstance(obj, (set, frozenset)):
-            return set([GraphSet._conv_edge(e) for e in obj])
-        elif isinstance(obj, dict):  # obj is constraints
-            d = {}
-            for k, l in obj.iteritems():
-                d[k] = [GraphSet._conv_edge(e) for e in l]
-            return d
-        elif isinstance(obj, list):  # obj is [set+]
+        if isinstance(obj, list):  # a set of graphs [set+]
             l = []
             for s in obj:
                 l.append([GraphSet._conv_edge(e) for e in s])
             return l
-        else:  # obj is edge
+        elif obj is None:  # an empty set of graphs
+            return []
+        elif isinstance(obj, (set, frozenset)):  # a graph
+            return set([GraphSet._conv_edge(e) for e in obj])
+        elif isinstance(obj, dict):  # constraints
+            d = {}
+            for k, l in obj.iteritems():
+                d[k] = [GraphSet._conv_edge(e) for e in l]
+            return d
+        else:  # an edge
             return GraphSet._conv_edge(obj)
 
     @staticmethod
-    def _conv_edge(e):
-        if not isinstance(e, tuple) or len(e) < 2:
-            raise KeyError, e
-        if len(e) > 2:
-            e = e[:2]
-        if e in setset._obj2int:
-            return e
-        elif (e[1], e[0]) in setset._obj2int:
-            return (e[1], e[0])
-        raise KeyError, e
+    def _conv_edge(edge):
+        if not isinstance(edge, tuple) or len(edge) < 2:
+            raise KeyError, edge
+        if len(edge) > 2:
+            edge = edge[:2]
+        if edge in setset._obj2int:
+            return edge
+        elif (edge[1], edge[0]) in setset._obj2int:
+            return (edge[1], edge[0])
+        raise KeyError, edge
 
     _weights = {}

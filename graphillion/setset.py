@@ -3,9 +3,9 @@ import _graphillion
 
 class setset(_graphillion.setset):
 
-    def __init__(self, obj=None):
-        obj = setset._conv_arg(obj)
-        _graphillion.setset.__init__(self, obj)
+    def __init__(self, setset_or_constraints=None):
+        setset_or_constraints = setset._conv_arg(setset_or_constraints)
+        _graphillion.setset.__init__(self, setset_or_constraints)
 
     def __repr__(self):
         n = _graphillion.num_elems()
@@ -29,37 +29,37 @@ class setset(_graphillion.setset):
         else:
             return ret[:(maxchar - 4)] + ' ...'
 
-    def __contains__(self, s):
-        s = setset._conv_arg(s)
-        return _graphillion.setset.__contains__(self, s)
+    def __contains__(self, set):
+        set = setset._conv_arg(set)
+        return _graphillion.setset.__contains__(self, set)
 
-    def include(self, e):
-        e = setset._conv_elem(e)
-        return _graphillion.setset.include(self, e)
+    def include(self, elem):
+        elem = setset._conv_elem(elem)
+        return _graphillion.setset.include(self, elem)
 
-    def exclude(self, e):
-        e = setset._conv_elem(e)
-        return _graphillion.setset.exclude(self, e)
+    def exclude(self, elem):
+        elem = setset._conv_elem(elem)
+        return _graphillion.setset.exclude(self, elem)
 
-    def add(self, obj):
-        obj = setset._conv_arg(obj)
-        return _graphillion.setset.add(self, obj)
+    def add(self, set_or_elem):
+        set_or_elem = setset._conv_arg(set_or_elem)
+        return _graphillion.setset.add(self, set_or_elem)
 
-    def remove(self, obj):
-        obj = setset._conv_arg(obj)
-        return _graphillion.setset.remove(self, obj)
+    def remove(self, set_or_elem):
+        set_or_elem = setset._conv_arg(set_or_elem)
+        return _graphillion.setset.remove(self, set_or_elem)
 
-    def discard(self, obj):
-        obj = setset._conv_arg(obj)
-        return _graphillion.setset.discard(self, obj)
+    def discard(self, set_or_elem):
+        set_or_elem = setset._conv_arg(set_or_elem)
+        return _graphillion.setset.discard(self, set_or_elem)
 
     def pop(self):
-        s = _graphillion.setset.pop(self)
-        return setset._conv_ret(s)
+        set = _graphillion.setset.pop(self)
+        return setset._conv_ret(set)
 
-    def invert(self, e):
-        e = setset._conv_elem(e)
-        return _graphillion.setset.invert(self, e)
+    def invert(self, elem):
+        elem = setset._conv_elem(elem)
+        return _graphillion.setset.invert(self, elem)
 
     def randomize(self):
         i = _graphillion.setset.randomize(self)
@@ -107,39 +107,39 @@ class setset(_graphillion.setset):
             assert i == setset._obj2int[e]
 
     @staticmethod
-    def _add_elem(e):
-        assert e not in setset._obj2int
+    def _add_elem(elem):
+        assert elem not in setset._obj2int
         i = len(setset._int2obj)
         _graphillion.setset(set([i]))
-        setset._obj2int[e] = i
-        setset._int2obj.append(e)
+        setset._obj2int[elem] = i
+        setset._int2obj.append(elem)
         assert len(setset._int2obj) == _graphillion.num_elems() + 1
-        assert setset._int2obj[i] == e
-        assert setset._obj2int[e] == i
+        assert setset._int2obj[i] == elem
+        assert setset._obj2int[elem] == i
 
     @staticmethod
-    def _conv_elem(e):
-        if e not in setset._obj2int:
-            setset._add_elem(e)
-        return setset._obj2int[e]
+    def _conv_elem(elem):
+        if elem not in setset._obj2int:
+            setset._add_elem(elem)
+        return setset._obj2int[elem]
 
     @staticmethod
     def _conv_arg(obj):
-        if obj is None:
-            return None
-        elif isinstance(obj, (set, frozenset)):
-            return set([setset._conv_elem(e) for e in obj])
-        elif isinstance(obj, dict):  # obj is constraints
-            d = {}
-            for k, l in obj.iteritems():
-                d[k] = [setset._conv_elem(e) for e in l]
-            return d
-        elif isinstance(obj, list):  # obj is [set+]
+        if isinstance(obj, list):  # a set of sets [set+]
             l = []
             for s in obj:
                 l.append(set([setset._conv_elem(e) for e in s]))
             return l
-        else:  # obj is element
+        elif obj is None:  # an empty set of sets []
+            return []
+        elif isinstance(obj, (set, frozenset)):  # an inner set
+            return set([setset._conv_elem(e) for e in obj])
+        elif isinstance(obj, dict):  # constraints
+            d = {}
+            for k, l in obj.iteritems():
+                d[k] = [setset._conv_elem(e) for e in l]
+            return d
+        else:  # an element
             return setset._conv_elem(obj)
 
     @staticmethod
