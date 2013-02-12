@@ -370,6 +370,7 @@ class TestSetset(unittest.TestCase):
         ss2 = setset()
         for s in ss1:
             ss2 = ss2 | setset(s)
+        self.assertEqual(ss1, setset([set(), set(['1', '2']), set(['1', '3'])]))
         self.assertEqual(ss1, ss2)
 
         ss2 = setset()
@@ -382,6 +383,9 @@ class TestSetset(unittest.TestCase):
         for s in ss1.randomize():
             ss2 = ss2 | setset(s)
         self.assertEqual(ss1, ss2)
+
+        gen = ss1.randomize()
+        self.assertTrue(isinstance(gen.next(), set))
 
         ss = setset([set(), set(['1']), set(['1', '2']), set(['1', '2', '3']),
                      set(['1', '2', '3', '4']), set(['1', '3', '4']),
