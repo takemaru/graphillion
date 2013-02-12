@@ -2,40 +2,40 @@ from graphillion import setset
 
 class GraphSet(setset):
 
-    def __init__(self, obj=None):
-        obj = GraphSet._conv_obj(obj)
-        setset.__init__(self, obj)
+    def __init__(self, graphset_or_constraints=None):
+        graphset_or_constraints = GraphSet._conv_arg(graphset_or_constraints)
+        setset.__init__(self, graphset_or_constraints)
 
-    def __contains__(self, s):
-        s = GraphSet._conv_obj(s)
-        return setset.__contains__(self, s)
+    def __contains__(self, graph):
+        graph = GraphSet._conv_arg(graph)
+        return setset.__contains__(self, graph)
 
-    def include(self, obj):
-        try:  # if obj is edge
-            return setset.include(self, GraphSet._conv_edge(obj))
-        except KeyError:  # else obj is vertex
+    def include(self, edge_or_vertex):
+        try:  # if edge
+            return setset.include(self, GraphSet._conv_edge(edge_or_vertex))
+        except KeyError:  # else
             gs = GraphSet()
-            for edge in [e for e in setset.universe() if obj in e]:
+            for edge in [e for e in setset.universe() if edge_or_vertex in e]:
                 gs |= setset.include(self, edge)
             return gs & self
 
-    def exclude(self, obj):
+    def exclude(self, edge_or_vertex):
         try:  # if obj is edge
-            return setset.exclude(self, GraphSet._conv_edge(obj))
+            return setset.exclude(self, GraphSet._conv_edge(edge_or_vertex))
         except KeyError:  # else obj is vertex
-            return self - self.include(obj)
+            return self - self.include(edge_or_vertex)
 
-    def add(self, obj):
-        obj = GraphSet._conv_obj(obj)
-        return setset.add(self, obj)
+    def add(self, graph_or_edge):
+        graph_or_edge = GraphSet._conv_arg(graph_or_edge)
+        return setset.add(self, graph_or_edge)
 
-    def remove(self, obj):
-        obj = GraphSet._conv_obj(obj)
-        return setset.remove(self, obj)
+    def remove(self, graph_or_edge):
+        graph_or_edge = GraphSet._conv_arg(graph_or_edge)
+        return setset.remove(self, graph_or_edge)
 
-    def discard(self, obj):
-        obj = GraphSet._conv_obj(obj)
-        return setset.discard(self, obj)
+    def discard(self, graph_or_edge):
+        graph_or_edge = GraphSet._conv_arg(graph_or_edge)
+        return setset.discard(self, graph_or_edge)
 
     def maximize(self):
         for s in setset.maximize(self, GraphSet._weights):
@@ -108,7 +108,7 @@ class GraphSet(setset):
         return sorted_edges
 
     @staticmethod
-    def _conv_obj(obj):
+    def _conv_arg(obj):
         if obj is None:
             return None
         elif isinstance(obj, (set, frozenset)):
