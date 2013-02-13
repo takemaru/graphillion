@@ -1,7 +1,43 @@
+# Permission is hereby granted, free of charge, to any person obtaining
+# a copy of this software and associated documentation files (the
+# "Software"), to deal in the Software without restriction, including
+# without limitation the rights to use, copy, modify, merge, publish,
+# distribute, sublicense, and/or sell copies of the Software, and to
+# permit persons to whom the Software is furnished to do so, subject to
+# the following conditions:
+# 
+# The above copyright notice and this permission notice shall be
+# included in all copies or substantial portions of the Software.
+# 
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+# LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+# OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+# WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
 import _graphillion
 
 
 class setset(_graphillion.setset):
+    """Represents and manipulates a set of sets.
+
+    A setset object stores a set of sets.
+
+    Like Python set types, setset supports `set in setset`,
+    `len(setset)`, and `for set in setset`.
+
+    Examples:
+      >>> from graphillion import setset
+      >>> ss = setset([set([1]), set([1,2])])
+      >>> len(ss)
+      2
+      >>> for s in ss:
+      ...   s
+      set([1])
+      set([1, 2])
+    """
 
     def __init__(self, setset_or_constraints=None):
         setset_or_constraints = setset._conv_arg(setset_or_constraints)
@@ -54,6 +90,19 @@ class setset(_graphillion.setset):
         return _graphillion.setset.discard(self, set_or_elem)
 
     def pop(self):
+        """Removes and returns an arbitrary set from `self` setset.
+
+        Examlpes:
+          >>> ss = setset([set([1]), set([1,2])])
+          >>> ss.pop()
+          set([1, 2])
+
+        Returns:
+          A set.
+
+        Raises:
+          KeyError: If `self` setset is empty.
+        """
         set = _graphillion.setset.pop(self)
         return setset._conv_ret(set)
 
@@ -62,6 +111,21 @@ class setset(_graphillion.setset):
         return _graphillion.setset.invert(self, elem)
 
     def randomize(self):
+        """Iterates over sets randomly.
+
+        Examples:
+          >>> ss = setset([set([1]), set([1,2])])
+          >>> for s in ss:
+          ...   s
+          set([1, 2])
+          set([1])
+
+        Returns:
+          A generator.
+
+        Yields:
+          A set.
+        """
         i = _graphillion.setset.randomize(self)
         while (True):
             yield setset._conv_ret(i.next())

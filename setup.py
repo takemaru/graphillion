@@ -20,8 +20,8 @@ for prefix in prefixes:
         break
 
 setup(name='graphillion',
-      version='0.1',
-      description='Python package for manipulating a set of graphs',
+      version='0.9',
+      description='A fast, lightweight graphset operation library in Python',
       long_description="""\
 """,
       classifiers=[], # Get strings from http://pypi.python.org/pypi?%3Aaction=list_classifiers
