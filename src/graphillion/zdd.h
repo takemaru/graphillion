@@ -42,7 +42,7 @@ namespace graphillion {
 #ifdef HAVE_LIBGMPXX
 typedef mpz_class intx_t;
 #else
-typedef double intx_t;
+typedef long double intx_t;
 #endif
 
 void init();

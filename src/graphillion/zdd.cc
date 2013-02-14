@@ -252,11 +252,18 @@ zdd_t choose_random(zdd_t f, vector<elem_t>* stack) {
     assert(false);
   }
 #ifdef HAVE_LIBGMPXX
-  double ch = algo_c(hi(f)).get_d();
-  double cl = algo_c(lo(f)).get_d();
+/* precise but too slow
+  stringstream ss;
+  ss << algo_c(hi(f));
+  long double ch = strtold(ss.str().c_str(), NULL);
+  ss.str("");
+  ss << algo_c(lo(f));
+  long double cl = strtold(ss.str().c_str(), NULL);*/
+  long double ch = algo_c(hi(f)).get_d(); // GMP has no get_ld()
+  long double cl = algo_c(lo(f)).get_d();
 #else
-  double ch = algo_c(hi(f));
-  double cl = algo_c(lo(f));
+  long double ch = algo_c(hi(f));
+  long double cl = algo_c(lo(f));
 #endif
   if (rand_xor128() > cl / (ch + cl)) {
     stack->push_back(elem(f));
