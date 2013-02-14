@@ -55,6 +55,11 @@ that matches your operating system and Python version.
 To use Graphillion, you need Python version 2.6 or later.
 http://www.python.org/
 
+#### GCC (The Gnu Compiler Collection)
+
+To compile Graphillion, you need gcc version 4.2 or later.
+http://gcc.gnu.org/
+
 #### GMP (The Gnu multiple precision arithmetic library) - optional
 
 With GMP, Graphillion provides arbitrary precision in counting the
