@@ -5,7 +5,7 @@ Overview
 --------------------------------------------------------------------------------
 
 Graphillion is a Python library for efficient *graphset operations*.
-Unlike existing graph tools such as networkx, which are designed to
+Unlike existing graph tools such as NetworkX, which are designed to
 process just a single graph at a time, Graphilion manipulates a large
 *set* of graphs with great efficiency.  Surprisingly, more than
 *googol*, 10^100, graphs can be handled in a single computer in
@@ -30,6 +30,9 @@ Graphillion has a variety of applications including graph database,
 combinatorial optimization tools, and a graph structure analyzers.  We
 will show some practical use cases in the following tutorial, such as
 evaluation of power distribution networks.
+
+Install Graphillion and go to the tutorial, and you'll find its power
+and ubiquity.
 
 Installing
 --------------------------------------------------------------------------------
