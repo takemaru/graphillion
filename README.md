@@ -1,24 +1,35 @@
-Graphillion - A fast, lightweight graphset operation library in Python
+Graphillion - A fast, lightweight graphset operation library
 ================================================================================
 
 Overview
 --------------------------------------------------------------------------------
 
-Graphillion is a Python language software package for "graphset
-operations".  Unlike existing graph tools such as networkx, which are
-designed to process just a single graph at once, Graphilion
-manipulates a large *set* of graphs with great efficiency.
-Surprisingly, more than googol, 10^100, graphs can be handled in a
-single computer in extreme cases.
+Graphillion is a Python library for efficient *graphset operations*.
+Unlike existing graph tools such as networkx, which are designed to
+process just a single graph at a time, Graphilion manipulates a large
+*set* of graphs with great efficiency.  Surprisingly, more than
+*googol*, 10^100, graphs can be handled in a single computer in
+extreme cases.
 
-Graphillion allows users to create a new graphset from the original
-set by specifying complex constraints, to search for the optimal
-graphs from the complicated (even nonconvex) set, and to extract
-common elements found among all graphs in the set.  Thanks to these
-features, Graphillion has a variety of use cases including a graph
-database, a combinatorial optimization tool, and a graph structure
-analyzer.  We will show some practical use cases in the tutorial, such
-as evaluation of power distribution networks.
+You may not familiar with a concept of *graphset*, but it comes along
+with any graph or network when considering multiple subgraphs cut from
+a graph; e.g., comparing possible driving paths on a road map,
+examining feasible electric flows on a power grid, or evaluating the
+structure of chemical reaction networks.  The number of such subgraphs
+is often more than googol even in a graph with just a few hundreds of
+edges, since the number grows exponentially with the graph size.  It
+takes millions of years to examine all subgraphs with a naive approach
+as demonstrated in the following tutorial; Graphillion is our answer
+to resolve this issue.
+
+Graphillion allows you to exhaustively but efficiently search a given
+graphset by specifying complex constraints, to find top-k optimal
+graphs from a complicated (even nonconvex) set, and to extract common
+properties seen among all graphs in a set.  Thanks to these features,
+Graphillion has a variety of applications including graph database,
+combinatorial optimization tools, and a graph structure analyzers.  We
+will show some practical use cases in the following tutorial, such as
+evaluation of power distribution networks.
 
 Installing
 --------------------------------------------------------------------------------
@@ -27,7 +38,9 @@ Installing
 
 Just type:
 
-    $ pip install graphillion
+```bash
+$ pip install graphillion
+```
 
 and an attempt will be made to find and install an appropriate version
 that matches your operating system and Python version.
@@ -48,17 +61,27 @@ numbers are used.  http://gmplib.org/
 #### NetworkX and Matplotlib - used just in the tutorial
 
 NetworkX and Matplotlib are used to create and draw a graph.  These
-packages are not required in Graphillion, but just used in the
-tutorial.  They can be installed by:
+packages are not required for Graphillion, but just used in the
+tutorial for helping graph creation and drawings.  They can be
+installed by:
 
-    $ pip install networkx
-    $ pip install matplotlib
+```bash
+$ pip install networkx
+$ pip install matplotlib
+```
 
 Tutorial
 --------------------------------------------------------------------------------
 
 At the beginning, we define our universe.  A graph handled in
 Graphillion must be a subgraph of the universal graph.
+
+
+Library reference can be browsed using pydoc:
+
+```bash
+$ pydoc graphillion.GraphSet
+```
 
 References
 --------------------------------------------------------------------------------

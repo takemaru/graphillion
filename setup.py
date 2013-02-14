@@ -21,7 +21,7 @@ for prefix in prefixes:
 
 setup(name='graphillion',
       version='0.9',
-      description='A fast, lightweight graphset operation library in Python',
+      description='A fast, lightweight graphset operation library',
       long_description="""\
 """,
       classifiers=[], # Get strings from http://pypi.python.org/pypi?%3Aaction=list_classifiers

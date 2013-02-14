@@ -34,7 +34,19 @@ class GraphSet(setset):
     objects by `GraphSet.universe()` method.
 
     Like Python set types, GraphSet supports `graph in graphset`,
-    `len(graphset)`, and `for graph in graphset`.
+    `len(graphset)`, and `for graph in graphset`.  It also supports
+    all set methods and operators,
+    - isdisjoint(), issubset(), issuperset(), union(), intersection(),
+      difference(), symmetric_difference(), copy(), update(),
+      intersection_update(), difference_update(),
+      symmetric_difference_update(), add(), remove(), discard(),
+      pop(), clear(),
+    - ==, !=, <=, <, >=, >, |, &, -, ^, |=, &=, -=, ^=.
+
+    GraphSet is derived from graphillion.setset, which represents a
+    set of sets.  When browsing this document to examine the methods
+    inherited from setset, replace a set with a graph (or an edge set)
+    and replace an element with an edge.
 
     Examples:
       >>> from graphillion import GraphSet
@@ -95,6 +107,9 @@ class GraphSet(setset):
 
         Raises:
           KeyError: If given edges are not found in the universe.
+
+        See Also:
+          copy()
         """
         graphset_or_constraints = GraphSet._conv_arg(graphset_or_constraints)
         setset.__init__(self, graphset_or_constraints)
@@ -141,6 +156,9 @@ class GraphSet(setset):
 
         Raises:
           KeyError: If a given edge or vertex is not found in the universe.
+
+        See Also:
+          exclude()
         """
         try:  # if edge
             return setset.include(self, GraphSet._conv_edge(edge_or_vertex))
@@ -170,6 +188,9 @@ class GraphSet(setset):
 
         Raises:
           KeyError: If a given edge or vertex is not found in the universe.
+
+        See Also:
+          include()
         """
         try:  # if edge
             return setset.exclude(self, GraphSet._conv_edge(edge_or_vertex))
@@ -199,6 +220,9 @@ class GraphSet(setset):
 
         Raises:
           KeyError: If given edges are not found in the universe.
+
+        See Also:
+          remove(), discard(), invert()
         """
         graph_or_edge = GraphSet._conv_arg(graph_or_edge)
         return setset.add(self, graph_or_edge)
@@ -227,6 +251,9 @@ class GraphSet(setset):
         Raises:
           KeyError: If given edges are not found in the universe, or
             if the given graph is not stored in `self` GraphSet.
+
+        See Also:
+          add(), discard(), invert(), pop()
         """
         graph_or_edge = GraphSet._conv_arg(graph_or_edge)
         return setset.remove(self, graph_or_edge)
@@ -254,6 +281,9 @@ class GraphSet(setset):
 
         Raises:
           KeyError: If given edges are not found in the universe.
+
+        See Also:
+          add(), remove(), invert(), pop()
         """
         graph_or_edge = GraphSet._conv_arg(graph_or_edge)
         return setset.discard(self, graph_or_edge)
@@ -282,6 +312,9 @@ class GraphSet(setset):
 
         Raises:
           KeyError: If a given edge is not found in the universe.
+
+        See Also:
+          add(), remove(), discard()
         """
         edge = GraphSet._conv_edge(edge)
         return setset.invert(self, edge)
@@ -291,22 +324,25 @@ class GraphSet(setset):
 
         Returns a generator that iterates over graphs in `self`
         GraphSet.  The graphs are selected in the descending order of
-        weights, which are specified with the universe (or 1 if
-        omitted).
+        weights, which are specified with the universe (or 1.0 if not
+        specified).
 
         Examples:
-          >>> GraphSet.universe([(1,2, 2.0), (1,4, 3.0), (2,3, 4.0])
+          >>> GraphSet.universe([(1,2, 2.0), (1,4, -3.0), (2,3)])
           >>> gs = GraphSet([set([(1,2), (1,4)]), set([(2,3)])])
           >>> for g in gs.maximize():
           ...   g
-          set([(1, 2), (1, 4)])
           set([(2, 3)])
+          set([(1, 2), (1, 4)])
 
         Returns:
           A generator.
 
         Yields:
           A graph.
+
+        See Also:
+          minimize(), randomize()
         """
         for s in setset.maximize(self, GraphSet._weights):
             yield s
@@ -316,22 +352,25 @@ class GraphSet(setset):
 
         Returns a generator that iterates over graphs in `self`
         GraphSet.  The graphs are selected in the ascending order of
-        weights, which are specified with the universe (or 1 if
-        omitted).
+        weights, which are specified with the universe (or 1.0 if not
+        specified).
 
         Examples:
-          >>> GraphSet.universe([(1,2, 2.0), (1,4, 3.0), (2,3, 4.0])
+          >>> GraphSet.universe([(1,2, 2.0), (1,4, -3.0), (2,3)])
           >>> gs = GraphSet([set([(1,2), (1,4)]), set([(2,3)])])
           >>> for g in gs.minimize():
           ...   g
-          set([(2, 3)])
           set([(1, 2), (1, 4)])
+          set([(2, 3)])
 
         Returns:
           A generator.
 
         Yields:
           A graph.
+
+        See Also:
+          maximize(), randomize()
         """
         for s in setset.minimize(self, GraphSet._weights):
             yield s
@@ -344,9 +383,15 @@ class GraphSet(setset):
         Otherwise, the list of edges that represents the current
         universe is returned.
 
+        Examples:
+          >>> GraphSet.universe([(1,2, 2.0), (1,4, -3.0), (2,3)])
+          >>> GraphSet.universe()
+          [(1, 2, 2.0), (1, 4, -3.0), (2, 3)]
+
         Args:
-          universe: Optional.  The list of edges that represents the
-            current universe.
+          universe: Optional.  A list of edges that represents the new
+            universe.  An edge may come along with a weight, which can
+            be positive as well as negative (or 1.0 if not specified).
 
           traversal: Optional.  This argument specifies the order of
             edges to be processed in the internal graphset operations.

@@ -271,7 +271,10 @@ Examples:\n\
   False\n\
 \n\
 Returns:\n\
-  A new setset object.");
+  A new setset object.\n\
+\n\
+See Also:\n\
+  __init__()");
 
 static PyObject* setset_copy(PySetsetObject* self) {
   RETURN_NEW_SETSET(self, *self->ss);
@@ -287,7 +290,10 @@ Examples:\n\
   setset([set([]), set([2])])\n\
 \n\
 Returns:\n\
-  A new setset object.");
+  A new setset object.\n\
+\n\
+See Also:\n\
+  __invert__()");
 
 static PyObject* setset_complement(PySetsetObject* self) {
   RETURN_NEW_SETSET(self, ~(*self->ss));
@@ -304,7 +310,11 @@ Examples:\n\
   setset([set([1])])\n\
 \n\
 Returns:\n\
-  A new setset object.");
+  A new setset object.\n\
+\n\
+See Also:\n\
+  __and__(), intersection_update(), union(), difference(),\n\
+  symmetric_difference()");
 
 static PyObject* setset_intersection(PySetsetObject* self, PyObject* other) {
   CHECK_SETSET_OR_ERROR(other);
@@ -322,7 +332,11 @@ Examples:\n\
   setset([set([1])])\n\
 \n\
 Returns:\n\
-  A new setset object.");
+  A new setset object.\n\
+\n\
+See Also:\n\
+  __iand__(), intersection(), update(), difference_update(),\n\
+  symmetric_difference_update()");
 
 static PyObject* setset_intersection_update(PySetsetObject* self, PyObject* other) {
   CHECK_SETSET_OR_ERROR(other);
@@ -340,7 +354,11 @@ Examples:\n\
   setset([set([]), set([1]), set([1, 2])])\n\
 \n\
 Returns:\n\
-  A new setset object.");
+  A new setset object.\n\
+\n\
+See Also:\n\
+  __or__(), update(), intersection(), difference(),\n\
+  symmetric_difference()");
 
 static PyObject* setset_union(PySetsetObject* self, PyObject* other) {
   CHECK_SETSET_OR_ERROR(other);
@@ -358,7 +376,11 @@ Examples:\n\
   setset([set([]), set([1]), set([1, 2])])\n\
 \n\
 Returns:\n\
-  A new setset object.");
+  A new setset object.\n\
+\n\
+See Also:\n\
+  __ior__(), union(), intersection_update(), difference_update(),\n\
+  symmetric_difference_update()");
 
 static PyObject* setset_update(PySetsetObject* self, PyObject* other) {
   CHECK_SETSET_OR_ERROR(other);
@@ -376,7 +398,11 @@ Examples:\n\
   setset([set([1, 2])])\n\
 \n\
 Returns:\n\
-  A new setset object.");
+  A new setset object.\n\
+\n\
+See Also:\n\
+  __sub__(), difference_update(), symmetric_difference(), union(),\n\
+  intersection()");
 
 static PyObject* setset_difference(PySetsetObject* self, PyObject* other) {
   CHECK_SETSET_OR_ERROR(other);
@@ -394,7 +420,11 @@ Examples:\n\
   setset([set([1, 2])])\n\
 \n\
 Returns:\n\
-  A new setset object.");
+  A new setset object.\n\
+\n\
+See Also:\n\
+  __isub__(), difference(), symmetric_difference_update(), update()\n\
+  intersection_update()");
 
 static PyObject* setset_difference_update(PySetsetObject* self, PyObject* other) {
   CHECK_SETSET_OR_ERROR(other);
@@ -412,7 +442,11 @@ Examples:\n\
   setset([set([]), set([1, 2])])\n\
 \n\
 Returns:\n\
-  A new setset object.");
+  A new setset object.\n\
+\n\
+See Also:\n\
+  __xor__(), symmetric_difference_update(), difference(), union()\n\
+  intersection()");
 
 static PyObject* setset_symmetric_difference(PySetsetObject* self, PyObject* other) {
   CHECK_SETSET_OR_ERROR(other);
@@ -430,7 +464,11 @@ Examples:\n\
   setset([set([]), set([1, 2])])\n\
 \n\
 Returns:\n\
-  A new setset object.");
+  A new setset object.\n\
+\n\
+See Also:\n\
+  __ixor__(), symmetric_difference(), difference_update(), update(),\n\
+  intersection_update");
 
 static PyObject* setset_symmetric_difference_update(PySetsetObject* self, PyObject* other) {
   CHECK_SETSET_OR_ERROR(other);
@@ -451,7 +489,10 @@ Examples:\n\
   setset([set([1])])\n\
 \n\
 Returns:\n\
-  A new setset object.");
+  A new setset object.\n\
+\n\
+See Also:\n\
+  __div__(), quotient_update(), remainder()");
 
 static PyObject* setset_quotient(PySetsetObject* self, PyObject* other) {
   CHECK_SETSET_OR_ERROR(other);
@@ -468,7 +509,10 @@ Examples:\n\
   setset([set([1])])\n\
 \n\
 Returns:\n\
-  A new setset object.");
+  A new setset object.\n\
+\n\
+See Also:\n\
+  __idiv__(), quotient(), remainder_update()");
 
 static PyObject* setset_quotient_update(PySetsetObject* self, PyObject* other) {
   CHECK_SETSET_OR_ERROR(other);
@@ -489,7 +533,10 @@ Examples:\n\
   setset([set([3, 4])])\n\
 \n\
 Returns:\n\
-  A new setset object.");
+  A new setset object.\n\
+\n\
+See Also:\n\
+  __mod__(), remainder_update(), quotient()");
 
 static PyObject* setset_remainder(PySetsetObject* self, PyObject* other) {
   CHECK_SETSET_OR_ERROR(other);
@@ -506,7 +553,10 @@ Examples:\n\
   setset([set([3, 4])])\n\
 \n\
 Returns:\n\
-  A new setset object.");
+  A new setset object.\n\
+\n\
+See Also:\n\
+  __imod__(), remainder(), quotient_update()");
 
 static PyObject* setset_remainder_update(PySetsetObject* self, PyObject* other) {
   CHECK_SETSET_OR_ERROR(other);
@@ -523,7 +573,10 @@ Examples:\n\
   True\n\
 \n\
 Returns:\n\
-  True or False.");
+  True or False.\n\
+\n\
+See Also:\n\
+  issubset(), issuperset()");
 
 static PyObject* setset_isdisjoint(PySetsetObject* self, PyObject* other) {
   CHECK_SETSET_OR_ERROR(other);
@@ -540,7 +593,10 @@ Examples:\n\
   True\n\
 \n\
 Returns:\n\
-  True or False.");
+  True or False.\n\
+\n\
+See Also:\n\
+  __le__(), __lt__(), issuperset(), isdisjoint()");
 
 static PyObject* setset_issubset(PySetsetObject* self, PyObject* other) {
   CHECK_SETSET_OR_ERROR(other);
@@ -557,7 +613,10 @@ Examples:\n\
   True\n\
 \n\
 Returns:\n\
-  True or False.");
+  True or False.\n\
+\n\
+See Also:\n\
+  __ge__(), __gt__(), issubset(), isdisjoint()");
 
 static PyObject* setset_issuperset(PySetsetObject* self, PyObject* other) {
   CHECK_SETSET_OR_ERROR(other);
@@ -567,22 +626,6 @@ static PyObject* setset_issuperset(PySetsetObject* self, PyObject* other) {
 static int setset_nonzero(PySetsetObject* self) {
   return !self->ss->empty();
 }
-
-PyDoc_STRVAR(len_doc,
-"Returns the number of sets in `self`.\n\
-\n\
-Use ss.len() if overflowed.\n\
-\n\
-Examples:\n\
-  >>> ss = setset([set([1]), set([1,2])])\n\
-  >>> len(ss)\n\
-  2\n\
-\n\
-Returns:\n\
-  The number of sets.\n\
-\n\
-Raises:\n\
-  OverflowError");
 
 static Py_ssize_t setset_len(PyObject* obj) {
   PySetsetObject* self = reinterpret_cast<PySetsetObject*>(obj);
@@ -598,13 +641,18 @@ static Py_ssize_t setset_len(PyObject* obj) {
 PyDoc_STRVAR(long_len_doc,
 "Returns the number of sets in `self`.\n\
 \n\
+This method never throws OverflowError unlike `len(setset)`.\n\
+\n\
 Examples:\n\
   >>> ss = setset([set([1]), set([1,2])])\n\
   >>> ss.len()\n\
   2\n\
 \n\
 Returns:\n\
-  The number of sets.");
+  The number of sets.\n\
+\n\
+See Also:\n\
+  __len__()");
 
 static PyObject* setset_long_len(PyObject* obj) {
   PySetsetObject* self = reinterpret_cast<PySetsetObject*>(obj);
@@ -790,7 +838,10 @@ Examples:\n\
   setset([set([1]), set([2, 3])])\n\
 \n\
 Returns:\n\
-  A new setset object.");
+  A new setset object.\n\
+\n\
+See Also:\n\
+  maximal(), hitting()");
 
 static PyObject* setset_minimal(PySetsetObject* self) {
   RETURN_NEW_SETSET(self, self->ss->minimal());
@@ -810,7 +861,10 @@ Examples:\n\
   setset([set([1, 2]), set([2, 3])])\n\
 \n\
 Returns:\n\
-  A new setset object.");
+  A new setset object.\n\
+\n\
+See Also:\n\
+  minimal()");
 
 static PyObject* setset_maximal(PySetsetObject* self) {
   RETURN_NEW_SETSET(self, self->ss->maximal());
@@ -819,9 +873,12 @@ static PyObject* setset_maximal(PySetsetObject* self) {
 PyDoc_STRVAR(hitting_doc,
 "Returns a new setset of hitting sets.\n\
 \n\
+The hitting sets are normally used as minimal hitting sets.\n\
+\n\
 The hitting sets are defined by,\n\
   f.hitting() = {a | b \\in f -> a \\cap b \\neq \\empty}.\n\
-D. Knuth, Exercise 236, The art of computer programming, Sect.7.1.4.\n\
+T. Toda, Hypergraph Dualization Algorithm Based on Binary Decision\n\
+Diagrams.\n\
 \n\
 Examples:\n\
   >>> ss = setset([set([1]), set([1,2]), set([2,3])])\n\
@@ -830,7 +887,10 @@ Examples:\n\
   setset([set([1, 2]), set([2, 3])])\n\
 \n\
 Returns:\n\
-  A new setset object.");
+  A new setset object.\n\
+\n\
+See Also:\n\
+  minimal()");
 
 static PyObject* setset_hitting(PySetsetObject* self) {
   RETURN_NEW_SETSET(self, self->ss->hitting());
@@ -846,7 +906,10 @@ Examples:\n\
   setset([set([1])])\n\
 \n\
 Returns:\n\
-  A new setset object.");
+  A new setset object.\n\
+\n\
+See Also:\n\
+  larger(), equal()");
 
 static PyObject* setset_smaller(PySetsetObject* self, PyObject* io) {
   CHECK_OR_ERROR(io, PyInt_Check, "int", NULL);
@@ -868,7 +931,10 @@ Examples:\n\
   setset([set([1, 2, 3])])\n\
 \n\
 Returns:\n\
-  A new setset object.");
+  A new setset object.\n\
+\n\
+See Also:\n\
+  smaller(), equal()");
 
 static PyObject* setset_larger(PySetsetObject* self, PyObject* io) {
   CHECK_OR_ERROR(io, PyInt_Check, "int", NULL);
@@ -890,7 +956,10 @@ Examples:\n\
   setset([set([1, 2])])\n\
 \n\
 Returns:\n\
-  A new setset object.");
+  A new setset object.\n\
+\n\
+See Also:\n\
+  smaller(), larger()");
 
 static PyObject* setset_equal(PySetsetObject* self, PyObject* io) {
   CHECK_OR_ERROR(io, PyInt_Check, "int", NULL);
@@ -923,7 +992,10 @@ Examples:\n\
   setset([set([1, 3]), set([1, 2, 3])])\n\
 \n\
 Returns:\n\
-  A new setset object.");
+  A new setset object.\n\
+\n\
+See Also:\n\
+  meet()");
 
 static PyObject* setset_join(PySetsetObject* self, PyObject* other) {
   CHECK_SETSET_OR_ERROR(other);
@@ -945,7 +1017,10 @@ Examples:\n\
   setset([set([2]), set([3])])\n\
 \n\
 Returns:\n\
-  A new setset object.");
+  A new setset object.\n\
+\n\
+See Also:\n\
+  join()");
 
 static PyObject* setset_meet(PySetsetObject* self, PyObject* other) {
   CHECK_SETSET_OR_ERROR(other);
@@ -955,7 +1030,6 @@ static PyObject* setset_meet(PySetsetObject* self, PyObject* other) {
 PyDoc_STRVAR(subsets_doc,
 "Returns a new setset with sets that are subsets of a set in `other`.\n\
 \n\
-\n\
 Examples:\n\
   >>> ss1 = setset([set([1]), set([1,2])])\n\
   >>> ss2 = setset([set([1,3]), set([2,3])])\n\
@@ -964,7 +1038,10 @@ Examples:\n\
   setset([set([1])])\n\
 \n\
 Returns:\n\
-  A new setset object.");
+  A new setset object.\n\
+\n\
+See Also:\n\
+  supersets(), nonsubsets()");
 
 static PyObject* setset_subsets(PySetsetObject* self, PyObject* other) {
   CHECK_SETSET_OR_ERROR(other);
@@ -974,7 +1051,6 @@ static PyObject* setset_subsets(PySetsetObject* self, PyObject* other) {
 PyDoc_STRVAR(supersets_doc,
 "Returns a new setset with sets that are supersets of a set in `other`.\n\
 \n\
-\n\
 Examples:\n\
   >>> ss1 = setset([set([1,3]), set([2,3])])\n\
   >>> ss2 = setset([set([1]), set([1,2])])\n\
@@ -983,7 +1059,10 @@ Examples:\n\
   setset([set([1, 3])])\n\
 \n\
 Returns:\n\
-  A new setset object.");
+  A new setset object.\n\
+\n\
+See Also:\n\
+  subsets(), nonsupersets()");
 
 static PyObject* setset_supersets(PySetsetObject* self, PyObject* other) {
   CHECK_SETSET_OR_ERROR(other);
@@ -1005,7 +1084,10 @@ Examples:\n\
   setset([set([1, 2])])\n\
 \n\
 Returns:\n\
-  A new setset object.");
+  A new setset object.\n\
+\n\
+See Also:\n\
+  nonsupersets(), subsets()");
 
 static PyObject* setset_nonsubsets(PySetsetObject* self, PyObject* other) {
   CHECK_SETSET_OR_ERROR(other);
@@ -1027,7 +1109,10 @@ Examples:\n\
   setset([set([2, 3])])\n\
 \n\
 Returns:\n\
-  A new setset object.");
+  A new setset object.\n\
+\n\
+See Also:\n\
+  nonsubsets(), supersets()");
 
 static PyObject* setset_nonsupersets(PySetsetObject* self, PyObject* other) {
   CHECK_SETSET_OR_ERROR(other);
@@ -1045,7 +1130,10 @@ Args:\n\
 \n\
 Examples:\n\
   >>> f = open('/path/to/file', 'w')\n\
-  >>> ss.dump(f)");
+  >>> ss.dump(f)\n\
+\n\
+See Also:\n\
+  dumps(), load()");
 
 static PyObject* setset_dump(PySetsetObject* self, PyObject* obj) {
   CHECK_OR_ERROR(obj, PyFile_Check, "file", NULL);
@@ -1066,7 +1154,10 @@ This method does not serialize the universe, which should be saved\n\
 separately by pickle.\n\
 \n\
 Examples:\n\
-  >>> str = ss.dumps()");
+  >>> str = ss.dumps()\n\
+\n\
+See Also:\n\
+  dump(), loads()");
 
 static PyObject* setset_dumps(PySetsetObject* self) {
   stringstream sstr;
@@ -1085,7 +1176,10 @@ Args:\n\
 \n\
 Examples:\n\
   >>> f = open('/path/to/file')\n\
-  >>> ss.load(f)");
+  >>> ss.load(f)\n\
+\n\
+See Also:\n\
+  loads(), dump()");
 
 static PyObject* setset_load(PySetsetObject* self, PyObject* obj) {
   CHECK_OR_ERROR(obj, PyFile_Check, "file", NULL);
@@ -1109,7 +1203,10 @@ Args:\n\
   str: A str instance.\n\
 \n\
 Examples:\n\
-  >>> ss.load(str)");
+  >>> ss.load(str)\n\
+\n\
+See Also:\n\
+  load(), dumps()");
 
 static PyObject* setset_loads(PySetsetObject* self, PyObject* obj) {
   CHECK_OR_ERROR(obj, PyString_Check, "str", NULL);

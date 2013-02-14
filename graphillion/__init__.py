@@ -33,7 +33,7 @@ __version__ = '0.9'
 __author__ = '''Takeru Inoue <takeru.inoue@gmail.com>
 Shinichi Minato <minato@ist.hokudai.ac.jp>
 Hiroaki Iwashita <iwashita@erato.ist.hokudai.ac.jp>
-Takahisa Toda <toda@erato.ist.hokudai.ac.jp>
 Jun Kawahara <jkawahara@is.naist.jp>
+Takahisa Toda <toda@erato.ist.hokudai.ac.jp>
 '''
 __license__ = 'MIT'

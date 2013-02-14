@@ -102,6 +102,9 @@ class setset(_graphillion.setset):
 
         Raises:
           KeyError: If `self` setset is empty.
+
+        See Also:
+          remove(), discard(), randomize()
         """
         set = _graphillion.setset.pop(self)
         return setset._conv_ret(set)
@@ -125,6 +128,9 @@ class setset(_graphillion.setset):
 
         Yields:
           A set.
+
+        See Also:
+          minimize(), maximize(), pop()
         """
         i = _graphillion.setset.randomize(self)
         while (True):
