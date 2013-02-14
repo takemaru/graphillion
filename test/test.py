@@ -649,7 +649,7 @@ class TestGraphSet(unittest.TestCase):
         import networkx as nx
 
         g = nx.grid_2d_graph(11, 11)
-        GraphSet.universe(g.edges(), traversal='bfs')
+        GraphSet.universe(g.edges())
         self.assertEqual(len(GraphSet.universe()), 220)
         self.assertEqual(GraphSet.universe()[:2],
                          [((0, 1), (0, 0)), ((1, 0), (0, 0))])

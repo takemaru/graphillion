@@ -376,7 +376,7 @@ class GraphSet(setset):
             yield s
 
     @staticmethod
-    def universe(universe=None, traversal=None, source=None):
+    def universe(universe=None, traversal='bfs', source=None):
         """Registers or returns the universe.
 
         If `universe` is given, it is registered as a new universe.
@@ -412,7 +412,7 @@ class GraphSet(setset):
                 edges.append(e[:2])
                 if len(e) > 2:
                     GraphSet._weights[e[:2]] = e[2]
-            if traversal:
+            if traversal == 'bfs' or traversal == 'dfs':
                 if not source:
                     source = edges[0][0]
                     for e in edges:
