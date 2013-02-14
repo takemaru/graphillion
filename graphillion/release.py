@@ -17,17 +17,11 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-"""A fast, lightweight graphset operation library in Python.
-
-Graphillion is a Python language software package for "graphset
-operations".  See README for details.
-"""
-
-from graphillion.setset import setset
-from graphillion.graphset import GraphSet
-import graphillion.release
-
-__version__ = release.version
-#__date__ = release.date
-__license__ = release.license
-__author__ = '\n'.join(['%s <%s>' % _ for _ in release.authors])
+version = '0.9'
+date = ''
+license = 'MIT'
+authors = (('Takeru Inoue', 'takeru.inoue@gmail.com'),
+           ('Shinichi Minato', 'minato@ist.hokudai.ac.jp'),
+           ('Hiroaki Iwashita', 'iwashita@erato.ist.hokudai.ac.jp'),
+           ('Jun Kawahara', 'jkawahara@is.naist.jp'),
+           ('Takahisa Toda', 'toda@erato.ist.hokudai.ac.jp'))

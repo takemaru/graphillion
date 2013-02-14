@@ -1,5 +1,9 @@
 import os
 from setuptools import setup, find_packages, Extension
+import sys
+
+sys.path.insert(0, 'graphillion')
+import release
 
 prefixes = [os.path.join('/usr'), os.path.join('/usr', 'local'),
             os.path.join('/usr', 'share'), os.path.join('/opt', 'local'),
@@ -20,16 +24,16 @@ for prefix in prefixes:
         break
 
 setup(name='graphillion',
-      version='0.9',
+      version=release.version,
       description='A fast, lightweight graphset operation library',
       long_description="""\
 """,
       classifiers=[], # Get strings from http://pypi.python.org/pypi?%3Aaction=list_classifiers
       keywords='',
-      author='Takeru Inoue',
-      author_email='takeru.inoue@gmail.com',
+      author=release.authors[0][0],
+      author_email=release.authors[0][1],
       url='',
-      license='MIT',
+      license=release.license,
       packages=find_packages(exclude=['ez_setup', 'examples', 'tests']),
       include_package_data=True,
       zip_safe=False,
