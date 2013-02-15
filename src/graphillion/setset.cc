@@ -127,12 +127,12 @@ setset setset::operator~() const {
   return setset(complement(this->zdd_));
 }
 
-setset setset::operator&(const setset& ss) const {
-  return setset(this->zdd_ & ss.zdd_);
-}
-
 setset setset::operator|(const setset& ss) const {
   return setset(this->zdd_ + ss.zdd_);
+}
+
+setset setset::operator&(const setset& ss) const {
+  return setset(this->zdd_ & ss.zdd_);
 }
 
 setset setset::operator-(const setset& ss) const {
@@ -331,7 +331,7 @@ setset setset::larger(size_t set_size) const {
   return setset(this->zdd_ - this->zdd_.PermitSym(set_size));
 }
 
-setset setset::equal(size_t set_size) const {
+setset setset::same_size(size_t set_size) const {
   zdd_t z = this->zdd_.PermitSym(set_size) - this->zdd_.PermitSym(set_size - 1);
   return setset(z);
 }
@@ -356,12 +356,12 @@ setset setset::supersets(const setset& ss) const {
   return setset(this->zdd_.Restrict(ss.zdd_));
 }
 
-setset setset::nonsubsets(const setset& ss) const {
-  return setset(graphillion::nonsubsets(this->zdd_, ss.zdd_));
+setset setset::non_subsets(const setset& ss) const {
+  return setset(graphillion::non_subsets(this->zdd_, ss.zdd_));
 }
 
-setset setset::nonsupersets(const setset& ss) const {
-  return setset(graphillion::nonsupersets(this->zdd_, ss.zdd_));
+setset setset::non_supersets(const setset& ss) const {
+  return setset(graphillion::non_supersets(this->zdd_, ss.zdd_));
 }
 
 void setset::dump(ostream& out) const {

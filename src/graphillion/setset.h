@@ -103,8 +103,8 @@ class setset {
   setset operator^(const setset& ss) const;
   setset operator/(const setset& ss) const;
   setset operator%(const setset& ss) const;
-  void operator&=(const setset& ss);
   void operator|=(const setset& ss);
+  void operator&=(const setset& ss);
   void operator-=(const setset& ss);
   void operator^=(const setset& ss);
   void operator/=(const setset& ss);
@@ -143,15 +143,15 @@ class setset {
   setset hitting() const;
   setset smaller(size_t set_size) const;
   setset larger(size_t set_size) const;
-  setset equal(size_t set_size) const;
+  setset same_size(size_t set_size) const;
 
   setset invert(elem_t e) const;
   setset join(const setset& ss) const;
   setset meet(const setset& ss) const;
   setset subsets(const setset& ss) const;
   setset supersets(const setset& ss) const;
-  setset nonsubsets(const setset& ss) const;
-  setset nonsupersets(const setset& ss) const;
+  setset non_subsets(const setset& ss) const;
+  setset non_supersets(const setset& ss) const;
 
   void dump(std::ostream& out) const;
   void dump(FILE* fp = stdout) const;

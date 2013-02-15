@@ -168,7 +168,7 @@ class TestSetset {
            + e3*e4);
     assert(ss.smaller(3).zdd_ == e0 + e1 + e1*e2 + e1*e4 + e4);
     assert(ss.larger(3).zdd_ == e1*e2*e3*e4);
-    assert(ss.equal(3).zdd_ == e1*e2*e3 + e1*e3*e4);
+    assert(ss.same_size(3).zdd_ == e1*e2*e3 + e1*e3*e4);
 
     ss = setset(V("{{1, 2}, {1, 4}, {2, 3}, {3, 4}}"));
     assert(ss.hitting().zdd_ == e1*e2*e3 + e1*e2*e3*e4 + e1*e2*e4 + e1*e3
@@ -183,14 +183,7 @@ class TestSetset {
     vector<set<int> > u = V("{{}, {1}, {1, 2}, {1, 2, 3}, {1, 2, 3, 4}, {1, 3, 4},"
                             "{1, 4}, {4}}");
     vector<set<int> > v = V("{{1, 2}, {1, 4}, {2, 3}, {3, 4}}");
-    setset ss = setset(u) & setset(v);
-    assert(ss.zdd_ == e1*e2 + e1*e4);
-
-    ss = setset(u);
-    ss &= setset(v);
-    assert(ss.zdd_ == e1*e2 + e1*e4);
-
-    ss = setset(u) | setset(v);
+    setset ss = setset(u) | setset(v);
     assert(ss.zdd_ == e0 + e1 + e1*e2 + e1*e2*e3 + e1*e2*e3*e4 + e1*e3*e4
            + e1*e4 + e2*e3 + e3*e4 + e4);
 
@@ -198,6 +191,13 @@ class TestSetset {
     ss |= setset(v);
     assert(ss.zdd_ == e0 + e1 + e1*e2 + e1*e2*e3 + e1*e2*e3*e4 + e1*e3*e4
            + e1*e4 + e2*e3 + e3*e4 + e4);
+
+    ss = setset(u) & setset(v);
+    assert(ss.zdd_ == e1*e2 + e1*e4);
+
+    ss = setset(u);
+    ss &= setset(v);
+    assert(ss.zdd_ == e1*e2 + e1*e4);
 
     ss = setset(u) - setset(v);
     assert(ss.zdd_ == e0 + e1 + e1*e2*e3 + e1*e2*e3*e4 + e1*e3*e4 + e4);
@@ -248,10 +248,10 @@ class TestSetset {
     ss = setset(u).supersets(setset(v));
     assert(ss.zdd_ == e1*e2 + e1*e2*e3 + e1*e2*e3*e4 + e1*e3*e4 + e1*e4);
 
-    ss = setset(u).nonsubsets(setset(v));
+    ss = setset(u).non_subsets(setset(v));
     assert(ss.zdd_ == e1*e2*e3 + e1*e2*e3*e4 + e1*e3*e4);
 
-    ss = setset(u).nonsupersets(setset(v));
+    ss = setset(u).non_supersets(setset(v));
     assert(ss.zdd_ == e0 + e1 + e4);
   }
 

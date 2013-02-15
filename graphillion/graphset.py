@@ -109,6 +109,520 @@ class GraphSet(setset):
         graphset_or_constraints = GraphSet._conv_arg(graphset_or_constraints)
         setset.__init__(self, graphset_or_constraints)
 
+    def copy(self):
+        """Returns a new GraphSet with a shallow copy of `self`.
+
+        Examples:
+          >>> gs2 = gs1.copy()
+          >>> gs1 -= gs2
+          >>> gs1 == gs2
+          False
+
+        Returns:
+          A new GraphSet object.
+
+        See Also:
+          __init__()
+        """
+        return setset.copy(self)
+
+    def union(self, other):
+        """Returns a new GraphSet with graphs from `self` and all others.
+
+        Examples:
+          >>> gs1 = GraphSet([set([(1,2)]), set([(1,2), (1,4)])])
+          >>> gs2 = GraphSet([set([]), set([(1,2)])])
+          >>> gs = gs1 | gs2
+          >>> gs
+          GraphSet([set([]), set([(1, 2)]), set([(1, 2), (1, 4)])])
+
+        Returns:
+          A new GraphSet object.
+
+        See Also:
+          intersection(), difference(), symmetric_difference(),
+          update()
+        """
+        return setset.union(self, other)
+
+    def intersection(self, other):
+        """Returns a new GraphSet with graphs common to `self` and all others.
+
+        Examples:
+          >>> gs1 = GraphSet([set([(1,2)]), set([(1,2), (1,4)])])
+          >>> gs2 = GraphSet([set([]), set([(1,2)])])
+          >>> gs = gs1 & gs2
+          >>> s
+          GraphSet([set([(1, 2)])])
+
+        Returns:
+          A new GraphSet object.
+
+        See Also:
+          union(), difference(), symmetric_difference(),
+          intersection_update()
+        """
+        return setset.intersection(self, other)
+
+    def difference(self, other):
+        """Returns a new GraphSet with graphs in `self` that are not in the others.
+
+        Examples:
+          >>> gs1 = GraphSet([set([(1,2)]), set([(1,2), (1,4)])])
+          >>> gs2 = GraphSet([set([]), set([(1,2)])])
+          >>> gs = gs1 - gs2
+          >>> gs
+          GraphSet([set([(1, 2), (1, 4)])])
+
+        Returns:
+          A new GraphSet object.
+
+        See Also:
+          union(), intersection(), symmetric_difference(),
+          difference_update()
+        """
+        return setset.difference(self, other)
+
+    def symmetric_difference(self, other):
+        """Returns a new GraphSet with graphs in either `self` or `other` but not both.\n\
+
+        Examples:\n\
+          >>> gs1 = GraphSet([set([(1,2)]), set([(1,2), (1,4)])])\n\
+          >>> gs2 = GraphSet([set([]), set([(1,2)])])\n\
+          >>> gs = gs1 ^ gs2\n\
+          >>> gs\n\
+          GraphSet([set([]), set([(1, 2), (1, 4)])])\n\
+
+        Returns:\n\
+          A new GraphSet object.\n\
+
+        See Also:\n\
+          union(), intersection(), difference(), 
+          symmetric_difference_update()
+        """
+        return setset.symmetric_difference(self, other)
+
+    def quotient(self, other):
+        """Returns a new GraphSet of quotient.\n\
+
+        The quotient is defined by,\n\
+          gs1 / gs2 = {a | a \\cup b \\in gs1 and a \\cap b = \\empty, \\forall b \\in gs2}.\n\
+        D. Knuth, Exercise 204, The art of computer programming, Sect.7.1.4.\n\
+
+        Examples:\n\
+          >>> gs = GraphSet([set([(1,2), (1,4)]), set([(2,3), (2,5)])])\n\
+          >>> gs = gs / GraphSet([set([(1,4)])])\n\
+          >>> gs\n\
+          GraphSet([set([(1, 2)])])\n\
+
+        Returns:\n\
+          A new GraphSet object.\n\
+
+        See Also:\n\
+          remainder(), quotient_update()
+        """
+        return setset.quotient(self, other)
+
+    def remainder(self, other):
+        """Returns a new GraphSet of remainder.\n\
+
+        The remainder is defined by,\n\
+          gs1 % gs2 = gs1 - (gs1 \\sqcup (gs1 / gs2)).\n\
+        D. Knuth, Exercise 204, The art of computer programming, Sect.7.1.4.\n\
+
+        Examples:\n\
+          >>> gs = GraphSet([set([(1,2), (1,4)]), set([(2,3), (2,5)])])\n\
+          >>> gs = gs % GraphSet([set([(1,4)])])\n\
+          >>> gs\n\
+          GraphSet([set([(2,3), (2,5)])])\n\
+
+        Returns:\n\
+          A new GraphSet object.\n\
+
+        See Also:\n\
+          quotient(), remainder_update()
+        """
+        return setset.remainder(self, other)
+
+    def update(self, other):
+        """Updates `self`, adding graphs from all others.
+
+        Examples:
+          >>> gs1 = GraphSet([set([(1,2)]), set([(1,2), (1,4)])])
+          >>> gs2 = GraphSet([set([]), set([(1,2)])])
+          >>> gs1 |= gs2
+          >>> gs1
+          GraphSet([set([]), set([(1, 2)]), set([(1, 2), (1, 4)])])
+
+        Returns:
+          A new GraphSet object.
+
+        See Also:
+          union()
+        """
+        return setset.update(self, other)
+
+    def intersection_update(self, other):
+        """Updates `self`, keeping only graphs found in it and all others.
+
+        Examples:
+          >>> gs1 = GraphSet([set([(1,2)]), set([(1,2), (1,4)])])
+          >>> gs2 = GraphSet([set([]), set([(1,2)])])
+          >>> gs1 &= gs2
+          >>> gs1
+          GraphSet([set([(1, 2)])])
+
+        Returns:
+          A new GraphSet object.
+
+        See Also:
+          intersection()
+        """
+        return setset.intersection_update(self, other)
+
+    def difference_update(self, other):
+        """Update `self`, removing graphs found in others.\n\
+
+        Examples:\n\
+          >>> gs1 = GraphSet([set([(1,2)]), set([(1,2), (1,4)])])\n\
+          >>> gs2 = GraphSet([set([]), set([(1,2)])])\n\
+          >>> gs1 -= gs2\n\
+          >>> gs1\n\
+          GraphSet([set([(1, 2), (1, 4)])])\n\
+
+        Returns:\n\
+          A new GraphSet object.\n\
+
+        See Also:\n\
+          difference()
+        """
+        return setset.difference_update(self, other)
+
+    def symmetric_difference_update(self, other):
+        """Update `self`, keeping only graphs in either GraphSet, but not in both.\n\
+
+        Examples:\n\
+          >>> gs1 = GraphSet([set([(1,2)]), set([(1,2), (1,4)])])\n\
+          >>> gs2 = GraphSet([set([]), set([(1,2)])])\n\
+          >>> gs1 ^= gs2\n\
+          >>> gs1\n\
+          GraphSet([set([]), set([(1, 2), (1, 4)])])\n\
+
+        Returns:\n\
+          A new GraphSet object.\n\
+
+        See Also:\n\
+          symmetric_difference()
+        """
+        return setset.symmetric_difference_update(self, other)
+
+    def quotient_update(self, other):
+        """Updates `self` by the quotient.\n\
+
+        Examples:\n\
+          >>> gs = GraphSet([set([(1,2), (1,4)]), set([(2,3), (2,5)])])\n\
+          >>> gs /= GraphSet([set([(1,4)])])\n\
+          >>> gs\n\
+          GraphSet([set([(1, 2)])])\n\
+
+        Returns:\n\
+          A new GraphSet object.\n\
+
+        See Also:\n\
+          quotient()
+        """
+        return setset.quotient_update(self, other)
+
+    def remainder_update(self, other):
+        """Updates `self` by the remainder.\n\
+
+        Examples:\n\
+          >>> gs = GraphSet([set([(1,2), (1,4)]), set([(2,3), (2,5)])])\n\
+          >>> gs %= GraphSet([set([(1,4)])])\n\
+          >>> gs\n\
+          GraphSet([set([(2,3), (2,5)])])\n\
+
+        Returns:\n\
+          A new GraphSet object.\n\
+
+        See Also:\n\
+          remainder()
+        """
+        return setset.remainder_update(self, other)
+
+    def __invert__(self):
+        """Returns a new GraphSet with graphs not stored in `self`.
+
+        A complement set here does not mean a complement graph.  It is
+        defined over a set of edge sets, as shown in the example.
+
+        Examples:
+          >>> GraphSet.set_universe([(1,2), (1,4)])
+          >>> gs = GraphSet([set([(1,2)])])
+          >>> gs = ~gs
+          >>> gs
+          setset([set([]), set([(1, 4)]), set([(1, 2), (1, 4)])])
+
+        Returns:
+          A new GraphSet object.
+        """
+        return setset.complement(self)
+
+    __or__ = union
+    __and__ = intersection
+    __sub__ = difference
+    __xor__ = symmetric_difference
+    __div__ = quotient
+    __mod__ = remainder
+
+    __ior__ = update
+    __iand__ = intersection_update
+    __isub__ = difference_update
+    __ixor__ = symmetric_difference_update
+    __idiv__ = quotient_update
+    __imod__ = remainder_update
+
+    def isdisjoint(self, other):
+        """Returns True if `self` has no graphs in common with `other`.\n\
+
+        Examples:\n\
+          >>> gs1 = GraphSet([set([(1,2)]), set([(1,2), (1,4)])])\n\
+          >>> gs2 = GraphSet([set([]), set([(1,4)])])\n\
+          >>> gs1.disjoint(gs2)\n\
+          True\n\
+
+        Returns:\n\
+          True or False.\n\
+
+        See Also:\n\
+          issubset(), issuperset()
+        """
+        return setset.isdisjoint(self, other)
+
+    def issubset(self, other):
+        """Tests if every graph in `self` is in `other`.\n\
+
+        Examples:\n\
+          >>> gs1 = GraphSet([set([(1,2)]), set([(1,2), (1,4)])])\n\
+          >>> gs2 = GraphSet([set([(1,2)]), set([(1,2), (1,4)]), set([(1,4)])])\n\
+          >>> gs1 <= gs2\n\
+          True\n\
+
+        Returns:\n\
+          True or False.\n\
+
+        See Also:\n\
+          issuperset(), isdisjoint()
+        """
+        return setset.issubset(self, other)
+
+    def issuperset(self, other):
+        """Tests if every graph in `other` is in `self`.\n\
+
+        Examples:\n\
+          >>> gs1 = GraphSet([set([(1,2)]), set([(1,2), (1,4)]), set([(1,4)])])\n\
+          >>> gs2 = GraphSet([set([(1,2)]), set([(1,2), (1,4)])])\n\
+          >>> gs1 >= gs2\n\
+          True\n\
+
+        Returns:\n\
+          True or False.\n\
+
+        See Also:\n\
+          issubset(), isdisjoint()
+        """
+        return setset.issuperset(self, other)
+
+    __le__ = issubset
+    __ge__ = issuperset
+
+    def __lt__(self, other):
+        """Tests if `self` is a true subset of `other`.
+
+        This method returns False when `self` == `other`, unlike
+        issubset.
+
+        Examples:\n\
+          >>> gs < gs\n\
+          False\n\
+
+        Returns:\n\
+          True or False.\n\
+
+        See Also:\n\
+          issubset(), issuperset(), isdisjoint()
+        """
+        return setset.__lt__(self, other)
+
+    def __gt__(self, other):
+        """Test if `self` is a true superset of `other`.
+
+        This method returns False when `self` == `other`, unlike
+        issuperset.
+
+        Examples:\n\
+          >>> gs > gs\n\
+          False\n\
+
+        Returns:\n\
+          True or False.\n\
+
+        See Also:\n\
+          issubset(), isdisjoint()
+        """
+        return setset.__gt__(self, other)
+
+    def __len__(self):
+        """Returns the number of graphs in `self`.\n\
+
+        Use gs.len() if OverflowError raised.
+
+        Examples:\n\
+          >>> gs = GraphSet([set([(1,2)]), set([(1,2), (1,4)])])\n\
+          >>> len(gs)\n\
+          2\n\
+
+        Returns:\n\
+          The number of graphs.\n\
+
+        Raises:
+          OverflowError
+
+        See Also:\n\
+          len()
+        """
+        return setset.__len__(self)
+
+    def len(self):
+        """Returns the number of graphs in `self`.\n\
+
+        Examples:\n\
+          >>> gs = GraphSet([set([(1,2)]), set([(1,2), (1,4)])])\n\
+          >>> gs.len()\n\
+          2L\n\
+
+        Returns:\n\
+          The number of graphs.\n\
+
+        See Also:\n\
+          __len__()
+        """
+        return setset.len(self)
+
+    def randomize(self):
+        """Iterates over graphs randomly.
+
+        Examples:
+          >>> gs = GraphSet([set([(1,2)]), set([(1,2), (1,4)])])
+          >>> for g in gs:
+          ...   g
+          set([(1, 2), (1, 4)])
+          set([(1, 2)])
+
+        Returns:
+          A generator.
+
+        Yields:
+          A graph.
+
+        See Also:
+          minimize(), maximize(), pop()
+        """
+        return setset.randomize(self)
+
+    __iter__ = randomize
+
+    def maximize(self):
+        """Iterates over graphs in the descending order of weights.
+
+        Returns a generator that iterates over graphs in `self`
+        GraphSet.  The graphs are selected in the descending order of
+        weights, which are specified with the universe (or 1.0 if not
+        specified).
+
+        Examples:
+          >>> GraphSet.set_universe([(1,2, 2.0), (1,4, -3.0), (2,3)])
+          >>> gs = GraphSet([set([(1,2), (1,4)]), set([(2,3)])])
+          >>> for g in gs.maximize():
+          ...   g
+          set([(2, 3)])
+          set([(1, 2), (1, 4)])
+
+        Returns:
+          A generator.
+
+        Yields:
+          A graph.
+
+        See Also:
+          minimize(), randomize()
+        """
+        for s in setset.maximize(self, GraphSet._weights):
+            yield s
+
+    def minimize(self):
+        """Iterates over graphs in the ascending order of weights.
+
+        Returns a generator that iterates over graphs in `self`
+        GraphSet.  The graphs are selected in the ascending order of
+        weights, which are specified with the universe (or 1.0 if not
+        specified).
+
+        Examples:
+          >>> GraphSet.set_universe([(1,2, 2.0), (1,4, -3.0), (2,3)])
+          >>> gs = GraphSet([set([(1,2), (1,4)]), set([(2,3)])])
+          >>> for g in gs.minimize():
+          ...   g
+          set([(1, 2), (1, 4)])
+          set([(2, 3)])
+
+        Returns:
+          A generator.
+
+        Yields:
+          A graph.
+
+        See Also:
+          maximize(), randomize()
+        """
+        for s in setset.minimize(self, GraphSet._weights):
+            yield s
+
+    @staticmethod
+    def set_universe(universe, traversal='bfs', source=None):
+        """Registers the new universe.
+
+        Examples:
+          >>> GraphSet.set_universe([(1,2, 2.0), (1,4, -3.0), (2,3)])
+
+        Args:
+          universe: A list of edges that represents the new universe.
+            An edge may come along with a weight, which can be
+            positive as well as negative (or 1.0 if not specified).
+
+          traversal: Optional.  This argument specifies the order of
+            edges to be processed in the internal graphset operations.
+            The default is 'bfs', the breadth-first search from
+            `source`.  Other options include 'dfs', the depth-first
+            search, and 'as-is', the order of `universe` list.
+
+          source: Optional.  This argument specifies the starting
+            point of the edge traversal.
+        """
+        edges = []
+        GraphSet._weights = {}
+        for e in universe:
+            edges.append(e[:2])
+            if len(e) > 2:
+                GraphSet._weights[e[:2]] = e[2]
+        if traversal == 'bfs' or traversal == 'dfs':
+            if not source:
+                source = edges[0][0]
+                for e in edges:
+                    source = min(e[0], e[1], source)
+            edges = GraphSet._traverse(edges, traversal, source)
+        setset.set_universe(edges)
+
     def __contains__(self, graph):
         """Returns True if `graph` is in the `self` GraphSet, False otherwise.
 
@@ -284,6 +798,165 @@ class GraphSet(setset):
         graph_or_edge = GraphSet._conv_arg(graph_or_edge)
         return setset.discard(self, graph_or_edge)
 
+    def pop(self):
+        """Removes and returns an arbitrary graph from `self` GraphSet.
+
+        Examlpes:
+          >>> gs = GraphSet([set([(1,2)]), set([(1,2), (1,4)])])
+          >>> gs.pop()
+          set([(1, 2), (1, 4)])
+
+        Returns:
+          A graph.
+
+        Raises:
+          KeyError: If `self` GraphSet is empty.
+
+        See Also:
+          remove(), discard(), randomize()
+        """
+        return setset.pop(self)
+
+    def clear(self):
+        """Removes all graphs from `self`.\n\
+
+        Examples:\n\
+          >>> gs = GraphSet([set([(1,2)]), set([(1,2), (1,4)])])\n\
+          >>> gs.clear()\n\
+          >>> gs\n\
+          GraphSet([])
+        """
+        return setset.clear(self)
+
+    def minimal(self):
+        """Returns a new GraphSet of minimal edge sets.\n\
+
+        The minimal sets are defined by,\n\
+          gs.minimal() = {a \\in gs | b \\in gs and a \\subseteq -> a = b}.\n\
+        D. Knuth, Exercise 236, The art of computer programming, Sect.7.1.4.\n\
+
+        Examples:\n\
+          >>> gs = GraphSet([set([(1,2)]), set([(1,2), (1,4)]), set([(1,4), (2,3)])])\n\
+          >>> gs = gs.minimal()\n\
+          >>> gs\n\
+          GraphSet([set([(1, 2)]), set([(1, 4), (2, 3)])])\n\
+
+        Returns:\n\
+          A new GraphSet object.\n\
+
+        See Also:\n\
+          maximal(), blocking()
+        """
+        return setset.minimal(self)
+
+    def maximal(self):
+        """Returns a new GraphSet of maximal edge sets.\n\
+
+        The maximal sets are defined by,\n\
+          gs.maximal() = {a \\in gs | b \\in gs and a \\superseteq -> a = b}.\n\
+        D. Knuth, Exercise 236, The art of computer programming, Sect.7.1.4.\n\
+
+        Examples:\n\
+          >>> gs = GraphSet([set([(1,2)]), set([(1,2), (1,4)]), set([(1,4), (2,3)])])\n\
+          >>> gs = gs.maximal()\n\
+          >>> gs\n\
+          GraphSet([set([(1, 2), (1, 4)]), set([(1, 4), (2, 3)])])\n\
+
+        Returns:\n\
+          A new GraphSet object.\n\
+
+        See Also:\n\
+          minimal()
+        """
+        return setset.maximal(self)
+
+    def blocking(self):
+        """Returns a new GraphSet of all blocking sets.\n\
+
+        A blocking set is often called a hitting set; all graphs in
+        `self` contain at least one edge in the set.  This implies
+        that all the graphs are destroyed by removing edges in the
+        set.
+
+        The blocking sets are defined by,\n\
+          gs.blocking() = {a | b \\in gs -> a \\cap b \\neq \\empty}.\n\
+        T. Toda, Hypergraph Dualization Algorithm Based on Binary Decision\n\
+        Diagrams.\n\
+
+        Examples:\n\
+          >>> gs = GraphSet([set([(1,2)]), set([(1,2), (1,4)]), set([(1,4), (2,3)])])\n\
+          >>> gs = gs.blocking().minimal()\n\
+          >>> gs\n\
+          GraphSet([set([(1, 2), (1, 4)]), set([(1, 4), (2, 3)])])\n\
+
+        Returns:\n\
+          A new GraphSet object.\n\
+
+        See Also:\n\
+          minimal()
+        """
+        return setset.hitting(self)
+
+    def smaller(self, size):
+        """Returns a new GraphSet with graphs that have less than `size` edges.\n\
+
+        Examples:\n\
+          >>> gs = GraphSet([set([(1,2)]), set([(1,2), (1,4)]), set([(1,2), (1,4), (2,3)])])\n\
+          >>> gs = gs.smaller(2)\n\
+          >>> gs\n\
+          GraphSet([set([(1, 2)])])\n\
+
+        Args:
+          size: The number of edges in a graph.
+
+        Returns:\n\
+          A new GraphSet object.\n\
+
+        See Also:\n\
+          larger(), same_size()
+        """
+        return setset.smaller(self, size)
+
+    def larger(self, size):
+        """Returns a new GraphSet with graphs that have more than `size` edges.\n\
+
+        Examples:\n\
+          >>> gs = GraphSet([set([(1,2)]), set([(1,2), (1,4)]), set([(1,2), (1,4), (2,3)])])\n\
+          >>> gs = gs.larger(2)\n\
+          >>> gs\n\
+          GraphSet([set([(1, 2), (1, 4), (2, 3)])])\n\
+
+        Args:
+          size: The number of edges in a graph.
+
+        Returns:\n\
+          A new GraphSet object.\n\
+
+        See Also:\n\
+          smaller(), same_size()
+        """
+        return setset.larger(self, size)
+
+    def same_size(self, size):
+        """Returns a new GraphSet with graphs that have `size` edges.\n\
+
+        Examples:\n\
+          >>> gs = GraphSet([set([(1,2)]), set([(1,2), (1,4)]), set([(1,2), (1,4), (2,3)])])\n\
+          >>> gs = gs.same_size(2)\n\
+          >>> gs\n\
+          GraphSet([set([(1, 2), (1, 4)])])\n\
+
+        Args:
+          size: The number of edges in a graph.
+
+        Returns:\n\
+          A new GraphSet object.\n\
+
+        See Also:\n\
+          smaller(), larger()
+        """
+        return setset.same_size(self, size)
+
     def invert(self, edge):
         """Returns a new set of graphs by inverting a given edge.
 
@@ -315,96 +988,206 @@ class GraphSet(setset):
         edge = GraphSet._conv_edge(edge)
         return setset.invert(self, edge)
 
-    def maximize(self):
-        """Iterates over graphs in the descending order of weights.
+    def join(self, other):
+        """Returns a new GraphSet of join between `self` and `other`.\n\
 
-        Returns a generator that iterates over graphs in `self`
-        GraphSet.  The graphs are selected in the descending order of
-        weights, which are specified with the universe (or 1.0 if not
-        specified).
+        The join operation is defined by,\n\
+          gs1 \\sqcup gs2 = {a \\cup b | a \\in gs1 and b \\in gs2}.\n\
+        D. Knuth, Exercise 203, The art of computer programming, Sect.7.1.4.\n\
 
-        Examples:
-          >>> GraphSet.set_universe([(1,2, 2.0), (1,4, -3.0), (2,3)])
-          >>> gs = GraphSet([set([(1,2), (1,4)]), set([(2,3)])])
-          >>> for g in gs.maximize():
-          ...   g
-          set([(2, 3)])
-          set([(1, 2), (1, 4)])
+        Examples:\n\
+          >>> gs1 = GraphSet([set([(1,2)]), set([(1,2), (1,4)])])\n\
+          >>> gs2 = GraphSet([set([(2,3)])])\n\
+          >>> gs = gs1.join(gs2)\n\
+          >>> gs\n\
+          GraphSet([set([(1, 2), (2, 3)]), set([(1, 2), (1, 4), (2, 3)])])\n\
 
-        Returns:
-          A generator.
+        Returns:\n\
+          A new GraphSet object.\n\
 
-        Yields:
-          A graph.
-
-        See Also:
-          minimize(), randomize()
+        See Also:\n\
+          meet()
         """
-        for s in setset.maximize(self, GraphSet._weights):
-            yield s
+        return setset.join(self, other)
 
-    def minimize(self):
-        """Iterates over graphs in the ascending order of weights.
+    def meet(self, other):
+        """Returns a new GraphSet of meet between `self` and `other`.\n\
 
-        Returns a generator that iterates over graphs in `self`
-        GraphSet.  The graphs are selected in the ascending order of
-        weights, which are specified with the universe (or 1.0 if not
-        specified).
+        The meet operation is defined by,\n\
+          gs1 \\sqcap gs2 = {a \\cap b | a \\in gs1 and b \\in gs2}.\n\
+        D. Knuth, Exercise 203, The art of computer programming, Sect.7.1.4.\n\
 
-        Examples:
-          >>> GraphSet.set_universe([(1,2, 2.0), (1,4, -3.0), (2,3)])
-          >>> gs = GraphSet([set([(1,2), (1,4)]), set([(2,3)])])
-          >>> for g in gs.minimize():
-          ...   g
-          set([(1, 2), (1, 4)])
-          set([(2, 3)])
+        Examples:\n\
+          >>> gs1 = GraphSet([set([(1,2), (1,4)]), set([(1,2), (2,3)])])\n\
+          >>> gs2 = GraphSet([set([(1,4), (2,3)])])\n\
+          >>> gs = gs1.meet(gs2)\n\
+          >>> gs\n\
+          GraphSet([set([(1, 4)]), set([(2, 3)])])\n\
 
-        Returns:
-          A generator.
+        Returns:\n\
+          A new GraphSet object.\n\
 
-        Yields:
-          A graph.
-
-        See Also:
-          maximize(), randomize()
+        See Also:\n\
+          join()
         """
-        for s in setset.minimize(self, GraphSet._weights):
-            yield s
+        return setset.meet(self, other)
 
-    @staticmethod
-    def set_universe(universe, traversal='bfs', source=None):
-        """Registers the new universe.
+    def subgraphs(self, other):
+        """Returns a new GraphSet with subgraphs of a graph in `other`.\n\
 
-        Examples:
-          >>> GraphSet.set_universe([(1,2, 2.0), (1,4, -3.0), (2,3)])
+        Examples:\n\
+          >>> gs1 = GraphSet([set([(1,2)]), set([(1,2), (1,4)])])\n\
+          >>> gs2 = GraphSet([set([(1,2), (2,3)]), set([(1,4), (2,3)])])\n\
+          >>> gs = gs1.subgraphs(gs2)\n\
+          >>> gs\n\
+          GraphSet([set([(1, 2)])])\n\
 
-        Args:
-          universe: A list of edges that represents the new universe.
-            An edge may come along with a weight, which can be
-            positive as well as negative (or 1.0 if not specified).
+        Returns:\n\
+          A new GraphSet object.\n\
 
-          traversal: Optional.  This argument specifies the order of
-            edges to be processed in the internal graphset operations.
-            The default is 'bfs', the breadth-first search from
-            `source`.  Other options include 'dfs', the depth-first
-            search, and 'as-is', the order of `universe` list.
-
-          source: Optional.  This argument specifies the starting
-            point of the edge traversal.
+        See Also:\n\
+          supersets(), non_subsets()
         """
-        edges = []
-        GraphSet._weights = {}
-        for e in universe:
-            edges.append(e[:2])
-            if len(e) > 2:
-                GraphSet._weights[e[:2]] = e[2]
-        if traversal == 'bfs' or traversal == 'dfs':
-            if not source:
-                source = edges[0][0]
-                for e in edges:
-                    source = min(e[0], e[1], source)
-            edges = GraphSet._traverse(edges, traversal, source)
-        setset.set_universe(edges)
+        return setset.subsets(self, other)
+
+    def supergraphs(self, other):
+        """Returns a new GraphSet with supergraphs of a graph in `other`.\n\
+
+        Examples:\n\
+          >>> gs1 = GraphSet([set([(1,2), (2,3)]), set([(1,4), (2,3)])])\n\
+          >>> gs2 = GraphSet([set([(1,2)]), set([(1,2), (1,4)])])\n\
+          >>> gs = gs1.supergraphs(gs2)\n\
+          >>> gs\n\
+          GraphSet([set([(1, 2), (2, 3)])])\n\
+
+        Returns:\n\
+          A new GraphSet object.\n\
+
+        See Also:\n\
+          subsets(), non_supersets()
+        """
+        return setset.supersets(self, other)
+
+    def non_subgraphs(self, other):
+        """Returns a new GraphSet with graphs that aren't subgraphs of any graph in `other`.\n\
+
+        The non_subsets are defined by,\n\
+          gs1.non_subsets(gs2) = {a \\in gs1 | b \\in gs2 -> a \\not\\subseteq b}.\n\
+        D. Knuth, Exercise 236, The art of computer programming, Sect.7.1.4.\n\
+
+        Examples:\n\
+          >>> gs1 = GraphSet([set([(1,2)]), set([(1,2), (1,4)])])\n\
+          >>> gs2 = GraphSet([set([(1,2), (2,3)]), set([(1,4), (2,3)])])\n\
+          >>> gs = gs1.non_subgraphs(gs2)\n\
+          >>> gs\n\
+          GraphSet([set([(1, 2), (1, 4)])])\n\
+
+        Returns:\n\
+          A new GraphSet object.\n\
+
+        See Also:\n\
+          non_supersets(), subsets()
+        """
+        return setset.non_subsets(self, other)
+
+    def non_supergraphs(self, other):
+        """Returns a new GraphSet with graphs that aren't supergraphs of any graph in `other`.\n\
+
+        The non_supersets are defined by,\n\
+          gs1.non_supersets(gs2) = {a \\in gs1 | b \\in gs2 -> a \\not\\superseteq b}.\n\
+        D. Knuth, Exercise 236, The art of computer programming, Sect.7.1.4.\n\
+
+        Examples:\n\
+          >>> gs1 = GraphSet([set([(1,2), (2,3)]), set([(1,4), (2,3)])])\n\
+          >>> gs2 = GraphSet([set([(1,2)]), set([(1,2), (1,4)])])\n\
+          >>> gs = gs1.non_supergraphs(gs2)\n\
+          >>> gs\n\
+          GraphSet([set([(1, 4), (2, 3)])])\n\
+
+        Returns:\n\
+          A new GraphSet object.\n\
+
+        See Also:\n\
+          non_subsets(), supersets()
+        """
+        return setset.non_supersets(self, other)
+
+    def dump(self, fp):
+        """Serialize `self` to a file `fp`.\n\
+
+        This method does not serialize the universe, which should be saved\n\
+        separately by pickle.\n\
+
+        Examples:\n\
+          >>> import pickle\n\
+          >>> fp = open('/path/to/graphset', 'wb')\n\
+          >>> gs.dump(fp)\n\
+          >>> fp = open('/path/to/universe' 'wb')\n\
+          >>> pickle.dump(GraphSet.get_universe(), fp)\n\
+
+        Args:\n\
+          fp: A write-supporting file-like object.\n\
+
+        See Also:\n\
+          dumps(), load()
+        """
+        return setset.dump(self, fp)
+
+    def dumps(self):
+        """Returns a serialized `self`.\n\
+
+        This method does not serialize the universe, which should be saved\n\
+        separately by pickle.\n\
+
+        Examples:\n\
+          >>> import pickle\n\
+          >>> graphset_str = gs.dumps()\n\
+          >>> universe_str = pickle.dumps(GraphSet.get_universe())\n\
+
+        See Also:\n\
+          dump(), loads()
+        """
+        return setset.dumps(self)
+
+    def load(self, fp):
+        """Deserialize a file `fp` to `self`.\n\
+
+        This method does not deserialize the universe, which should be\n\
+        loaded separately by pickle.\n\
+
+        Args:\n\
+          fp: A read-supporting file-like object.\n\
+
+        Examples:\n\
+          >>> import pickle\n\
+          >>> fp = open('/path/to/universe')\n\
+          >>> GraphSet.set_universe(pickle.load(fp))\n\
+          >>> fp = open('/path/to/graphset')\n\
+          >>> gs = GraphSet().load(fp)\n\
+
+        See Also:\n\
+          loads(), dump()
+        """
+        return setset.load(self, fp)
+
+    def loads(self, s):
+        """Deserialize `str` to `self`.\n\
+
+        This method does not deserialize the universe, which should be\n\
+        loaded separately by pickle.\n\
+
+        Args:\n\
+          str: A str instance.\n\
+
+        Examples:\n\
+          >>> import pickle\n\
+          >>> GraphSet.set_universe(pickle.loads(universe_str))\n\
+          >>> gs = Graphset().load(graphset_str)\n\
+
+        See Also:\n\
+          load(), dumps()
+        """
+        return setset.loads(self, s)
 
     @staticmethod
     def get_universe():
@@ -497,3 +1280,4 @@ class GraphSet(setset):
         raise KeyError, edge
 
     _weights = {}
+

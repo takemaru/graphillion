@@ -108,7 +108,7 @@ zdd_t minimal(zdd_t f) {
     return i->second;
   zdd_t rl = minimal(lo(f));
   zdd_t r = minimal(hi(f));
-  zdd_t rh = nonsupersets(r, rl);
+  zdd_t rh = non_supersets(r, rl);
   r = zuniq(elem(f), rl, rh);
   return cache[id(f)] = r;
 }
@@ -121,7 +121,7 @@ zdd_t maximal(zdd_t f) {
     return i->second;
   zdd_t r = maximal(lo(f));
   zdd_t rh = maximal(hi(f));
-  zdd_t rl = nonsubsets(r, rh);
+  zdd_t rl = non_subsets(r, rh);
   r = zuniq(elem(f), rl, rh);
   return cache[id(f)] = r;
 }
@@ -177,7 +177,7 @@ zdd_t meet(zdd_t f, zdd_t g) {
   return ZBDD_Meet(f, g);
 }
 
-zdd_t nonsubsets(zdd_t f, zdd_t g) {
+zdd_t non_subsets(zdd_t f, zdd_t g) {
   static map<pair<word_t, word_t>, zdd_t> cache;
   if (is_bot(g))
     return f;
@@ -191,25 +191,25 @@ zdd_t nonsubsets(zdd_t f, zdd_t g) {
     return i->second;
   zdd_t r, r2, rl, rh;
   if (elem(f) < elem(g)) {
-    rl = nonsubsets(lo(f), g);
+    rl = non_subsets(lo(f), g);
     rh = hi(f);
     r = zuniq(elem(f), rl, rh);
   } else if (elem(f) == elem(g)) {
-//    r = nonsubsets(lo(f), lo(g));
-//    r2 = nonsubsets(lo(f), hi(g));
+//    r = non_subsets(lo(f), lo(g));
+//    r2 = non_subsets(lo(f), hi(g));
 //    rl = r & r2;
     r2 = lo(g) | hi(g);
-    rl = nonsubsets(lo(f), r2);
-    rh = nonsubsets(hi(f), hi(g));
+    rl = non_subsets(lo(f), r2);
+    rh = non_subsets(hi(f), hi(g));
     r = zuniq(elem(f), rl, rh);
   } else {
     r2 = lo(g) | hi(g);
-    r = nonsubsets(f, r2);
+    r = non_subsets(f, r2);
   }
   return cache[k] = r;
 }
 
-zdd_t nonsupersets(zdd_t f, zdd_t g) {
+zdd_t non_supersets(zdd_t f, zdd_t g) {
   static map<pair<word_t, word_t>, zdd_t> cache;
   if (is_bot(g))
     return f;
@@ -218,7 +218,7 @@ zdd_t nonsupersets(zdd_t f, zdd_t g) {
   else if (is_top(f))
     return top();
   else if (elem(f) > elem(g))
-    return nonsupersets(f, lo(g));
+    return non_supersets(f, lo(g));
   pair<word_t, word_t> k = make_key(f, g);
   map<pair<word_t, word_t>, zdd_t>::iterator i = cache.find(k);
   if (i != cache.end())
@@ -228,13 +228,13 @@ zdd_t nonsupersets(zdd_t f, zdd_t g) {
   zdd_t rl;
   zdd_t rh;
   if (elem(f) < elem(g)) {
-    rl = nonsupersets(lo(f), g);
-    rh = nonsupersets(hi(f), g);
+    rl = non_supersets(lo(f), g);
+    rh = non_supersets(hi(f), g);
   } else {
-    rl = nonsupersets(hi(f), hi(g));
-    r = nonsupersets(hi(f), lo(g));
+    rl = non_supersets(hi(f), hi(g));
+    r = non_supersets(hi(f), lo(g));
     rh = r & rl;
-    rl = nonsupersets(lo(f), lo(g));
+    rl = non_supersets(lo(f), lo(g));
   }
   r = zuniq(v, rl, rh);
   return cache[k] = r;

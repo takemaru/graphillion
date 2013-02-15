@@ -45,17 +45,6 @@ class setset(_graphillion.setset):
       ...   s
       set([1])
       set([1, 2])
-
-    The rest of setset document is written but for GraphSet, a
-    subclass of setset.  If you'd like to check setset itself, replace
-    GraphSet terms with the corresponding setset terms as follows.
-
-    +-------------------+---------+
-    | GraphSet          | setset  |
-    +-------------------+---------+
-    | graph or edge set | set     |
-    | edge              | element |
-    +-------------------+---------+
     """
 
     def __init__(self, setset_or_constraints=None):
@@ -109,22 +98,6 @@ class setset(_graphillion.setset):
         return _graphillion.setset.discard(self, set_or_elem)
 
     def pop(self):
-        """Removes and returns an arbitrary graph from `self` GraphSet.
-
-        Examlpes:
-          >>> gs = GraphSet([set([(1,2)]), set([(1,2), (1,4)])])
-          >>> gs.pop()
-          set([(1, 2), (1, 4)])
-
-        Returns:
-          A graph.
-
-        Raises:
-          KeyError: If `self` GraphSet is empty.
-
-        See Also:
-          remove(), discard(), randomize()
-        """
         set = _graphillion.setset.pop(self)
         return setset._conv_ret(set)
 
@@ -133,27 +106,11 @@ class setset(_graphillion.setset):
         return _graphillion.setset.invert(self, elem)
 
     def randomize(self):
-        """Iterates over graphs randomly.
-
-        Examples:
-          >>> gs = GraphSet([set([(1,2)]), set([(1,2), (1,4)])])
-          >>> for g in gs:
-          ...   g
-          set([(1, 2), (1, 4)])
-          set([(1, 2)])
-
-        Returns:
-          A generator.
-
-        Yields:
-          A graph.
-
-        See Also:
-          minimize(), maximize(), pop()
-        """
         i = _graphillion.setset.randomize(self)
         while (True):
             yield setset._conv_ret(i.next())
+
+    __iter__ = randomize
 
     def maximize(self, weights=None, default=1):
         return self._optimize(weights, default, _graphillion.setset.maximize)
@@ -170,8 +127,6 @@ class setset(_graphillion.setset):
         i = generator(self, ws)
         while (True):
             yield setset._conv_ret(i.next())
-
-    __iter__ = randomize
 
     @staticmethod
     def set_universe(universe):

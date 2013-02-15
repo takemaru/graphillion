@@ -129,13 +129,13 @@ class TestSetset(unittest.TestCase):
              setset([set(['1', '2', '4']), set(['1', '3']), set(['2']),
                      set(['2', '3']), set(['2', '3', '4']), set(['2', '4']),
                      set(['3']), set(['3', '4'])]))
-        self.assertTrue(isinstance(ss.complement(), setset))
-        self.assertEqual(
-            ss.complement(),
-            setset([set(['1', '2', '4']), set(['1', '3']), set(['2']),
-                    set(['2', '3']), set(['2', '3', '4']), set(['2', '4']),
-                    set(['3']), set(['3', '4'])]))
-
+#        self.assertTrue(isinstance(ss.complement(), setset))
+#        self.assertEqual(
+#            ss.complement(),
+#            setset([set(['1', '2', '4']), set(['1', '3']), set(['2']),
+#                    set(['2', '3']), set(['2', '3', '4']), set(['2', '4']),
+#                    set(['3']), set(['3', '4'])]))
+#
         self.assertTrue(isinstance(ss.smaller(3), setset))
         self.assertEqual(
             ss.smaller(3),
@@ -143,9 +143,9 @@ class TestSetset(unittest.TestCase):
                     set(['4'])]))
         self.assertTrue(isinstance(ss.larger(3), setset))
         self.assertEqual(ss.larger(3), setset([set(['1', '2', '3', '4'])]))
-        self.assertTrue(isinstance(ss.equal(3), setset))
-        self.assertEqual(ss.equal(3), setset([set(['1', '2', '3']),
-                                              set(['1', '3', '4'])]))
+        self.assertTrue(isinstance(ss.same_size(3), setset))
+        self.assertEqual(ss.same_size(3), setset([set(['1', '2', '3']),
+                                                  set(['1', '3', '4'])]))
 
         ss = setset([set(['1', '2']), set(['1', '4']), set(['2', '3']),
                      set(['3', '4'])])
@@ -363,14 +363,14 @@ class TestSetset(unittest.TestCase):
                     set(['1', '2', '3', '4']), set(['1', '3', '4']),
                     set(['1', '4'])]))
 
-        ss = setset(u).nonsubsets(setset(v))
+        ss = setset(u).non_subsets(setset(v))
         self.assertTrue(isinstance(ss, setset))
         self.assertEqual(
             ss,
             setset([set(['1', '2', '3']), set(['1', '2', '3', '4']),
                     set(['1', '3', '4'])]))
 
-        ss = setset(u).nonsupersets(setset(v))
+        ss = setset(u).non_supersets(setset(v))
         self.assertTrue(isinstance(ss, setset))
         self.assertEqual(ss, setset([set(), set(['1']), set(['4'])]))
 
