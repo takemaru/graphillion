@@ -1402,6 +1402,23 @@ static PySequenceMethods setset_as_sequence = {
   reinterpret_cast<objobjproc>(setset_contains), /* sq_contains */
 };
 
+PyDoc_STRVAR(setset_doc,
+"Hidden class to implement graphillion classes.\n\
+\n\
+A setset object stores a set of sets.  A set element must be a\n\
+positive number.\n\
+\n\
+The rest of setset document is written for GraphSet, a subclass of\n\
+setset.  If you'd like to check setset itself, replace GraphSet terms\n\
+with the corresponding setset terms as follows.\n\
+\n\
++-------------------+---------+\n\
+| GraphSet          | setset  |\n\
++-------------------+---------+\n\
+| graph or edge set | set     |\n\
+| edge              | element |\n\
++-------------------+---------+");
+
 PyTypeObject PySetset_Type = {
   PyObject_HEAD_INIT(NULL)
   0,                                  /*ob_size*/
@@ -1424,7 +1441,7 @@ PyTypeObject PySetset_Type = {
   0,                                  /*tp_setattro*/
   0,                                  /*tp_as_buffer*/
   Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
-  "Base class for set of sets",       /* tp_doc */
+  setset_doc,                         /* tp_doc */
   0,		                      /* tp_traverse */
   0,		                      /* tp_clear */
   reinterpret_cast<richcmpfunc>(setset_richcompare), /* tp_richcompare */
@@ -1460,6 +1477,9 @@ static PyMethodDef module_methods[] = {
   {NULL}  /* Sentinel */
 };
 
+PyDoc_STRVAR(graphillion_doc,
+"Hidden module to implement graphillion classes.");
+
 #ifndef PyMODINIT_FUNC  /* declarations for DLL import/export */
 #define PyMODINIT_FUNC void
 #endif
@@ -1467,8 +1487,7 @@ PyMODINIT_FUNC init_graphillion(void) {
   PyObject* m;
   if (PyType_Ready(&PySetset_Type) < 0) return;
   if (PyType_Ready(&PySetsetIter_Type) < 0) return;
-  m = Py_InitModule3("_graphillion", module_methods,
-                     "Hidden module to implement graphillion objects.");
+  m = Py_InitModule3("_graphillion", module_methods, graphillion_doc);
   if (m == NULL) return;
   Py_INCREF(&PySetset_Type);
   Py_INCREF(&PySetsetIter_Type);

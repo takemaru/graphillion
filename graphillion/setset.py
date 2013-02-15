@@ -23,7 +23,8 @@ import _graphillion
 class setset(_graphillion.setset):
     """Represents and manipulates a set of sets.
 
-    A setset object stores a set of sets.
+    A setset object stores a set of sets.  A set element can be any
+    hashable object like a number, a text string, and a tuple.
 
     Like Python set types, setset supports `set in setset`,
     `len(setset)`, and `for set in setset`.  It also supports all set
@@ -35,17 +36,6 @@ class setset(_graphillion.setset):
       pop(), clear(),
     - ==, !=, <=, <, >=, >, |, &, -, ^, |=, &=, -=, ^=.
 
-    This document is written for GraphSet, which is a subclass of
-    setset.  If you'd like to check setset itself, replace a GraphSet
-    term with the corresponding setset term as follows.
-
-    +-------------------+---------+
-    | GraphSet          | setset  |
-    +-------------------+---------+
-    | graph or edge set | set     |
-    | edge              | element |
-    +-------------------+---------+
-
     Examples:
       >>> from graphillion import setset
       >>> ss = setset([set([1]), set([1,2])])
@@ -55,6 +45,17 @@ class setset(_graphillion.setset):
       ...   s
       set([1])
       set([1, 2])
+
+    The rest of setset document is written but for GraphSet, a
+    subclass of setset.  If you'd like to check setset itself, replace
+    GraphSet terms with the corresponding setset terms as follows.
+
+    +-------------------+---------+
+    | GraphSet          | setset  |
+    +-------------------+---------+
+    | graph or edge set | set     |
+    | edge              | element |
+    +-------------------+---------+
     """
 
     def __init__(self, setset_or_constraints=None):
