@@ -101,9 +101,9 @@ class setset(_graphillion.setset):
         set = _graphillion.setset.pop(self)
         return setset._conv_ret(set)
 
-    def invert(self, elem):
+    def flip(self, elem):
         elem = setset._conv_elem(elem)
-        return _graphillion.setset.invert(self, elem)
+        return _graphillion.setset.flip(self, elem)
 
     def randomize(self):
         i = _graphillion.setset.randomize(self)

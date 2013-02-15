@@ -145,7 +145,7 @@ class setset {
   setset larger(size_t set_size) const;
   setset same_size(size_t set_size) const;
 
-  setset invert(elem_t e) const;
+  setset flip(elem_t e) const;
   setset join(const setset& ss) const;
   setset meet(const setset& ss) const;
   setset subsets(const setset& ss) const;

@@ -289,7 +289,7 @@ static PyObject* setset_copy(PySetsetObject* self) {
   RETURN_NEW_SETSET(self, *self->ss);
 }
 
-static PyObject* setset_complement(PySetsetObject* self) {
+static PyObject* setset_invert(PySetsetObject* self) {
   RETURN_NEW_SETSET(self, ~(*self->ss));
 }
 
@@ -587,10 +587,10 @@ static PyObject* setset_same_size(PySetsetObject* self, PyObject* io) {
   RETURN_NEW_SETSET(self, self->ss->same_size(set_size));
 }
 
-static PyObject* setset_invert(PySetsetObject* self, PyObject* eo) {
+static PyObject* setset_flip(PySetsetObject* self, PyObject* eo) {
   CHECK_OR_ERROR(eo, PyInt_Check, "int", NULL);
   int e = PyLong_AsLong(eo);
-  RETURN_NEW_SETSET(self, self->ss->invert(e));
+  RETURN_NEW_SETSET(self, self->ss->flip(e));
 }
 
 static PyObject* setset_join(PySetsetObject* self, PyObject* other) {
@@ -736,7 +736,7 @@ static PyMemberDef setset_members[] = {
 
 static PyMethodDef setset_methods[] = {
   {"copy", reinterpret_cast<PyCFunction>(setset_copy), METH_NOARGS, ""},
-  {"complement", reinterpret_cast<PyCFunction>(setset_complement), METH_NOARGS, ""},
+  {"invert", reinterpret_cast<PyCFunction>(setset_invert), METH_NOARGS, ""},
   {"union", reinterpret_cast<PyCFunction>(setset_union), METH_O, ""},
   {"update", reinterpret_cast<PyCFunction>(setset_update), METH_O, ""},
   {"intersection", reinterpret_cast<PyCFunction>(setset_intersection), METH_O, ""},
@@ -769,7 +769,7 @@ static PyMethodDef setset_methods[] = {
   {"smaller", reinterpret_cast<PyCFunction>(setset_smaller), METH_O, ""},
   {"larger", reinterpret_cast<PyCFunction>(setset_larger), METH_O, ""},
   {"same_size", reinterpret_cast<PyCFunction>(setset_same_size), METH_O, ""},
-  {"invert", reinterpret_cast<PyCFunction>(setset_invert), METH_O, ""},
+  {"flip", reinterpret_cast<PyCFunction>(setset_flip), METH_O, ""},
   {"join", reinterpret_cast<PyCFunction>(setset_join), METH_O, ""},
   {"meet", reinterpret_cast<PyCFunction>(setset_meet), METH_O, ""},
   {"subsets", reinterpret_cast<PyCFunction>(setset_subsets), METH_O, ""},
@@ -797,7 +797,7 @@ static PyNumberMethods setset_as_number = {
   0,                                  /*nb_positive*/
   0,                                  /*nb_absolute*/
   reinterpret_cast<inquiry>(setset_nonzero), /*nb_nonzero*/
-  reinterpret_cast<unaryfunc>(setset_complement), /*nb_invert*/
+  reinterpret_cast<unaryfunc>(setset_invert), /*nb_invert*/
   0,                                  /*nb_lshift*/
   0,                                  /*nb_rshift*/
   reinterpret_cast<binaryfunc>(setset_intersection), /*nb_and*/

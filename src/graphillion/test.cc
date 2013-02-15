@@ -230,7 +230,7 @@ class TestSetset {
     ss %= setset(v);
     assert(ss.zdd_ == e0 + e1 + e1*e3*e4 + e1*e4 + e4);
 
-    ss = setset(u).invert(1);
+    ss = setset(u).flip(1);
     assert(ss.zdd_ == e0 + e1 + e1*e4 + e2 + e2*e3 + e2*e3*e4 + e3*e4 + e4);
 
     v = V("{{1, 2}, {1, 4}, {2, 3}, {3, 4}}");

@@ -336,7 +336,7 @@ setset setset::same_size(size_t set_size) const {
   return setset(z);
 }
 
-setset setset::invert(elem_t e) const {
+setset setset::flip(elem_t e) const {
   return setset(this->zdd_.Change(e));
 }
 

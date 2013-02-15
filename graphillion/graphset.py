@@ -366,7 +366,7 @@ class GraphSet(setset):
         Returns:
           A new GraphSet object.
         """
-        return setset.complement(self)
+        return setset.invert(self)
 
     __or__ = union
     __and__ = intersection
@@ -697,7 +697,7 @@ class GraphSet(setset):
           KeyError: If given edges are not found in the universe.
 
         See Also:
-          remove(), discard(), invert()
+          remove(), discard(), flip()
         """
         graph_or_edge = GraphSet._conv_arg(graph_or_edge)
         return setset.add(self, graph_or_edge)
@@ -728,7 +728,7 @@ class GraphSet(setset):
             if the given graph is not stored in `self` GraphSet.
 
         See Also:
-          add(), discard(), invert(), pop()
+          add(), discard(), flip(), pop()
         """
         graph_or_edge = GraphSet._conv_arg(graph_or_edge)
         return setset.remove(self, graph_or_edge)
@@ -758,7 +758,7 @@ class GraphSet(setset):
           KeyError: If given edges are not found in the universe.
 
         See Also:
-          add(), remove(), invert(), pop()
+          add(), remove(), flip(), pop()
         """
         graph_or_edge = GraphSet._conv_arg(graph_or_edge)
         return setset.discard(self, graph_or_edge)
@@ -922,8 +922,8 @@ class GraphSet(setset):
         """
         return setset.same_size(self, size)
 
-    def invert(self, edge):
-        """Returns a new set of graphs by inverting a given edge.
+    def flip(self, edge):
+        """Returns a new set of graphs by flipping the state of a given edge.
 
         If a graph in `self` GraphSet includes the given edge, the
         edge is removed from the graph.  If a graph in `self` GraphSet
@@ -934,7 +934,7 @@ class GraphSet(setset):
 
         Examples:
           >>> gs = GraphSet([set([(1,2), (1,4)]), set([(2,3)])])
-          >>> gs = gs.invert((1,2))
+          >>> gs = gs.flip((1,2))
           >>> gs
           GraphSet([set([(1,4)]), set([(1,2), (2,3)])])
 
@@ -951,7 +951,7 @@ class GraphSet(setset):
           add(), remove(), discard()
         """
         edge = GraphSet._conv_edge(edge)
-        return setset.invert(self, edge)
+        return setset.flip(self, edge)
 
     def join(self, other):
         """Returns a new GraphSet of join between `self` and `other`.\n\

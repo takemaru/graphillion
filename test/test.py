@@ -129,13 +129,7 @@ class TestSetset(unittest.TestCase):
              setset([set(['1', '2', '4']), set(['1', '3']), set(['2']),
                      set(['2', '3']), set(['2', '3', '4']), set(['2', '4']),
                      set(['3']), set(['3', '4'])]))
-#        self.assertTrue(isinstance(ss.complement(), setset))
-#        self.assertEqual(
-#            ss.complement(),
-#            setset([set(['1', '2', '4']), set(['1', '3']), set(['2']),
-#                    set(['2', '3']), set(['2', '3', '4']), set(['2', '4']),
-#                    set(['3']), set(['3', '4'])]))
-#
+
         self.assertTrue(isinstance(ss.smaller(3), setset))
         self.assertEqual(
             ss.smaller(3),
@@ -324,7 +318,7 @@ class TestSetset(unittest.TestCase):
         self.assertEqual(ss, setset([set(), set(['1']), set(['1', '3', '4']),
                                      set(['1', '4']), set(['4'])]))
 
-        ss = setset(u).invert('1')
+        ss = setset(u).flip('1')
         self.assertEqual(ss, setset([set(), set(['1']), set(['1', '4']), set(['2']),
                                      set(['2', '3']), set(['2', '3', '4']),
                                      set(['3', '4']), set(['4'])]))
@@ -592,7 +586,7 @@ class TestGraphSet(unittest.TestCase):
 
     def test_binary_operators(self):
         gs = GraphSet([set([(1, 2)]), set([(2, 4), (3, 4)])])
-        gs = gs.invert((4, 2))
+        gs = gs.flip((4, 2))
         self.assertEqual(gs, GraphSet([set([(1, 2), (2, 4)]), set([(3, 4)])]))
 
     def test_iterators(self):
