@@ -222,51 +222,51 @@ class GraphSet(object):
         """
         return GraphSet(self.ss.symmetric_difference(other.ss))
 
-    def quotient(self, other):
-        """Returns a new GraphSet of quotient.\n\
+#    def quotient(self, other):
+#        """Returns a new GraphSet of quotient.\n\
+#
+#        The quotient is defined by,\n\
+#          gs1 / gs2 = {a | a \\cup b \\in gs1 and a \\cap b = \\empty, \\forall b \\in gs2}.\n\
+#        D. Knuth, Exercise 204, The art of computer programming, Sect.7.1.4.\n\
+#
+#        The `self` is not changed.
+#
+#        Examples:\n\
+#          >>> gs = GraphSet([set([(1,2), (1,4)]), set([(2,3), (2,5)])])\n\
+#          >>> gs = gs / GraphSet([set([(1,4)])])\n\
+#          >>> gs\n\
+#          GraphSet([set([(1, 2)])])\n\
+#
+#        Returns:\n\
+#          A new GraphSet object.\n\
+#
+#        See Also:\n\
+#          remainder(), quotient_update()
+#        """
+#        return GraphSet(self.ss.quotient(other.ss))
 
-        The quotient is defined by,\n\
-          gs1 / gs2 = {a | a \\cup b \\in gs1 and a \\cap b = \\empty, \\forall b \\in gs2}.\n\
-        D. Knuth, Exercise 204, The art of computer programming, Sect.7.1.4.\n\
-
-        The `self` is not changed.
-
-        Examples:\n\
-          >>> gs = GraphSet([set([(1,2), (1,4)]), set([(2,3), (2,5)])])\n\
-          >>> gs = gs / GraphSet([set([(1,4)])])\n\
-          >>> gs\n\
-          GraphSet([set([(1, 2)])])\n\
-
-        Returns:\n\
-          A new GraphSet object.\n\
-
-        See Also:\n\
-          remainder(), quotient_update()
-        """
-        return GraphSet(self.ss.quotient(other.ss))
-
-    def remainder(self, other):
-        """Returns a new GraphSet of remainder.\n\
-
-        The remainder is defined by,\n\
-          gs1 % gs2 = gs1 - (gs1 \\sqcup (gs1 / gs2)).\n\
-        D. Knuth, Exercise 204, The art of computer programming, Sect.7.1.4.\n\
-
-        The `self` is not changed.
-
-        Examples:\n\
-          >>> gs = GraphSet([set([(1,2), (1,4)]), set([(2,3), (2,5)])])\n\
-          >>> gs = gs % GraphSet([set([(1,4)])])\n\
-          >>> gs\n\
-          GraphSet([set([(2,3), (2,5)])])\n\
-
-        Returns:\n\
-          A new GraphSet object.\n\
-
-        See Also:\n\
-          quotient(), remainder_update()
-        """
-        return GraphSet(self.ss.remainder(other.ss))
+#    def remainder(self, other):
+#        """Returns a new GraphSet of remainder.\n\
+#
+#        The remainder is defined by,\n\
+#          gs1 % gs2 = gs1 - (gs1 \\sqcup (gs1 / gs2)).\n\
+#        D. Knuth, Exercise 204, The art of computer programming, Sect.7.1.4.\n\
+#
+#        The `self` is not changed.
+#
+#        Examples:\n\
+#          >>> gs = GraphSet([set([(1,2), (1,4)]), set([(2,3), (2,5)])])\n\
+#          >>> gs = gs % GraphSet([set([(1,4)])])\n\
+#          >>> gs\n\
+#          GraphSet([set([(2,3), (2,5)])])\n\
+#
+#        Returns:\n\
+#          A new GraphSet object.\n\
+#
+#        See Also:\n\
+#          quotient(), remainder_update()
+#        """
+#        return GraphSet(self.ss.remainder(other.ss))
 
     def update(self, other):
         """Updates `self`, adding graphs from all others.
@@ -344,41 +344,41 @@ class GraphSet(object):
         self.ss.symmetric_difference_update(other.ss)
         return self
 
-    def quotient_update(self, other):
-        """Updates `self` by the quotient.\n\
+#    def quotient_update(self, other):
+#        """Updates `self` by the quotient.\n\
+#
+#        Examples:\n\
+#          >>> gs = GraphSet([set([(1,2), (1,4)]), set([(2,3), (2,5)])])\n\
+#          >>> gs /= GraphSet([set([(1,4)])])\n\
+#          >>> gs\n\
+#          GraphSet([set([(1, 2)])])\n\
+#
+#        Returns:\n\
+#          A new GraphSet object.\n\
+#
+#        See Also:\n\
+#          quotient()
+#        """
+#        self.ss.quotient_update(other.ss)
+#        return self
 
-        Examples:\n\
-          >>> gs = GraphSet([set([(1,2), (1,4)]), set([(2,3), (2,5)])])\n\
-          >>> gs /= GraphSet([set([(1,4)])])\n\
-          >>> gs\n\
-          GraphSet([set([(1, 2)])])\n\
-
-        Returns:\n\
-          A new GraphSet object.\n\
-
-        See Also:\n\
-          quotient()
-        """
-        self.ss.quotient_update(other.ss)
-        return self
-
-    def remainder_update(self, other):
-        """Updates `self` by the remainder.\n\
-
-        Examples:\n\
-          >>> gs = GraphSet([set([(1,2), (1,4)]), set([(2,3), (2,5)])])\n\
-          >>> gs %= GraphSet([set([(1,4)])])\n\
-          >>> gs\n\
-          GraphSet([set([(2,3), (2,5)])])\n\
-
-        Returns:\n\
-          A new GraphSet object.\n\
-
-        See Also:\n\
-          remainder()
-        """
-        self.ss.remainder_update(other.ss)
-        return self
+#    def remainder_update(self, other):
+#        """Updates `self` by the remainder.\n\
+#
+#        Examples:\n\
+#          >>> gs = GraphSet([set([(1,2), (1,4)]), set([(2,3), (2,5)])])\n\
+#          >>> gs %= GraphSet([set([(1,4)])])\n\
+#          >>> gs\n\
+#          GraphSet([set([(2,3), (2,5)])])\n\
+#
+#        Returns:\n\
+#          A new GraphSet object.\n\
+#
+#        See Also:\n\
+#          remainder()
+#        """
+#        self.ss.remainder_update(other.ss)
+#        return self
 
     def __invert__(self):
         """Returns a new GraphSet with graphs not stored in `self`.
@@ -399,15 +399,15 @@ class GraphSet(object):
     __and__ = intersection
     __sub__ = difference
     __xor__ = symmetric_difference
-    __div__ = quotient
-    __mod__ = remainder
+#    __div__ = quotient
+#    __mod__ = remainder
 
     __ior__ = update
     __iand__ = intersection_update
     __isub__ = difference_update
     __ixor__ = symmetric_difference_update
-    __idiv__ = quotient_update
-    __imod__ = remainder_update
+#    __idiv__ = quotient_update
+#    __imod__ = remainder_update
 
     def isdisjoint(self, other):
         """Returns True if `self` has no graphs in common with `other`.\n\
@@ -728,7 +728,7 @@ class GraphSet(object):
           KeyError: If given edges are not found in the universe.
 
         See Also:
-          remove(), discard(), flip()
+          remove(), discard()
         """
         graph_or_edge = GraphSet._conv_arg(graph_or_edge)
         return self.ss.add(graph_or_edge)
@@ -757,7 +757,7 @@ class GraphSet(object):
             if the given graph is not stored in `self`.
 
         See Also:
-          add(), discard(), flip(), pop()
+          add(), discard(), pop()
         """
         graph_or_edge = GraphSet._conv_arg(graph_or_edge)
         return self.ss.remove(graph_or_edge)
@@ -785,7 +785,7 @@ class GraphSet(object):
           KeyError: If given edges are not found in the universe.
 
         See Also:
-          add(), remove(), flip(), pop()
+          add(), remove(), pop()
         """
         graph_or_edge = GraphSet._conv_arg(graph_or_edge)
         return self.ss.discard(graph_or_edge)
@@ -986,9 +986,6 @@ class GraphSet(object):
 
         Raises:
           KeyError: If a given edge is not found in the universe.
-
-        See Also:
-          add(), remove(), discard()
         """
         edge = GraphSet._conv_edge(edge)
         return GraphSet(self.ss.flip(edge))
@@ -1010,53 +1007,53 @@ class GraphSet(object):
         """
         return GraphSet(self.ss.flip())
 
-    def join(self, other):
-        """Returns a new GraphSet of join between `self` and `other`.\n\
+#    def join(self, other):
+#        """Returns a new GraphSet of join between `self` and `other`.\n\
+#
+#        The join operation is defined by,\n\
+#          gs1 \\sqcup gs2 = {a \\cup b | a \\in gs1 and b \\in gs2}.\n\
+#        D. Knuth, Exercise 203, The art of computer programming, Sect.7.1.4.\n\
+#
+#        The `self` is not changed.
+#
+#        Examples:\n\
+#          >>> gs1 = GraphSet([set([(1,2)]), set([(1,2), (1,4)])])\n\
+#          >>> gs2 = GraphSet([set([(2,3)])])\n\
+#          >>> gs = gs1.join(gs2)\n\
+#          >>> gs\n\
+#          GraphSet([set([(1, 2), (2, 3)]), set([(1, 2), (1, 4), (2, 3)])])\n\
+#
+#        Returns:\n\
+#          A new GraphSet object.\n\
+#
+#        See Also:\n\
+#          meet()
+#        """
+#        return GraphSet(self.ss.join(other.ss))
 
-        The join operation is defined by,\n\
-          gs1 \\sqcup gs2 = {a \\cup b | a \\in gs1 and b \\in gs2}.\n\
-        D. Knuth, Exercise 203, The art of computer programming, Sect.7.1.4.\n\
-
-        The `self` is not changed.
-
-        Examples:\n\
-          >>> gs1 = GraphSet([set([(1,2)]), set([(1,2), (1,4)])])\n\
-          >>> gs2 = GraphSet([set([(2,3)])])\n\
-          >>> gs = gs1.join(gs2)\n\
-          >>> gs\n\
-          GraphSet([set([(1, 2), (2, 3)]), set([(1, 2), (1, 4), (2, 3)])])\n\
-
-        Returns:\n\
-          A new GraphSet object.\n\
-
-        See Also:\n\
-          meet()
-        """
-        return GraphSet(self.ss.join(other.ss))
-
-    def meet(self, other):
-        """Returns a new GraphSet of meet between `self` and `other`.\n\
-
-        The meet operation is defined by,\n\
-          gs1 \\sqcap gs2 = {a \\cap b | a \\in gs1 and b \\in gs2}.\n\
-        D. Knuth, Exercise 203, The art of computer programming, Sect.7.1.4.\n\
-
-        The `self` is not changed.
-
-        Examples:\n\
-          >>> gs1 = GraphSet([set([(1,2), (1,4)]), set([(1,2), (2,3)])])\n\
-          >>> gs2 = GraphSet([set([(1,4), (2,3)])])\n\
-          >>> gs = gs1.meet(gs2)\n\
-          >>> gs\n\
-          GraphSet([set([(1, 4)]), set([(2, 3)])])\n\
-
-        Returns:\n\
-          A new GraphSet object.\n\
-
-        See Also:\n\
-          join()
-        """
-        return GraphSet(self.ss.meet(other.ss))
+#    def meet(self, other):
+#        """Returns a new GraphSet of meet between `self` and `other`.\n\
+#
+#        The meet operation is defined by,\n\
+#          gs1 \\sqcap gs2 = {a \\cap b | a \\in gs1 and b \\in gs2}.\n\
+#        D. Knuth, Exercise 203, The art of computer programming, Sect.7.1.4.\n\
+#
+#        The `self` is not changed.
+#
+#        Examples:\n\
+#          >>> gs1 = GraphSet([set([(1,2), (1,4)]), set([(1,2), (2,3)])])\n\
+#          >>> gs2 = GraphSet([set([(1,4), (2,3)])])\n\
+#          >>> gs = gs1.meet(gs2)\n\
+#          >>> gs\n\
+#          GraphSet([set([(1, 4)]), set([(2, 3)])])\n\
+#
+#        Returns:\n\
+#          A new GraphSet object.\n\
+#
+#        See Also:\n\
+#          join()
+#        """
+#        return GraphSet(self.ss.meet(other.ss))
 
     def subgraphs(self, other):
         """Returns a new GraphSet with subgraphs of a graph in `other`.\n\
