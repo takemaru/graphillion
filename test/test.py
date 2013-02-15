@@ -323,6 +323,12 @@ class TestSetset(unittest.TestCase):
                                      set(['2', '3']), set(['2', '3', '4']),
                                      set(['3', '4']), set(['4'])]))
 
+        ss = setset(u).flip()
+        self.assertEqual(ss, setset([set(), set(['1', '2', '3']),
+                                     set(['1', '2', '3', '4']), set(['2']),
+                                     set(['2', '3']), set(['2', '3', '4']),
+                                     set(['3', '4']), set(['4'])]))
+
         v = [set(['1', '2']), set(['1', '4']), set(['2', '3']), set(['3', '4'])]
         ss = setset(u).join(setset(v))
         self.assertTrue(isinstance(ss, setset))
@@ -588,6 +594,11 @@ class TestGraphSet(unittest.TestCase):
         gs = GraphSet([set([(1, 2)]), set([(2, 4), (3, 4)])])
         gs = gs.flip((4, 2))
         self.assertEqual(gs, GraphSet([set([(1, 2), (2, 4)]), set([(3, 4)])]))
+
+        gs = GraphSet([set([(1, 2)]), set([(2, 4), (3, 4)])])
+        gs = gs.complement()
+        self.assertEqual(gs, GraphSet([set([(1, 3), (2, 4), (3, 4)]),
+                                       set([(1, 2), (1, 3)])]))
 
     def test_iterators(self):
         gs = GraphSet({})

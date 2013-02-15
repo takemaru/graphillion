@@ -340,6 +340,13 @@ setset setset::flip(elem_t e) const {
   return setset(this->zdd_.Change(e));
 }
 
+setset setset::flip() const {
+  zdd_t z = this->zdd_;
+  for (elem_t e = 1; e <= graphillion::num_elems(); ++e)
+    z = z.Change(e);
+  return setset(z);
+}
+
 setset setset::join(const setset& ss) const {
   return setset(graphillion::join(this->zdd_, ss.zdd_));
 }

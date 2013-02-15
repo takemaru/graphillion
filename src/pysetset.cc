@@ -587,10 +587,17 @@ static PyObject* setset_same_size(PySetsetObject* self, PyObject* io) {
   RETURN_NEW_SETSET(self, self->ss->same_size(set_size));
 }
 
-static PyObject* setset_flip(PySetsetObject* self, PyObject* eo) {
-  CHECK_OR_ERROR(eo, PyInt_Check, "int", NULL);
-  int e = PyLong_AsLong(eo);
-  RETURN_NEW_SETSET(self, self->ss->flip(e));
+static PyObject* setset_flip(PySetsetObject* self, PyObject* args) {
+  PyObject* obj = NULL;
+  if (!PyArg_ParseTuple(args, "|O", &obj)) return NULL;
+  if (obj == NULL || obj == Py_None) {
+    RETURN_NEW_SETSET(self, self->ss->flip());
+  } else if (PyInt_Check(obj)) {
+    int e = PyLong_AsLong(obj);
+    RETURN_NEW_SETSET(self, self->ss->flip(e));
+  }
+  PyErr_SetString(PyExc_TypeError, "not int");
+  return NULL;
 }
 
 static PyObject* setset_join(PySetsetObject* self, PyObject* other) {
@@ -769,7 +776,7 @@ static PyMethodDef setset_methods[] = {
   {"smaller", reinterpret_cast<PyCFunction>(setset_smaller), METH_O, ""},
   {"larger", reinterpret_cast<PyCFunction>(setset_larger), METH_O, ""},
   {"same_size", reinterpret_cast<PyCFunction>(setset_same_size), METH_O, ""},
-  {"flip", reinterpret_cast<PyCFunction>(setset_flip), METH_O, ""},
+  {"flip", reinterpret_cast<PyCFunction>(setset_flip), METH_VARARGS, ""},
   {"join", reinterpret_cast<PyCFunction>(setset_join), METH_O, ""},
   {"meet", reinterpret_cast<PyCFunction>(setset_meet), METH_O, ""},
   {"subsets", reinterpret_cast<PyCFunction>(setset_subsets), METH_O, ""},

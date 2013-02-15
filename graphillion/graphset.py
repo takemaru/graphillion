@@ -353,9 +353,6 @@ class GraphSet(setset):
     def __invert__(self):
         """Returns a new GraphSet with graphs not stored in `self`.
 
-        A complement set here does not mean a complement graph.  It is
-        defined over a set of edge sets, as shown in the example.
-
         Examples:
           >>> GraphSet.set_universe([(1,2), (1,4)])
           >>> gs = GraphSet([set([(1,2)])])
@@ -952,6 +949,21 @@ class GraphSet(setset):
         """
         edge = GraphSet._conv_edge(edge)
         return setset.flip(self, edge)
+
+    def complement(self):
+        """Returns a new GraphSet with complement graphs of `self`.
+
+        Examples:
+          >>> GraphSet.set_universe([(1,2), (1,4)])
+          >>> gs = GraphSet([set([(1,2)]), set([(1,2), (1,4)])])
+          >>> gs = ~gs
+          >>> gs
+          setset([set([]), set([(1, 4)])])
+
+        Returns:
+          A new GraphSet object.
+        """
+        return setset.flip(self)
 
     def join(self, other):
         """Returns a new GraphSet of join between `self` and `other`.\n\

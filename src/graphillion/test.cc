@@ -160,12 +160,12 @@ class TestSetset {
 
   void unary_operators() {
     setset::num_elems(4);
-    assert(setset::num_elems() == 4);
 
     setset ss(V("{{}, {1}, {1, 2}, {1, 2, 3}, {1, 2, 3, 4}, {1, 3, 4}, {1, 4},"
                 "{4}}"));
     assert((~ss).zdd_ == e1*e2*e4 + e1*e3 + e2 + e2*e3 + e2*e3*e4 + e2*e4 + e3
            + e3*e4);
+
     assert(ss.smaller(3).zdd_ == e0 + e1 + e1*e2 + e1*e4 + e4);
     assert(ss.larger(3).zdd_ == e1*e2*e3*e4);
     assert(ss.same_size(3).zdd_ == e1*e2*e3 + e1*e3*e4);
@@ -180,6 +180,8 @@ class TestSetset {
   }
 
   void binary_operators() {
+    setset::num_elems(4);
+
     vector<set<int> > u = V("{{}, {1}, {1, 2}, {1, 2, 3}, {1, 2, 3, 4}, {1, 3, 4},"
                             "{1, 4}, {4}}");
     vector<set<int> > v = V("{{1, 2}, {1, 4}, {2, 3}, {3, 4}}");
@@ -232,6 +234,10 @@ class TestSetset {
 
     ss = setset(u).flip(1);
     assert(ss.zdd_ == e0 + e1 + e1*e4 + e2 + e2*e3 + e2*e3*e4 + e3*e4 + e4);
+
+    ss = setset(u).flip();
+    assert(ss.zdd_ == e0 + e1*e2*e3 + e1*e2*e3*e4 + e2 + e2*e3 + e2*e3*e4 + e3*e4
+           + e4);
 
     v = V("{{1, 2}, {1, 4}, {2, 3}, {3, 4}}");
     ss = setset(u).join(setset(v));

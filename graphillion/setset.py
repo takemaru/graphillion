@@ -101,8 +101,9 @@ class setset(_graphillion.setset):
         set = _graphillion.setset.pop(self)
         return setset._conv_ret(set)
 
-    def flip(self, elem):
-        elem = setset._conv_elem(elem)
+    def flip(self, elem=None):
+        if elem is not None:
+            elem = setset._conv_elem(elem)
         return _graphillion.setset.flip(self, elem)
 
     def randomize(self):
