@@ -456,6 +456,9 @@ class TestSetset(unittest.TestCase):
             if i > 3: break
             i += 1
 
+         # it takes more than 10 sec.
+#        self.assertRaises(RuntimeError, setset.set_universe, xrange(65536))
+
 
 if __name__ == '__main__':
     unittest.main()

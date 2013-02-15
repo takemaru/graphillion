@@ -399,6 +399,10 @@ void setset::_enum(FILE* fp,
   graphillion::_enum(this->zdd_, fp, outer_braces, inner_braces);
 }
 
+elem_t setset::elem_limit() {
+  return graphillion::elem_limit();
+}
+
 elem_t setset::num_elems() {
   return graphillion::num_elems();
 }

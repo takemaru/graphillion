@@ -52,7 +52,7 @@ class setset(_graphillion.setset):
         _graphillion.setset.__init__(self, setset_or_constraints)
 
     def __repr__(self):
-        n = _graphillion.num_elems()
+        n = _graphillion._num_elems()
         w = {}
         for i in range(1, n + 1):
             e = setset._int2obj[i]
@@ -120,7 +120,7 @@ class setset(_graphillion.setset):
         return self._optimize(weights, default, _graphillion.setset.maximize)
 
     def _optimize(self, weights, default, generator):
-        ws = [default] * (_graphillion.num_elems() + 1)
+        ws = [default] * (_graphillion._num_elems() + 1)
         if weights:
             for e, w in weights.iteritems():
                 i = setset._obj2int[e]
@@ -131,7 +131,7 @@ class setset(_graphillion.setset):
 
     @staticmethod
     def set_universe(universe):
-        _graphillion.num_elems(0)
+        _graphillion._num_elems(0)
         setset._obj2int = {}
         setset._int2obj = [None]
         for e in universe:
@@ -145,7 +145,7 @@ class setset(_graphillion.setset):
 
     @staticmethod
     def _check_universe():
-        assert len(setset._int2obj) == _graphillion.num_elems() + 1
+        assert len(setset._int2obj) == _graphillion._num_elems() + 1
         for e, i in setset._obj2int.iteritems():
             assert e == setset._int2obj[i]
         for i in xrange(1, len(setset._int2obj)):
@@ -155,11 +155,13 @@ class setset(_graphillion.setset):
     @staticmethod
     def _add_elem(elem):
         assert elem not in setset._obj2int
+        if len(setset._obj2int) >= _graphillion._elem_limit():
+            raise RuntimeError, 'too many elements used'
         i = len(setset._int2obj)
         _graphillion.setset(set([i]))
         setset._obj2int[elem] = i
         setset._int2obj.append(elem)
-        assert len(setset._int2obj) == _graphillion.num_elems() + 1
+        assert len(setset._int2obj) == _graphillion._num_elems() + 1
         assert setset._int2obj[i] == elem
         assert setset._obj2int[elem] == i
 

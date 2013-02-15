@@ -46,6 +46,7 @@ typedef long double intx_t;
 #endif
 
 void init();
+elem_t elem_limit();
 void new_elems(elem_t max_elem);
 elem_t num_elems();
 void num_elems(elem_t num_elems);

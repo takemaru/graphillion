@@ -888,6 +888,10 @@ PyTypeObject PySetset_Type = {
   setset_new,                         /* tp_new */
 };
 
+static PyObject* setset_elem_limit(PyObject*) {
+  return PyInt_FromLong(setset::elem_limit());
+}
+
 static PyObject* setset_num_elems(PyObject*, PyObject* args) {
   PyObject* obj = NULL;
   if (!PyArg_ParseTuple(args, "|O", &obj)) return NULL;
@@ -900,7 +904,8 @@ static PyObject* setset_num_elems(PyObject*, PyObject* args) {
 }
 
 static PyMethodDef module_methods[] = {
-  {"num_elems", setset_num_elems, METH_VARARGS, ""},
+  {"_elem_limit", reinterpret_cast<PyCFunction>(setset_elem_limit), METH_NOARGS, ""},
+  {"_num_elems", setset_num_elems, METH_VARARGS, ""},
   {NULL}  /* Sentinel */
 };
 
