@@ -17,9 +17,9 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import unittest
 from graphillion import setset, GraphSet
-
+import tempfile
+import unittest
 
 class TestSetset(unittest.TestCase):
 
@@ -520,9 +520,11 @@ class TestSetset(unittest.TestCase):
 #        ss = setset(st)
 #        self.assertEqual(ss, setset(v))
 
-        ss.dump(open('/tmp/graphillion_', 'w'))
+        f = tempfile.TemporaryFile()
+        ss.dump(f)
         ss = setset()
-        ss.load(open('/tmp/graphillion_'))
+        f.seek(0)
+        ss.load(f)
         self.assertEqual(ss, setset(v))
 
     def test_large(self):
