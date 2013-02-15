@@ -42,6 +42,25 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #define e4 (graphillion::single(4))
 #define e5 (graphillion::single(5))
 
+#define s0 (e0)
+#define s1 (e1)
+#define s2 (e2)
+#define s3 (e3)
+#define s4 (e4)
+#define s12 (e1*e2)
+#define s13 (e1*e3)
+#define s14 (e1*e4)
+#define s23 (e2*e3)
+#define s24 (e2*e4)
+#define s34 (e3*e4)
+#define s123 (e1*e2*e3)
+#define s124 (e1*e2*e4)
+#define s134 (e1*e3*e4)
+#define s234 (e2*e3*e4)
+#define s1234 (e1*e2*e3*e4)
+
+#define s245 (e2*e4*e5)
+
 namespace graphillion {
 
 using namespace std;
@@ -96,13 +115,13 @@ class TestSetset {
 
     map<string, vector<int> > m;
     setset ss(m);
-    assert(ss.zdd_ == e0 + e1 + e1*e2 + e2);
+    assert(ss.zdd_ == s0 + s1 + s12 + s2);
 
     setset::num_elems(1);
     assert(setset::num_elems() == 1);
 
     ss = setset(m);
-    assert(ss.zdd_ == e0 + e1);
+    assert(ss.zdd_ == s0 + s1);
   }
 
   void constructors() {
@@ -111,168 +130,161 @@ class TestSetset {
 
     set<int> s = S("{}");
     ss = setset(s);
-    assert(ss.zdd_ == e0);
+    assert(ss.zdd_ == s0);
 
-    s = S("{1, 2}");
+    s = S("{1,2}");
     ss = setset(s);
-    assert(ss.zdd_ == e1*e2);
+    assert(ss.zdd_ == s12);
 
-    vector<set<int> > v = V("{{}, {1, 2}, {1, 3}}");
+    vector<set<int> > v = V("{{}, {1,2}, {1,3}}");
     ss = setset(v);
-    assert(ss.zdd_ == e0 + e1*e2 + e1*e3);
+    assert(ss.zdd_ == s0 + s12 + s13);
 
     map<string, vector<int> > m;
     m["include"].push_back(1);
     m["include"].push_back(2);
     m["exclude"].push_back(4);
     ss = setset(m);
-    assert(ss.zdd_ == e1*e2 + e1*e2*e3);
+    assert(ss.zdd_ == s12 + s123);
 
     // copy constructor
     ss = setset(setset(V("{{1}, {2}}")));
-    assert(ss.zdd_ == e1 + e2);
+    assert(ss.zdd_ == s1 + s2);
   }
 
   void comparison() {
-    setset ss(V("{{1, 2}}"));
-    assert(ss == setset(V("{{1, 2}}")));
-    assert(ss != setset(V("{{1, 3}}")));
+    setset ss(V("{{1,2}}"));
+    assert(ss == setset(V("{{1,2}}")));
+    assert(ss != setset(V("{{1,3}}")));
 
-    vector<set<int> > v = V("{{}, {1, 2}, {1, 3}}");
+    vector<set<int> > v = V("{{}, {1,2}, {1,3}}");
     ss = setset(v);
-    assert(ss.is_disjoint(setset(V("{{1}, {1, 2, 3}}"))));
-    assert(!ss.is_disjoint(setset(V("{{1}, {1, 2}}"))));
+    assert(ss.is_disjoint(setset(V("{{1}, {1,2,3}}"))));
+    assert(!ss.is_disjoint(setset(V("{{1}, {1,2}}"))));
 
     assert(ss.is_subset(setset(v)));
-    assert(!ss.is_subset(setset(V("{{}, {1, 2}}"))));
+    assert(!ss.is_subset(setset(V("{{}, {1,2}}"))));
     assert(ss <= setset(v));
-    assert(!(ss <= setset(V("{{}, {1, 2}}"))));
-    assert(ss < setset(V("{{}, {1}, {1, 2}, {1, 3}}")));
+    assert(!(ss <= setset(V("{{}, {1,2}}"))));
+    assert(ss < setset(V("{{}, {1}, {1,2}, {1,3}}")));
     assert(!(ss < setset(v)));
 
     assert(ss.is_superset(setset(v)));
-    assert(!ss.is_superset(setset(V("{{1}, {1, 2}}"))));
+    assert(!ss.is_superset(setset(V("{{1}, {1,2}}"))));
     assert(ss >= setset(v));
-    assert(!(ss >= setset(V("{{1}, {1, 2}}"))));
-    assert(ss > setset(V("{{}, {1, 2}}")));
+    assert(!(ss >= setset(V("{{1}, {1,2}}"))));
+    assert(ss > setset(V("{{}, {1,2}}")));
     assert(!(ss > setset(v)));
   }
 
   void unary_operators() {
     setset::num_elems(4);
 
-    setset ss(V("{{}, {1}, {1, 2}, {1, 2, 3}, {1, 2, 3, 4}, {1, 3, 4}, {1, 4},"
-                "{4}}"));
-    assert((~ss).zdd_ == e1*e2*e4 + e1*e3 + e2 + e2*e3 + e2*e3*e4 + e2*e4 + e3
-           + e3*e4);
+    setset ss(V("{{}, {1}, {1,2}, {1,2,3}, {1,2,3,4}, {1,3,4}, {1,4}, {4}}"));
+    assert((~ss).zdd_ == s124 + s13 + s2 + s23 + s234 + s24 + s3 + s34);
 
-    assert(ss.smaller(3).zdd_ == e0 + e1 + e1*e2 + e1*e4 + e4);
-    assert(ss.larger(3).zdd_ == e1*e2*e3*e4);
-    assert(ss.same_size(3).zdd_ == e1*e2*e3 + e1*e3*e4);
+    assert(ss.smaller(3).zdd_ == s0 + s1 + s12 + s14 + s4);
+    assert(ss.larger(3).zdd_ == s1234);
+    assert(ss.same_size(3).zdd_ == s123 + s134);
 
-    ss = setset(V("{{1, 2}, {1, 4}, {2, 3}, {3, 4}}"));
-    assert(ss.hitting().zdd_ == e1*e2*e3 + e1*e2*e3*e4 + e1*e2*e4 + e1*e3
-           + e1*e3*e4 + e2*e3*e4 + e2*e4);
+    ss = setset(V("{{1,2}, {1,4}, {2,3}, {3,4}}"));
+    assert(ss.hitting().zdd_ == s123 + s1234 + s124 + s13 + s134 + s234 + s24);
 
-    ss = setset(V("{{1, 2}, {1, 2, 3}, {1, 2, 3, 4}, {2, 4, 5}}"));
-    assert(ss.minimal().zdd_ == e1*e2 + e2*e4*e5);
-    assert(ss.maximal().zdd_ == e1*e2*e3*e4 + e2*e4*e5);
+    ss = setset(V("{{1,2}, {1,2,3}, {1,2,3,4}, {2,4,5}}"));
+    assert(ss.minimal().zdd_ == s12 + s245);
+    assert(ss.maximal().zdd_ == s1234 + s245);
   }
 
   void binary_operators() {
     setset::num_elems(4);
 
-    vector<set<int> > u = V("{{}, {1}, {1, 2}, {1, 2, 3}, {1, 2, 3, 4}, {1, 3, 4},"
-                            "{1, 4}, {4}}");
-    vector<set<int> > v = V("{{1, 2}, {1, 4}, {2, 3}, {3, 4}}");
+    vector<set<int> > u
+        = V("{{}, {1}, {1,2}, {1,2,3}, {1,2,3,4}, {1,3,4}, {1,4}, {4}}");
+    vector<set<int> > v = V("{{1,2}, {1,4}, {2,3}, {3,4}}");
     setset ss = setset(u) | setset(v);
-    assert(ss.zdd_ == e0 + e1 + e1*e2 + e1*e2*e3 + e1*e2*e3*e4 + e1*e3*e4
-           + e1*e4 + e2*e3 + e3*e4 + e4);
+    assert(ss.zdd_ == s0 + s1 + s12 + s123 + s1234 + s134 + s14 + s23 + s34
+           + s4);
 
     ss = setset(u);
     ss |= setset(v);
-    assert(ss.zdd_ == e0 + e1 + e1*e2 + e1*e2*e3 + e1*e2*e3*e4 + e1*e3*e4
-           + e1*e4 + e2*e3 + e3*e4 + e4);
+    assert(ss.zdd_ == s0 + s1 + s12 + s123 + s1234 + s134 + s14 + s23 + s34
+           + s4);
 
     ss = setset(u) & setset(v);
-    assert(ss.zdd_ == e1*e2 + e1*e4);
+    assert(ss.zdd_ == s12 + s14);
 
     ss = setset(u);
     ss &= setset(v);
-    assert(ss.zdd_ == e1*e2 + e1*e4);
+    assert(ss.zdd_ == s12 + s14);
 
     ss = setset(u) - setset(v);
-    assert(ss.zdd_ == e0 + e1 + e1*e2*e3 + e1*e2*e3*e4 + e1*e3*e4 + e4);
+    assert(ss.zdd_ == s0 + s1 + s123 + s1234 + s134 + s4);
 
     ss = setset(u);
     ss -= setset(v);
-    assert(ss.zdd_ == e0 + e1 + e1*e2*e3 + e1*e2*e3*e4 + e1*e3*e4 + e4);
+    assert(ss.zdd_ == s0 + s1 + s123 + s1234 + s134 + s4);
 
     ss = setset(u) ^ setset(v);
-    assert(ss.zdd_ == e0 + e1 + e1*e2*e3 + e1*e2*e3*e4 + e1*e3*e4 + e2*e3
-           + e3*e4 + e4);
+    assert(ss.zdd_ == s0 + s1 + s123 + s1234 + s134 + s23 + s34 + s4);
 
     ss = setset(u);
     ss ^= setset(v);
-    assert(ss.zdd_ == e0 + e1 + e1*e2*e3 + e1*e2*e3*e4 + e1*e3*e4 + e2*e3
-           + e3*e4 + e4);
+    assert(ss.zdd_ == s0 + s1 + s123 + s1234 + s134 + s23 + s34 + s4);
 
-    v = V("{{1, 2}}");
+    v = V("{{1,2}}");
     ss = setset(u) / setset(v);
-    assert(ss.zdd_ == e0 + e3 + e3*e4);
+    assert(ss.zdd_ == s0 + s3 + s34);
 
     ss = setset(u);
     ss /= setset(v);
-    assert(ss.zdd_ == e0 + e3 + e3*e4);
+    assert(ss.zdd_ == s0 + s3 + s34);
 
     ss = setset(u) % setset(v);
-    assert(ss.zdd_ == e0 + e1 + e1*e3*e4 + e1*e4 + e4);
+    assert(ss.zdd_ == s0 + s1 + s134 + s14 + s4);
 
     ss = setset(u);
     ss %= setset(v);
-    assert(ss.zdd_ == e0 + e1 + e1*e3*e4 + e1*e4 + e4);
+    assert(ss.zdd_ == s0 + s1 + s134 + s14 + s4);
 
     ss = setset(u).flip(1);
-    assert(ss.zdd_ == e0 + e1 + e1*e4 + e2 + e2*e3 + e2*e3*e4 + e3*e4 + e4);
+    assert(ss.zdd_ == s0 + s1 + s14 + s2 + s23 + s234 + s34 + s4);
 
     ss = setset(u).flip();
-    assert(ss.zdd_ == e0 + e1*e2*e3 + e1*e2*e3*e4 + e2 + e2*e3 + e2*e3*e4 + e3*e4
-           + e4);
+    assert(ss.zdd_ == s0 + s123 + s1234 + s2 + s23 + s234 + s34 + s4);
 
-    v = V("{{1, 2}, {1, 4}, {2, 3}, {3, 4}}");
+    v = V("{{1,2}, {1,4}, {2,3}, {3,4}}");
     ss = setset(u).join(setset(v));
-    assert(ss.zdd_ == e1*e2 + e1*e2*e3 + e1*e2*e4 + e1*e2*e3*e4 + e1*e3*e4
-           + e1*e4 + e2*e3 + e2*e3*e4 + e3*e4);
+    assert(ss.zdd_ == s12 + s123 + s124 + s1234 + s134 + s14 + s23 + s234 + s34);
 
     ss = setset(u).meet(setset(v));
-    assert(ss.zdd_ == e0 + e1 + e1*e2 + e1*e4 + e2 + e2*e3 + e3 + e3*e4 + e4);
+    assert(ss.zdd_ == s0 + s1 + s12 + s14 + s2 + s23 + s3 + s34 + s4);
 
-    v = V("{{1, 2}, {1, 4}, {2, 3}, {3, 4}}");
+    v = V("{{1,2}, {1,4}, {2,3}, {3,4}}");
     ss = setset(u).subsets(setset(v));
-    assert(ss.zdd_ == e0 + e1 + e1*e2 + e1*e4 + e4);
+    assert(ss.zdd_ == s0 + s1 + s12 + s14 + s4);
 
     ss = setset(u).supersets(setset(v));
-    assert(ss.zdd_ == e1*e2 + e1*e2*e3 + e1*e2*e3*e4 + e1*e3*e4 + e1*e4);
+    assert(ss.zdd_ == s12 + s123 + s1234 + s134 + s14);
 
     ss = setset(u).non_subsets(setset(v));
-    assert(ss.zdd_ == e1*e2*e3 + e1*e2*e3*e4 + e1*e3*e4);
+    assert(ss.zdd_ == s123 + s1234 + s134);
 
     ss = setset(u).non_supersets(setset(v));
-    assert(ss.zdd_ == e0 + e1 + e4);
+    assert(ss.zdd_ == s0 + s1 + s4);
   }
 
   void capacity() {
     setset ss;
     assert(ss.empty());
 
-    ss = setset(V("{{}, {1, 2}, {1, 3}}"));
+    ss = setset(V("{{}, {1,2}, {1,3}}"));
     assert(!ss.empty());
 
     assert(ss.size() == "3");
   }
 
   void iterators() {
-    setset ss1(V("{{}, {1, 2}, {1, 3}}"));
+    setset ss1(V("{{}, {1,2}, {1,3}}"));
     setset ss2;
     for (setset::const_iterator s = ss1.begin(); s != ss1.end(); ++s)
       ss2 |= setset(*s);
@@ -283,8 +295,7 @@ class TestSetset {
       ss2 |= setset(*s);
     assert(ss1 == ss2);
 
-    setset ss(V("{{}, {1}, {1, 2}, {1, 2, 3}, {1, 2, 3, 4}, {1, 3, 4}, {1, 4},"
-                "{4}}"));
+    setset ss(V("{{}, {1}, {1,2}, {1,2,3}, {1,2,3,4}, {1,3,4}, {1,4}, {4}}"));
     vector<double> w;
     w.push_back(0);  // 1-offset
     w.push_back(.3);
@@ -293,39 +304,39 @@ class TestSetset {
     w.push_back(.4);
 
     setset::iterator i = ss.maximize(w);
-    assert(*i == S("{1, 4}"));
+    assert(*i == S("{1,4}"));
     ++i;
-    assert(*i == S("{1, 3, 4}"));
+    assert(*i == S("{1,3,4}"));
     ++i;
     assert(*i == S("{4}"));
 
     i = ss.minimize(w);
-    assert(*i == S("{1, 2, 3}"));
+    assert(*i == S("{1,2,3}"));
     ++i;
     assert(*i == S("{}"));
     ++i;
-    assert(*i == S("{1, 2}"));
+    assert(*i == S("{1,2}"));
   }
 
   void lookup() {
-    setset ss(V("{{}, {1, 2}, {1, 3}}"));
-    setset::const_iterator i = ss.find(S("{1, 2}"));
+    setset ss(V("{{}, {1,2}, {1,3}}"));
+    setset::const_iterator i = ss.find(S("{1,2}"));
     assert(i != setset::end());
-    assert(*i == S("{1, 2}"));
-    assert(setset(i.zdd_).find(S("{1, 2}")) == setset::end());
+    assert(*i == S("{1,2}"));
+    assert(setset(i.zdd_).find(S("{1,2}")) == setset::end());
     i = ss.find(S("{1}"));
     assert(i == setset::end());
 
-    assert(ss.include(1).zdd_ == e1*e2 + e1*e3);
+    assert(ss.include(1).zdd_ == s12 + s13);
 
-    assert(ss.exclude(2).zdd_ == e0 + e1*e3);
+    assert(ss.exclude(2).zdd_ == s0 + s13);
 
-    assert(ss.count(S("{1, 2}")) == 1);
-    assert(ss.count(S("{2, 3}")) == 0);
+    assert(ss.count(S("{1,2}")) == 1);
+    assert(ss.count(S("{2,3}")) == 0);
   }
 
   void modifiers() {
-    vector<set<int> > v = V("{{}, {1, 2}, {1, 3}}");
+    vector<set<int> > v = V("{{}, {1,2}, {1,3}}");
     setset ss(v);
     pair<setset::iterator, bool> p = ss.insert(S("{1}"));
     assert(ss.find(S("{1}")) != setset::end());
@@ -347,23 +358,23 @@ class TestSetset {
     assert(i == setset::end());
 
     assert(ss.erase(S("{1}")) == 0);
-    assert(ss.erase(S("{1, 2}")) == 1);
-    assert(ss.find(S("{1, 2}")) == setset::end());
+    assert(ss.erase(S("{1,2}")) == 1);
+    assert(ss.find(S("{1,2}")) == setset::end());
 
     ss = setset(v);
     ss.insert(2);
-    assert(ss == setset(V("{{1, 2}, {1, 2, 3}, {2}}")));
+    assert(ss == setset(V("{{1,2}, {1,2,3}, {2}}")));
 
     ss = setset(v);
     ss.erase(2);
-    assert(ss == setset(V("{{}, {1}, {1, 3}}")));
+    assert(ss == setset(V("{{}, {1}, {1,3}}")));
 
     ss = setset(v);
     assert(!ss.empty());
     ss.clear();
     assert(ss.empty());
 
-    set<int> s = S("{1, 2}");
+    set<int> s = S("{1,2}");
     setset ss1(s);
     setset ss2(v);
     ss1.swap(ss2);
@@ -391,8 +402,8 @@ class TestSetset {
     assert(ss == setset(V("{{}}")));
 
     sstr.clear(); sstr.str("");
-    vector<set<int> > v = V("{{}, {1}, {1, 2}, {1, 2, 3}, {1, 2, 3, 4},"
-                            "{1, 3, 4}, {1, 4}, {4}}");
+    vector<set<int> > v
+        = V("{{}, {1}, {1,2}, {1,2,3}, {1,2,3,4}, {1,3,4}, {1,4}, {4}}");
     ss = setset(v);
     sstr << ss;
     ss.clear();
@@ -433,7 +444,7 @@ class TestSetset {
     int n = 5000;
     setset::num_elems(n);
     map<string, vector<int> > m;
-    setset ss = setset(m) - setset(V("{{1}, {1, 2}}"));
+    setset ss = setset(m) - setset(V("{{1}, {1,2}}"));
     long double radix = static_cast<long double>(2);
     long double ratio = strtold(ss.size().c_str(), NULL) / (pow(radix, n) - 2);
     assert(0.99999 < ratio && ratio < 1.00001);
