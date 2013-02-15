@@ -40,7 +40,7 @@ class GraphSet(object):
       difference(), symmetric_difference(), copy(), update(),
       intersection_update(), difference_update(),
       symmetric_difference_update(), add(), remove(), discard(),
-      pop(), clear(),
+      pop(), clear()
     * ==, !=, <=, <, >=, >, |, &, -, ^, |=, &=, -=, ^=.
 
     Examples:
