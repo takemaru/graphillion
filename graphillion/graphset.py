@@ -227,7 +227,8 @@ class GraphSet(object):
 #
 #        The quotient is defined by,
 #          gs1 / gs2 = {a | a \\cup b \\in gs1 and a \\cap b = \\empty, \\forall b \\in gs2}.
-#        D. Knuth, Exercise 204, The art of computer programming, Sect.7.1.4.
+#        D. Knuth, Exercise 204, The art of computer programming,
+#        Sect.7.1.4.
 #
 #        The `self` is not changed.
 #
@@ -250,7 +251,8 @@ class GraphSet(object):
 #
 #        The remainder is defined by,
 #          gs1 % gs2 = gs1 - (gs1 \\sqcup (gs1 / gs2)).
-#        D. Knuth, Exercise 204, The art of computer programming, Sect.7.1.4.
+#        D. Knuth, Exercise 204, The art of computer programming,
+#        Sect.7.1.4.
 #
 #        The `self` is not changed.
 #
@@ -662,7 +664,8 @@ class GraphSet(object):
           A new GraphSet object.
 
         Raises:
-          KeyError: If a given edge or vertex is not found in the universe.
+          KeyError: If a given edge or vertex is not found in the
+          universe.
 
         See Also:
           exclude()
@@ -695,7 +698,8 @@ class GraphSet(object):
           A new GraphSet object.
 
         Raises:
-          KeyError: If a given edge or vertex is not found in the universe.
+          KeyError: If a given edge or vertex is not found in the
+          universe.
 
         See Also:
           include()
@@ -719,7 +723,8 @@ class GraphSet(object):
           GraphSet([set([(1,2), (1,4)]), set([(1,2), (2,3)])])
 
         Args:
-          graph_or_edge: A graph (a set of edges) or an edge in the universe.
+          graph_or_edge: A graph (a set of edges) or an edge in the
+          universe.
 
         Returns:
           None.
@@ -747,7 +752,8 @@ class GraphSet(object):
           GraphSet([set([(1,4)]), set([(2,3)])])
 
         Args:
-          graph_or_edge: A graph (a set of edges) or an edge in the universe.
+          graph_or_edge: A graph (a set of edges) or an edge in the
+          universe.
 
         Returns:
           None.
@@ -776,7 +782,8 @@ class GraphSet(object):
           GraphSet([set([(1,4)]), set([(2,3)])])
 
         Args:
-          graph_or_edge: A graph (a set of edges) or an edge in the universe.
+          graph_or_edge: A graph (a set of edges) or an edge in the
+          universe.
 
         Returns:
           None.
@@ -827,7 +834,8 @@ class GraphSet(object):
 
         The minimal sets are defined by,
           gs.minimal() = {a \\in gs | b \\in gs and a \\subseteq -> a = b}.
-        D. Knuth, Exercise 236, The art of computer programming, Sect.7.1.4.
+        D. Knuth, Exercise 236, The art of computer programming,
+        Sect.7.1.4.
 
         The `self` is not changed.
 
@@ -850,7 +858,8 @@ class GraphSet(object):
 
         The maximal sets are defined by,
           gs.maximal() = {a \\in gs | b \\in gs and a \\superseteq -> a = b}.
-        D. Knuth, Exercise 236, The art of computer programming, Sect.7.1.4.
+        D. Knuth, Exercise 236, The art of computer programming,
+        Sect.7.1.4.
 
         The `self` is not changed.
 
@@ -878,8 +887,8 @@ class GraphSet(object):
 
         The blocking sets are defined by,
           gs.blocking() = {a | b \\in gs -> a \\cap b \\neq \\empty}.
-        T. Toda, Hypergraph Dualization Algorithm Based on Binary Decision
-        Diagrams.
+        T. Toda, Hypergraph Dualization Algorithm Based on Binary
+        Decision Diagrams.
 
         The `self` is not changed.
 
@@ -1012,7 +1021,8 @@ class GraphSet(object):
 #
 #        The join operation is defined by,
 #          gs1 \\sqcup gs2 = {a \\cup b | a \\in gs1 and b \\in gs2}.
-#        D. Knuth, Exercise 203, The art of computer programming, Sect.7.1.4.
+#        D. Knuth, Exercise 203, The art of computer programming,
+#        Sect.7.1.4.
 #
 #        The `self` is not changed.
 #
@@ -1036,7 +1046,8 @@ class GraphSet(object):
 #
 #        The meet operation is defined by,
 #          gs1 \\sqcap gs2 = {a \\cap b | a \\in gs1 and b \\in gs2}.
-#        D. Knuth, Exercise 203, The art of computer programming, Sect.7.1.4.
+#        D. Knuth, Exercise 203, The art of computer programming,
+#        Sect.7.1.4.
 #
 #        The `self` is not changed.
 #
@@ -1102,7 +1113,8 @@ class GraphSet(object):
 
         The non_subsets are defined by,
           gs1.non_subsets(gs2) = {a \\in gs1 | b \\in gs2 -> a \\not\\subseteq b}.
-        D. Knuth, Exercise 236, The art of computer programming, Sect.7.1.4.
+        D. Knuth, Exercise 236, The art of computer programming,
+        Sect.7.1.4.
 
         Examples:
           >>> gs1 = GraphSet([set([(1,2)]), set([(1,2), (1,4)])])
@@ -1126,7 +1138,8 @@ class GraphSet(object):
 
         The non_supersets are defined by,
           gs1.non_supersets(gs2) = {a \\in gs1 | b \\in gs2 -> a \\not\\superseteq b}.
-        D. Knuth, Exercise 236, The art of computer programming, Sect.7.1.4.
+        D. Knuth, Exercise 236, The art of computer programming,
+        Sect.7.1.4.
 
         Examples:
           >>> gs1 = GraphSet([set([(1,2), (2,3)]), set([(1,4), (2,3)])])
@@ -1146,8 +1159,8 @@ class GraphSet(object):
     def dump(self, fp):
         """Serialize `self` to a file `fp`.
 
-        This method does not serialize the universe, which should be saved
-        separately by pickle.
+        This method does not serialize the universe, which should be
+        saved separately by pickle.
 
         Examples:
           >>> import pickle
@@ -1167,8 +1180,8 @@ class GraphSet(object):
     def dumps(self):
         """Returns a serialized `self`.
 
-        This method does not serialize the universe, which should be saved
-        separately by pickle.
+        This method does not serialize the universe, which should be
+        saved separately by pickle.
 
         Examples:
           >>> import pickle
