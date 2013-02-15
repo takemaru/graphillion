@@ -24,32 +24,32 @@ import unittest
 class TestSetset(unittest.TestCase):
 
     def setUp(self):
-        setset.universe(['1', '2', '3', '4'])
+        setset.set_universe(['1', '2', '3', '4'])
 
     def tearDown(self):
         pass
 
     def test_init(self):
-        setset.universe([])
+        setset.set_universe([])
 
         self.assertEqual(setset._obj2int, {})
         self.assertEqual(setset._int2obj, [None])
-        self.assertEqual(setset.universe(), [])
+        self.assertEqual(setset.get_universe(), [])
 
-        setset.universe(['i', 'ii'])
+        setset.set_universe(['i', 'ii'])
         self.assertEqual(setset._obj2int, {'i': 1, 'ii': 2})
         self.assertEqual(setset._int2obj, [None, 'i', 'ii'])
-        self.assertEqual(setset.universe(), ['i', 'ii'])
+        self.assertEqual(setset.get_universe(), ['i', 'ii'])
 
         ss = setset({})
         self.assertEqual(
             ss,
             setset([set(), set(['i']), set(['i', 'ii']), set(['ii'])]))
 
-        setset.universe(['1'])
+        setset.set_universe(['1'])
         self.assertEqual(setset._obj2int, {'1': 1})
         self.assertEqual(setset._int2obj, [None, '1'])
-        self.assertEqual(setset.universe(), ['1'])
+        self.assertEqual(setset.get_universe(), ['1'])
 
         ss = setset({})
         self.assertEqual(ss, setset([set(), set(['1'])]))
@@ -529,7 +529,7 @@ class TestSetset(unittest.TestCase):
 
     def test_large(self):
         n = 5000
-        setset.universe(xrange(n))
+        setset.set_universe(xrange(n))
         ss = setset({}) - setset([set([1]) - set([1, 2])])
         self.assertTrue(ss)
         self.assertAlmostEqual(ss.len() / (2**n - 2), 1)
@@ -543,24 +543,22 @@ class TestSetset(unittest.TestCase):
 class TestGraphSet(unittest.TestCase):
 
     def setUp(self):
-        GraphSet.universe([(1, 2, .3), (1, 3, -.2), (2, 4, -.2), (3, 4, .4)],
-                          traversal='dfs', source=1)
+        GraphSet.set_universe([(1, 2, .3), (1, 3, -.2), (2, 4, -.2), (3, 4, .4)],
+                              traversal='dfs', source=1)
 
     def tearDown(self):
         pass
 
     def test_init(self):
-        setset.universe([])
-
-        GraphSet.universe([('i', 'ii')])
-        self.assertEqual(GraphSet.universe(), [('i', 'ii')])
+        GraphSet.set_universe([('i', 'ii')])
+        self.assertEqual(GraphSet.get_universe(), [('i', 'ii')])
 
         gs = GraphSet({})
         self.assertEqual(len(gs), 2**1)
 
-        GraphSet.universe([(1, 2, .3), (1, 3, -.2), (2, 4, -.2), (3, 4, .4)],
-                          traversal='dfs', source=1)
-        self.assertEqual(GraphSet.universe(),
+        GraphSet.set_universe([(1, 2, .3), (1, 3, -.2), (2, 4, -.2), (3, 4, .4)],
+                              traversal='dfs', source=1)
+        self.assertEqual(GraphSet.get_universe(),
                          [(1, 3, -.2), (3, 4, .4), (1, 2, .3), (2, 4, -.2)])
 
         gs = GraphSet({})
@@ -652,9 +650,9 @@ class TestGraphSet(unittest.TestCase):
         import networkx as nx
 
         g = nx.grid_2d_graph(11, 11)
-        GraphSet.universe(g.edges())
-        self.assertEqual(len(GraphSet.universe()), 220)
-        self.assertEqual(GraphSet.universe()[:2],
+        GraphSet.set_universe(g.edges())
+        self.assertEqual(len(GraphSet.get_universe()), 220)
+        self.assertEqual(GraphSet.get_universe()[:2],
                          [((0, 1), (0, 0)), ((1, 0), (0, 0))])
 
         gs = GraphSet({});

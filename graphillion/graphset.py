@@ -43,11 +43,6 @@ class GraphSet(setset):
       pop(), clear(),
     - ==, !=, <=, <, >=, >, |, &, -, ^, |=, &=, -=, ^=.
 
-    GraphSet is derived from graphillion.setset, which represents a
-    set of sets.  When browsing this document to examine the methods
-    inherited from setset, replace a set with a graph (or an edge set)
-    and replace an element with an edge.
-
     Examples:
       >>> from graphillion import GraphSet
 
@@ -58,7 +53,7 @@ class GraphSet(setset):
       |     |     |
       4 --- 5 --- 6
 
-      >>> GraphSet.universe([(1,2), (1,4), (2,3), (2,5), (3,6), (4,5), (5,6)])
+      >>> GraphSet.set_universe([(1,2), (1,4), (2,3), (2,5), (3,6), (4,5), (5,6)])
 
       Find all paths from 1 to 6 and count them.
 
@@ -164,7 +159,8 @@ class GraphSet(setset):
             return setset.include(self, GraphSet._conv_edge(edge_or_vertex))
         except KeyError:  # else
             gs = GraphSet()
-            for edge in [e for e in setset.universe() if edge_or_vertex in e]:
+            edges = [e for e in setset.get_universe() if edge_or_vertex in e]
+            for edge in edges:
                 gs |= setset.include(self, edge)
             return gs & self
 
@@ -328,7 +324,7 @@ class GraphSet(setset):
         specified).
 
         Examples:
-          >>> GraphSet.universe([(1,2, 2.0), (1,4, -3.0), (2,3)])
+          >>> GraphSet.set_universe([(1,2, 2.0), (1,4, -3.0), (2,3)])
           >>> gs = GraphSet([set([(1,2), (1,4)]), set([(2,3)])])
           >>> for g in gs.maximize():
           ...   g
@@ -356,7 +352,7 @@ class GraphSet(setset):
         specified).
 
         Examples:
-          >>> GraphSet.universe([(1,2, 2.0), (1,4, -3.0), (2,3)])
+          >>> GraphSet.set_universe([(1,2, 2.0), (1,4, -3.0), (2,3)])
           >>> gs = GraphSet([set([(1,2), (1,4)]), set([(2,3)])])
           >>> for g in gs.minimize():
           ...   g
@@ -376,22 +372,16 @@ class GraphSet(setset):
             yield s
 
     @staticmethod
-    def universe(universe=None, traversal='bfs', source=None):
-        """Registers or returns the universe.
-
-        If `universe` is given, it is registered as a new universe.
-        Otherwise, the list of edges that represents the current
-        universe is returned.
+    def set_universe(universe, traversal='bfs', source=None):
+        """Registers the new universe.
 
         Examples:
-          >>> GraphSet.universe([(1,2, 2.0), (1,4, -3.0), (2,3)])
-          >>> GraphSet.universe()
-          [(1, 2, 2.0), (1, 4, -3.0), (2, 3)]
+          >>> GraphSet.set_universe([(1,2, 2.0), (1,4, -3.0), (2,3)])
 
         Args:
-          universe: Optional.  A list of edges that represents the new
-            universe.  An edge may come along with a weight, which can
-            be positive as well as negative (or 1.0 if not specified).
+          universe: A list of edges that represents the new universe.
+            An edge may come along with a weight, which can be
+            positive as well as negative (or 1.0 if not specified).
 
           traversal: Optional.  This argument specifies the order of
             edges to be processed in the internal graphset operations.
@@ -401,32 +391,42 @@ class GraphSet(setset):
 
           source: Optional.  This argument specifies the starting
             point of the edge traversal.
+        """
+        edges = []
+        GraphSet._weights = {}
+        for e in universe:
+            edges.append(e[:2])
+            if len(e) > 2:
+                GraphSet._weights[e[:2]] = e[2]
+        if traversal == 'bfs' or traversal == 'dfs':
+            if not source:
+                source = edges[0][0]
+                for e in edges:
+                    source = min(e[0], e[1], source)
+            edges = GraphSet._traverse(edges, traversal, source)
+        setset.set_universe(edges)
+
+    @staticmethod
+    def get_universe():
+        """Returns the current universe.
+
+        The list of edges that represents the current universe is
+        returned.
+
+        Examples:
+          >>> GraphSet.universe()
+          [(1, 2, 2.0), (1, 4, -3.0), (2, 3)]
 
         Returns:
           The universe if no argument is given, or None otherwise.
         """
-        if universe is not None:
-            edges = []
-            GraphSet._weights = {}
-            for e in universe:
-                edges.append(e[:2])
-                if len(e) > 2:
-                    GraphSet._weights[e[:2]] = e[2]
-            if traversal == 'bfs' or traversal == 'dfs':
-                if not source:
-                    source = edges[0][0]
-                    for e in edges:
-                        source = min(e[0], e[1], source)
-                edges = GraphSet._traverse(edges, traversal, source)
-            setset.universe(edges)
-        else:
-            edges = []
-            for e in setset.universe():
-                if e in GraphSet._weights:
-                    edges.append((e[0], e[1], GraphSet._weights[e]))
-                else:
-                    edges.append(e)
-            return edges
+        edges = []
+        for e in setset.get_universe():
+            if e in GraphSet._weights:
+                edges.append((e[0], e[1], GraphSet._weights[e]))
+            else:
+                edges.append(e)
+        return edges
 
     @staticmethod
     def _traverse(edges, traversal, source):

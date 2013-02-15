@@ -26,7 +26,25 @@ class setset(_graphillion.setset):
     A setset object stores a set of sets.
 
     Like Python set types, setset supports `set in setset`,
-    `len(setset)`, and `for set in setset`.
+    `len(setset)`, and `for set in setset`.  It also supports all set
+    methods and operators,
+    - isdisjoint(), issubset(), issuperset(), union(), intersection(),
+      difference(), symmetric_difference(), copy(), update(),
+      intersection_update(), difference_update(),
+      symmetric_difference_update(), add(), remove(), discard(),
+      pop(), clear(),
+    - ==, !=, <=, <, >=, >, |, &, -, ^, |=, &=, -=, ^=.
+
+    This document is written for GraphSet, which is a subclass of
+    setset.  If you'd like to check setset itself, replace a GraphSet
+    term with the corresponding setset term as follows.
+
+    +-------------------+---------+
+    | GraphSet          | setset  |
+    +-------------------+---------+
+    | graph or edge set | set     |
+    | edge              | element |
+    +-------------------+---------+
 
     Examples:
       >>> from graphillion import setset
@@ -90,18 +108,18 @@ class setset(_graphillion.setset):
         return _graphillion.setset.discard(self, set_or_elem)
 
     def pop(self):
-        """Removes and returns an arbitrary set from `self` setset.
+        """Removes and returns an arbitrary graph from `self` GraphSet.
 
         Examlpes:
-          >>> ss = setset([set([1]), set([1,2])])
-          >>> ss.pop()
-          set([1, 2])
+          >>> gs = GraphSet([set([(1,2)]), set([(1,2), (1,4)])])
+          >>> gs.pop()
+          set([(1, 2), (1, 4)])
 
         Returns:
-          A set.
+          A graph.
 
         Raises:
-          KeyError: If `self` setset is empty.
+          KeyError: If `self` GraphSet is empty.
 
         See Also:
           remove(), discard(), randomize()
@@ -114,20 +132,20 @@ class setset(_graphillion.setset):
         return _graphillion.setset.invert(self, elem)
 
     def randomize(self):
-        """Iterates over sets randomly.
+        """Iterates over graphs randomly.
 
         Examples:
-          >>> ss = setset([set([1]), set([1,2])])
-          >>> for s in ss:
-          ...   s
-          set([1, 2])
-          set([1])
+          >>> gs = GraphSet([set([(1,2)]), set([(1,2), (1,4)])])
+          >>> for g in gs:
+          ...   g
+          set([(1, 2), (1, 4)])
+          set([(1, 2)])
 
         Returns:
           A generator.
 
         Yields:
-          A set.
+          A graph.
 
         See Also:
           minimize(), maximize(), pop()
@@ -155,17 +173,18 @@ class setset(_graphillion.setset):
     __iter__ = randomize
 
     @staticmethod
-    def universe(universe=None):
-        if universe is not None:
-            _graphillion.num_elems(0)
-            setset._obj2int = {}
-            setset._int2obj = [None]
-            for e in universe:
-                setset._add_elem(e)
-            setset._check_universe()
-        else:
-            setset._check_universe()
-            return setset._int2obj[1:]
+    def set_universe(universe):
+        _graphillion.num_elems(0)
+        setset._obj2int = {}
+        setset._int2obj = [None]
+        for e in universe:
+            setset._add_elem(e)
+        setset._check_universe()
+
+    @staticmethod
+    def get_universe():
+        setset._check_universe()
+        return setset._int2obj[1:]
 
     @staticmethod
     def _check_universe():

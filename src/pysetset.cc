@@ -262,16 +262,16 @@ static void setset_dealloc(PySetsetObject* self) {
 }
 
 PyDoc_STRVAR(copy_doc,
-"Returns a new setset with a shallow copy of `self`.\n\
+"Returns a new GraphSet with a shallow copy of `self`.\n\
 \n\
 Examples:\n\
-  >>> ss2 = ss1.copy()\n\
-  >>> ss1 -= ss2\n\
-  >>> ss1 == ss2\n\
+  >>> gs2 = gs1.copy()\n\
+  >>> gs1 -= gs2\n\
+  >>> gs1 == gs2\n\
   False\n\
 \n\
 Returns:\n\
-  A new setset object.\n\
+  A new GraphSet object.\n\
 \n\
 See Also:\n\
   __init__()");
@@ -281,16 +281,20 @@ static PyObject* setset_copy(PySetsetObject* self) {
 }
 
 PyDoc_STRVAR(complement_doc,
-"Returns a new setset with the complement set of `self`.\n\
+"Returns a new GraphSet with graphs not stored in `self`.\n\
+\n\
+A complement set here does not mean a complement graph.  It is defined\n\
+over a set of edge sets, as shown in the example.\n\
 \n\
 Examples:\n\
-  >>> ss = setset([set([1]), set([1,2])])\n\
-  >>> ss = ~ss\n\
-  >>> ss\n\
-  setset([set([]), set([2])])\n\
+  >>> GraphSet.set_universe([(1,2), (1,4)])\n\
+  >>> gs = GraphSet([set([(1,2)])])\n\
+  >>> gs = ~gs\n\
+  >>> gs\n\
+  setset([set([]), set([(1, 4)]), set([(1, 2), (1, 4)])])\n\
 \n\
 Returns:\n\
-  A new setset object.\n\
+  A new GraphSet object.\n\
 \n\
 See Also:\n\
   __invert__()");
@@ -300,17 +304,17 @@ static PyObject* setset_complement(PySetsetObject* self) {
 }
 
 PyDoc_STRVAR(intersection_doc,
-"Returns a new setset with sets common to `self` and all others.\n\
+"Returns a new GraphSet with graphs common to `self` and all others.\n\
 \n\
 Examples:\n\
-  >>> ss1 = setset([set([1]), set([1,2])])\n\
-  >>> ss2 = setset([set([]), set([1])])\n\
-  >>> ss = ss1 & ss2\n\
-  >>> ss\n\
-  setset([set([1])])\n\
+  >>> gs1 = GraphSet([set([(1,2)]), set([(1,2), (1,4)])])\n\
+  >>> gs2 = GraphSet([set([]), set([(1,2)])])\n\
+  >>> gs = gs1 & gs2\n\
+  >>> s\n\
+  GraphSet([set([(1, 2)])])\n\
 \n\
 Returns:\n\
-  A new setset object.\n\
+  A new GraphSet object.\n\
 \n\
 See Also:\n\
   __and__(), intersection_update(), union(), difference(),\n\
@@ -322,17 +326,17 @@ static PyObject* setset_intersection(PySetsetObject* self, PyObject* other) {
 }
 
 PyDoc_STRVAR(intersection_update_doc,
-"Updates `self`, keeping only sets found in it and all others.\n\
+"Updates `self`, keeping only graphs found in it and all others.\n\
 \n\
 Examples:\n\
-  >>> ss1 = setset([set([1]), set([1,2])])\n\
-  >>> ss2 = setset([set([]), set([1])])\n\
-  >>> ss1 &= ss2\n\
-  >>> ss1\n\
-  setset([set([1])])\n\
+  >>> gs1 = GraphSet([set([(1,2)]), set([(1,2), (1,4)])])\n\
+  >>> gs2 = GraphSet([set([]), set([(1,2)])])\n\
+  >>> gs1 &= gs2\n\
+  >>> gs1\n\
+  GraphSet([set([(1, 2)])])\n\
 \n\
 Returns:\n\
-  A new setset object.\n\
+  A new GraphSet object.\n\
 \n\
 See Also:\n\
   __iand__(), intersection(), update(), difference_update(),\n\
@@ -344,17 +348,17 @@ static PyObject* setset_intersection_update(PySetsetObject* self, PyObject* othe
 }
 
 PyDoc_STRVAR(union_doc,
-"Returns a new setset with sets from `self` and all others.\n\
+"Returns a new GraphSet with graphs from `self` and all others.\n\
 \n\
 Examples:\n\
-  >>> ss1 = setset([set([1]), set([1,2])])\n\
-  >>> ss2 = setset([set([]), set([1])])\n\
-  >>> ss = ss1 | ss2\n\
-  >>> ss\n\
-  setset([set([]), set([1]), set([1, 2])])\n\
+  >>> gs1 = GraphSet([set([(1,2)]), set([(1,2), (1,4)])])\n\
+  >>> gs2 = GraphSet([set([]), set([(1,2)])])\n\
+  >>> gs = gs1 | gs2\n\
+  >>> gs\n\
+  GraphSet([set([]), set([(1, 2)]), set([(1, 2), (1, 4)])])\n\
 \n\
 Returns:\n\
-  A new setset object.\n\
+  A new GraphSet object.\n\
 \n\
 See Also:\n\
   __or__(), update(), intersection(), difference(),\n\
@@ -366,17 +370,17 @@ static PyObject* setset_union(PySetsetObject* self, PyObject* other) {
 }
 
 PyDoc_STRVAR(union_update_doc,
-"Updates `self`, adding sets from all others.\n\
+"Updates `self`, adding graphs from all others.\n\
 \n\
 Examples:\n\
-  >>> ss1 = setset([set([1]), set([1,2])])\n\
-  >>> ss2 = setset([set([]), set([1])])\n\
-  >>> ss1 |= ss2\n\
-  >>> ss1\n\
-  setset([set([]), set([1]), set([1, 2])])\n\
+  >>> gs1 = GraphSet([set([(1,2)]), set([(1,2), (1,4)])])\n\
+  >>> gs2 = GraphSet([set([]), set([(1,2)])])\n\
+  >>> gs1 |= gs2\n\
+  >>> gs1\n\
+  GraphSet([set([]), set([(1, 2)]), set([(1, 2), (1, 4)])])\n\
 \n\
 Returns:\n\
-  A new setset object.\n\
+  A new GraphSet object.\n\
 \n\
 See Also:\n\
   __ior__(), union(), intersection_update(), difference_update(),\n\
@@ -388,17 +392,17 @@ static PyObject* setset_update(PySetsetObject* self, PyObject* other) {
 }
 
 PyDoc_STRVAR(difference_doc,
-"Returns a new setset with sets in `self` that are not in the others.\n\
+"Returns a new GraphSet with graphs in `self` that are not in the others.\n\
 \n\
 Examples:\n\
-  >>> ss1 = setset([set([1]), set([1,2])])\n\
-  >>> ss2 = setset([set([]), set([1])])\n\
-  >>> ss = ss1 - ss2\n\
-  >>> ss\n\
-  setset([set([1, 2])])\n\
+  >>> gs1 = GraphSet([set([(1,2)]), set([(1,2), (1,4)])])\n\
+  >>> gs2 = GraphSet([set([]), set([(1,2)])])\n\
+  >>> gs = gs1 - gs2\n\
+  >>> gs\n\
+  GraphSet([set([(1, 2), (1, 4)])])\n\
 \n\
 Returns:\n\
-  A new setset object.\n\
+  A new GraphSet object.\n\
 \n\
 See Also:\n\
   __sub__(), difference_update(), symmetric_difference(), union(),\n\
@@ -410,17 +414,17 @@ static PyObject* setset_difference(PySetsetObject* self, PyObject* other) {
 }
 
 PyDoc_STRVAR(difference_update_doc,
-"Update `self`, removing sets found in others.\n\
+"Update `self`, removing graphs found in others.\n\
 \n\
 Examples:\n\
-  >>> ss1 = setset([set([1]), set([1,2])])\n\
-  >>> ss2 = setset([set([]), set([1])])\n\
-  >>> ss1 -= ss2\n\
-  >>> ss1\n\
-  setset([set([1, 2])])\n\
+  >>> gs1 = GraphSet([set([(1,2)]), set([(1,2), (1,4)])])\n\
+  >>> gs2 = GraphSet([set([]), set([(1,2)])])\n\
+  >>> gs1 -= gs2\n\
+  >>> gs1\n\
+  GraphSet([set([(1, 2), (1, 4)])])\n\
 \n\
 Returns:\n\
-  A new setset object.\n\
+  A new GraphSet object.\n\
 \n\
 See Also:\n\
   __isub__(), difference(), symmetric_difference_update(), update()\n\
@@ -432,17 +436,17 @@ static PyObject* setset_difference_update(PySetsetObject* self, PyObject* other)
 }
 
 PyDoc_STRVAR(symmetric_difference_doc,
-"Returns a new setset with sets in either `self` or `other` but not both.\n\
+"Returns a new GraphSet with graphs in either `self` or `other` but not both.\n\
 \n\
 Examples:\n\
-  >>> ss1 = setset([set([1]), set([1,2])])\n\
-  >>> ss2 = setset([set([]), set([1])])\n\
-  >>> ss = ss1 ^ ss2\n\
-  >>> ss\n\
-  setset([set([]), set([1, 2])])\n\
+  >>> gs1 = GraphSet([set([(1,2)]), set([(1,2), (1,4)])])\n\
+  >>> gs2 = GraphSet([set([]), set([(1,2)])])\n\
+  >>> gs = gs1 ^ gs2\n\
+  >>> gs\n\
+  GraphSet([set([]), set([(1, 2), (1, 4)])])\n\
 \n\
 Returns:\n\
-  A new setset object.\n\
+  A new GraphSet object.\n\
 \n\
 See Also:\n\
   __xor__(), symmetric_difference_update(), difference(), union()\n\
@@ -454,17 +458,17 @@ static PyObject* setset_symmetric_difference(PySetsetObject* self, PyObject* oth
 }
 
 PyDoc_STRVAR(symmetric_difference_update_doc,
-"Update `self`, keeping only sets in either setset, but not in both.\n\
+"Update `self`, keeping only graphs in either GraphSet, but not in both.\n\
 \n\
 Examples:\n\
-  >>> ss1 = setset([set([1]), set([1,2])])\n\
-  >>> ss2 = setset([set([]), set([1])])\n\
-  >>> ss1 ^= ss2\n\
-  >>> ss1\n\
-  setset([set([]), set([1, 2])])\n\
+  >>> gs1 = GraphSet([set([(1,2)]), set([(1,2), (1,4)])])\n\
+  >>> gs2 = GraphSet([set([]), set([(1,2)])])\n\
+  >>> gs1 ^= gs2\n\
+  >>> gs1\n\
+  GraphSet([set([]), set([(1, 2), (1, 4)])])\n\
 \n\
 Returns:\n\
-  A new setset object.\n\
+  A new GraphSet object.\n\
 \n\
 See Also:\n\
   __ixor__(), symmetric_difference(), difference_update(), update(),\n\
@@ -476,20 +480,20 @@ static PyObject* setset_symmetric_difference_update(PySetsetObject* self, PyObje
 }
 
 PyDoc_STRVAR(quotient_doc,
-"Returns a new setset of quotient.\n\
+"Returns a new GraphSet of quotient.\n\
 \n\
 The quotient is defined by,\n\
   f / g = {a | a \\cup b \\in f and a \\cap b = \\empty, \\forall b \\in g}.\n\
 D. Knuth, Exercise 204, The art of computer programming, Sect.7.1.4.\n\
 \n\
 Examples:\n\
-  >>> ss = setset([set([1,2]), set([3,4])])\n\
-  >>> ss = ss / setset([set([2])])\n\
-  >>> ss\n\
-  setset([set([1])])\n\
+  >>> gs = GraphSet([set([(1,2), (1,4)]), set([(2,3), (2,5)])])\n\
+  >>> gs = gs / GraphSet([set([(1,4)])])\n\
+  >>> gs\n\
+  GraphSet([set([(1, 2)])])\n\
 \n\
 Returns:\n\
-  A new setset object.\n\
+  A new GraphSet object.\n\
 \n\
 See Also:\n\
   __div__(), quotient_update(), remainder()");
@@ -503,13 +507,13 @@ PyDoc_STRVAR(quotient_update_doc,
 "Updates `self` by the quotient.\n\
 \n\
 Examples:\n\
-  >>> ss = setset([set([1,2]), set([3,4])])\n\
-  >>> ss /= setset([set([2])])\n\
-  >>> ss\n\
-  setset([set([1])])\n\
+  >>> gs = GraphSet([set([(1,2), (1,4)]), set([(2,3), (2,5)])])\n\
+  >>> gs /= GraphSet([set([(1,4)])])\n\
+  >>> gs\n\
+  GraphSet([set([(1, 2)])])\n\
 \n\
 Returns:\n\
-  A new setset object.\n\
+  A new GraphSet object.\n\
 \n\
 See Also:\n\
   __idiv__(), quotient(), remainder_update()");
@@ -520,20 +524,20 @@ static PyObject* setset_quotient_update(PySetsetObject* self, PyObject* other) {
 }
 
 PyDoc_STRVAR(remainder_doc,
-"Returns a new setset of remainder.\n\
+"Returns a new GraphSet of remainder.\n\
 \n\
 The remainder is defined by,\n\
   f % g = f - (f \\sqcup (f / g)).\n\
 D. Knuth, Exercise 204, The art of computer programming, Sect.7.1.4.\n\
 \n\
 Examples:\n\
-  >>> ss = setset([set([1,2]), set([3,4])])\n\
-  >>> ss = ss % setset([set([2])])\n\
-  >>> ss\n\
-  setset([set([3, 4])])\n\
+  >>> gs = GraphSet([set([(1,2), (1,4)]), set([(2,3), (2,5)])])\n\
+  >>> gs = gs % GraphSet([set([(1,4)])])\n\
+  >>> gs\n\
+  GraphSet([set([(2,3), (2,5)])])\n\
 \n\
 Returns:\n\
-  A new setset object.\n\
+  A new GraphSet object.\n\
 \n\
 See Also:\n\
   __mod__(), remainder_update(), quotient()");
@@ -547,13 +551,13 @@ PyDoc_STRVAR(remainder_update_doc,
 "Updates `self` by the remainder.\n\
 \n\
 Examples:\n\
-  >>> ss = setset([set([1,2]), set([3,4])])\n\
-  >>> ss %= setset([set([2])])\n\
-  >>> ss\n\
-  setset([set([3, 4])])\n\
+  >>> gs = GraphSet([set([(1,2), (1,4)]), set([(2,3), (2,5)])])\n\
+  >>> gs %= GraphSet([set([(1,4)])])\n\
+  >>> gs\n\
+  GraphSet([set([(2,3), (2,5)])])\n\
 \n\
 Returns:\n\
-  A new setset object.\n\
+  A new GraphSet object.\n\
 \n\
 See Also:\n\
   __imod__(), remainder(), quotient_update()");
@@ -564,12 +568,12 @@ static PyObject* setset_remainder_update(PySetsetObject* self, PyObject* other) 
 }
 
 PyDoc_STRVAR(isdisjoint_doc,
-"Returns True if `self` has no sets in common with `other`.\n\
+"Returns True if `self` has no graphs in common with `other`.\n\
 \n\
 Examples:\n\
-  >>> ss1 = setset([set([1]), set([1,2])])\n\
-  >>> ss2 = setset([set([]), set([2])])\n\
-  >>> ss1.disjoint(ss2)\n\
+  >>> gs1 = GraphSet([set([(1,2)]), set([(1,2), (1,4)])])\n\
+  >>> gs2 = GraphSet([set([]), set([(1,4)])])\n\
+  >>> gs1.disjoint(gs2)\n\
   True\n\
 \n\
 Returns:\n\
@@ -584,12 +588,12 @@ static PyObject* setset_isdisjoint(PySetsetObject* self, PyObject* other) {
 }
 
 PyDoc_STRVAR(issubset_doc,
-"Tests if every set in `self` is in `other`.\n\
+"Tests if every graph in `self` is in `other`.\n\
 \n\
 Examples:\n\
-  >>> ss1 = setset([set([1]), set([1,2])])\n\
-  >>> ss2 = setset([set([1]), set([1,2]), set([2])])\n\
-  >>> ss1 <= (ss2)\n\
+  >>> gs1 = GraphSet([set([(1,2)]), set([(1,2), (1,4)])])\n\
+  >>> gs2 = GraphSet([set([(1,2)]), set([(1,2), (1,4)]), set([(1,4)])])\n\
+  >>> gs1 <= (gs2)\n\
   True\n\
 \n\
 Returns:\n\
@@ -604,12 +608,12 @@ static PyObject* setset_issubset(PySetsetObject* self, PyObject* other) {
 }
 
 PyDoc_STRVAR(issuperset_doc,
-"Tests if every set in `other` is in `self`.\n\
+"Tests if every graph in `other` is in `self`.\n\
 \n\
 Examples:\n\
-  >>> ss1 = setset([set([1]), set([1,2]), set([2])])\n\
-  >>> ss2 = setset([set([1]), set([1,2])])\n\
-  >>> ss1 >= (ss2)\n\
+  >>> gs1 = GraphSet([set([(1,2)]), set([(1,2), (1,4)]), set([(1,4)])])\n\
+  >>> gs2 = GraphSet([set([(1,2)]), set([(1,2), (1,4)])])\n\
+  >>> gs1 >= (gs2)\n\
   True\n\
 \n\
 Returns:\n\
@@ -633,23 +637,23 @@ static Py_ssize_t setset_len(PyObject* obj) {
   if (len != LLONG_MAX) {
     return len;
   } else {
-    PyErr_SetString(PyExc_OverflowError, "overflow, use setset.len()");
+    PyErr_SetString(PyExc_OverflowError, "overflow, use obj.len()");
     return -1;
   }
 }
 
 PyDoc_STRVAR(long_len_doc,
-"Returns the number of sets in `self`.\n\
+"Returns the number of graphs in `self`.\n\
 \n\
-This method never throws OverflowError unlike `len(setset)`.\n\
+This method never throws OverflowError unlike `len(obj)`.\n\
 \n\
 Examples:\n\
-  >>> ss = setset([set([1]), set([1,2])])\n\
-  >>> ss.len()\n\
-  2\n\
+  >>> gs = GraphSet([set([(1,2)]), set([(1,2), (1,4)])])\n\
+  >>> gs.len()\n\
+  2L\n\
 \n\
 Returns:\n\
-  The number of sets.\n\
+  The number of graphs.\n\
 \n\
 See Also:\n\
   __len__()");
@@ -811,13 +815,13 @@ static PyObject* setset_pop(PySetsetObject* self) {
 }
 
 PyDoc_STRVAR(clear_doc,
-"Removes all sets from `self`.\n\
+"Removes all graphs from `self`.\n\
 \n\
 Examples:\n\
-  >>> ss = setset([set([1]), set([1,2])])\n\
-  >>> ss.clear()\n\
-  >>> ss\n\
-  setset([])");
+  >>> gs = GraphSet([set([(1,2)]), set([(1,2), (1,4)])])\n\
+  >>> gs.clear()\n\
+  >>> gs\n\
+  GraphSet([])");
 
 static PyObject* setset_clear(PySetsetObject* self) {
   self->ss->clear();
@@ -825,20 +829,20 @@ static PyObject* setset_clear(PySetsetObject* self) {
 }
 
 PyDoc_STRVAR(minimal_doc,
-"Returns a new setset of minimal sets.\n\
+"Returns a new GraphSet of minimal edge sets.\n\
 \n\
 The minimal sets are defined by,\n\
   f.minimal() = {a \\in f | b \\in f and a \\subseteq -> a = b}.\n\
 D. Knuth, Exercise 236, The art of computer programming, Sect.7.1.4.\n\
 \n\
 Examples:\n\
-  >>> ss = setset([set([1]), set([1,2]), set([2,3])])\n\
-  >>> ss = ss.minimal()\n\
-  >>> ss\n\
-  setset([set([1]), set([2, 3])])\n\
+  >>> gs = GraphSet([set([(1,2)]), set([(1,2), (1,4)]), set([(1,4), (2,3)])])\n\
+  >>> gs = gs.minimal()\n\
+  >>> gs\n\
+  GraphSet([set([(1, 2)]), set([(1, 4), (2, 3)])])\n\
 \n\
 Returns:\n\
-  A new setset object.\n\
+  A new GraphSet object.\n\
 \n\
 See Also:\n\
   maximal(), hitting()");
@@ -848,20 +852,20 @@ static PyObject* setset_minimal(PySetsetObject* self) {
 }
 
 PyDoc_STRVAR(maximal_doc,
-"Returns a new setset of maximal sets.\n\
+"Returns a new GraphSet of maximal edge sets.\n\
 \n\
 The maximal sets are defined by,\n\
   f.maximal() = {a \\in f | b \\in f and a \\superseteq -> a = b}.\n\
 D. Knuth, Exercise 236, The art of computer programming, Sect.7.1.4.\n\
 \n\
 Examples:\n\
-  >>> ss = setset([set([1]), set([1,2]), set([2,3])])\n\
-  >>> ss = ss.maximal()\n\
-  >>> ss\n\
-  setset([set([1, 2]), set([2, 3])])\n\
+  >>> gs = GraphSet([set([(1,2)]), set([(1,2), (1,4)]), set([(1,4), (2,3)])])\n\
+  >>> gs = gs.maximal()\n\
+  >>> gs\n\
+  GraphSet([set([(1, 2), (1, 4)]), set([(1, 4), (2, 3)])])\n\
 \n\
 Returns:\n\
-  A new setset object.\n\
+  A new GraphSet object.\n\
 \n\
 See Also:\n\
   minimal()");
@@ -871,7 +875,7 @@ static PyObject* setset_maximal(PySetsetObject* self) {
 }
 
 PyDoc_STRVAR(hitting_doc,
-"Returns a new setset of hitting sets.\n\
+"Returns a new GraphSet of hitting edge sets.\n\
 \n\
 The hitting sets are normally used as minimal hitting sets.\n\
 \n\
@@ -881,13 +885,13 @@ T. Toda, Hypergraph Dualization Algorithm Based on Binary Decision\n\
 Diagrams.\n\
 \n\
 Examples:\n\
-  >>> ss = setset([set([1]), set([1,2]), set([2,3])])\n\
-  >>> ss = ss.hitting().minimal()\n\
-  >>> ss\n\
-  setset([set([1, 2]), set([2, 3])])\n\
+  >>> gs = GraphSet([set([(1,2)]), set([(1,2), (1,4)]), set([(1,4), (2,3)])])\n\
+  >>> gs = gs.hitting().minimal()\n\
+  >>> gs\n\
+  GraphSet([set([(1, 2), (1, 4)]), set([(1, 4), (2, 3)])])\n\
 \n\
 Returns:\n\
-  A new setset object.\n\
+  A new GraphSet object.\n\
 \n\
 See Also:\n\
   minimal()");
@@ -897,16 +901,16 @@ static PyObject* setset_hitting(PySetsetObject* self) {
 }
 
 PyDoc_STRVAR(smaller_doc,
-"Returns a new setset with sets smaller than `n`.\n\
+"Returns a new GraphSet with graphs that have less than `n` edges.\n\
 \n\
 Examples:\n\
-  >>> ss = setset([set([1]), set([1,2]), set([1,2,3])])\n\
-  >>> ss = ss.smaller(2)\n\
-  >>> ss\n\
-  setset([set([1])])\n\
+  >>> gs = GraphSet([set([(1,2)]), set([(1,2), (1,4)]), set([(1,2), (1,4), (2,3)])])\n\
+  >>> gs = gs.smaller(2)\n\
+  >>> gs\n\
+  GraphSet([set([(1, 2)])])\n\
 \n\
 Returns:\n\
-  A new setset object.\n\
+  A new GraphSet object.\n\
 \n\
 See Also:\n\
   larger(), equal()");
@@ -922,16 +926,16 @@ static PyObject* setset_smaller(PySetsetObject* self, PyObject* io) {
 }
 
 PyDoc_STRVAR(larger_doc,
-"Returns a new setset with sets larger than `n`.\n\
+"Returns a new GraphSet with graphs that have more than `n` edges.\n\
 \n\
 Examples:\n\
-  >>> ss = setset([set([1]), set([1,2]), set([1,2,3])])\n\
-  >>> ss = ss.larger(2)\n\
-  >>> ss\n\
-  setset([set([1, 2, 3])])\n\
+  >>> gs = GraphSet([set([(1,2)]), set([(1,2), (1,4)]), set([(1,2), (1,4), (2,3)])])\n\
+  >>> gs = gs.larger(2)\n\
+  >>> gs\n\
+  GraphSet([set([(1, 2), (1, 4), (2, 3)])])\n\
 \n\
 Returns:\n\
-  A new setset object.\n\
+  A new GraphSet object.\n\
 \n\
 See Also:\n\
   smaller(), equal()");
@@ -947,16 +951,16 @@ static PyObject* setset_larger(PySetsetObject* self, PyObject* io) {
 }
 
 PyDoc_STRVAR(equal_doc,
-"Returns a new setset with sets whose sizes are equal to `n`.\n\
+"Returns a new GraphSet with graphs that have `n` edges.\n\
 \n\
 Examples:\n\
-  >>> ss = setset([set([1]), set([1,2]), set([1,2,3])])\n\
-  >>> ss = ss.equal(2)\n\
-  >>> ss\n\
-  setset([set([1, 2])])\n\
+  >>> gs = GraphSet([set([(1,2)]), set([(1,2), (1,4)]), set([(1,2), (1,4), (2,3)])])\n\
+  >>> gs = gs.equal(2)\n\
+  >>> gs\n\
+  GraphSet([set([(1, 2), (1, 4)])])\n\
 \n\
 Returns:\n\
-  A new setset object.\n\
+  A new GraphSet object.\n\
 \n\
 See Also:\n\
   smaller(), larger()");
@@ -978,21 +982,21 @@ static PyObject* setset_invert(PySetsetObject* self, PyObject* eo) {
 }
 
 PyDoc_STRVAR(join_doc,
-"Returns a new setset of join between `self` and `other`.\n\
+"Returns a new GraphSet of join between `self` and `other`.\n\
 \n\
 The join operation is defined by,\n\
   f \\sqcup g = {a \\cup b | a \\in f and b \\in g}.\n\
 D. Knuth, Exercise 203, The art of computer programming, Sect.7.1.4.\n\
 \n\
 Examples:\n\
-  >>> ss1 = setset([set([1]), set([1,2])])\n\
-  >>> ss2 = setset([set([3])])\n\
-  >>> ss = ss1.join(ss2)\n\
-  >>> ss\n\
-  setset([set([1, 3]), set([1, 2, 3])])\n\
+  >>> gs1 = GraphSet([set([(1,2)]), set([(1,2), (1,4)])])\n\
+  >>> gs2 = GraphSet([set([(2,3)])])\n\
+  >>> gs = gs1.join(gs2)\n\
+  >>> gs\n\
+  GraphSet([set([(1, 2), (2, 3)]), set([(1, 2), (1, 4), (2, 3)])])\n\
 \n\
 Returns:\n\
-  A new setset object.\n\
+  A new GraphSet object.\n\
 \n\
 See Also:\n\
   meet()");
@@ -1003,21 +1007,21 @@ static PyObject* setset_join(PySetsetObject* self, PyObject* other) {
 }
 
 PyDoc_STRVAR(meet_doc,
-"Returns a new setset of meet between `self` and `other`.\n\
+"Returns a new GraphSet of meet between `self` and `other`.\n\
 \n\
 The meet operation is defined by,\n\
   f \\sqcap g = {a \\cap b | a \\in f and b \\in g}.\n\
 D. Knuth, Exercise 203, The art of computer programming, Sect.7.1.4.\n\
 \n\
 Examples:\n\
-  >>> ss1 = setset([set([1,2]), set([1,3])])\n\
-  >>> ss2 = setset([set([2,3])])\n\
-  >>> ss = ss1.meet(ss2)\n\
-  >>> ss\n\
-  setset([set([2]), set([3])])\n\
+  >>> gs1 = GraphSet([set([(1,2), (1,4)]), set([(1,2), (2,3)])])\n\
+  >>> gs2 = GraphSet([set([(1,4), (2,3)])])\n\
+  >>> gs = gs1.meet(gs2)\n\
+  >>> gs\n\
+  GraphSet([set([(1, 4)]), set([(2, 3)])])\n\
 \n\
 Returns:\n\
-  A new setset object.\n\
+  A new GraphSet object.\n\
 \n\
 See Also:\n\
   join()");
@@ -1028,17 +1032,17 @@ static PyObject* setset_meet(PySetsetObject* self, PyObject* other) {
 }
 
 PyDoc_STRVAR(subsets_doc,
-"Returns a new setset with sets that are subsets of a set in `other`.\n\
+"Returns a new GraphSet with subgraphs of a graph in `other`.\n\
 \n\
 Examples:\n\
-  >>> ss1 = setset([set([1]), set([1,2])])\n\
-  >>> ss2 = setset([set([1,3]), set([2,3])])\n\
-  >>> ss = ss1.subsets(ss2)\n\
-  >>> ss\n\
-  setset([set([1])])\n\
+  >>> gs1 = GraphSet([set([(1,2)]), set([(1,2), (1,4)])])\n\
+  >>> gs2 = GraphSet([set([(1,2), (2,3)]), set([(1,4), (2,3)])])\n\
+  >>> gs = gs1.subsets(gs2)\n\
+  >>> gs\n\
+  GraphSet([set([(1, 2)])])\n\
 \n\
 Returns:\n\
-  A new setset object.\n\
+  A new GraphSet object.\n\
 \n\
 See Also:\n\
   supersets(), nonsubsets()");
@@ -1049,17 +1053,17 @@ static PyObject* setset_subsets(PySetsetObject* self, PyObject* other) {
 }
 
 PyDoc_STRVAR(supersets_doc,
-"Returns a new setset with sets that are supersets of a set in `other`.\n\
+"Returns a new GraphSet with supergraphs of a graph in `other`.\n\
 \n\
 Examples:\n\
-  >>> ss1 = setset([set([1,3]), set([2,3])])\n\
-  >>> ss2 = setset([set([1]), set([1,2])])\n\
-  >>> ss = ss1.supersets(ss2)\n\
-  >>> ss\n\
-  setset([set([1, 3])])\n\
+  >>> gs1 = GraphSet([set([(1,2), (2,3)]), set([(1,4), (2,3)])])\n\
+  >>> gs2 = GraphSet([set([(1,2)]), set([(1,2), (1,4)])])\n\
+  >>> gs = gs1.supersets(gs2)\n\
+  >>> gs\n\
+  GraphSet([set([(1, 2), (2, 3)])])\n\
 \n\
 Returns:\n\
-  A new setset object.\n\
+  A new GraphSet object.\n\
 \n\
 See Also:\n\
   subsets(), nonsupersets()");
@@ -1070,21 +1074,21 @@ static PyObject* setset_supersets(PySetsetObject* self, PyObject* other) {
 }
 
 PyDoc_STRVAR(nonsubsets_doc,
-"Returns a new setset with sets that aren't subsets of any set in `other`.\n\
+"Returns a new GraphSet with graphs that aren't subgraphs of any graph in `other`.\n\
 \n\
 The nonsubsets are defined by,\n\
   f.nonsubsets(g) = {a \\in f | b \\in g -> a \\not\\subseteq b}.\n\
 D. Knuth, Exercise 236, The art of computer programming, Sect.7.1.4.\n\
 \n\
 Examples:\n\
-  >>> ss1 = setset([set([1]), set([1,2])])\n\
-  >>> ss2 = setset([set([1,3]), set([2,3])])\n\
-  >>> ss = ss1.nonsubsets(ss2)\n\
-  >>> ss\n\
-  setset([set([1, 2])])\n\
+  >>> gs1 = GraphSet([set([(1,2)]), set([(1,2), (1,4)])])\n\
+  >>> gs2 = GraphSet([set([(1,2), (2,3)]), set([(1,4), (2,3)])])\n\
+  >>> gs = gs1.nonsubsets(gs2)\n\
+  >>> gs\n\
+  GraphSet([set([(1, 2), (1, 4)])])\n\
 \n\
 Returns:\n\
-  A new setset object.\n\
+  A new GraphSet object.\n\
 \n\
 See Also:\n\
   nonsupersets(), subsets()");
@@ -1095,21 +1099,21 @@ static PyObject* setset_nonsubsets(PySetsetObject* self, PyObject* other) {
 }
 
 PyDoc_STRVAR(nonsupersets_doc,
-"Returns a new setset with sets that aren't supersets of any set in `other`.\n\
+"Returns a new GraphSet with graphs that aren't supergraphs of any graph in `other`.\n\
 \n\
 The nonsupersets are defined by,\n\
   f.nonsupersets(g) = {a \\in f | b \\in g -> a \\not\\superseteq b}.\n\
 D. Knuth, Exercise 236, The art of computer programming, Sect.7.1.4.\n\
 \n\
 Examples:\n\
-  >>> ss1 = setset([set([1,3]), set([2,3])])\n\
-  >>> ss2 = setset([set([1]), set([1,2])])\n\
-  >>> ss = ss1.nonsupersets(ss2)\n\
-  >>> ss\n\
-  setset([set([2, 3])])\n\
+  >>> gs1 = GraphSet([set([(1,2), (2,3)]), set([(1,4), (2,3)])])\n\
+  >>> gs2 = GraphSet([set([(1,2)]), set([(1,2), (1,4)])])\n\
+  >>> gs = gs1.nonsupersets(gs2)\n\
+  >>> gs\n\
+  GraphSet([set([(1, 4), (2, 3)])])\n\
 \n\
 Returns:\n\
-  A new setset object.\n\
+  A new GraphSet object.\n\
 \n\
 See Also:\n\
   nonsubsets(), supersets()");
@@ -1129,8 +1133,11 @@ Args:\n\
   fp: A write-supporting file-like object.\n\
 \n\
 Examples:\n\
-  >>> f = open('/path/to/file', 'w')\n\
-  >>> ss.dump(f)\n\
+  >>> import pickle\n\
+  >>> fp = open('/path/to/graphset', 'wb')\n\
+  >>> gs.dump(fp)\n\
+  >>> fp = open('/path/to/universe' 'wb')\n\
+  >>> pickle.dump(GraphSet.get_universe(), fp)\n\
 \n\
 See Also:\n\
   dumps(), load()");
@@ -1154,7 +1161,9 @@ This method does not serialize the universe, which should be saved\n\
 separately by pickle.\n\
 \n\
 Examples:\n\
-  >>> str = ss.dumps()\n\
+  >>> import pickle\n\
+  >>> graphset_str = gs.dumps()\n\
+  >>> universe_str = pickle.dumps(GraphSet.get_universe())\n\
 \n\
 See Also:\n\
   dump(), loads()");
@@ -1175,8 +1184,11 @@ Args:\n\
   fp: A read-supporting file-like object.\n\
 \n\
 Examples:\n\
-  >>> f = open('/path/to/file')\n\
-  >>> ss.load(f)\n\
+  >>> import pickle\n\
+  >>> fp = open('/path/to/universe')\n\
+  >>> GraphSet.set_universe(pickle.load(fp))\n\
+  >>> fp = open('/path/to/graphset')\n\
+  >>> gs = GraphSet().load(fp)\n\
 \n\
 See Also:\n\
   loads(), dump()");
@@ -1203,7 +1215,9 @@ Args:\n\
   str: A str instance.\n\
 \n\
 Examples:\n\
-  >>> ss.load(str)\n\
+  >>> import pickle\n\
+  >>> GraphSet.set_universe(pickle.loads(universe_str))\n\
+  >>> gs = Graphset().load(graphset_str)\n\
 \n\
 See Also:\n\
   load(), dumps()");

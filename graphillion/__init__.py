@@ -17,10 +17,10 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-"""A fast, lightweight graphset operation library in Python.
+"""A fast, lightweight graphset operation library.
 
-Graphillion is a Python language software package for "graphset
-operations".  See README for details.
+Graphillion is a Python package for efficient "graphset operations".
+See README for details.
 """
 
 from graphillion.setset import setset
