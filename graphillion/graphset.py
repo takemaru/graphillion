@@ -20,7 +20,7 @@
 from graphillion import setset
 
 
-class GraphSet(setset):
+class GraphSet(object):
     """Represents and manipulates a set of graphs.
 
     A GraphSet object stores a set of graphs.  A graph stored is a
@@ -106,8 +106,13 @@ class GraphSet(setset):
         See Also:
           copy()
         """
-        graphset_or_constraints = GraphSet._conv_arg(graphset_or_constraints)
-        setset.__init__(self, graphset_or_constraints)
+        obj = graphset_or_constraints
+        if isinstance(obj, GraphSet):
+            self.ss = obj.ss.copy()
+        elif isinstance(obj, setset):
+            self.ss = obj.copy()
+        else:
+            self.ss = setset(GraphSet._conv_arg(obj))
 
     def copy(self):
         """Returns a new GraphSet with a shallow copy of `self`.
@@ -124,10 +129,18 @@ class GraphSet(setset):
         See Also:
           __init__()
         """
-        return setset.copy(self)
+        return GraphSet(self)
+
+    def __nonzero__(self):
+        return bool(self.ss)
+
+    def __repr__(self):
+        return repr(self.ss)
 
     def union(self, other):
         """Returns a new GraphSet with graphs from `self` and all others.
+
+        The `self` GraphSet is not changed.
 
         Examples:
           >>> gs1 = GraphSet([set([(1,2)]), set([(1,2), (1,4)])])
@@ -143,10 +156,12 @@ class GraphSet(setset):
           intersection(), difference(), symmetric_difference(),
           update()
         """
-        return setset.union(self, other)
+        return GraphSet(self.ss.union(other.ss))
 
     def intersection(self, other):
         """Returns a new GraphSet with graphs common to `self` and all others.
+
+        The `self` GraphSet is not changed.
 
         Examples:
           >>> gs1 = GraphSet([set([(1,2)]), set([(1,2), (1,4)])])
@@ -162,10 +177,12 @@ class GraphSet(setset):
           union(), difference(), symmetric_difference(),
           intersection_update()
         """
-        return setset.intersection(self, other)
+        return GraphSet(self.ss.intersection(other.ss))
 
     def difference(self, other):
         """Returns a new GraphSet with graphs in `self` that are not in the others.
+
+        The `self` GraphSet is not changed.
 
         Examples:
           >>> gs1 = GraphSet([set([(1,2)]), set([(1,2), (1,4)])])
@@ -181,10 +198,12 @@ class GraphSet(setset):
           union(), intersection(), symmetric_difference(),
           difference_update()
         """
-        return setset.difference(self, other)
+        return GraphSet(self.ss.difference(other.ss))
 
     def symmetric_difference(self, other):
         """Returns a new GraphSet with graphs in either `self` or `other` but not both.\n\
+
+        The `self` GraphSet is not changed.
 
         Examples:\n\
           >>> gs1 = GraphSet([set([(1,2)]), set([(1,2), (1,4)])])\n\
@@ -200,7 +219,7 @@ class GraphSet(setset):
           union(), intersection(), difference(), 
           symmetric_difference_update()
         """
-        return setset.symmetric_difference(self, other)
+        return GraphSet(self.ss.symmetric_difference(other.ss))
 
     def quotient(self, other):
         """Returns a new GraphSet of quotient.\n\
@@ -208,6 +227,8 @@ class GraphSet(setset):
         The quotient is defined by,\n\
           gs1 / gs2 = {a | a \\cup b \\in gs1 and a \\cap b = \\empty, \\forall b \\in gs2}.\n\
         D. Knuth, Exercise 204, The art of computer programming, Sect.7.1.4.\n\
+
+        The `self` GraphSet is not changed.
 
         Examples:\n\
           >>> gs = GraphSet([set([(1,2), (1,4)]), set([(2,3), (2,5)])])\n\
@@ -221,7 +242,7 @@ class GraphSet(setset):
         See Also:\n\
           remainder(), quotient_update()
         """
-        return setset.quotient(self, other)
+        return GraphSet(self.ss.quotient(other.ss))
 
     def remainder(self, other):
         """Returns a new GraphSet of remainder.\n\
@@ -229,6 +250,8 @@ class GraphSet(setset):
         The remainder is defined by,\n\
           gs1 % gs2 = gs1 - (gs1 \\sqcup (gs1 / gs2)).\n\
         D. Knuth, Exercise 204, The art of computer programming, Sect.7.1.4.\n\
+
+        The `self` GraphSet is not changed.
 
         Examples:\n\
           >>> gs = GraphSet([set([(1,2), (1,4)]), set([(2,3), (2,5)])])\n\
@@ -242,7 +265,7 @@ class GraphSet(setset):
         See Also:\n\
           quotient(), remainder_update()
         """
-        return setset.remainder(self, other)
+        return GraphSet(self.ss.remainder(other.ss))
 
     def update(self, other):
         """Updates `self`, adding graphs from all others.
@@ -260,7 +283,8 @@ class GraphSet(setset):
         See Also:
           union()
         """
-        return setset.update(self, other)
+        self.ss.update(other.ss)
+        return self
 
     def intersection_update(self, other):
         """Updates `self`, keeping only graphs found in it and all others.
@@ -278,7 +302,8 @@ class GraphSet(setset):
         See Also:
           intersection()
         """
-        return setset.intersection_update(self, other)
+        self.ss.intersection_update(other.ss)
+        return self
 
     def difference_update(self, other):
         """Update `self`, removing graphs found in others.\n\
@@ -296,7 +321,8 @@ class GraphSet(setset):
         See Also:\n\
           difference()
         """
-        return setset.difference_update(self, other)
+        self.ss.difference_update(other.ss)
+        return self
 
     def symmetric_difference_update(self, other):
         """Update `self`, keeping only graphs in either GraphSet, but not in both.\n\
@@ -314,7 +340,8 @@ class GraphSet(setset):
         See Also:\n\
           symmetric_difference()
         """
-        return setset.symmetric_difference_update(self, other)
+        self.ss.symmetric_difference_update(other.ss)
+        return self
 
     def quotient_update(self, other):
         """Updates `self` by the quotient.\n\
@@ -331,7 +358,8 @@ class GraphSet(setset):
         See Also:\n\
           quotient()
         """
-        return setset.quotient_update(self, other)
+        self.ss.quotient_update(other.ss)
+        return self
 
     def remainder_update(self, other):
         """Updates `self` by the remainder.\n\
@@ -348,7 +376,8 @@ class GraphSet(setset):
         See Also:\n\
           remainder()
         """
-        return setset.remainder_update(self, other)
+        self.ss.remainder_update(other.ss)
+        return self
 
     def __invert__(self):
         """Returns a new GraphSet with graphs not stored in `self`.
@@ -363,7 +392,7 @@ class GraphSet(setset):
         Returns:
           A new GraphSet object.
         """
-        return setset.invert(self)
+        return GraphSet(~self.ss)
 
     __or__ = union
     __and__ = intersection
@@ -394,7 +423,7 @@ class GraphSet(setset):
         See Also:\n\
           issubset(), issuperset()
         """
-        return setset.isdisjoint(self, other)
+        return self.ss.isdisjoint(other.ss)
 
     def issubset(self, other):
         """Tests if every graph in `self` is in `other`.\n\
@@ -411,7 +440,7 @@ class GraphSet(setset):
         See Also:\n\
           issuperset(), isdisjoint()
         """
-        return setset.issubset(self, other)
+        return self.issubset(other.ss)
 
     def issuperset(self, other):
         """Tests if every graph in `other` is in `self`.\n\
@@ -428,7 +457,7 @@ class GraphSet(setset):
         See Also:\n\
           issubset(), isdisjoint()
         """
-        return setset.issuperset(self, other)
+        return self.issuperset(other.ss)
 
     __le__ = issubset
     __ge__ = issuperset
@@ -449,7 +478,7 @@ class GraphSet(setset):
         See Also:\n\
           issubset(), issuperset(), isdisjoint()
         """
-        return setset.__lt__(self, other)
+        return self.ss < other.ss
 
     def __gt__(self, other):
         """Test if `self` is a true superset of `other`.
@@ -467,7 +496,13 @@ class GraphSet(setset):
         See Also:\n\
           issubset(), isdisjoint()
         """
-        return setset.__gt__(self, other)
+        return self.ss > other.ss
+
+    def __eq__(self, other):
+        return self.ss == other.ss
+
+    def __ne__(self, other):
+        return self.ss != other.ss
 
     def __len__(self):
         """Returns the number of graphs in `self`.\n\
@@ -488,7 +523,7 @@ class GraphSet(setset):
         See Also:\n\
           len()
         """
-        return setset.__len__(self)
+        return len(self.ss)
 
     def len(self):
         """Returns the number of graphs in `self`.\n\
@@ -504,7 +539,7 @@ class GraphSet(setset):
         See Also:\n\
           __len__()
         """
-        return setset.len(self)
+        return self.ss.len()
 
     def randomize(self):
         """Iterates over graphs randomly.
@@ -525,7 +560,7 @@ class GraphSet(setset):
         See Also:
           minimize(), maximize(), pop()
         """
-        return setset.randomize(self)
+        return self.ss.randomize()
 
     __iter__ = randomize
 
@@ -554,8 +589,8 @@ class GraphSet(setset):
         See Also:
           maximize(), randomize()
         """
-        for s in setset.minimize(self, GraphSet._weights):
-            yield s
+        for g in self.ss.minimize(GraphSet._weights):
+            yield g
 
     def maximize(self):
         """Iterates over graphs in the descending order of weights.
@@ -582,13 +617,13 @@ class GraphSet(setset):
         See Also:
           minimize(), randomize()
         """
-        for s in setset.maximize(self, GraphSet._weights):
-            yield s
+        for g in self.ss.maximize(GraphSet._weights):
+            yield g
 
     def __contains__(self, graph):
         """Returns True if `graph` is in the `self` GraphSet, False otherwise.
 
-        Use the expression `graph in graphset`.
+        Use the expression `graph in gs`.
 
         Examples:
           >>> gs = GraphSet([set([(1,2), (1,4)]), set([(2,3)])])
@@ -605,7 +640,7 @@ class GraphSet(setset):
           KeyError: If the given graph is not found in the universe.
         """
         graph = GraphSet._conv_arg(graph)
-        return setset.__contains__(self, graph)
+        return graph in self.ss
 
     def include(self, edge_or_vertex):
         """Returns a new set of graphs that include a given edge or vertex.
@@ -632,13 +667,13 @@ class GraphSet(setset):
           exclude()
         """
         try:  # if edge
-            return setset.include(self, GraphSet._conv_edge(edge_or_vertex))
+            return self.ss.include(GraphSet._conv_edge(edge_or_vertex))
         except KeyError:  # else
             gs = GraphSet()
             edges = [e for e in setset.get_universe() if edge_or_vertex in e]
             for edge in edges:
-                gs |= setset.include(self, edge)
-            return gs & self
+                gs.ss |= self.ss.include(edge)
+            return GraphSet(gs.ss & self.ss)
 
     def exclude(self, edge_or_vertex):
         """Returns a new set of graphs that don't include a given edge or vertex.
@@ -665,7 +700,7 @@ class GraphSet(setset):
           include()
         """
         try:  # if edge
-            return setset.exclude(self, GraphSet._conv_edge(edge_or_vertex))
+            return self.ss.exclude(GraphSet._conv_edge(edge_or_vertex))
         except KeyError:  # else
             return self - self.include(edge_or_vertex)
 
@@ -697,7 +732,7 @@ class GraphSet(setset):
           remove(), discard(), flip()
         """
         graph_or_edge = GraphSet._conv_arg(graph_or_edge)
-        return setset.add(self, graph_or_edge)
+        return self.ss.add(graph_or_edge)
 
     def remove(self, graph_or_edge):
         """Removes a given graph or edge from `self` GraphSet.
@@ -728,7 +763,7 @@ class GraphSet(setset):
           add(), discard(), flip(), pop()
         """
         graph_or_edge = GraphSet._conv_arg(graph_or_edge)
-        return setset.remove(self, graph_or_edge)
+        return self.ss.remove(graph_or_edge)
 
     def discard(self, graph_or_edge):
         """Removes a given graph or edge from `self` GraphSet.
@@ -758,7 +793,7 @@ class GraphSet(setset):
           add(), remove(), flip(), pop()
         """
         graph_or_edge = GraphSet._conv_arg(graph_or_edge)
-        return setset.discard(self, graph_or_edge)
+        return self.ss.discard(graph_or_edge)
 
     def pop(self):
         """Removes and returns an arbitrary graph from `self` GraphSet.
@@ -777,7 +812,7 @@ class GraphSet(setset):
         See Also:
           remove(), discard(), randomize()
         """
-        return setset.pop(self)
+        return self.ss.pop()
 
     def clear(self):
         """Removes all graphs from `self`.\n\
@@ -788,7 +823,7 @@ class GraphSet(setset):
           >>> gs\n\
           GraphSet([])
         """
-        return setset.clear(self)
+        return self.ss.clear(self)
 
     def minimal(self):
         """Returns a new GraphSet of minimal edge sets.\n\
@@ -796,6 +831,8 @@ class GraphSet(setset):
         The minimal sets are defined by,\n\
           gs.minimal() = {a \\in gs | b \\in gs and a \\subseteq -> a = b}.\n\
         D. Knuth, Exercise 236, The art of computer programming, Sect.7.1.4.\n\
+
+        The `self` GraphSet is not changed.
 
         Examples:\n\
           >>> gs = GraphSet([set([(1,2)]), set([(1,2), (1,4)]), set([(1,4), (2,3)])])\n\
@@ -809,7 +846,7 @@ class GraphSet(setset):
         See Also:\n\
           maximal(), blocking()
         """
-        return setset.minimal(self)
+        return GraphSet(self.ss.minimal())
 
     def maximal(self):
         """Returns a new GraphSet of maximal edge sets.\n\
@@ -817,6 +854,8 @@ class GraphSet(setset):
         The maximal sets are defined by,\n\
           gs.maximal() = {a \\in gs | b \\in gs and a \\superseteq -> a = b}.\n\
         D. Knuth, Exercise 236, The art of computer programming, Sect.7.1.4.\n\
+
+        The `self` GraphSet is not changed.
 
         Examples:\n\
           >>> gs = GraphSet([set([(1,2)]), set([(1,2), (1,4)]), set([(1,4), (2,3)])])\n\
@@ -830,7 +869,7 @@ class GraphSet(setset):
         See Also:\n\
           minimal()
         """
-        return setset.maximal(self)
+        return GraphSet(self.ss.maximal())
 
     def blocking(self):
         """Returns a new GraphSet of all blocking sets.\n\
@@ -845,6 +884,8 @@ class GraphSet(setset):
         T. Toda, Hypergraph Dualization Algorithm Based on Binary Decision\n\
         Diagrams.\n\
 
+        The `self` GraphSet is not changed.
+
         Examples:\n\
           >>> gs = GraphSet([set([(1,2)]), set([(1,2), (1,4)]), set([(1,4), (2,3)])])\n\
           >>> gs = gs.blocking().minimal()\n\
@@ -857,10 +898,12 @@ class GraphSet(setset):
         See Also:\n\
           minimal()
         """
-        return setset.hitting(self)
+        return GraphSet(self.ss.hitting())
 
     def smaller(self, size):
         """Returns a new GraphSet with graphs that have less than `size` edges.\n\
+
+        The `self` GraphSet is not changed.
 
         Examples:\n\
           >>> gs = GraphSet([set([(1,2)]), set([(1,2), (1,4)]), set([(1,2), (1,4), (2,3)])])\n\
@@ -877,10 +920,12 @@ class GraphSet(setset):
         See Also:\n\
           larger(), same_size()
         """
-        return setset.smaller(self, size)
+        return GraphSet(self.ss.smaller(size))
 
     def larger(self, size):
         """Returns a new GraphSet with graphs that have more than `size` edges.\n\
+
+        The `self` GraphSet is not changed.
 
         Examples:\n\
           >>> gs = GraphSet([set([(1,2)]), set([(1,2), (1,4)]), set([(1,2), (1,4), (2,3)])])\n\
@@ -897,10 +942,12 @@ class GraphSet(setset):
         See Also:\n\
           smaller(), same_size()
         """
-        return setset.larger(self, size)
+        return GraphSet(self.ss.larger(size))
 
     def same_size(self, size):
         """Returns a new GraphSet with graphs that have `size` edges.\n\
+
+        The `self` GraphSet is not changed.
 
         Examples:\n\
           >>> gs = GraphSet([set([(1,2)]), set([(1,2), (1,4)]), set([(1,2), (1,4), (2,3)])])\n\
@@ -917,7 +964,7 @@ class GraphSet(setset):
         See Also:\n\
           smaller(), larger()
         """
-        return setset.same_size(self, size)
+        return GraphSet(self.ss.same_size(size))
 
     def flip(self, edge):
         """Returns a new set of graphs by flipping the state of a given edge.
@@ -948,10 +995,12 @@ class GraphSet(setset):
           add(), remove(), discard()
         """
         edge = GraphSet._conv_edge(edge)
-        return setset.flip(self, edge)
+        return GraphSet(self.ss.flip(edge))
 
     def complement(self):
         """Returns a new GraphSet with complement graphs of `self`.
+
+        The `self` GraphSet is not changed.
 
         Examples:
           >>> GraphSet.set_universe([(1,2), (1,4)])
@@ -963,7 +1012,7 @@ class GraphSet(setset):
         Returns:
           A new GraphSet object.
         """
-        return setset.flip(self)
+        return GraphSet(self.ss.flip())
 
     def join(self, other):
         """Returns a new GraphSet of join between `self` and `other`.\n\
@@ -971,6 +1020,8 @@ class GraphSet(setset):
         The join operation is defined by,\n\
           gs1 \\sqcup gs2 = {a \\cup b | a \\in gs1 and b \\in gs2}.\n\
         D. Knuth, Exercise 203, The art of computer programming, Sect.7.1.4.\n\
+
+        The `self` GraphSet is not changed.
 
         Examples:\n\
           >>> gs1 = GraphSet([set([(1,2)]), set([(1,2), (1,4)])])\n\
@@ -985,7 +1036,7 @@ class GraphSet(setset):
         See Also:\n\
           meet()
         """
-        return setset.join(self, other)
+        return GraphSet(self.ss.join(other.ss))
 
     def meet(self, other):
         """Returns a new GraphSet of meet between `self` and `other`.\n\
@@ -993,6 +1044,8 @@ class GraphSet(setset):
         The meet operation is defined by,\n\
           gs1 \\sqcap gs2 = {a \\cap b | a \\in gs1 and b \\in gs2}.\n\
         D. Knuth, Exercise 203, The art of computer programming, Sect.7.1.4.\n\
+
+        The `self` GraphSet is not changed.
 
         Examples:\n\
           >>> gs1 = GraphSet([set([(1,2), (1,4)]), set([(1,2), (2,3)])])\n\
@@ -1007,10 +1060,12 @@ class GraphSet(setset):
         See Also:\n\
           join()
         """
-        return setset.meet(self, other)
+        return GraphSet(self.ss.meet(other.ss))
 
     def subgraphs(self, other):
         """Returns a new GraphSet with subgraphs of a graph in `other`.\n\
+
+        The `self` GraphSet is not changed.
 
         Examples:\n\
           >>> gs1 = GraphSet([set([(1,2)]), set([(1,2), (1,4)])])\n\
@@ -1025,10 +1080,12 @@ class GraphSet(setset):
         See Also:\n\
           supersets(), non_subsets()
         """
-        return setset.subsets(self, other)
+        return GraphSet(self.ss.subsets(other.ss))
 
     def supergraphs(self, other):
         """Returns a new GraphSet with supergraphs of a graph in `other`.\n\
+
+        The `self` GraphSet is not changed.
 
         Examples:\n\
           >>> gs1 = GraphSet([set([(1,2), (2,3)]), set([(1,4), (2,3)])])\n\
@@ -1043,10 +1100,12 @@ class GraphSet(setset):
         See Also:\n\
           subsets(), non_supersets()
         """
-        return setset.supersets(self, other)
+        return GraphSet(self.ss.supersets(other.ss))
 
     def non_subgraphs(self, other):
         """Returns a new GraphSet with graphs that aren't subgraphs of any graph in `other`.\n\
+
+        The `self` GraphSet is not changed.
 
         The non_subsets are defined by,\n\
           gs1.non_subsets(gs2) = {a \\in gs1 | b \\in gs2 -> a \\not\\subseteq b}.\n\
@@ -1065,10 +1124,12 @@ class GraphSet(setset):
         See Also:\n\
           non_supersets(), subsets()
         """
-        return setset.non_subsets(self, other)
+        return GraphSet(self.ss.non_subsets(other.ss))
 
     def non_supergraphs(self, other):
         """Returns a new GraphSet with graphs that aren't supergraphs of any graph in `other`.\n\
+
+        The `self` GraphSet is not changed.
 
         The non_supersets are defined by,\n\
           gs1.non_supersets(gs2) = {a \\in gs1 | b \\in gs2 -> a \\not\\superseteq b}.\n\
@@ -1087,7 +1148,7 @@ class GraphSet(setset):
         See Also:\n\
           non_subsets(), supersets()
         """
-        return setset.non_supersets(self, other)
+        return GraphSet(self.ss.non_supersets(other.ss))
 
     def dump(self, fp):
         """Serialize `self` to a file `fp`.\n\
@@ -1108,7 +1169,7 @@ class GraphSet(setset):
         See Also:\n\
           dumps(), load()
         """
-        return setset.dump(self, fp)
+        return self.ss.dump(fp)
 
     def dumps(self):
         """Returns a serialized `self`.\n\
@@ -1124,7 +1185,7 @@ class GraphSet(setset):
         See Also:\n\
           dump(), loads()
         """
-        return setset.dumps(self)
+        return self.ss.dumps()
 
     def load(self, fp):
         """Deserialize a file `fp` to `self`.\n\
@@ -1145,16 +1206,16 @@ class GraphSet(setset):
         See Also:\n\
           loads(), dump()
         """
-        return setset.load(self, fp)
+        return self.ss.load(fp)
 
     def loads(self, s):
-        """Deserialize `str` to `self`.\n\
+        """Deserialize `s` to `self`.\n\
 
         This method does not deserialize the universe, which should be\n\
         loaded separately by pickle.\n\
 
         Args:\n\
-          str: A str instance.\n\
+          s: A string instance.\n\
 
         Examples:\n\
           >>> import pickle\n\
@@ -1164,7 +1225,7 @@ class GraphSet(setset):
         See Also:\n\
           load(), dumps()
         """
-        return setset.loads(self, s)
+        return self.ss.loads(s)
 
     @staticmethod
     def set_universe(universe, traversal='bfs', source=None):
