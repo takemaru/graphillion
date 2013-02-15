@@ -290,13 +290,13 @@ class TestGraphSet(unittest.TestCase):
         self.assertTrue(isinstance(gs, GraphSet))
         self.assertEqual(gs, GraphSet([g12, g123, g1234, g134, g14]))
 
-        gs = GraphSet(u).non_subgraphs(GraphSet(v))
-        self.assertTrue(isinstance(gs, GraphSet))
-        self.assertEqual(gs, GraphSet([g123, g1234, g134]))
+#        gs = GraphSet(u).non_subgraphs(GraphSet(v))
+#        self.assertTrue(isinstance(gs, GraphSet))
+#        self.assertEqual(gs, GraphSet([g123, g1234, g134]))
 
-        gs = GraphSet(u).non_supergraphs(GraphSet(v))
-        self.assertTrue(isinstance(gs, GraphSet))
-        self.assertEqual(gs, GraphSet([g0, g1, g4]))
+#        gs = GraphSet(u).non_supergraphs(GraphSet(v))
+#        self.assertTrue(isinstance(gs, GraphSet))
+#        self.assertEqual(gs, GraphSet([g0, g1, g4]))
 
     def capacity(self):
         gs = GraphSet()

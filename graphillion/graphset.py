@@ -1107,55 +1107,55 @@ class GraphSet(object):
         """
         return GraphSet(self.ss.supersets(other.ss))
 
-    def non_subgraphs(self, other):
-        """Returns a new GraphSet with graphs that aren't subgraphs of any graph in `other`.
+#    def non_subgraphs(self, other):
+#        """Returns a new GraphSet with graphs that aren't subgraphs of any graph in `other`.
+#
+#        The `self` is not changed.
+#
+#        The non_subsets are defined by,
+#          gs1.non_subsets(gs2) = {a \\in gs1 | b \\in gs2 -> a \\not\\subseteq b}.
+#        D. Knuth, Exercise 236, The art of computer programming,
+#        Sect.7.1.4.
+#
+#        Examples:
+#          >>> gs1 = GraphSet([set([(1,2)]), set([(1,2), (1,4)])])
+#          >>> gs2 = GraphSet([set([(1,2), (2,3)]), set([(1,4), (2,3)])])
+#          >>> gs = gs1.non_subgraphs(gs2)
+#          >>> gs
+#          GraphSet([set([(1, 2), (1, 4)])])
+#
+#        Returns:
+#          A new GraphSet object.
+#
+#        See Also:
+#          non_supersets(), subsets()
+#        """
+#        return GraphSet(self.ss.non_subsets(other.ss))
 
-        The `self` is not changed.
-
-        The non_subsets are defined by,
-          gs1.non_subsets(gs2) = {a \\in gs1 | b \\in gs2 -> a \\not\\subseteq b}.
-        D. Knuth, Exercise 236, The art of computer programming,
-        Sect.7.1.4.
-
-        Examples:
-          >>> gs1 = GraphSet([set([(1,2)]), set([(1,2), (1,4)])])
-          >>> gs2 = GraphSet([set([(1,2), (2,3)]), set([(1,4), (2,3)])])
-          >>> gs = gs1.non_subgraphs(gs2)
-          >>> gs
-          GraphSet([set([(1, 2), (1, 4)])])
-
-        Returns:
-          A new GraphSet object.
-
-        See Also:
-          non_supersets(), subsets()
-        """
-        return GraphSet(self.ss.non_subsets(other.ss))
-
-    def non_supergraphs(self, other):
-        """Returns a new GraphSet with graphs that aren't supergraphs of any graph in `other`.
-
-        The `self` is not changed.
-
-        The non_supersets are defined by,
-          gs1.non_supersets(gs2) = {a \\in gs1 | b \\in gs2 -> a \\not\\superseteq b}.
-        D. Knuth, Exercise 236, The art of computer programming,
-        Sect.7.1.4.
-
-        Examples:
-          >>> gs1 = GraphSet([set([(1,2), (2,3)]), set([(1,4), (2,3)])])
-          >>> gs2 = GraphSet([set([(1,2)]), set([(1,2), (1,4)])])
-          >>> gs = gs1.non_supergraphs(gs2)
-          >>> gs
-          GraphSet([set([(1, 4), (2, 3)])])
-
-        Returns:
-          A new GraphSet object.
-
-        See Also:
-          non_subsets(), supersets()
-        """
-        return GraphSet(self.ss.non_supersets(other.ss))
+#    def non_supergraphs(self, other):
+#        """Returns a new GraphSet with graphs that aren't supergraphs of any graph in `other`.
+#
+#        The `self` is not changed.
+#
+#        The non_supersets are defined by,
+#          gs1.non_supersets(gs2) = {a \\in gs1 | b \\in gs2 -> a \\not\\superseteq b}.
+#        D. Knuth, Exercise 236, The art of computer programming,
+#        Sect.7.1.4.
+#
+#        Examples:
+#          >>> gs1 = GraphSet([set([(1,2), (2,3)]), set([(1,4), (2,3)])])
+#          >>> gs2 = GraphSet([set([(1,2)]), set([(1,2), (1,4)])])
+#          >>> gs = gs1.non_supergraphs(gs2)
+#          >>> gs
+#          GraphSet([set([(1, 4), (2, 3)])])
+#
+#        Returns:
+#          A new GraphSet object.
+#
+#        See Also:
+#          non_subsets(), supersets()
+#        """
+#        return GraphSet(self.ss.non_supersets(other.ss))
 
     def dump(self, fp):
         """Serialize `self` to a file `fp`.
