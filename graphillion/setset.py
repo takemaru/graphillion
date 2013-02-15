@@ -29,12 +29,12 @@ class setset(_graphillion.setset):
     Like Python set types, setset supports `set in setset`,
     `len(setset)`, and `for set in setset`.  It also supports all set
     methods and operators,
-    - isdisjoint(), issubset(), issuperset(), union(), intersection(),
+    * isdisjoint(), issubset(), issuperset(), union(), intersection(),
       difference(), symmetric_difference(), copy(), update(),
       intersection_update(), difference_update(),
       symmetric_difference_update(), add(), remove(), discard(),
       pop(), clear(),
-    - ==, !=, <=, <, >=, >, |, &, -, ^, |=, &=, -=, ^=.
+    * ==, !=, <=, <, >=, >, |, &, -, ^, |=, &=, -=, ^=.
 
     Examples:
       >>> from graphillion import setset
