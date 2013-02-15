@@ -58,7 +58,7 @@ class setset(_graphillion.setset):
             e = setset._int2obj[i]
             w[e] = 1 + float(i) / n**2
         ret = self.__class__.__name__ + '(['
-        maxchar = 80
+        maxchar = 78
         no_comma = True
         for s in setset.minimize(self, w):
             if no_comma:

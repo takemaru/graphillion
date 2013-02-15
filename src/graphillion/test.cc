@@ -59,8 +59,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #define s234 (e2*e3*e4)
 #define s1234 (e1*e2*e3*e4)
 
-#define s245 (e2*e4*e5)
-
 namespace graphillion {
 
 using namespace std;
@@ -187,12 +185,12 @@ class TestSetset {
     assert(ss.larger(3).zdd_ == s1234);
     assert(ss.same_size(3).zdd_ == s123 + s134);
 
+    ss = setset(V("{{1,2}, {1,2,3}, {2,3,4}}"));
+    assert(ss.minimal().zdd_ == s12 + s234);
+    assert(ss.maximal().zdd_ == s123 + s234);
+
     ss = setset(V("{{1,2}, {1,4}, {2,3}, {3,4}}"));
     assert(ss.hitting().zdd_ == s123 + s1234 + s124 + s13 + s134 + s234 + s24);
-
-    ss = setset(V("{{1,2}, {1,2,3}, {1,2,3,4}, {2,4,5}}"));
-    assert(ss.minimal().zdd_ == s12 + s245);
-    assert(ss.maximal().zdd_ == s1234 + s245);
   }
 
   void binary_operators() {

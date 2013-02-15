@@ -39,8 +39,6 @@ s134 = set(['1', '3', '4'])
 s234 = set(['2', '3', '4'])
 s1234 = set(['1', '2', '3', '4'])
 
-s245 = set(['2', '4', '5'])
-
 
 class TestSetset(unittest.TestCase):
 
@@ -95,10 +93,6 @@ class TestSetset(unittest.TestCase):
                          "setset([set(['1', '2']), set(['1', '3', '2'])])")
 
         # copy constructor
-        ss = setset([s0, s12, s13])
-        self.assertEqual(repr(ss),
-                         "setset([set([]), set(['1', '2']), set(['1', '3'])])")
-
         ss1 = setset([s0, s12, s13])
         ss2 = ss1.copy()
         self.assertTrue(isinstance(ss2, setset))
@@ -107,16 +101,20 @@ class TestSetset(unittest.TestCase):
         self.assertEqual(repr(ss2),
                          "setset([set([]), set(['1', '2']), set(['1', '3'])])")
 
-        # large set of sets
+        # repr for large set of sets
         ss = setset({})
         self.assertEqual(
             repr(ss),
-            "setset([set([]), set(['1']), set(['2']), set(['3']), set(['4']), set(['1', ' ...")
+            "setset([set([]), set(['1']), set(['2']), set(['3']), set(['4']), set(['1', ...")
 
     def test_comparison(self):
         ss = setset(s12)
         self.assertEqual(ss, setset(s12))
         self.assertNotEqual(ss, setset(s13))
+
+        # __nonzero__
+        self.assertTrue(ss)
+        self.assertFalse(setset())
 
         v = [s0, s12, s13]
         ss = setset(v)
@@ -141,7 +139,7 @@ class TestSetset(unittest.TestCase):
         ss = setset([s0, s1, s12, s123, s1234, s134, s14, s4])
 
         self.assertTrue(isinstance(~ss, setset))
-        self.assertEqual(~ss, setset([s124, s13, s2, s23, s234, s24,s3, s34]))
+        self.assertEqual(~ss, setset([s124, s13, s2, s23, s234, s24, s3, s34]))
 
         self.assertTrue(isinstance(ss.smaller(3), setset))
         self.assertEqual(ss.smaller(3), setset([s0, s1, s12, s14, s4]))
@@ -150,16 +148,16 @@ class TestSetset(unittest.TestCase):
         self.assertTrue(isinstance(ss.same_size(3), setset))
         self.assertEqual(ss.same_size(3), setset([s123, s134]))
 
+        ss = setset([s12, s123, s234])
+        self.assertTrue(isinstance(ss.minimal(), setset))
+        self.assertEqual(ss.minimal(), setset([s12, s234]))
+        self.assertTrue(isinstance(ss.maximal(), setset))
+        self.assertEqual(ss.maximal(), setset([s123, s234]))
+
         ss = setset([s12, s14, s23, s34])
         self.assertTrue(isinstance(ss.hitting(), setset))
         self.assertEqual(
             ss.hitting(), setset([s123, s1234, s124, s13, s134, s234, s24]))
-
-        ss = setset([s12, s123, s1234, s245])
-        self.assertTrue(isinstance(ss.minimal(), setset))
-        self.assertEqual(ss.minimal(), setset([s12, s245]))
-        self.assertTrue(isinstance(ss.maximal(), setset))
-        self.assertEqual(ss.maximal(), setset([s1234, s245]))
 
     def test_binary_operators(self):
         u = [s0, s1, s12, s123, s1234, s134, s14, s4]
@@ -344,14 +342,14 @@ class TestSetset(unittest.TestCase):
             r.append(s)
         self.assertEqual(len(r), 8)
         self.assertEqual(r[0], s1234)
-        self.assertEqual(r[-1], set())
+        self.assertEqual(r[-1], s0)
 
         r = []
         for s in ss.minimize({'1': .3, '2': -.2, '3': -.2}, default=.4):
             r.append(s)
         self.assertEqual(len(r), 8)
         self.assertEqual(r[0], s123)
-        self.assertEqual(r[1], set())
+        self.assertEqual(r[1], s0)
         self.assertEqual(r[2], s12)
 
         r = []
@@ -391,8 +389,7 @@ class TestSetset(unittest.TestCase):
 
         ss = setset(v)
         ss.add('2')
-        self.assertEqual(ss, setset([s12, s123,
-                                     s2]))
+        self.assertEqual(ss, setset([s12, s123, s2]))
 
         ss = setset(v)
         ss.remove('2')
@@ -423,11 +420,11 @@ class TestSetset(unittest.TestCase):
         ss.loads(st)
         self.assertEqual(ss, setset())
 
-        ss = setset(set())
+        ss = setset(s0)
         st = ss.dumps()
         self.assertEqual(st, "T\n.\n")
         ss.loads(st)
-        self.assertEqual(ss, setset(set()))
+        self.assertEqual(ss, setset(s0))
 
         v = [s0, s1, s12, s123, s1234, s134, s14, s4]
         ss = setset(v)

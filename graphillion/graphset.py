@@ -136,7 +136,7 @@ class GraphSet(object):
         return bool(self.ss)
 
     def __repr__(self):
-        return repr(self.ss)
+        return self.__class__.__name__ + repr(self.ss)[6:]
 
     def union(self, other):
         """Returns a new GraphSet with graphs from `self` and all others.
@@ -443,7 +443,7 @@ class GraphSet(object):
         See Also:
           issuperset(), isdisjoint()
         """
-        return self.issubset(other.ss)
+        return self.ss.issubset(other.ss)
 
     def issuperset(self, other):
         """Tests if every graph in `other` is in `self`.
@@ -460,7 +460,7 @@ class GraphSet(object):
         See Also:
           issubset(), isdisjoint()
         """
-        return self.issuperset(other.ss)
+        return self.ss.issuperset(other.ss)
 
     __le__ = issubset
     __ge__ = issuperset
@@ -827,7 +827,7 @@ class GraphSet(object):
           >>> gs
           GraphSet([])
         """
-        return self.ss.clear(self)
+        return self.ss.clear()
 
     def minimal(self):
         """Returns a new GraphSet of minimal edge sets.
