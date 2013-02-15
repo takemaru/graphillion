@@ -588,41 +588,6 @@ class GraphSet(setset):
         for s in setset.minimize(self, GraphSet._weights):
             yield s
 
-    @staticmethod
-    def set_universe(universe, traversal='bfs', source=None):
-        """Registers the new universe.
-
-        Examples:
-          >>> GraphSet.set_universe([(1,2, 2.0), (1,4, -3.0), (2,3)])
-
-        Args:
-          universe: A list of edges that represents the new universe.
-            An edge may come along with a weight, which can be
-            positive as well as negative (or 1.0 if not specified).
-
-          traversal: Optional.  This argument specifies the order of
-            edges to be processed in the internal graphset operations.
-            The default is 'bfs', the breadth-first search from
-            `source`.  Other options include 'dfs', the depth-first
-            search, and 'as-is', the order of `universe` list.
-
-          source: Optional.  This argument specifies the starting
-            point of the edge traversal.
-        """
-        edges = []
-        GraphSet._weights = {}
-        for e in universe:
-            edges.append(e[:2])
-            if len(e) > 2:
-                GraphSet._weights[e[:2]] = e[2]
-        if traversal == 'bfs' or traversal == 'dfs':
-            if not source:
-                source = edges[0][0]
-                for e in edges:
-                    source = min(e[0], e[1], source)
-            edges = GraphSet._traverse(edges, traversal, source)
-        setset.set_universe(edges)
-
     def __contains__(self, graph):
         """Returns True if `graph` is in the `self` GraphSet, False otherwise.
 
@@ -1190,6 +1155,41 @@ class GraphSet(setset):
         return setset.loads(self, s)
 
     @staticmethod
+    def set_universe(universe, traversal='bfs', source=None):
+        """Registers the new universe.
+
+        Examples:
+          >>> GraphSet.set_universe([(1,2, 2.0), (1,4, -3.0), (2,3)])
+
+        Args:
+          universe: A list of edges that represents the new universe.
+            An edge may come along with a weight, which can be
+            positive as well as negative (or 1.0 if not specified).
+
+          traversal: Optional.  This argument specifies the order of
+            edges to be processed in the internal graphset operations.
+            The default is 'bfs', the breadth-first search from
+            `source`.  Other options include 'dfs', the depth-first
+            search, and 'as-is', the order of `universe` list.
+
+          source: Optional.  This argument specifies the starting
+            point of the edge traversal.
+        """
+        edges = []
+        GraphSet._weights = {}
+        for e in universe:
+            edges.append(e[:2])
+            if len(e) > 2:
+                GraphSet._weights[e[:2]] = e[2]
+        if traversal == 'bfs' or traversal == 'dfs':
+            if not source:
+                source = edges[0][0]
+                for e in edges:
+                    source = min(e[0], e[1], source)
+            edges = GraphSet._traverse(edges, traversal, source)
+        setset.set_universe(edges)
+
+    @staticmethod
     def get_universe():
         """Returns the current universe.
 
@@ -1280,4 +1280,3 @@ class GraphSet(setset):
         raise KeyError, edge
 
     _weights = {}
-
