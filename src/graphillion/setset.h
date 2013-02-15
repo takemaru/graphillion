@@ -123,8 +123,8 @@ class setset {
   bool empty() const;
   std::string size() const;
   iterator begin() const;
-  iterator maximize(const std::vector<double>& weights) const;
   iterator minimize(const std::vector<double>& weights) const;
+  iterator maximize(const std::vector<double>& weights) const;
   iterator find(const std::set<elem_t>& s) const;
   setset include(elem_t e) const;
   setset exclude(elem_t e) const;

@@ -529,34 +529,6 @@ class GraphSet(setset):
 
     __iter__ = randomize
 
-    def maximize(self):
-        """Iterates over graphs in the descending order of weights.
-
-        Returns a generator that iterates over graphs in `self`
-        GraphSet.  The graphs are selected in the descending order of
-        weights, which are specified with the universe (or 1.0 if not
-        specified).
-
-        Examples:
-          >>> GraphSet.set_universe([(1,2, 2.0), (1,4, -3.0), (2,3)])
-          >>> gs = GraphSet([set([(1,2), (1,4)]), set([(2,3)])])
-          >>> for g in gs.maximize():
-          ...   g
-          set([(2, 3)])
-          set([(1, 2), (1, 4)])
-
-        Returns:
-          A generator.
-
-        Yields:
-          A graph.
-
-        See Also:
-          minimize(), randomize()
-        """
-        for s in setset.maximize(self, GraphSet._weights):
-            yield s
-
     def minimize(self):
         """Iterates over graphs in the ascending order of weights.
 
@@ -583,6 +555,34 @@ class GraphSet(setset):
           maximize(), randomize()
         """
         for s in setset.minimize(self, GraphSet._weights):
+            yield s
+
+    def maximize(self):
+        """Iterates over graphs in the descending order of weights.
+
+        Returns a generator that iterates over graphs in `self`
+        GraphSet.  The graphs are selected in the descending order of
+        weights, which are specified with the universe (or 1.0 if not
+        specified).
+
+        Examples:
+          >>> GraphSet.set_universe([(1,2, 2.0), (1,4, -3.0), (2,3)])
+          >>> gs = GraphSet([set([(1,2), (1,4)]), set([(2,3)])])
+          >>> for g in gs.maximize():
+          ...   g
+          set([(2, 3)])
+          set([(1, 2), (1, 4)])
+
+        Returns:
+          A generator.
+
+        Yields:
+          A graph.
+
+        See Also:
+          minimize(), randomize()
+        """
+        for s in setset.maximize(self, GraphSet._weights):
             yield s
 
     def __contains__(self, graph):

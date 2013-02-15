@@ -223,16 +223,16 @@ setset::iterator setset::begin() const {
   return setset::iterator(*this);
 }
 
-setset::iterator setset::maximize(const vector<double>& weights) const {
-  return setset::iterator(*this, weights);
-}
-
 setset::iterator setset::minimize(const vector<double>& weights) const {
   vector<double> inverted_weights;
   for (vector<double>::const_iterator i = weights.begin();
        i != weights.end(); ++i)
     inverted_weights.push_back(-1 * (*i));
   return setset::iterator(*this, inverted_weights);
+}
+
+setset::iterator setset::maximize(const vector<double>& weights) const {
+  return setset::iterator(*this, weights);
 }
 
 setset::iterator setset::find(const set<elem_t>& s) const {

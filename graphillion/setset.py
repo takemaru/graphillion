@@ -113,11 +113,11 @@ class setset(_graphillion.setset):
 
     __iter__ = randomize
 
-    def maximize(self, weights=None, default=1):
-        return self._optimize(weights, default, _graphillion.setset.maximize)
-
     def minimize(self, weights=None, default=1):
         return self._optimize(weights, default, _graphillion.setset.minimize)
+
+    def maximize(self, weights=None, default=1):
+        return self._optimize(weights, default, _graphillion.setset.maximize)
 
     def _optimize(self, weights, default, generator):
         ws = [default] * (_graphillion.num_elems() + 1)
