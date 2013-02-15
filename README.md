@@ -84,6 +84,9 @@ At the beginning, we define our universe.  A graph handled in
 Graphillion must be a subgraph of the universal graph.
 
 
+Library reference
+--------------------------------------------------------------------------------
+
 Library reference can be browsed using pydoc:
 
 ```bash
