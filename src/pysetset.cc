@@ -246,14 +246,6 @@ static int setset_init(PySetsetObject* self, PyObject* args, PyObject* kwds) {
   } else if (PySetset_Check(obj)) {
     PySetsetObject* sso = reinterpret_cast<PySetsetObject*>(obj);
     self->ss = new setset(*(sso->ss));
-  } else if (PyAnySet_Check(obj)) {
-    set<int> s;
-    if (setset_parse_set(obj, &s) == -1) return -1;
-    self->ss = new setset(s);
-  } else if (PyDict_Check(obj)) {
-    map<string, vector<int> > m;
-    if (setset_parse_map(obj, &m) == -1) return -1;
-    self->ss = new setset(m);
   } else if (PyList_Check(obj)) {
     PyObject* i = PyObject_GetIter(obj);
     if (i == NULL) return -1;
@@ -271,6 +263,10 @@ static int setset_init(PySetsetObject* self, PyObject* args, PyObject* kwds) {
     }
     Py_DECREF(i);
     self->ss = new setset(vs);
+  } else if (PyDict_Check(obj)) {
+    map<string, vector<int> > m;
+    if (setset_parse_map(obj, &m) == -1) return -1;
+    self->ss = new setset(m);
   } else {
     PyErr_SetString(PyExc_TypeError, "invalid argumet");
     return -1;

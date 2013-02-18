@@ -126,19 +126,14 @@ class TestSetset {
     setset ss;
     assert(ss.empty());
 
-    set<int> s = S("{}");
-    ss = setset(s);
-    assert(ss.zdd_ == s0);
-
-    s = S("{1,2}");
-    ss = setset(s);
-    assert(ss.zdd_ == s12);
-
     vector<set<int> > v = V("{{}, {1,2}, {1,3}}");
     ss = setset(v);
     assert(ss.zdd_ == s0 + s12 + s13);
 
     map<string, vector<int> > m;
+    ss = setset(m);
+    assert(ss.zdd_ == s0 + s1 + s2 + s3 + s12 + s13 + s23 + s123);
+
     m["include"].push_back(1);
     m["include"].push_back(2);
     m["exclude"].push_back(4);
@@ -372,12 +367,12 @@ class TestSetset {
     ss.clear();
     assert(ss.empty());
 
-    set<int> s = S("{1,2}");
-    setset ss1(s);
+    vector<set<int> > u = V("{{1,2}}");
+    setset ss1(u);
     setset ss2(v);
     ss1.swap(ss2);
     assert(ss1 == setset(v));
-    assert(ss2 == setset(s));
+    assert(ss2 == setset(u));
   }
 
   void io() {

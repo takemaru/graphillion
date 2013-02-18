@@ -81,16 +81,10 @@ class setset {
 
   setset();
   setset(const setset& ss) : zdd_(ss.zdd_) {}
-  explicit setset(const std::set<elem_t>& s);
   explicit setset(const std::vector<std::set<elem_t> >& v);
   explicit setset(const std::map<std::string, std::vector<elem_t> >& m);
-//  explicit setset(const std::initializer_list<std::set<elem_t> >& v);
   explicit setset(std::istream& in);
 
-  // Disable this constructor to avoid ambiguity, because compilers
-  // automatically convert {{1}, {2}} to {1, 2} if it is defined.
-//  explicit setset(const std::initializer_list<elem_t>& s);
-  
   virtual ~setset() {}
 
   void operator=(const setset& ss) { this->zdd_ = ss.zdd_; }
@@ -178,6 +172,7 @@ class setset {
   friend std::istream& operator>>(std::istream& in, setset& ss);
 
  private:
+  explicit setset(const std::set<elem_t>& s);
   explicit setset(const zdd_t& z) : zdd_(z) {}
 
   zdd_t zdd_;

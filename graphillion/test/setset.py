@@ -83,13 +83,11 @@ class TestSetset(unittest.TestCase):
         self.assertTrue(isinstance(ss, setset))
         self.assertEqual(repr(ss), 'setset([])')
 
-        ss = setset(s0)
-        self.assertEqual(repr(ss), 'setset([set([])])')
-
-        ss = setset(frozenset(['1', '2']))
-        self.assertEqual(repr(ss), "setset([set(['1', '2'])])")
-
         ss = setset([s0, s12, s13])
+        self.assertEqual(repr(ss),
+                         "setset([set([]), set(['1', '2']), set(['1', '3'])])")
+
+        ss = setset([frozenset(s0), frozenset(s12), frozenset(s13)])
         self.assertEqual(repr(ss),
                          "setset([set([]), set(['1', '2']), set(['1', '3'])])")
 
@@ -113,9 +111,9 @@ class TestSetset(unittest.TestCase):
             "setset([set([]), set(['1']), set(['2']), set(['3']), set(['4']), set(['1', ...")
 
     def test_comparison(self):
-        ss = setset(s12)
-        self.assertEqual(ss, setset(s12))
-        self.assertNotEqual(ss, setset(s13))
+        ss = setset([s12])
+        self.assertEqual(ss, setset([s12]))
+        self.assertNotEqual(ss, setset([s13]))
 
         # __nonzero__
         self.assertTrue(ss)
@@ -315,19 +313,19 @@ class TestSetset(unittest.TestCase):
         ss1 = setset([s0, s12, s13])
         ss2 = setset()
         for s in ss1:
-            ss2 = ss2 | setset(s)
+            ss2 = ss2 | setset([s])
         self.assertEqual(ss1, setset([s0, s12, s13]))
         self.assertEqual(ss1, ss2)
 
         ss2 = setset()
         for s in ss1:
-            ss2 = ss2 | setset(s)
+            ss2 = ss2 | setset([s])
         self.assertEqual(ss1, ss2)
 
         ss1 = setset([s0, s12, s13])
         ss2 = setset()
         for s in ss1.randomize():
-            ss2 = ss2 | setset(s)
+            ss2 = ss2 | setset([s])
         self.assertEqual(ss1, ss2)
 
         gen = ss1.randomize()
@@ -410,7 +408,7 @@ class TestSetset(unittest.TestCase):
         ss = setset(v)
         s = ss.pop()
         self.assertTrue(s not in ss)
-        self.assertEqual(ss | setset(s), setset(v))
+        self.assertEqual(ss | setset([s]), setset(v))
 
         self.assertTrue(ss)
         ss.clear()
@@ -425,11 +423,11 @@ class TestSetset(unittest.TestCase):
         ss.loads(st)
         self.assertEqual(ss, setset())
 
-        ss = setset(s0)
+        ss = setset([s0])
         st = ss.dumps()
         self.assertEqual(st, "T\n.\n")
         ss.loads(st)
-        self.assertEqual(ss, setset(s0))
+        self.assertEqual(ss, setset([s0]))
 
         v = [s0, s1, s12, s123, s1234, s134, s14, s4]
         ss = setset(v)

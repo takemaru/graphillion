@@ -84,11 +84,6 @@ void setset::iterator::next() {
 setset::setset() : zdd_(bot()) {
 }
 
-setset::setset(const set<elem_t>& s) : zdd_(top()) {
-  for (set<elem_t>::const_iterator e = s.begin(); e != s.end(); ++e)
-    this->zdd_ *= single(*e);
-}
-
 setset::setset(const vector<set<elem_t> >& v) : zdd_(bot()) {
   for (vector<set<elem_t> >::const_iterator s = v.begin(); s != v.end(); ++s)
     this->zdd_ += setset(*s).zdd_;
@@ -419,6 +414,11 @@ ostream& operator<<(ostream& out, const setset& ss) {
 istream& operator>>(istream& in, setset& ss) {
   ss.zdd_ = graphillion::load(in);
   return in;
+}
+
+setset::setset(const set<elem_t>& s) : zdd_(top()) {
+  for (set<elem_t>::const_iterator e = s.begin(); e != s.end(); ++e)
+    this->zdd_ *= single(*e);
 }
 
 }  // namespace graphillion

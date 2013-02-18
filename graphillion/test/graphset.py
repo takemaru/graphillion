@@ -79,10 +79,6 @@ class TestGraphSet(unittest.TestCase):
         self.assertTrue(isinstance(gs, GraphSet))
         self.assertEqual(len(gs), 0)
 
-        gs = GraphSet(set([(2,1)]))
-        self.assertEqual(len(gs), 1)
-        self.assertTrue(g1 in gs)
-
         gs = GraphSet([g1, set([(3,1)])])
         self.assertEqual(len(gs), 2)
         self.assertTrue(g1 in gs)
@@ -115,9 +111,9 @@ class TestGraphSet(unittest.TestCase):
         pass
 
     def test_comparison(self):
-        gs = GraphSet(g12)
-        self.assertEqual(gs, GraphSet(g12))
-        self.assertNotEqual(gs, GraphSet(g13))
+        gs = GraphSet([g12])
+        self.assertEqual(gs, GraphSet([g12]))
+        self.assertNotEqual(gs, GraphSet([g13]))
 
         # __nonzero__
         self.assertTrue(gs)
@@ -316,20 +312,20 @@ class TestGraphSet(unittest.TestCase):
     def test_iterators(self):
         gs1 = GraphSet([g0, g12, g13])
         gs2 = GraphSet()
-        for s in gs1:
-            gs2 = gs2 | GraphSet(s)
+        for g in gs1:
+            gs2 = gs2 | GraphSet([g])
         self.assertEqual(gs1, GraphSet([g0, g12, g13]))
         self.assertEqual(gs1, gs2)
 
         gs2 = GraphSet()
-        for s in gs1:
-            gs2 = gs2 | GraphSet(s)
+        for g in gs1:
+            gs2 = gs2 | GraphSet([g])
         self.assertEqual(gs1, gs2)
 
         gs1 = GraphSet([g0, g12, g13])
         gs2 = GraphSet()
-        for s in gs1.randomize():
-            gs2 = gs2 | GraphSet(s)
+        for g in gs1.randomize():
+            gs2 = gs2 | GraphSet([g])
         self.assertEqual(gs1, gs2)
 
         gen = gs1.randomize()
@@ -337,16 +333,16 @@ class TestGraphSet(unittest.TestCase):
 
         gs = GraphSet([g0, g1, g12, g123, g1234, g134, g14, g4])
         r = []
-        for s in gs.maximize():
-            r.append(s)
+        for g in gs.maximize():
+            r.append(g)
         self.assertEqual(len(r), 8)
         self.assertEqual(r[0], g14)
         self.assertEqual(r[1], g134)
         self.assertEqual(r[2], g4)
 
         r = []
-        for s in gs.minimize():
-            r.append(s)
+        for g in gs.minimize():
+            r.append(g)
         self.assertEqual(len(r), 8)
         self.assertEqual(r[0], g123)
         self.assertEqual(r[1], g0)
@@ -400,7 +396,7 @@ class TestGraphSet(unittest.TestCase):
         gs = GraphSet(v)
         g = gs.pop()
         self.assertTrue(g not in gs)
-        self.assertEqual(gs | GraphSet(g), GraphSet(v))
+        self.assertEqual(gs | GraphSet([g]), GraphSet(v))
 
         self.assertTrue(gs)
         gs.clear()
@@ -423,11 +419,11 @@ class TestGraphSet(unittest.TestCase):
         gs.loads(st)
         self.assertEqual(gs, GraphSet())
 
-        gs = GraphSet(g0)
+        gs = GraphSet([g0])
         st = gs.dumps()
         self.assertEqual(st, "T\n.\n")
         gs.loads(st)
-        self.assertEqual(gs, GraphSet(g0))
+        self.assertEqual(gs, GraphSet([g0]))
 
         v = [g0, g1, g12, g123, g1234, g134, g14, g4]
         gs = GraphSet(v)
