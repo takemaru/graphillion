@@ -1,1 +1,0 @@
-../src/graphillion_test

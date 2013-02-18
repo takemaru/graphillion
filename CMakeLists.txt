@@ -1,3 +1,5 @@
+MESSAGE(WARNING "To link with Python, just run setup.py without using cmake.")
+
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
    
 PROJECT(graphillion)
@@ -22,6 +24,3 @@ ENDIF (GMP_FOUND)
 ENABLE_TESTING()
 
 ADD_SUBDIRECTORY(src)
-ADD_SUBDIRECTORY(test)
-
-MESSAGE(WARNING "To link with Python, just run setup.py without using cmake.")
