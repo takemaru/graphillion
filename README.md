@@ -41,7 +41,7 @@ Installing
 Just type:
 
 ```bash
-$ pip install graphillion
+$ easy_install graphillion
 ```
 
 and an attempt will be made to find and install an appropriate version
@@ -73,8 +73,8 @@ tutorial for helping graph creation and drawings.  They can be
 installed by:
 
 ```bash
-$ pip install networkx
-$ pip install matplotlib
+$ easy_install networkx
+$ easy_install matplotlib
 ```
 
 Tutorial
