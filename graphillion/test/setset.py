@@ -385,10 +385,10 @@ class TestSetset(unittest.TestCase):
         self.assertTrue(s1 not in ss)
         self.assertRaises(KeyError, ss.remove, s1)
 
-        ss.add(s1)
-        ss.discard(s1)
-        self.assertTrue(s1 not in ss)
-        ss.discard(s1)  # no exception raised
+        ss.add(s0)
+        ss.discard(s0)
+        self.assertTrue(s0 not in ss)
+        ss.discard(s0)  # no exception raised
 
         ss = setset(v)
         ss.add('2')

@@ -48,8 +48,20 @@ class setset(_graphillion.setset):
     """
 
     def __init__(self, setset_or_constraints=None):
-        setset_or_constraints = setset._conv_arg(setset_or_constraints)
-        _graphillion.setset.__init__(self, setset_or_constraints)
+        obj = setset_or_constraints
+        if obj is None:
+            obj = []
+        elif isinstance(obj, list):  # a set of sets [set+]
+            l = []
+            for s in obj:
+                l.append(set([setset._conv_elem(e) for e in s]))
+            obj = l
+        elif isinstance(obj, dict):  # constraints
+            d = {}
+            for k, l in obj.iteritems():
+                d[k] = [setset._conv_elem(e) for e in l]
+            obj = d
+        _graphillion.setset.__init__(self, obj)
 
     def __repr__(self):
         n = _graphillion._num_elems()
@@ -174,30 +186,19 @@ class setset(_graphillion.setset):
 
     @staticmethod
     def _conv_arg(obj):
-        if isinstance(obj, list):  # a set of sets [set+]
-            l = []
-            for s in obj:
-                l.append(set([setset._conv_elem(e) for e in s]))
-            return l
-        elif obj is None:  # an empty set of sets []
-            return []
-        elif isinstance(obj, dict):  # constraints
-            d = {}
-            for k, l in obj.iteritems():
-                d[k] = [setset._conv_elem(e) for e in l]
-            return d
-        elif isinstance(obj, (set, frozenset)):  # an inner set
+        if isinstance(obj, (set, frozenset)):  # a set
             return set([setset._conv_elem(e) for e in obj])
         else:  # an element
             return setset._conv_elem(obj)
 
     @staticmethod
     def _conv_ret(obj):
-        assert isinstance(obj, (set, frozenset))
-        ret = set()
-        for e in obj:
-            ret.add(setset._int2obj[e])
-        return ret
+        if isinstance(obj, (set, frozenset)):  # a set
+            ret = set()
+            for e in obj:
+                ret.add(setset._int2obj[e])
+            return ret
+        raise TypeError, obj
 
     _obj2int = {}
     _int2obj = [None]

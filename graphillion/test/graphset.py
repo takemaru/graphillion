@@ -32,22 +32,22 @@ e2 = (1,3)
 e3 = (2,4)
 e4 = (3,4)
 
-g0 = set()
-g1 = set([e1])
-g2 = set([e2])
-g3 = set([e3])
-g4 = set([e4])
-g12 = set([e1, e2])
-g13 = set([e1, e3])
-g14 = set([e1, e4])
-g23 = set([e2, e3])
-g24 = set([e2, e4])
-g34 = set([e3, e4])
-g123 = set([e1, e2, e3])
-g124 = set([e1, e2, e4])
-g134 = set([e1, e3, e4])
-g234 = set([e2, e3, e4])
-g1234 = set([e1, e2, e3, e4])
+g0 = []
+g1 = [e1]
+g2 = [e2]
+g3 = [e3]
+g4 = [e4]
+g12 = [e1, e2]
+g13 = [e1, e3]
+g14 = [e1, e4]
+g23 = [e2, e3]
+g24 = [e2, e4]
+g34 = [e3, e4]
+g123 = [e1, e2, e3]
+g124 = [e1, e2, e4]
+g134 = [e1, e3, e4]
+g234 = [e2, e3, e4]
+g1234 = [e1, e2, e3, e4]
 
 
 class TestGraphSet(unittest.TestCase):
@@ -79,7 +79,7 @@ class TestGraphSet(unittest.TestCase):
         self.assertTrue(isinstance(gs, GraphSet))
         self.assertEqual(len(gs), 0)
 
-        gs = GraphSet([g1, set([(3,1)])])
+        gs = GraphSet([g1, [(3,1)]])
         self.assertEqual(len(gs), 2)
         self.assertTrue(g1 in gs)
         self.assertTrue(g2 in gs)
@@ -89,8 +89,8 @@ class TestGraphSet(unittest.TestCase):
         self.assertTrue(g12 in gs)
         self.assertTrue(g123 in gs)
 
-        self.assertRaises(KeyError, GraphSet, set([(1,4)]))
-        self.assertRaises(KeyError, GraphSet, [set([(1,4)])])
+        self.assertRaises(KeyError, GraphSet, [(1,4)])
+        self.assertRaises(KeyError, GraphSet, [[(1,4)]])
         self.assertRaises(KeyError, GraphSet, {'include': [(1,4)]})
 
         # copy constructor
@@ -135,7 +135,7 @@ class TestGraphSet(unittest.TestCase):
         self.assertFalse(gs.issuperset(GraphSet([g1, g12])))
         self.assertTrue(gs >= GraphSet(v))
         self.assertFalse(gs >= GraphSet([g1, g12]))
-        self.assertTrue(gs > GraphSet([set(), g12]))
+        self.assertTrue(gs > GraphSet([[], g12]))
         self.assertFalse(gs > GraphSet(v))
 
     def test_unary_operators(self):
@@ -329,7 +329,7 @@ class TestGraphSet(unittest.TestCase):
         self.assertEqual(gs1, gs2)
 
         gen = gs1.randomize()
-        self.assertTrue(isinstance(gen.next(), set))
+        self.assertTrue(isinstance(gen.next(), list))
 
         gs = GraphSet([g0, g1, g12, g123, g1234, g134, g14, g4])
         r = []
@@ -373,10 +373,10 @@ class TestGraphSet(unittest.TestCase):
         self.assertTrue(g1 not in gs)
         self.assertRaises(KeyError, gs.remove, g1)
 
-        gs.add(g1)
-        gs.discard(g1)
-        self.assertTrue(g1 not in gs)
-        gs.discard(g1)  # no exception raised
+        gs.add(g0)
+        gs.discard(g0)
+        self.assertTrue(g0 not in gs)
+        gs.discard(g0)  # no exception raised
 
         gs = GraphSet(v)
         gs.add(e2)
@@ -404,9 +404,9 @@ class TestGraphSet(unittest.TestCase):
 
         self.assertRaises(KeyError, gs.pop)
 
-        self.assertRaises(KeyError, gs.add, set([(1,4)]))
-        self.assertRaises(KeyError, gs.remove, set([(1,4)]))
-        self.assertRaises(KeyError, gs.discard, set([(1,4)]))
+        self.assertRaises(KeyError, gs.add, [(1,4)])
+        self.assertRaises(KeyError, gs.remove, [(1,4)])
+        self.assertRaises(KeyError, gs.discard, [(1,4)])
 
         self.assertRaises(KeyError, gs.add, (1,4))
         self.assertRaises(KeyError, gs.remove, (1,4))
@@ -454,11 +454,11 @@ class TestGraphSet(unittest.TestCase):
         self.assertEqual(GraphSet.get_universe()[:2], [(v01, v00), (v10, v00)])
 
         gs = GraphSet({});
-        gs -= GraphSet([set([(v01, v00)]), set([(v01, v00), (v10, v00)])])
+        gs -= GraphSet([[(v01, v00)], [(v01, v00), (v10, v00)]])
         self.assertAlmostEqual(gs.len() / (2**220 - 2), 1)
 
         i = 0
-        for s in gs:
+        for g in gs:
             if i > 50: break
             i += 1
 

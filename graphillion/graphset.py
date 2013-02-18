@@ -113,7 +113,19 @@ class GraphSet(object):
         elif isinstance(obj, setset):
             self.ss = obj.copy()
         else:
-            self.ss = setset(GraphSet._conv_arg(obj))
+            if obj is None:
+                obj = []
+            elif isinstance(obj, list):  # a set of graphs [graph+]
+                l = []
+                for s in obj:
+                    l.append([GraphSet._conv_edge(e) for e in s])
+                obj = l
+            elif isinstance(obj, dict):  # constraints
+                d = {}
+                for k, l in obj.iteritems():
+                    d[k] = [GraphSet._conv_edge(e) for e in l]
+                obj = d
+            self.ss = setset(obj)
 
     def copy(self):
         """Returns a new GraphSet with a shallow copy of `self`.
@@ -564,7 +576,8 @@ class GraphSet(object):
         See Also:
           minimize(), maximize(), pop()
         """
-        return self.ss.randomize()
+        for g in self.ss.randomize():
+            yield GraphSet._conv_ret(g)
 
     __iter__ = randomize
 
@@ -594,7 +607,7 @@ class GraphSet(object):
           maximize(), randomize()
         """
         for g in self.ss.minimize(GraphSet._weights):
-            yield g
+            yield GraphSet._conv_ret(g)
 
     def maximize(self):
         """Iterates over graphs in the descending order of weights.
@@ -622,7 +635,7 @@ class GraphSet(object):
           minimize(), randomize()
         """
         for g in self.ss.maximize(GraphSet._weights):
-            yield g
+            yield GraphSet._conv_ret(g)
 
     def __contains__(self, graph):
         """Returns True if `graph` is in the `self`, False otherwise.
@@ -1330,22 +1343,11 @@ class GraphSet(object):
 
     @staticmethod
     def _conv_arg(obj):
-        if isinstance(obj, list):  # a set of graphs [set+]
-            l = []
-            for s in obj:
-                l.append([GraphSet._conv_edge(e) for e in s])
-            return l
-        elif obj is None:  # an empty set of graphs
-            return []
-        elif isinstance(obj, dict):  # constraints
-            d = {}
-            for k, l in obj.iteritems():
-                d[k] = [GraphSet._conv_edge(e) for e in l]
-            return d
-        elif isinstance(obj, (set, frozenset)):  # a graph
+        if isinstance(obj, (set, frozenset, list)):  # a graph
             return set([GraphSet._conv_edge(e) for e in obj])
-        else:  # an edge
+        elif isinstance(obj, tuple):  # an edge
             return GraphSet._conv_edge(obj)
+        raise TypeError, obj
 
     @staticmethod
     def _conv_edge(edge):
@@ -1358,5 +1360,11 @@ class GraphSet(object):
         elif (edge[1], edge[0]) in setset._obj2int:
             return (edge[1], edge[0])
         raise KeyError, edge
+
+    @staticmethod
+    def _conv_ret(obj):
+        if isinstance(obj, (set, frozenset)):  # a graph
+            return sorted(list(obj))
+        raise TypeError, obj
 
     _weights = {}
