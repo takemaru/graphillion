@@ -1337,13 +1337,13 @@ class GraphSet(object):
             return l
         elif obj is None:  # an empty set of graphs
             return []
-        elif isinstance(obj, (set, frozenset)):  # a graph
-            return set([GraphSet._conv_edge(e) for e in obj])
         elif isinstance(obj, dict):  # constraints
             d = {}
             for k, l in obj.iteritems():
                 d[k] = [GraphSet._conv_edge(e) for e in l]
             return d
+        elif isinstance(obj, (set, frozenset)):  # a graph
+            return set([GraphSet._conv_edge(e) for e in obj])
         else:  # an edge
             return GraphSet._conv_edge(obj)
 

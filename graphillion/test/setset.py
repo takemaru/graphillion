@@ -91,7 +91,7 @@ class TestSetset(unittest.TestCase):
         self.assertEqual(repr(ss),
                          "setset([set([]), set(['1', '2']), set(['1', '3'])])")
 
-        ss = setset({'include': ['1', '2'], 'exclude': ['4']})
+        ss = setset({'include': list(s12), 'exclude': list(s4)})
         self.assertEqual(repr(ss),
                          "setset([set(['1', '2']), set(['1', '3', '2'])])")
 

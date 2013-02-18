@@ -181,13 +181,13 @@ class setset(_graphillion.setset):
             return l
         elif obj is None:  # an empty set of sets []
             return []
-        elif isinstance(obj, (set, frozenset)):  # an inner set
-            return set([setset._conv_elem(e) for e in obj])
         elif isinstance(obj, dict):  # constraints
             d = {}
             for k, l in obj.iteritems():
                 d[k] = [setset._conv_elem(e) for e in l]
             return d
+        elif isinstance(obj, (set, frozenset)):  # an inner set
+            return set([setset._conv_elem(e) for e in obj])
         else:  # an element
             return setset._conv_elem(obj)
 
