@@ -17,7 +17,9 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-from graphillion import setset
+import glob
+import os
+import sys
 import tempfile
 import unittest
 
@@ -461,4 +463,6 @@ class TestSetset(unittest.TestCase):
 
 
 if __name__ == '__main__':
+    sys.path.extend(glob.glob(os.path.join('build', 'lib.*')) + ['.'])
+    from graphillion import setset
     unittest.main()
