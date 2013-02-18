@@ -17,17 +17,32 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-def grid(m, n=None):
+def grid(m, n=None, edge_probability=1.0):
     import networkx as nx
+    from random import shuffle
+    # critical edge probability is 0.5 in the percolation theory
+    assert 0.6 < edge_probability and edge_probability <= 1
+    m += 1
     if n is None:
         n = m
+    else:
+        n += 1
     edges = []
     for v in xrange(1, m * n + 1):
         if v % n != 0:
             edges.append((v, v + 1))
         if v <= (m - 1) * n:
             edges.append((v, v + n))
-    return nx.Graph(edges)
+    g = nx.Graph(edges)
+    while edge_probability < 1.0:
+        g = nx.Graph(edges)
+        edges_removed = edges[:]
+        shuffle(edges_removed)
+        p = 1 - edge_probability
+        g.remove_edges_from(edges_removed[:int(len(edges)*p)])
+        if nx.is_connected(g):
+            break
+    return g
 
 def draw(g, universe):
     import networkx as nx
