@@ -126,8 +126,7 @@ class TestSetset {
     setset ss;
     assert(ss.empty());
 
-    vector<set<int> > v = V("{{}, {1,2}, {1,3}}");
-    ss = setset(v);
+    ss = setset(V("{{}, {1,2}, {1,3}}"));
     assert(ss.zdd_ == s0 + s12 + s13);
 
     map<string, vector<int> > m;

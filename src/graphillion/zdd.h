@@ -82,6 +82,7 @@ zdd_t join(zdd_t f, zdd_t g);
 zdd_t meet(zdd_t f, zdd_t g);
 zdd_t non_subsets(zdd_t f, zdd_t g);
 zdd_t non_supersets(zdd_t f, zdd_t g);
+bool choose(zdd_t f, std::vector<elem_t>* stack);
 zdd_t choose_random(zdd_t f, std::vector<elem_t>* stack);
 zdd_t choose_best(zdd_t f, const std::vector<double>& weights,
                   std::set<elem_t>* s);

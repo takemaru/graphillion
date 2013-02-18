@@ -244,6 +244,42 @@ zdd_t non_supersets(zdd_t f, zdd_t g) {
   return cache[k] = r;
 }
 
+bool choose(zdd_t f, vector<elem_t>* stack) {
+  assert(stack != NULL);
+  int last = stack->size() - 1;
+  if (is_bot(f))
+    return false;
+  else if (is_top(f))
+    return true;
+  // if elem(f) > any in stack
+  if (last < 0 || elem(f) > (*stack)[last]) {
+    stack->push_back(elem(f));
+    if (choose(hi(f), stack))
+      return true;
+  } else {
+    // if elem(f) in stack
+    if (binary_search(stack->begin(), stack->end(), elem(f))) {
+      // if not elem(f) is last element in stack
+      if (elem(f) != (*stack)[last] && choose(hi(f), stack))
+        return true;
+    } else {
+      // if elem(f) not in stack
+      if (!is_bot(lo(f)) && choose(lo(f), stack))
+        return true;
+      return false;
+    }
+  }
+  // fail in hi(f) and try lo(f)
+  last = stack->size() - 1;
+  // if elem(f) is last element in stack
+  if (last >= 0 && elem(f) == (*stack)[last]) {
+    stack->pop_back();
+    if (!is_bot(lo(f)) && choose(lo(f), stack))
+      return true;
+  }
+  return false;
+}
+
 zdd_t choose_random(zdd_t f, vector<elem_t>* stack) {
   assert(stack != NULL);
   if (is_term(f)) {
@@ -256,7 +292,7 @@ zdd_t choose_random(zdd_t f, vector<elem_t>* stack) {
     assert(false);
   }
 #ifdef HAVE_LIBGMPXX
-/* precise but too slow
+/* keep precision but too slow
   stringstream ss;
   ss << algo_c(hi(f));
   long double ch = strtold(ss.str().c_str(), NULL);

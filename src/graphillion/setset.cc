@@ -70,6 +70,12 @@ void setset::iterator::next() {
   if (this->zdd_ == null() || is_bot(this->zdd_)) {
     this->zdd_ = null();
     this->s_ = set<elem_t>();
+  } else if (this->weights_.empty()) {
+    bool res = choose(this->zdd_, &this->stack_);
+    if (res)
+      this->s_ = set<elem_t>(this->stack_.begin(), this->stack_.end());
+    if (!res || this->stack_.size() == 0)
+      this->zdd_ = bot();
   } else if (this->weights_.empty()) {  // random sampling
     vector<elem_t> stack;
     this->zdd_ -= choose_random(this->zdd_, &stack);

@@ -73,6 +73,7 @@ class setset {
     zdd_t zdd_;
     std::set<elem_t> s_;
     std::vector<double> weights_;
+    std::vector<elem_t> stack_;
 
     friend class TestSetset;
   };
