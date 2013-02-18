@@ -78,6 +78,8 @@ class TestSetset(unittest.TestCase):
         ss = setset({})
         self.assertEqual(ss, setset([s0, s1]))
 
+        self.assertRaises(ValueError, setset.set_universe, ['1', '1'])
+
     def test_constructors(self):
         ss = setset()
         self.assertTrue(isinstance(ss, setset))

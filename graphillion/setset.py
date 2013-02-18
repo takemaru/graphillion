@@ -147,6 +147,8 @@ class setset(_graphillion.setset):
 
     @staticmethod
     def set_universe(universe):
+        if len(universe) != len(set(universe)):
+            raise ValueError, 'duplicated elements found'
         _graphillion._num_elems(0)
         setset._obj2int = {}
         setset._int2obj = [None]

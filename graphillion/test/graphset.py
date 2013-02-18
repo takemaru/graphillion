@@ -74,6 +74,8 @@ class TestGraphSet(unittest.TestCase):
         gs = GraphSet({})
         self.assertEqual(len(gs), 2**4)
 
+        self.assertRaises(KeyError, GraphSet.set_universe, [(1,2), (2,1)])
+
     def test_constructors(self):
         gs = GraphSet()
         self.assertTrue(isinstance(gs, GraphSet))
