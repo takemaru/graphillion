@@ -101,11 +101,16 @@ class TestGraphSet(unittest.TestCase):
         self.assertEqual(gs1, GraphSet())
         self.assertEqual(gs2, GraphSet([g0, g12, g13]))
 
-        # repr for large GraphSet
+        # repr
+        gs = GraphSet([g0, g12, g13])
+        self.assertEqual(
+            repr(gs),
+            "GraphSet([[], [(1, 2), (1, 3)], [(1, 2), (2, 4)]])")
+
         gs = GraphSet({})
         self.assertEqual(
             repr(gs),
-            "GraphSet([set([]), set([(1, 3)]), set([(3, 4)]), set([(1, 2)]), set([(2, 4)] ...")
+            "GraphSet([[], [(1, 3)], [(3, 4)], [(1, 2)], [(2, 4)], [(1, 3), (3, 4)], [(1, ...")
 
     def test_subgraphs(self):
         pass

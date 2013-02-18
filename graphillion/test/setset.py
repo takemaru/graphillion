@@ -93,7 +93,7 @@ class TestSetset(unittest.TestCase):
 
         ss = setset({'include': list(s12), 'exclude': list(s4)})
         self.assertEqual(repr(ss),
-                         "setset([set(['1', '2']), set(['1', '3', '2'])])")
+                         "setset([set(['1', '2']), set(['1', '2', '3'])])")
 
         # copy constructor
         ss1 = setset([s0, s12, s13])
@@ -104,11 +104,11 @@ class TestSetset(unittest.TestCase):
         self.assertEqual(repr(ss2),
                          "setset([set([]), set(['1', '2']), set(['1', '3'])])")
 
-        # repr for large set of sets
+        # repr
         ss = setset({})
         self.assertEqual(
             repr(ss),
-            "setset([set([]), set(['1']), set(['2']), set(['3']), set(['4']), set(['1', ...")
+            "setset([set([]), set(['1']), set(['2']), set(['3']), set(['4']), set(['1', ' ...")
 
     def test_comparison(self):
         ss = setset([s12])

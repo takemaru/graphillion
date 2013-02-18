@@ -64,24 +64,28 @@ class setset(_graphillion.setset):
         _graphillion.setset.__init__(self, obj)
 
     def __repr__(self):
+        name = self.__class__.__name__
+        return self._repr((name + '([', '])'), ('set([', '])'))
+
+    def _repr(self, outer_braces=('[', ']'), inner_braces=('[', ']')):
         n = _graphillion._num_elems()
         w = {}
         for i in range(1, n + 1):
             e = setset._int2obj[i]
             w[e] = 1 + float(i) / n**2
-        ret = self.__class__.__name__ + '(['
-        maxchar = 78
+        ret = outer_braces[0]
+        maxchar = 80
         no_comma = True
         for s in setset.minimize(self, w):
             if no_comma:
                 no_comma = False
             else:
                 ret += ', '
-            ret += str(s)
+            ret += inner_braces[0] + str(sorted(list(s)))[1:-1] + inner_braces[1]
             if len(ret) > maxchar - 2:
                 break
         if len(ret) <= maxchar - 2:
-            return ret + '])'
+            return ret + outer_braces[1]
         else:
             return ret[:(maxchar - 4)] + ' ...'
 

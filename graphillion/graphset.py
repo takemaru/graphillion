@@ -148,8 +148,7 @@ class GraphSet(object):
         return bool(self.ss)
 
     def __repr__(self):
-        g, s = self.__class__.__name__, self.ss.__class__.__name__
-        return g + repr(self.ss)[len(s):]  # replace class name
+        return setset._repr(self.ss, (self.__class__.__name__ + '([', '])'))
 
     def union(self, other):
         """Returns a new GraphSet with graphs from `self` and all others.
