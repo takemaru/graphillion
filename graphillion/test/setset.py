@@ -23,6 +23,9 @@ import sys
 import tempfile
 import unittest
 
+sys.path = ['.'] + glob.glob(os.path.join('build', 'lib.*')) + sys.path
+from graphillion import setset
+
 
 s0 = set()
 s1 = set(['1'])
@@ -463,6 +466,4 @@ class TestSetset(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    sys.path.extend(glob.glob(os.path.join('build', 'lib.*')) + ['.'])
-    from graphillion import setset
     unittest.main()

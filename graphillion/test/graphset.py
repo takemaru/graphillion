@@ -23,6 +23,10 @@ import sys
 import tempfile
 import unittest
 
+sys.path = ['.'] + glob.glob(os.path.join('build', 'lib.*')) + sys.path
+from graphillion import GraphSet
+
+
 e1 = (1,2)
 e2 = (1,3)
 e3 = (2,4)
@@ -466,6 +470,4 @@ class TestGraphSet(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    sys.path.extend(glob.glob(os.path.join('build', 'lib.*')) + ['.'])
-    from graphillion import GraphSet
     unittest.main()
