@@ -39,26 +39,25 @@ using std::map;
 using std::ostream;
 using std::pair;
 using std::set;
+using std::sort;
 using std::string;
 using std::stringstream;
 using std::vector;
 
-setset::iterator::iterator()
-    : zdd_(null()), s_(set<elem_t>()), weights_(vector<double>()) {
+// setset::iterator
+
+setset::iterator::iterator() : zdd_(null()), s_(set<elem_t>()) {
 }
 
-setset::iterator::iterator(const setset& ss)
-    : zdd_(ss.zdd_), s_(set<elem_t>()), weights_(vector<double>()) {
+setset::iterator::iterator(const setset::iterator& i) : zdd_(i.zdd_), s_(i.s_) {
+}
+
+setset::iterator::iterator(const setset& ss) : zdd_(ss.zdd_), s_(set<elem_t>()) {
   this->next();
 }
 
-setset::iterator::iterator(const setset& ss, const vector<double>& weights)
-    : zdd_(ss.zdd_), s_(set<elem_t>()), weights_(weights) {
-  this->next();
-}
-
-setset::iterator::iterator(const set<elem_t>& s)
-    : zdd_(bot()), s_(s), weights_(vector<double>()) {
+setset::iterator::iterator(const setset& ss, const set<elem_t>& s)
+    : zdd_(ss.zdd_), s_(s) {
 }
 
 setset::iterator& setset::iterator::operator++() {
@@ -70,22 +69,64 @@ void setset::iterator::next() {
   if (this->zdd_ == null() || is_bot(this->zdd_)) {
     this->zdd_ = null();
     this->s_ = set<elem_t>();
-  } else if (this->weights_.empty()) {
-    bool res = choose(this->zdd_, &this->stack_);
+  } else {
+    vector<elem_t> stack(this->s_.begin(), this->s_.end());
+    sort(stack.begin(), stack.end());
+    bool res = choose(this->zdd_, &stack);
     if (res)
-      this->s_ = set<elem_t>(this->stack_.begin(), this->stack_.end());
-    if (!res || this->stack_.size() == 0)
+      this->s_ = set<elem_t>(stack.begin(), stack.end());
+    if (!res || stack.size() == 0)
       this->zdd_ = bot();
-  } else if (this->weights_.empty()) {  // random sampling
+  }
+}
+
+setset::random_iterator::random_iterator() : iterator() {
+}
+
+setset::random_iterator::random_iterator(const setset::random_iterator& i)
+    : iterator(i) {
+}
+
+setset::random_iterator::random_iterator(const setset& ss) : iterator(ss) {
+  this->next();
+}
+
+void setset::random_iterator::next() {
+  if (this->zdd_ == null() || is_bot(this->zdd_)) {
+    this->zdd_ = null();
+    this->s_ = set<elem_t>();
+  } else {
     vector<elem_t> stack;
     this->zdd_ -= choose_random(this->zdd_, &stack);
     this->s_ = set<elem_t>(stack.begin(), stack.end());
-  } else {  // optimization
+  }
+}
+
+setset::weighted_iterator::weighted_iterator() : iterator() {
+}
+
+setset::weighted_iterator::weighted_iterator(const setset::weighted_iterator& i)
+    : iterator(i), weights_(i.weights_) {
+}
+
+setset::weighted_iterator::weighted_iterator(const setset& ss,
+                                             vector<double> weights)
+    : iterator(ss), weights_(weights) {
+  this->next();
+}
+
+void setset::weighted_iterator::next() {
+  if (this->zdd_ == null() || is_bot(this->zdd_)) {
+    this->zdd_ = null();
+    this->s_ = set<elem_t>();
+  } else {
     set<elem_t> s;
     this->zdd_ -= choose_best(this->zdd_, this->weights_, &s);
     this->s_ = s;
   }
 }
+
+// setset
 
 setset::setset() : zdd_(bot()) {
 }
@@ -224,21 +265,25 @@ setset::iterator setset::begin() const {
   return setset::iterator(*this);
 }
 
-setset::iterator setset::minimize(const vector<double>& weights) const {
+setset::random_iterator setset::randomize() const {
+  return setset::random_iterator(*this);
+}
+
+setset::weighted_iterator setset::minimize(const vector<double>& weights) const {
   vector<double> inverted_weights;
   for (vector<double>::const_iterator i = weights.begin();
        i != weights.end(); ++i)
     inverted_weights.push_back(-1 * (*i));
-  return setset::iterator(*this, inverted_weights);
+  return setset::weighted_iterator(*this, inverted_weights);
 }
 
-setset::iterator setset::maximize(const vector<double>& weights) const {
-  return setset::iterator(*this, weights);
+setset::weighted_iterator setset::maximize(const vector<double>& weights) const {
+  return setset::weighted_iterator(*this, weights);
 }
 
 setset::iterator setset::find(const set<elem_t>& s) const {
   if (this->zdd_ - setset(s).zdd_ != this->zdd_)
-    return setset::iterator(s);
+    return setset::iterator(*this, s);
   else
     return setset::iterator();
 }
@@ -263,10 +308,10 @@ size_t setset::count(const set<elem_t>& s) const {
 
 pair<setset::iterator, bool> setset::insert(const set<elem_t>& s) {
   if (this->find(s) != end()) {
-    return make_pair(setset::iterator(s), false);
+    return make_pair(setset::iterator(*this, s), false);
   } else {
     *this |= setset(s);
-    return make_pair(setset::iterator(s), true);
+    return make_pair(setset::iterator(*this, s), true);
   }
 }
 

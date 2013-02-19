@@ -37,48 +37,57 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 namespace graphillion {
 
-class setset_test;
-
 class setset {
  public:
   class iterator
       : public std::iterator<std::forward_iterator_tag, std::set<elem_t> > {
    public:
     iterator();
-    iterator(const setset& ss);
-    iterator(const setset& ss, const std::vector<double>& weights);
-    explicit iterator(const std::set<elem_t>& s);
-    iterator(const iterator& i)
-        : zdd_(i.zdd_), s_(i.s_), weights_(i.weights_) {}
+    iterator(const iterator& i);
+    explicit iterator(const setset& ss);
+    explicit iterator(const setset& ss, const std::set<elem_t>& s);
 
     virtual ~iterator() {}
 
-    void operator=(const iterator& i) {
-      this->zdd_ = i.zdd_;
-      this->weights_ = i.weights_;
-      this->s_ = i.s_;
-    }
+    bool operator==(const iterator& i) const { return this->zdd_ == i.zdd_; }
+    bool operator!=(const iterator& i) const { return this->zdd_ != i.zdd_; }
     std::set<elem_t>& operator*() { return this->s_; }
     iterator& operator++();
-    bool operator==(const iterator& i) const {
-      return this->zdd_ == i.zdd_;
-    }
-    bool operator!=(const iterator& i) const {
-      return this->zdd_ != i.zdd_;
-    }
 
-   private:
-    void next();
+   protected:
+    virtual void next();
 
     zdd_t zdd_;
     std::set<elem_t> s_;
-    std::vector<double> weights_;
-    std::vector<elem_t> stack_;
-
-    friend class TestSetset;
   };
 
   typedef iterator const_iterator;
+
+  class random_iterator : public iterator {
+   public:
+    random_iterator();
+    random_iterator(const random_iterator& i);
+    explicit random_iterator(const setset& ss);
+
+    virtual ~random_iterator() {}
+
+   protected:
+    virtual void next();
+  };
+
+  class weighted_iterator : public iterator {
+   public:
+    weighted_iterator();
+    weighted_iterator(const weighted_iterator& i);
+    explicit weighted_iterator(const setset& ss, std::vector<double> weights);
+
+    virtual ~weighted_iterator() {}
+
+   protected:
+    virtual void next();
+
+    std::vector<double> weights_;
+  };
 
   setset();
   setset(const setset& ss) : zdd_(ss.zdd_) {}
@@ -118,8 +127,9 @@ class setset {
   bool empty() const;
   std::string size() const;
   iterator begin() const;
-  iterator minimize(const std::vector<double>& weights) const;
-  iterator maximize(const std::vector<double>& weights) const;
+  random_iterator randomize() const;
+  weighted_iterator minimize(const std::vector<double>& weights) const;
+  weighted_iterator maximize(const std::vector<double>& weights) const;
   iterator find(const std::set<elem_t>& s) const;
   setset include(elem_t e) const;
   setset exclude(elem_t e) const;

@@ -276,18 +276,26 @@ class TestSetset {
   }
 
   void iterators() {
-    setset ss1(V("{{}, {1,2}, {1,3}}"));
-    setset ss2;
-    for (setset::const_iterator s = ss1.begin(); s != ss1.end(); ++s)
-      ss2 |= setset(*s);
-    assert(ss1 == ss2);
+    setset ss(V("{{}, {1,2}, {1,3}}"));
+    vector<set<int> > v;
+    for (setset::iterator s = ss.begin(); s != ss.end(); ++s)
+      v.push_back(*s);
+    assert(v.size() == 3);
+    assert(ss == setset(v));
 
-    ss2.clear();
-    for (setset::iterator s = ss1.begin(); s != ss1.end(); ++s)
-      ss2 |= setset(*s);
-    assert(ss1 == ss2);
+    v.clear();
+    for (setset::const_iterator s = ss.begin(); s != ss.end(); ++s)
+      v.push_back(*s);
+    assert(v.size() == 3);
+    assert(ss == setset(v));
 
-    setset ss(V("{{}, {1}, {1,2}, {1,2,3}, {1,2,3,4}, {1,3,4}, {1,4}, {4}}"));
+    v.clear();
+    for (setset::random_iterator s = ss.randomize(); s != ss.end(); ++s)
+      v.push_back(*s);
+    assert(v.size() == 3);
+    assert(ss == setset(v));
+
+    ss = setset(V("{{}, {1}, {1,2}, {1,2,3}, {1,2,3,4}, {1,3,4}, {1,4}, {4}}"));
     vector<double> w;
     w.push_back(0);  // 1-offset
     w.push_back(.3);
@@ -295,29 +303,30 @@ class TestSetset {
     w.push_back(-.2);
     w.push_back(.4);
 
-    setset::iterator i = ss.maximize(w);
-    assert(*i == S("{1,4}"));
-    ++i;
-    assert(*i == S("{1,3,4}"));
-    ++i;
-    assert(*i == S("{4}"));
+    v.clear();
+    for (setset::weighted_iterator s = ss.maximize(w); s != ss.end(); ++s)
+      v.push_back(*s);
+    assert(v.size() == 8);
+    assert(v[0] == S("{1,4}"));
+    assert(v[1] == S("{1,3,4}"));
+    assert(v[2] == S("{4}"));
 
-    i = ss.minimize(w);
-    assert(*i == S("{1,2,3}"));
-    ++i;
-    assert(*i == S("{}"));
-    ++i;
-    assert(*i == S("{1,2}"));
+    v.clear();
+    for (setset::weighted_iterator s = ss.minimize(w); s != ss.end(); ++s)
+      v.push_back(*s);
+    assert(v.size() == 8);
+    assert(v[0] == S("{1,2,3}"));
+    assert(v[1] == S("{}"));
+    assert(v[2] == S("{1,2}"));
   }
 
   void lookup() {
     setset ss(V("{{}, {1,2}, {1,3}}"));
-    setset::const_iterator i = ss.find(S("{1,2}"));
-    assert(i != setset::end());
-    assert(*i == S("{1,2}"));
-    assert(setset(i.zdd_).find(S("{1,2}")) == setset::end());
-    i = ss.find(S("{1}"));
-    assert(i == setset::end());
+    setset::const_iterator s = ss.find(S("{1,2}"));
+    assert(s != setset::end());
+    assert(*s == S("{1,2}"));
+
+    assert(ss.find(S("{1}")) == setset::end());
 
     assert(ss.include(1).zdd_ == s12 + s13);
 
@@ -333,17 +342,17 @@ class TestSetset {
     pair<setset::iterator, bool> p = ss.insert(S("{1}"));
     assert(ss.find(S("{1}")) != setset::end());
     assert(p.first != setset::end());
-    assert(p.first.s_ == S("{1}"));
+    assert(*(p.first) == S("{1}"));
     assert(p.second);
 
     p = ss.insert(S("{1}"));
     assert(p.first != setset::end());
-    assert(p.first.s_ == S("{1}"));
+    assert(*(p.first) == S("{1}"));
     assert(!p.second);
 
     setset::iterator i = ss.insert(p.first, S("{1}"));
     assert(i != setset::end());
-    assert(i.s_ == S("{1}"));
+    assert(*i == S("{1}"));
 
     i = ss.erase(i);
     assert(ss.find(S("{1}")) == setset::end());
@@ -443,7 +452,7 @@ class TestSetset {
 
     int i = 0;
     for (setset::const_iterator s = ss.begin(); s != ss.end(); ++s)
-      if (++i > 3) break;
+      if (++i > 100) break;
   }
 };
 

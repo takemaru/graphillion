@@ -102,7 +102,7 @@ static PyObject* setset_build_set(const set<int>& s) {
       Py_DECREF(eo);
       return NULL;
     }
-    Py_DECREF(eo); // TODO: no Py_DECREF required to obj of PyInt_FromLong?
+    Py_DECREF(eo);  // TODO: is Py_DECREF() required for PyInt_FromLong object?
   }
   return so;
 }
@@ -397,7 +397,7 @@ static PyObject* setset_long_len(PyObject* obj) {
 static PyObject* setset_randomize(PySetsetObject* self) {
   PySetsetIterObject* ssi = PyObject_New(PySetsetIterObject, &PySetsetIter_Type);
   if (ssi == NULL) return NULL;
-  ssi->it = new setset::iterator(self->ss->begin());
+  ssi->it = new setset::random_iterator(self->ss->randomize());
   if (ssi->it == NULL) {
     PyErr_NoMemory();
     return NULL;
@@ -431,7 +431,7 @@ static PyObject* setset_optimize(PySetsetObject* self, PyObject* weights,
   Py_DECREF(i);
   PySetsetIterObject* ssi = PyObject_New(PySetsetIterObject, &PySetsetIter_Type);
   if (ssi == NULL) return NULL;
-  ssi->it = new setset::iterator(
+  ssi->it = new setset::weighted_iterator(
       is_maximizing ? self->ss->maximize(w) : self->ss->minimize(w));
   if (ssi->it == NULL) {
     PyErr_NoMemory();

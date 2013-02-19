@@ -466,7 +466,7 @@ class TestGraphSet(unittest.TestCase):
 
         i = 0
         for g in gs:
-            if i > 50: break
+            if i > 100: break
             i += 1
 
         del nx

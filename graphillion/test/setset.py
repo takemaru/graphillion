@@ -458,7 +458,7 @@ class TestSetset(unittest.TestCase):
 
         i = 0
         for s in ss:
-            if i > 3: break
+            if i > 10: break
             i += 1
 
          # it takes more than 10 sec.
