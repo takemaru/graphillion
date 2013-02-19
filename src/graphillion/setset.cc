@@ -66,7 +66,7 @@ setset::iterator& setset::iterator::operator++() {
 }
 
 void setset::iterator::next() {
-  if (this->zdd_ == null() || is_bot(this->zdd_)) {
+  if (this->zdd_ == null() || this->zdd_ == bot()) {
     this->zdd_ = null();
     this->s_ = set<elem_t>();
   } else {
@@ -93,7 +93,7 @@ setset::random_iterator::random_iterator(const setset& ss) : iterator(ss) {
 }
 
 void setset::random_iterator::next() {
-  if (this->zdd_ == null() || is_bot(this->zdd_)) {
+  if (this->zdd_ == null() || this->zdd_ == bot()) {
     this->zdd_ = null();
     this->s_ = set<elem_t>();
   } else {
@@ -120,7 +120,7 @@ setset::weighted_iterator::weighted_iterator(const setset& ss,
 }
 
 void setset::weighted_iterator::next() {
-  if (this->zdd_ == null() || is_bot(this->zdd_)) {
+  if (this->zdd_ == null() || this->zdd_ == bot()) {
     this->zdd_ = null();
     this->s_ = set<elem_t>();
   } else {
@@ -190,12 +190,12 @@ setset setset::operator^(const setset& ss) const {
 }
 
 setset setset::operator/(const setset& ss) const {
-  assert(!is_bot(ss.zdd_) || is_term(this->zdd_))
+  assert(ss.zdd_ != bot() || is_term(this->zdd_))
   return setset(this->zdd_ / ss.zdd_);
 }
 
 setset setset::operator%(const setset& ss) const {
-  assert(!is_bot(ss.zdd_) || is_term(this->zdd_))
+  assert(ss.zdd_ != bot() || is_term(this->zdd_))
   return setset(this->zdd_ % ss.zdd_);
 }
 

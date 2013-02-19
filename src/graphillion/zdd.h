@@ -47,8 +47,6 @@ inline zdd_t null() { return zdd_t(-1); }
 inline zdd_t bot() { return zdd_t(0); }
 inline zdd_t top() { return zdd_t(1); }
 inline bool is_term(zdd_t f) { return f.Top() == 0; }
-inline bool is_bot(zdd_t f) { return f == bot(); }
-inline bool is_top(zdd_t f) { return f == top(); }
 inline zdd_t lo(zdd_t f) {
   assert(!is_term(f));
   return f.OffSet(f.Top());

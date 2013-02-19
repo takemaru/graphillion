@@ -131,8 +131,8 @@ zdd_t maximal(zdd_t f) {
 }
 
 zdd_t hitting(zdd_t f) {
-  if (is_bot(f)) return top();
-  if (is_top(f)) return bot();
+  if (f == bot()) return top();
+  if (f == top()) return bot();
   vector<vector<zdd_t> > stacks(num_elems_ + 1);
   set<word_t> visited;
   sort_zdd(f, &stacks, &visited);
@@ -144,18 +144,18 @@ zdd_t hitting(zdd_t f) {
       zdd_t n = stacks[v].back();
       stacks[v].pop_back();
       zdd_t l = cache.at(id(lo(n)));
-      if (!is_bot(lo(n))) {
-        elem_t j = is_top(lo(n)) ? num_elems_ : elem(lo(n)) - 1;
+      if (lo(n) != bot()) {
+        elem_t j = lo(n) == top() ? num_elems_ : elem(lo(n)) - 1;
         for (; j > v; --j)
           l = l + l.Change(j);
       }
       zdd_t h = cache.at(id(hi(n)));
-      if (!is_bot(hi(n))) {
-        elem_t j = is_top(hi(n)) ? num_elems_ : elem(hi(n)) - 1;
+      if (hi(n) != bot()) {
+        elem_t j = hi(n) == top() ? num_elems_ : elem(hi(n)) - 1;
         for (; j > v; --j)
           h = h + h.Change(j);
       }
-      if (is_bot(lo(n))) {
+      if (lo(n) == bot()) {
         zdd_t g = top();
         for (elem_t j = num_elems_; j > v; --j)
           g = g + g.Change(j);
@@ -183,11 +183,11 @@ zdd_t meet(zdd_t f, zdd_t g) {
 
 zdd_t non_subsets(zdd_t f, zdd_t g) {
   static map<pair<word_t, word_t>, zdd_t> cache;
-  if (is_bot(g))
+  if (g == bot())
     return f;
-  else if (is_top(g))
+  else if (g == top())
     return f - top();
-  else if (is_bot(f) || is_top(f) || f == g)
+  else if (f == bot() || f == top() || f == g)
     return bot();
   pair<word_t, word_t> k = make_key(f, g);
   map<pair<word_t, word_t>, zdd_t>::iterator i = cache.find(k);
@@ -215,11 +215,11 @@ zdd_t non_subsets(zdd_t f, zdd_t g) {
 
 zdd_t non_supersets(zdd_t f, zdd_t g) {
   static map<pair<word_t, word_t>, zdd_t> cache;
-  if (is_bot(g))
+  if (g == bot())
     return f;
-  else if (is_bot(f) || is_top(g) || f == g)
+  else if (f == bot() || g == top() || f == g)
     return bot();
-  else if (is_top(f))
+  else if (f == top())
     return top();
   else if (elem(f) > elem(g))
     return non_supersets(f, lo(g));
@@ -247,9 +247,9 @@ zdd_t non_supersets(zdd_t f, zdd_t g) {
 bool choose(zdd_t f, vector<elem_t>* stack) {
   assert(stack != NULL);
   int last = stack->size() - 1;
-  if (is_bot(f))
+  if (f == bot())
     return false;
-  else if (is_top(f))
+  else if (f == top())
     return true;
   // if elem(f) > any in stack
   if (last < 0 || elem(f) > (*stack)[last]) {
@@ -264,7 +264,7 @@ bool choose(zdd_t f, vector<elem_t>* stack) {
         return true;
     } else {
       // if elem(f) not in stack
-      if (!is_bot(lo(f)) && choose(lo(f), stack))
+      if (lo(f) != bot() && choose(lo(f), stack))
         return true;
       return false;
     }
@@ -274,7 +274,7 @@ bool choose(zdd_t f, vector<elem_t>* stack) {
   // if elem(f) is last element in stack
   if (last >= 0 && elem(f) == (*stack)[last]) {
     stack->pop_back();
-    if (!is_bot(lo(f)) && choose(lo(f), stack))
+    if (lo(f) != bot() && choose(lo(f), stack))
       return true;
   }
   return false;
@@ -283,7 +283,7 @@ bool choose(zdd_t f, vector<elem_t>* stack) {
 zdd_t choose_random(zdd_t f, vector<elem_t>* stack) {
   assert(stack != NULL);
   if (is_term(f)) {
-    if (is_top(f)) {
+    if (f == top()) {
       zdd_t g = top();
       for (int i = 0; i <= static_cast<int>(stack->size()) - 1; i++)
         g = g * single((*stack)[i]);
@@ -315,7 +315,7 @@ zdd_t choose_random(zdd_t f, vector<elem_t>* stack) {
 
 zdd_t choose_best(zdd_t f, const vector<double>& weights, set<elem_t>* s) {
   assert(s != NULL);
-  if (is_bot(f)) return bot();
+  if (f == bot()) return bot();
   vector<bool> x;
   algo_b(f, weights, &x);
   zdd_t g = top();
@@ -330,9 +330,9 @@ zdd_t choose_best(zdd_t f, const vector<double>& weights, set<elem_t>* s) {
 }
 
 void dump(zdd_t f, ostream& out) {
-  if (is_bot(f)) {
+  if (f == bot()) {
     out << "B" << endl;
-  } else if (is_top(f)) {
+  } else if (f == top()) {
     out << "T" << endl;
   } else {
     vector<vector<zdd_t> > stacks(num_elems_ + 1);
@@ -345,13 +345,13 @@ void dump(zdd_t f, ostream& out) {
         zdd_t l = lo(g);
         zdd_t h = hi(g);
         out << id(g) << " " << elem(g) << " ";
-        if      (is_bot(l)) out << "B";
-        else if (is_top(l)) out << "T";
-        else                out << id(l);
+        if      (l == bot()) out << "B";
+        else if (l == top()) out << "T";
+        else                 out << id(l);
         out << " ";
-        if      (is_bot(h)) out << "B";
-        else if (is_top(h)) out << "T";
-        else                out << id(h);
+        if      (h == bot()) out << "B";
+        else if (h == top()) out << "T";
+        else                 out << id(h);
         out << endl;
       }
     }
@@ -360,9 +360,9 @@ void dump(zdd_t f, ostream& out) {
 }
 
 void dump(zdd_t f, FILE* fp) {
-  if (is_bot(f)) {
+  if (f == bot()) {
     fprintf(fp, "B\n");
-  } else if (is_top(f)) {
+  } else if (f == top()) {
     fprintf(fp, "T\n");
   } else {
     vector<vector<zdd_t> > stacks(num_elems_ + 1);
@@ -375,13 +375,13 @@ void dump(zdd_t f, FILE* fp) {
         zdd_t l = lo(g);
         zdd_t h = hi(g);
         fprintf(fp, (WORD_FMT +" %d ").c_str(), id(g), elem(g));
-        if      (is_bot(l)) fprintf(fp, "B");
-        else if (is_top(l)) fprintf(fp, "T");
-        else                fprintf(fp, WORD_FMT.c_str(), id(l));
+        if      (l == bot()) fprintf(fp, "B");
+        else if (l == top()) fprintf(fp, "T");
+        else                 fprintf(fp, WORD_FMT.c_str(), id(l));
         fprintf(fp, " ");
-        if      (is_bot(h)) fprintf(fp, "B");
-        else if (is_top(h)) fprintf(fp, "T");
-        else                fprintf(fp, WORD_FMT.c_str(), id(h));
+        if      (h == bot()) fprintf(fp, "B");
+        else if (h == top()) fprintf(fp, "T");
+        else                 fprintf(fp, WORD_FMT.c_str(), id(h));
         fprintf(fp, "\n");
       }
     }
@@ -482,7 +482,7 @@ void _enum(zdd_t f, ostream& out, vector<elem_t>* stack, bool* first,
            const pair<const char*, const char*>& inner_braces) {
   assert(stack != NULL);
   if (is_term(f)) {
-    if (is_top(f)) {
+    if (f == top()) {
       if (*first)
         *first = false;
       else
@@ -501,7 +501,7 @@ void _enum(zdd_t f, FILE* fp, vector<elem_t>* stack, bool* first,
            const pair<const char*, const char*>& inner_braces) {
   assert(stack != NULL);
   if (is_term(f)) {
-    if (is_top(f)) {
+    if (f == top()) {
       if (*first)
         *first = false;
       else
@@ -520,8 +520,8 @@ void _enum(zdd_t f, FILE* fp, vector<elem_t>* stack, bool* first,
 // Algorithm B modified for ZDD, from Knuth vol. 4 fascicle 1 sec. 7.1.4.
 void algo_b(zdd_t f, const vector<double>& w, vector<bool>* x) {
   assert(x != NULL);
-  assert(!is_bot(f));
-  if (is_top(f)) return;
+  assert(f != bot());
+  if (f == top()) return;
   vector<vector<zdd_t> > stacks(num_elems_ + 1);
   set<word_t> visited;
   elem_t max_elem = 0;
@@ -541,11 +541,11 @@ void algo_b(zdd_t f, const vector<double>& w, vector<bool>* x) {
       elem_t v = elem(g);
       word_t l = id(lo(g));
       word_t h = id(hi(g));
-      if (!is_bot(lo(g)))
+      if (lo(g) != bot())
         ms[k] = ms.at(l);
-      if (!is_bot(hi(g))) {
+      if (hi(g) != bot()) {
         double m = ms.at(h) + w[v];
-        if (is_bot(lo(g)) || m > ms.at(k)) {
+        if (lo(g) == bot() || m > ms.at(k)) {
           ms[k] = m;
           t[k] = true;
         }
@@ -564,13 +564,13 @@ void algo_b(zdd_t f, const vector<double>& w, vector<bool>* x) {
 
 // Algorithm C modified for ZDD, from Knuth vol. 4 fascicle 1 sec. 7.1.4 (p.75).
 intx_t algo_c(zdd_t f) {
-    static map<word_t, intx_t> counts;
-    if (is_term(f))
-        return is_top(f) ? 1 : 0;
-    else if (counts.find(id(f)) != counts.end())
-        return counts.at(id(f));
-    else
-        return counts[id(f)] = algo_c(hi(f)) + algo_c(lo(f));
+  static map<word_t, intx_t> counts;
+  if (is_term(f))
+    return f == top() ? 1 : 0;
+  else if (counts.find(id(f)) != counts.end())
+    return counts.at(id(f));
+  else
+    return counts[id(f)] = algo_c(hi(f)) + algo_c(lo(f));
 }
 
 // Algorithm ZUNIQ from Knuth vol. 4 fascicle 1 sec. 7.1.4.
