@@ -122,12 +122,15 @@ class setset(_graphillion.setset):
             elem = setset._conv_elem(elem)
         return _graphillion.setset.flip(self, elem)
 
+    def __iter__(self):
+        i = _graphillion.setset.iter(self)
+        while (True):
+            yield setset._conv_ret(i.next())
+
     def randomize(self):
         i = _graphillion.setset.randomize(self)
         while (True):
             yield setset._conv_ret(i.next())
-
-    __iter__ = randomize
 
     def minimize(self, weights=None, default=1):
         return self._optimize(weights, default, _graphillion.setset.minimize)

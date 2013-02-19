@@ -394,6 +394,17 @@ static PyObject* setset_long_len(PyObject* obj) {
 #endif
 }
 
+static PyObject* setset_iter(PySetsetObject* self) {
+  PySetsetIterObject* ssi = PyObject_New(PySetsetIterObject, &PySetsetIter_Type);
+  if (ssi == NULL) return NULL;
+  ssi->it = new setset::iterator(self->ss->begin());
+  if (ssi->it == NULL) {
+    PyErr_NoMemory();
+    return NULL;
+  }
+  return reinterpret_cast<PyObject*>(ssi);
+}
+
 static PyObject* setset_randomize(PySetsetObject* self) {
   PySetsetIterObject* ssi = PyObject_New(PySetsetIterObject, &PySetsetIter_Type);
   if (ssi == NULL) return NULL;
@@ -756,6 +767,7 @@ static PyMethodDef setset_methods[] = {
   {"issubset", reinterpret_cast<PyCFunction>(setset_issubset), METH_O, ""},
   {"issuperset", reinterpret_cast<PyCFunction>(setset_issuperset), METH_O, ""},
   {"len", reinterpret_cast<PyCFunction>(setset_long_len), METH_NOARGS, ""},
+  {"iter", reinterpret_cast<PyCFunction>(setset_iter), METH_NOARGS, ""},
   {"randomize", reinterpret_cast<PyCFunction>(setset_randomize), METH_NOARGS, ""},
   {"maximize", reinterpret_cast<PyCFunction>(setset_maximize), METH_O, ""},
   {"minimize", reinterpret_cast<PyCFunction>(setset_minimize), METH_O, ""},

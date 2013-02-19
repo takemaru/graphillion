@@ -556,8 +556,8 @@ class GraphSet(object):
         """
         return self.ss.len()
 
-    def randomize(self):
-        """Iterates over graphs randomly.
+    def __iter__(self):
+        """Iterates over graphs.
 
         Examples:
           >>> gs = GraphSet([set([(1,2)]), set([(1,2), (1,4)])])
@@ -573,12 +573,32 @@ class GraphSet(object):
           A graph.
 
         See Also:
-          minimize(), maximize(), pop()
+          randomize(), minimize(), maximize()
         """
         for g in self.ss.randomize():
             yield GraphSet._conv_ret(g)
 
-    __iter__ = randomize
+    def randomize(self):
+        """Iterates over graphs uniformly randomly.
+
+        Examples:
+          >>> gs = GraphSet([set([(1,2)]), set([(1,2), (1,4)])])
+          >>> for g in gs.randomize():
+          ...   g
+          set([(1, 2), (1, 4)])
+          set([(1, 2)])
+
+        Returns:
+          A generator.
+
+        Yields:
+          A graph.
+
+        See Also:
+          __iter__(), minimize(), maximize()
+        """
+        for g in self.ss.randomize():
+            yield GraphSet._conv_ret(g)
 
     def minimize(self):
         """Iterates over graphs in the ascending order of weights.
@@ -603,7 +623,7 @@ class GraphSet(object):
           A graph.
 
         See Also:
-          maximize(), randomize()
+          __iter__(), randomize(), maximize()
         """
         for g in self.ss.minimize(GraphSet._weights):
             yield GraphSet._conv_ret(g)
@@ -631,7 +651,7 @@ class GraphSet(object):
           A graph.
 
         See Also:
-          minimize(), randomize()
+          __iter__(), randomize(), minimize()
         """
         for g in self.ss.maximize(GraphSet._weights):
             yield GraphSet._conv_ret(g)

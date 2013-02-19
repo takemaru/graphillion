@@ -30,20 +30,10 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <utility>
 #include <vector>
 
-#ifdef HAVE_LIBGMPXX
-#include <gmpxx.h>
-#endif
-
 #include "graphillion/type.h"
 #include "graphillion/util.h"
 
 namespace graphillion {
-
-#ifdef HAVE_LIBGMPXX
-typedef mpz_class intx_t;
-#else
-typedef long double intx_t;
-#endif
 
 void init();
 elem_t elem_limit();

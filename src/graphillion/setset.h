@@ -73,6 +73,8 @@ class setset {
 
    protected:
     virtual void next();
+
+    intx_t size_;
   };
 
   class weighted_iterator : public iterator {

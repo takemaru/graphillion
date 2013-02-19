@@ -80,14 +80,15 @@ void setset::iterator::next() {
   }
 }
 
-setset::random_iterator::random_iterator() : iterator() {
+setset::random_iterator::random_iterator() : iterator(), size_(0) {
 }
 
 setset::random_iterator::random_iterator(const setset::random_iterator& i)
-    : iterator(i) {
+    : iterator(i), size_(i.size_) {
 }
 
 setset::random_iterator::random_iterator(const setset& ss) : iterator(ss) {
+  this->size_ = algo_c(ss.zdd_);
   this->next();
 }
 
@@ -97,7 +98,10 @@ void setset::random_iterator::next() {
     this->s_ = set<elem_t>();
   } else {
     vector<elem_t> stack;
-    this->zdd_ -= choose_random(this->zdd_, &stack);
+    zdd_t z = choose_random(this->zdd_, &stack);
+    // Since same sets are rarely selected from very large setset that has more
+    // than 1e17 sets, we don't need to remove the selected sets
+    if (this->size_ < 1e17) this->zdd_ -= z;
     this->s_ = set<elem_t>(stack.begin(), stack.end());
   }
 }
