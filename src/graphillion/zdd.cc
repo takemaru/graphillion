@@ -32,6 +32,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 namespace graphillion {
 
+using std::binary_search;
 using std::endl;
 using std::getline;
 using std::istream;
