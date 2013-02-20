@@ -320,18 +320,21 @@ class TestGraphSet(unittest.TestCase):
         gs1 = GraphSet([g0, g12, g13])
         gs2 = GraphSet()
         for g in gs1:
+            self.assertTrue(isinstance(g, list))
             gs2 = gs2 | GraphSet([g])
         self.assertEqual(gs1, GraphSet([g0, g12, g13]))
         self.assertEqual(gs1, gs2)
 
         gs2 = GraphSet()
         for g in gs1:
+            self.assertTrue(isinstance(g, list))
             gs2 = gs2 | GraphSet([g])
         self.assertEqual(gs1, gs2)
 
         gs1 = GraphSet([g0, g12, g13])
         gs2 = GraphSet()
         for g in gs1.randomize():
+            self.assertTrue(isinstance(g, list))
             gs2 = gs2 | GraphSet([g])
         self.assertEqual(gs1, gs2)
 
@@ -341,6 +344,7 @@ class TestGraphSet(unittest.TestCase):
         gs = GraphSet([g0, g1, g12, g123, g1234, g134, g14, g4])
         r = []
         for g in gs.maximize():
+            self.assertTrue(isinstance(g, list))
             r.append(g)
         self.assertEqual(len(r), 8)
         self.assertEqual(r[0], g14)
@@ -349,6 +353,7 @@ class TestGraphSet(unittest.TestCase):
 
         r = []
         for g in gs.minimize():
+            self.assertTrue(isinstance(g, list))
             r.append(g)
         self.assertEqual(len(r), 8)
         self.assertEqual(r[0], g123)
@@ -402,6 +407,7 @@ class TestGraphSet(unittest.TestCase):
         v = [g1, g12, g13]
         gs = GraphSet(v)
         g = gs.pop()
+        self.assertTrue(isinstance(g, list))
         self.assertTrue(g not in gs)
         self.assertEqual(gs | GraphSet([g]), GraphSet(v))
 

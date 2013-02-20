@@ -21,7 +21,5 @@ version = '0.9'
 date = ''
 license = 'MIT'
 authors = (('Takeru Inoue', 'takeru.inoue@gmail.com'),
-           ('Shinichi Minato', 'minato@ist.hokudai.ac.jp'),
            ('Hiroaki Iwashita', 'iwashita@erato.ist.hokudai.ac.jp'),
-           ('Jun Kawahara', 'jkawahara@is.naist.jp'),
-           ('Takahisa Toda', 'toda@erato.ist.hokudai.ac.jp'))
+           ('Shin-ichi Minato', 'minato@ist.hokudai.ac.jp'))
