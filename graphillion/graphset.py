@@ -119,8 +119,8 @@ class GraphSet(object):
                 obj = []
             elif isinstance(obj, list):  # a set of graphs [graph+]
                 l = []
-                for s in obj:
-                    l.append([GraphSet._conv_edge(e) for e in s])
+                for g in obj:
+                    l.append(set([GraphSet._conv_edge(e) for e in g]))
                 obj = l
             elif isinstance(obj, dict):  # constraints
                 d = {}
