@@ -172,27 +172,12 @@ class TestGraphSet(unittest.TestCase):
     def test_binary_operators(self):
         u = [g0, g1, g12, g123, g1234, g134, g14, g4]
         v = [g12, g14, g23, g34]
-        gs = GraphSet(u) & GraphSet(v)
-        self.assertTrue(isinstance(gs, GraphSet))
-        self.assertEqual(gs, GraphSet([g12, g14]))
-        gs = GraphSet(u).intersection(GraphSet(v))
-        self.assertTrue(isinstance(gs, GraphSet))
-        self.assertEqual(gs, GraphSet([g12, g14]))
-
-        gs = GraphSet(u)
-        gs &= GraphSet(v)
-        self.assertTrue(isinstance(gs, GraphSet))
-        self.assertEqual(gs, GraphSet([g12, g14]))
-        gs = GraphSet(u)
-        gs.intersection_update(GraphSet(v))
-        self.assertTrue(isinstance(gs, GraphSet))
-        self.assertEqual(gs, GraphSet([g12, g14]))
 
         gs = GraphSet(u) | GraphSet(v)
         self.assertTrue(isinstance(gs, GraphSet))
         self.assertEqual(
             gs, GraphSet([g0, g1, g12, g123, g1234, g134, g14, g23, g34, g4]))
-        gs = GraphSet(u).union(GraphSet(v))
+        gs = GraphSet(u).union(GraphSet(u), GraphSet(v))
         self.assertTrue(isinstance(gs, GraphSet))
         self.assertEqual(
             gs, GraphSet([g0, g1, g12, g123, g1234, g134, g14, g23, g34, g4]))
@@ -203,15 +188,31 @@ class TestGraphSet(unittest.TestCase):
         self.assertEqual(
             gs, GraphSet([g0, g1, g12, g123, g1234, g134, g14, g23, g34, g4]))
         gs = GraphSet(u)
-        gs.update(GraphSet(v))
+        gs.update(GraphSet(u), GraphSet(v))
         self.assertTrue(isinstance(gs, GraphSet))
         self.assertEqual(
             gs, GraphSet([g0, g1, g12, g123, g1234, g134, g14, g23, g34, g4]))
 
+        gs = GraphSet(u) & GraphSet(v)
+        self.assertTrue(isinstance(gs, GraphSet))
+        self.assertEqual(gs, GraphSet([g12, g14]))
+        gs = GraphSet(u).intersection(GraphSet(u), GraphSet(v))
+        self.assertTrue(isinstance(gs, GraphSet))
+        self.assertEqual(gs, GraphSet([g12, g14]))
+
+        gs = GraphSet(u)
+        gs &= GraphSet(v)
+        self.assertTrue(isinstance(gs, GraphSet))
+        self.assertEqual(gs, GraphSet([g12, g14]))
+        gs = GraphSet(u)
+        gs.intersection_update(GraphSet(u), GraphSet(v))
+        self.assertTrue(isinstance(gs, GraphSet))
+        self.assertEqual(gs, GraphSet([g12, g14]))
+
         gs = GraphSet(u) - GraphSet(v)
         self.assertTrue(isinstance(gs, GraphSet))
         self.assertEqual(gs, GraphSet([g0, g1, g123, g1234, g134, g4]))
-        gs = GraphSet(u).difference(GraphSet(v))
+        gs = GraphSet(u).difference(GraphSet(), GraphSet(v))
         self.assertTrue(isinstance(gs, GraphSet))
         self.assertEqual(gs, GraphSet([g0, g1, g123, g1234, g134, g4]))
 
@@ -220,14 +221,14 @@ class TestGraphSet(unittest.TestCase):
         self.assertTrue(isinstance(gs, GraphSet))
         self.assertEqual(gs, GraphSet([g0, g1, g123, g1234, g134, g4]))
         gs = GraphSet(u)
-        gs.difference_update(GraphSet(v))
+        gs.difference_update(GraphSet(), GraphSet(v))
         self.assertTrue(isinstance(gs, GraphSet))
         self.assertEqual(gs, GraphSet([g0, g1, g123, g1234, g134, g4]))
 
         gs = GraphSet(u) ^ GraphSet(v)
         self.assertTrue(isinstance(gs, GraphSet))
         self.assertEqual(gs, GraphSet([g0, g1, g123, g1234, g134, g23, g34, g4]))
-        gs = GraphSet(u).symmetric_difference(GraphSet(v))
+        gs = GraphSet(u).symmetric_difference(GraphSet(), GraphSet(v))
         self.assertTrue(isinstance(gs, GraphSet))
         self.assertEqual(gs, GraphSet([g0, g1, g123, g1234, g134, g23, g34, g4]))
 
@@ -236,7 +237,7 @@ class TestGraphSet(unittest.TestCase):
         self.assertTrue(isinstance(gs, GraphSet))
         self.assertEqual(gs, GraphSet([g0, g1, g123, g1234, g134, g23, g34, g4]))
         gs = GraphSet(u)
-        gs.symmetric_difference_update(GraphSet(v))
+        gs.symmetric_difference_update(GraphSet(), GraphSet(v))
         self.assertTrue(isinstance(gs, GraphSet))
         self.assertEqual(gs, GraphSet([g0, g1, g123, g1234, g134, g23, g34, g4]))
 

@@ -88,6 +88,36 @@ using std::vector;
     else      Py_RETURN_FALSE;                                          \
   } while (0);
 
+#define DO_FOR_MULTI(self, args, expr)                                  \
+  do {                                                                  \
+    PyObject* _result = reinterpret_cast<PyObject*>(self);              \
+    if (PyTuple_GET_SIZE(args) == 0)                                    \
+      return setset_copy(self);                                         \
+    Py_INCREF(self);                                                    \
+    for (Py_ssize_t _i = 0; _i < PyTuple_GET_SIZE(args); ++_i) {        \
+      PyObject* _other = PyTuple_GET_ITEM(args, _i);                    \
+      PyObject* _newresult                                              \
+          = expr(reinterpret_cast<PySetsetObject*>(_result), _other);   \
+      if (_newresult == NULL) {                                         \
+        Py_DECREF(_result);                                             \
+        return NULL;                                                    \
+      }                                                                 \
+      Py_DECREF(_result);                                               \
+      _result = _newresult;                                             \
+    }                                                                   \
+    return _result;                                                     \
+  } while (0);
+
+#define UPDATE_FOR_MULTI(self, args, expr)                           \
+  do {                                                               \
+    for (Py_ssize_t _i = 0; _i < PyTuple_GET_SIZE(args); ++_i) {     \
+      PyObject* _other = PyTuple_GET_ITEM(args, _i);                 \
+      if (expr(self, _other) == NULL)                                \
+        return NULL;                                                 \
+    }                                                                \
+    Py_RETURN_NONE;                                                  \
+  } while (0);
+
 static PyObject* setset_build_set(const set<int>& s) {
   PyObject* so = PySet_New(NULL);
   for (set<int>::const_iterator e = s.begin(); e != s.end(); ++e) {
@@ -294,9 +324,17 @@ static PyObject* setset_union(PySetsetObject* self, PyObject* other) {
   RETURN_NEW_SETSET2(self, other, _other, (*self->ss) | (*_other->ss));
 }
 
+static PyObject* setset_union_multi(PySetsetObject* self, PyObject* args) {
+  DO_FOR_MULTI(self, args, setset_union);
+}
+
 static PyObject* setset_update(PySetsetObject* self, PyObject* other) {
   CHECK_SETSET_OR_ERROR(other);
   RETURN_SELF_SETSET(self, other, _other, (*self->ss) |= (*_other->ss));
+}
+
+static PyObject* setset_update_multi(PySetsetObject* self, PyObject* args) {
+  UPDATE_FOR_MULTI(self, args, setset_update);
 }
 
 static PyObject* setset_intersection(PySetsetObject* self, PyObject* other) {
@@ -304,15 +342,26 @@ static PyObject* setset_intersection(PySetsetObject* self, PyObject* other) {
   RETURN_NEW_SETSET2(self, other, _other, (*self->ss) & (*_other->ss));
 }
 
+static PyObject* setset_intersection_multi(PySetsetObject* self, PyObject* args) {
+  DO_FOR_MULTI(self, args, setset_intersection);
+}
+
 static PyObject* setset_intersection_update(PySetsetObject* self, PyObject* other) {
   CHECK_SETSET_OR_ERROR(other);
   RETURN_SELF_SETSET(self, other, _other, (*self->ss) &= (*_other->ss));
 }
 
+static PyObject* setset_intersection_update_multi(PySetsetObject* self, PyObject* args) {
+  UPDATE_FOR_MULTI(self, args, setset_intersection_update);
+}
 
 static PyObject* setset_difference(PySetsetObject* self, PyObject* other) {
   CHECK_SETSET_OR_ERROR(other);
   RETURN_NEW_SETSET2(self, other, _other, (*self->ss) - (*_other->ss));
+}
+
+static PyObject* setset_difference_multi(PySetsetObject* self, PyObject* args) {
+  DO_FOR_MULTI(self, args, setset_difference);
 }
 
 static PyObject* setset_difference_update(PySetsetObject* self, PyObject* other) {
@@ -320,14 +369,26 @@ static PyObject* setset_difference_update(PySetsetObject* self, PyObject* other)
   RETURN_SELF_SETSET(self, other, _other, (*self->ss) -= (*_other->ss));
 }
 
+static PyObject* setset_difference_update_multi(PySetsetObject* self, PyObject* args) {
+  UPDATE_FOR_MULTI(self, args, setset_difference_update);
+}
+
 static PyObject* setset_symmetric_difference(PySetsetObject* self, PyObject* other) {
   CHECK_SETSET_OR_ERROR(other);
   RETURN_NEW_SETSET2(self, other, _other, (*self->ss) ^ (*_other->ss));
 }
 
+static PyObject* setset_symmetric_difference_multi(PySetsetObject* self, PyObject* args) {
+  DO_FOR_MULTI(self, args, setset_symmetric_difference);
+}
+
 static PyObject* setset_symmetric_difference_update(PySetsetObject* self, PyObject* other) {
   CHECK_SETSET_OR_ERROR(other);
   RETURN_SELF_SETSET(self, other, _other, (*self->ss) ^= (*_other->ss));
+}
+
+static PyObject* setset_symmetric_difference_update_multi(PySetsetObject* self, PyObject* args) {
+  UPDATE_FOR_MULTI(self, args, setset_symmetric_difference_update);
 }
 
 static PyObject* setset_quotient(PySetsetObject* self, PyObject* other) {
@@ -751,14 +812,14 @@ static PyMemberDef setset_members[] = {
 static PyMethodDef setset_methods[] = {
   {"copy", reinterpret_cast<PyCFunction>(setset_copy), METH_NOARGS, ""},
   {"invert", reinterpret_cast<PyCFunction>(setset_invert), METH_NOARGS, ""},
-  {"union", reinterpret_cast<PyCFunction>(setset_union), METH_O, ""},
-  {"update", reinterpret_cast<PyCFunction>(setset_update), METH_O, ""},
-  {"intersection", reinterpret_cast<PyCFunction>(setset_intersection), METH_O, ""},
-  {"intersection_update", reinterpret_cast<PyCFunction>(setset_intersection_update), METH_O, ""},
-  {"difference", reinterpret_cast<PyCFunction>(setset_difference), METH_O, ""},
-  {"difference_update", reinterpret_cast<PyCFunction>(setset_difference_update), METH_O, ""},
-  {"symmetric_difference", reinterpret_cast<PyCFunction>(setset_symmetric_difference), METH_O, ""},
-  {"symmetric_difference_update", reinterpret_cast<PyCFunction>(setset_symmetric_difference_update), METH_O, ""},
+  {"union", reinterpret_cast<PyCFunction>(setset_union_multi), METH_VARARGS, ""},
+  {"update", reinterpret_cast<PyCFunction>(setset_update_multi), METH_VARARGS, ""},
+  {"intersection", reinterpret_cast<PyCFunction>(setset_intersection_multi), METH_VARARGS, ""},
+  {"intersection_update", reinterpret_cast<PyCFunction>(setset_intersection_update_multi), METH_VARARGS, ""},
+  {"difference", reinterpret_cast<PyCFunction>(setset_difference_multi), METH_VARARGS, ""},
+  {"difference_update", reinterpret_cast<PyCFunction>(setset_difference_update_multi), METH_VARARGS, ""},
+  {"symmetric_difference", reinterpret_cast<PyCFunction>(setset_symmetric_difference_multi), METH_VARARGS, ""},
+  {"symmetric_difference_update", reinterpret_cast<PyCFunction>(setset_symmetric_difference_update_multi), METH_VARARGS, ""},
   {"quotient", reinterpret_cast<PyCFunction>(setset_quotient), METH_O, ""},
   {"quotient_update", reinterpret_cast<PyCFunction>(setset_quotient_update), METH_O, ""},
   {"remainder", reinterpret_cast<PyCFunction>(setset_remainder), METH_O, ""},

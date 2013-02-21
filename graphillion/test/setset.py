@@ -167,27 +167,12 @@ class TestSetset(unittest.TestCase):
     def test_binary_operators(self):
         u = [s0, s1, s12, s123, s1234, s134, s14, s4]
         v = [s12, s14, s23, s34]
-        ss = setset(u) & setset(v)
-        self.assertTrue(isinstance(ss, setset))
-        self.assertEqual(ss, setset([s12, s14]))
-        ss = setset(u).intersection(setset(v))
-        self.assertTrue(isinstance(ss, setset))
-        self.assertEqual(ss, setset([s12, s14]))
-
-        ss = setset(u)
-        ss &= setset(v)
-        self.assertTrue(isinstance(ss, setset))
-        self.assertEqual(ss, setset([s12, s14]))
-        ss = setset(u)
-        ss.intersection_update(setset(v))
-        self.assertTrue(isinstance(ss, setset))
-        self.assertEqual(ss, setset([s12, s14]))
 
         ss = setset(u) | setset(v)
         self.assertTrue(isinstance(ss, setset))
         self.assertEqual(
             ss, setset([s0, s1, s12, s123, s1234, s134, s14, s23, s34, s4]))
-        ss = setset(u).union(setset(v))
+        ss = setset(u).union(setset(u), setset(v))
         self.assertTrue(isinstance(ss, setset))
         self.assertEqual(
             ss, setset([s0, s1, s12, s123, s1234, s134, s14, s23, s34, s4]))
@@ -198,15 +183,31 @@ class TestSetset(unittest.TestCase):
         self.assertEqual(
             ss, setset([s0, s1, s12, s123, s1234, s134, s14, s23, s34, s4]))
         ss = setset(u)
-        ss.update(setset(v))
+        ss.update(setset(u), setset(v))
         self.assertTrue(isinstance(ss, setset))
         self.assertEqual(
             ss, setset([s0, s1, s12, s123, s1234, s134, s14, s23, s34, s4]))
 
+        ss = setset(u) & setset(v)
+        self.assertTrue(isinstance(ss, setset))
+        self.assertEqual(ss, setset([s12, s14]))
+        ss = setset(u).intersection(setset(u), setset(v))
+        self.assertTrue(isinstance(ss, setset))
+        self.assertEqual(ss, setset([s12, s14]))
+
+        ss = setset(u)
+        ss &= setset(v)
+        self.assertTrue(isinstance(ss, setset))
+        self.assertEqual(ss, setset([s12, s14]))
+        ss = setset(u)
+        ss.intersection_update(setset(u), setset(v))
+        self.assertTrue(isinstance(ss, setset))
+        self.assertEqual(ss, setset([s12, s14]))
+
         ss = setset(u) - setset(v)
         self.assertTrue(isinstance(ss, setset))
         self.assertEqual(ss, setset([s0, s1, s123, s1234, s134, s4]))
-        ss = setset(u).difference(setset(v))
+        ss = setset(u).difference(setset(), setset(v))
         self.assertTrue(isinstance(ss, setset))
         self.assertEqual(ss, setset([s0, s1, s123, s1234, s134, s4]))
 
@@ -215,14 +216,14 @@ class TestSetset(unittest.TestCase):
         self.assertTrue(isinstance(ss, setset))
         self.assertEqual(ss, setset([s0, s1, s123, s1234, s134, s4]))
         ss = setset(u)
-        ss.difference_update(setset(v))
+        ss.difference_update(setset(), setset(v))
         self.assertTrue(isinstance(ss, setset))
         self.assertEqual(ss, setset([s0, s1, s123, s1234, s134, s4]))
 
         ss = setset(u) ^ setset(v)
         self.assertTrue(isinstance(ss, setset))
         self.assertEqual(ss, setset([s0, s1, s123, s1234, s134, s23, s34, s4]))
-        ss = setset(u).symmetric_difference(setset(v))
+        ss = setset(u).symmetric_difference(setset(), setset(v))
         self.assertTrue(isinstance(ss, setset))
         self.assertEqual(ss, setset([s0, s1, s123, s1234, s134, s23, s34, s4]))
 
@@ -231,7 +232,7 @@ class TestSetset(unittest.TestCase):
         self.assertTrue(isinstance(ss, setset))
         self.assertEqual(ss, setset([s0, s1, s123, s1234, s134, s23, s34, s4]))
         ss = setset(u)
-        ss.symmetric_difference_update(setset(v))
+        ss.symmetric_difference_update(setset(), setset(v))
         self.assertTrue(isinstance(ss, setset))
         self.assertEqual(ss, setset([s0, s1, s123, s1234, s134, s23, s34, s4]))
 

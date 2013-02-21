@@ -152,7 +152,7 @@ class GraphSet(object):
     def __repr__(self):
         return setset._repr(self.ss, (self.__class__.__name__ + '([', '])'))
 
-    def union(self, other):
+    def union(self, *others):
         """Returns a new GraphSet with graphs from `self` and all others.
 
         The `self` is not changed.
@@ -174,9 +174,9 @@ class GraphSet(object):
           intersection(), difference(), symmetric_difference(),
           update()
         """
-        return GraphSet(self.ss.union(other.ss))
+        return GraphSet(self.ss.union(*[gs.ss for gs in others]))
 
-    def intersection(self, other):
+    def intersection(self, *others):
         """Returns a new GraphSet with graphs common to `self` and all others.
 
         The `self` is not changed.
@@ -198,9 +198,9 @@ class GraphSet(object):
           union(), difference(), symmetric_difference(),
           intersection_update()
         """
-        return GraphSet(self.ss.intersection(other.ss))
+        return GraphSet(self.ss.intersection(*[gs.ss for gs in others]))
 
-    def difference(self, other):
+    def difference(self, *others):
         """Returns a new GraphSet with graphs in `self` that are not in the others.
 
         The `self` is not changed.
@@ -222,9 +222,9 @@ class GraphSet(object):
           union(), intersection(), symmetric_difference(),
           difference_update()
         """
-        return GraphSet(self.ss.difference(other.ss))
+        return GraphSet(self.ss.difference(*[gs.ss for gs in others]))
 
-    def symmetric_difference(self, other):
+    def symmetric_difference(self, *others):
         """Returns a new GraphSet with graphs in either `self` or `other` but not both.
 
         The `self` is not changed.
@@ -246,7 +246,7 @@ class GraphSet(object):
           union(), intersection(), difference(), 
           symmetric_difference_update()
         """
-        return GraphSet(self.ss.symmetric_difference(other.ss))
+        return GraphSet(self.ss.symmetric_difference(*[gs.ss for gs in others]))
 
 #    def quotient(self, other):
 #        """Returns a new GraphSet of quotient.
@@ -302,7 +302,7 @@ class GraphSet(object):
 #        """
 #        return GraphSet(self.ss.remainder(other.ss))
 
-    def update(self, other):
+    def update(self, *others):
         """Updates `self`, adding graphs from all others.
 
         Examples:
@@ -321,10 +321,10 @@ class GraphSet(object):
         See Also:
           union()
         """
-        self.ss.update(other.ss)
+        self.ss.update(*[gs.ss for gs in others])
         return self
 
-    def intersection_update(self, other):
+    def intersection_update(self, *others):
         """Updates `self`, keeping only graphs found in it and all others.
 
         Examples:
@@ -343,10 +343,10 @@ class GraphSet(object):
         See Also:
           intersection()
         """
-        self.ss.intersection_update(other.ss)
+        self.ss.intersection_update(*[gs.ss for gs in others])
         return self
 
-    def difference_update(self, other):
+    def difference_update(self, *others):
         """Update `self`, removing graphs found in others.
 
         Examples:
@@ -365,10 +365,10 @@ class GraphSet(object):
         See Also:
           difference()
         """
-        self.ss.difference_update(other.ss)
+        self.ss.difference_update(*[gs.ss for gs in others])
         return self
 
-    def symmetric_difference_update(self, other):
+    def symmetric_difference_update(self, *others):
         """Update `self`, keeping only graphs in either GraphSet, but not in both.
 
         Examples:
@@ -387,7 +387,7 @@ class GraphSet(object):
         See Also:
           symmetric_difference()
         """
-        self.ss.symmetric_difference_update(other.ss)
+        self.ss.symmetric_difference_update(*[gs.ss for gs in others])
         return self
 
 #    def quotient_update(self, other):
