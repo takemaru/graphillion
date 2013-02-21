@@ -1041,7 +1041,7 @@ class GraphSet(object):
           A new GraphSet object.
 
         See Also:
-          larger(), same_size()
+          larger(), same_len()
         """
         return GraphSet(self.ss.smaller(size))
 
@@ -1066,11 +1066,11 @@ class GraphSet(object):
           A new GraphSet object.
 
         See Also:
-          smaller(), same_size()
+          smaller(), same_len()
         """
         return GraphSet(self.ss.larger(size))
 
-    def same_size(self, size):
+    def same_len(self, size):
         """Returns a new GraphSet with graphs that have `size` edges.
 
         The `self` is not changed.
@@ -1080,7 +1080,7 @@ class GraphSet(object):
           >>> graph2 = [(1, 2), (1, 4)]
           >>> graph3 = [(1, 2), (1, 4), (2, 3)]
           >>> gs = GraphSet([graph1, graph2, graph3])
-          >>> gs = gs.same_size(2)
+          >>> gs = gs.same_len(2)
           >>> gs
           GraphSet([[(1, 2), (1, 4)]])
 
@@ -1093,7 +1093,7 @@ class GraphSet(object):
         See Also:
           smaller(), larger()
         """
-        return GraphSet(self.ss.same_size(size))
+        return GraphSet(self.ss.same_len(size))
 
     def flip(self, edge):
         """Returns a new set of graphs by flipping the state of a given edge.

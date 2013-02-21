@@ -645,7 +645,7 @@ static PyObject* setset_larger(PySetsetObject* self, PyObject* io) {
   RETURN_NEW_SETSET(self, self->ss->larger(set_size));
 }
 
-static PyObject* setset_same_size(PySetsetObject* self, PyObject* io) {
+static PyObject* setset_same_len(PySetsetObject* self, PyObject* io) {
   CHECK_OR_ERROR(io, PyInt_Check, "int", NULL);
   int set_size = PyLong_AsLong(io);
   if (set_size < 0) {
@@ -844,7 +844,7 @@ static PyMethodDef setset_methods[] = {
   {"hitting", reinterpret_cast<PyCFunction>(setset_hitting), METH_NOARGS, ""},
   {"smaller", reinterpret_cast<PyCFunction>(setset_smaller), METH_O, ""},
   {"larger", reinterpret_cast<PyCFunction>(setset_larger), METH_O, ""},
-  {"same_size", reinterpret_cast<PyCFunction>(setset_same_size), METH_O, ""},
+  {"same_len", reinterpret_cast<PyCFunction>(setset_same_len), METH_O, ""},
   {"flip", reinterpret_cast<PyCFunction>(setset_flip), METH_VARARGS, ""},
   {"join", reinterpret_cast<PyCFunction>(setset_join), METH_O, ""},
   {"meet", reinterpret_cast<PyCFunction>(setset_meet), METH_O, ""},

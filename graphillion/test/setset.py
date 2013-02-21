@@ -150,8 +150,8 @@ class TestSetset(unittest.TestCase):
         self.assertEqual(ss.smaller(3), setset([s0, s1, s12, s14, s4]))
         self.assertTrue(isinstance(ss.larger(3), setset))
         self.assertEqual(ss.larger(3), setset([s1234]))
-        self.assertTrue(isinstance(ss.same_size(3), setset))
-        self.assertEqual(ss.same_size(3), setset([s123, s134]))
+        self.assertTrue(isinstance(ss.same_len(3), setset))
+        self.assertEqual(ss.same_len(3), setset([s123, s134]))
 
         ss = setset([s12, s123, s234])
         self.assertTrue(isinstance(ss.minimal(), setset))
