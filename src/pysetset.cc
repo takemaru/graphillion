@@ -88,14 +88,14 @@ using std::vector;
     else      Py_RETURN_FALSE;                                          \
   } while (0);
 
-#define DO_FOR_MULTI(self, args, expr)                                  \
+#define DO_FOR_MULTI(self, others, expr)                                \
   do {                                                                  \
     PyObject* _result = reinterpret_cast<PyObject*>(self);              \
-    if (PyTuple_GET_SIZE(args) == 0)                                    \
+    if (PyTuple_GET_SIZE(others) == 0)                                  \
       return setset_copy(self);                                         \
     Py_INCREF(self);                                                    \
-    for (Py_ssize_t _i = 0; _i < PyTuple_GET_SIZE(args); ++_i) {        \
-      PyObject* _other = PyTuple_GET_ITEM(args, _i);                    \
+    for (Py_ssize_t _i = 0; _i < PyTuple_GET_SIZE(others); ++_i) {      \
+      PyObject* _other = PyTuple_GET_ITEM(others, _i);                  \
       PyObject* _newresult                                              \
           = expr(reinterpret_cast<PySetsetObject*>(_result), _other);   \
       if (_newresult == NULL) {                                         \
@@ -108,14 +108,14 @@ using std::vector;
     return _result;                                                     \
   } while (0);
 
-#define UPDATE_FOR_MULTI(self, args, expr)                           \
-  do {                                                               \
-    for (Py_ssize_t _i = 0; _i < PyTuple_GET_SIZE(args); ++_i) {     \
-      PyObject* _other = PyTuple_GET_ITEM(args, _i);                 \
-      if (expr(self, _other) == NULL)                                \
-        return NULL;                                                 \
-    }                                                                \
-    Py_RETURN_NONE;                                                  \
+#define UPDATE_FOR_MULTI(self, others, expr)                           \
+  do {                                                                 \
+    for (Py_ssize_t _i = 0; _i < PyTuple_GET_SIZE(others); ++_i) {     \
+      PyObject* _other = PyTuple_GET_ITEM(others, _i);                 \
+      if (expr(self, _other) == NULL)                                  \
+        return NULL;                                                   \
+    }                                                                  \
+    Py_RETURN_NONE;                                                    \
   } while (0);
 
 static PyObject* setset_build_set(const set<int>& s) {
@@ -324,8 +324,8 @@ static PyObject* setset_union(PySetsetObject* self, PyObject* other) {
   RETURN_NEW_SETSET2(self, other, _other, (*self->ss) | (*_other->ss));
 }
 
-static PyObject* setset_union_multi(PySetsetObject* self, PyObject* args) {
-  DO_FOR_MULTI(self, args, setset_union);
+static PyObject* setset_union_multi(PySetsetObject* self, PyObject* others) {
+  DO_FOR_MULTI(self, others, setset_union);
 }
 
 static PyObject* setset_update(PySetsetObject* self, PyObject* other) {
@@ -333,8 +333,8 @@ static PyObject* setset_update(PySetsetObject* self, PyObject* other) {
   RETURN_SELF_SETSET(self, other, _other, (*self->ss) |= (*_other->ss));
 }
 
-static PyObject* setset_update_multi(PySetsetObject* self, PyObject* args) {
-  UPDATE_FOR_MULTI(self, args, setset_update);
+static PyObject* setset_update_multi(PySetsetObject* self, PyObject* others) {
+  UPDATE_FOR_MULTI(self, others, setset_update);
 }
 
 static PyObject* setset_intersection(PySetsetObject* self, PyObject* other) {
@@ -342,8 +342,8 @@ static PyObject* setset_intersection(PySetsetObject* self, PyObject* other) {
   RETURN_NEW_SETSET2(self, other, _other, (*self->ss) & (*_other->ss));
 }
 
-static PyObject* setset_intersection_multi(PySetsetObject* self, PyObject* args) {
-  DO_FOR_MULTI(self, args, setset_intersection);
+static PyObject* setset_intersection_multi(PySetsetObject* self, PyObject* others) {
+  DO_FOR_MULTI(self, others, setset_intersection);
 }
 
 static PyObject* setset_intersection_update(PySetsetObject* self, PyObject* other) {
@@ -351,8 +351,8 @@ static PyObject* setset_intersection_update(PySetsetObject* self, PyObject* othe
   RETURN_SELF_SETSET(self, other, _other, (*self->ss) &= (*_other->ss));
 }
 
-static PyObject* setset_intersection_update_multi(PySetsetObject* self, PyObject* args) {
-  UPDATE_FOR_MULTI(self, args, setset_intersection_update);
+static PyObject* setset_intersection_update_multi(PySetsetObject* self, PyObject* others) {
+  UPDATE_FOR_MULTI(self, others, setset_intersection_update);
 }
 
 static PyObject* setset_difference(PySetsetObject* self, PyObject* other) {
@@ -360,8 +360,8 @@ static PyObject* setset_difference(PySetsetObject* self, PyObject* other) {
   RETURN_NEW_SETSET2(self, other, _other, (*self->ss) - (*_other->ss));
 }
 
-static PyObject* setset_difference_multi(PySetsetObject* self, PyObject* args) {
-  DO_FOR_MULTI(self, args, setset_difference);
+static PyObject* setset_difference_multi(PySetsetObject* self, PyObject* others) {
+  DO_FOR_MULTI(self, others, setset_difference);
 }
 
 static PyObject* setset_difference_update(PySetsetObject* self, PyObject* other) {
@@ -369,8 +369,8 @@ static PyObject* setset_difference_update(PySetsetObject* self, PyObject* other)
   RETURN_SELF_SETSET(self, other, _other, (*self->ss) -= (*_other->ss));
 }
 
-static PyObject* setset_difference_update_multi(PySetsetObject* self, PyObject* args) {
-  UPDATE_FOR_MULTI(self, args, setset_difference_update);
+static PyObject* setset_difference_update_multi(PySetsetObject* self, PyObject* others) {
+  UPDATE_FOR_MULTI(self, others, setset_difference_update);
 }
 
 static PyObject* setset_symmetric_difference(PySetsetObject* self, PyObject* other) {
@@ -378,8 +378,8 @@ static PyObject* setset_symmetric_difference(PySetsetObject* self, PyObject* oth
   RETURN_NEW_SETSET2(self, other, _other, (*self->ss) ^ (*_other->ss));
 }
 
-static PyObject* setset_symmetric_difference_multi(PySetsetObject* self, PyObject* args) {
-  DO_FOR_MULTI(self, args, setset_symmetric_difference);
+static PyObject* setset_symmetric_difference_multi(PySetsetObject* self, PyObject* others) {
+  DO_FOR_MULTI(self, others, setset_symmetric_difference);
 }
 
 static PyObject* setset_symmetric_difference_update(PySetsetObject* self, PyObject* other) {
@@ -387,8 +387,8 @@ static PyObject* setset_symmetric_difference_update(PySetsetObject* self, PyObje
   RETURN_SELF_SETSET(self, other, _other, (*self->ss) ^= (*_other->ss));
 }
 
-static PyObject* setset_symmetric_difference_update_multi(PySetsetObject* self, PyObject* args) {
-  UPDATE_FOR_MULTI(self, args, setset_symmetric_difference_update);
+static PyObject* setset_symmetric_difference_update_multi(PySetsetObject* self, PyObject* others) {
+  UPDATE_FOR_MULTI(self, others, setset_symmetric_difference_update);
 }
 
 static PyObject* setset_quotient(PySetsetObject* self, PyObject* other) {
