@@ -22,32 +22,38 @@ OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 **********************************************************************/
 
-#ifndef GRAPHILLION_TYPE_H_
-#define GRAPHILLION_TYPE_H_
+#ifndef GRAPHILLION_GRAPHSET_H_
+#define GRAPHILLION_GRAPHSET_H_
 
-#include <stdint.h>
+#include "subsetting/util/IntSubset.hpp"
 
-#ifdef HAVE_LIBGMPXX
-#include <gmpxx.h>
-#endif
-
-#include "SAPPOROBDD/ZBDD.h"
+#include "graphillion/setset.h"
 
 namespace graphillion {
 
-typedef ZBDD zdd_t;
-typedef bddword word_t;
-typedef int32_t elem_t;  // bddvar
+class Range : public IntSubset {
+ public:
+  Range(int min = 0, int max = INT_MAX, int step = 1);
 
-#ifdef HAVE_LIBGMPXX
-typedef mpz_class intx_t;
-#else
-typedef long double intx_t;
-#endif
+  bool contains(int x) const;
+  int lowerBound() const;
+  int upperBound() const;
 
-typedef std::string vertex_t;
-typedef std::pair<vertex_t, vertex_t> edge_t;
+ private:
+  int min_;
+  int max_;
+  int step_;
+};
+
+setset FrontierSearch(
+    const std::vector<edge_t>& graph,
+    const std::vector<std::vector<vertex_t> >* vertex_groups = NULL,
+    const std::map<vertex_t, Range>* degree_constraints = NULL,
+    const Range* num_edges = NULL,
+    int num_comps = -1,  // not including vertex_groups
+    bool no_loop = false,
+    const setset* search_space = NULL);
 
 }  // namespace graphillion
 
-#endif  // GRAPHILLION_TYPE_H_
+#endif  // GRAPHILLION_GRAPHSET_H_

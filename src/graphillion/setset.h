@@ -37,6 +37,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 namespace graphillion {
 
+class Range;
+
 class setset {
  public:
   class iterator
@@ -191,6 +193,14 @@ class setset {
   zdd_t zdd_;
 
   friend class TestSetset;
+  friend setset FrontierSearch(
+      const std::vector<edge_t>& graph,
+      const std::vector<std::vector<vertex_t> >* vertex_groups,
+      const std::map<vertex_t, Range>* degree_constraints,
+      const Range* num_edges,
+      int num_comps,
+      bool no_loop,
+      const setset* search_space);
 };
 
 }  // namespace graphillion

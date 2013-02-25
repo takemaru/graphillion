@@ -31,6 +31,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <string>
 #include <vector>
 
+#include "subsetting/util/IntSubset.hpp"
+
 namespace graphillion {
 
 #ifdef __PRETTY_FUNCTION__

@@ -34,6 +34,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include "graphillion/zdd.h"
 #include "graphillion/setset.h"
+#include "graphillion/util.h"
 
 #define e0 (graphillion::top())
 #define e1 (graphillion::single(1))
@@ -323,10 +324,10 @@ class TestSetset {
   void lookup() {
     setset ss(V("{{}, {1,2}, {1,3}}"));
     setset::const_iterator s = ss.find(S("{1,2}"));
-    assert(s != setset::end());
+    assert(s != ss.end());
     assert(*s == S("{1,2}"));
 
-    assert(ss.find(S("{1}")) == setset::end());
+    assert(ss.find(S("{1}")) == ss.end());
 
     assert(ss.include(1).zdd_ == s12 + s13);
 
@@ -340,27 +341,27 @@ class TestSetset {
     vector<set<int> > v = V("{{}, {1,2}, {1,3}}");
     setset ss(v);
     pair<setset::iterator, bool> p = ss.insert(S("{1}"));
-    assert(ss.find(S("{1}")) != setset::end());
-    assert(p.first != setset::end());
+    assert(ss.find(S("{1}")) != ss.end());
+    assert(p.first != ss.end());
     assert(*(p.first) == S("{1}"));
     assert(p.second);
 
     p = ss.insert(S("{1}"));
-    assert(p.first != setset::end());
+    assert(p.first != ss.end());
     assert(*(p.first) == S("{1}"));
     assert(!p.second);
 
     setset::iterator i = ss.insert(p.first, S("{1}"));
-    assert(i != setset::end());
+    assert(i != ss.end());
     assert(*i == S("{1}"));
 
     i = ss.erase(i);
-    assert(ss.find(S("{1}")) == setset::end());
-    assert(i == setset::end());
+    assert(ss.find(S("{1}")) == ss.end());
+    assert(i == ss.end());
 
     assert(ss.erase(S("{1}")) == 0);
     assert(ss.erase(S("{1,2}")) == 1);
-    assert(ss.find(S("{1,2}")) == setset::end());
+    assert(ss.find(S("{1,2}")) == ss.end());
 
     ss = setset(v);
     ss.insert(2);
