@@ -36,8 +36,12 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <sstream>
 #include <vector>
 
+#include "graphillion/graphset.h"
+
 using graphillion::setset;
+using graphillion::Range;
 using std::map;
+using std::pair;
 using std::set;
 using std::string;
 using std::stringstream;
@@ -972,9 +976,122 @@ static PyObject* setset_num_elems(PyObject*, PyObject* args) {
   }
 }
 
+static PyObject* graphset_subgraph(PyObject*, PyObject* args, PyObject* kwds) {
+  PyObject* graph_obj = NULL;
+  PyObject* vertex_groups_obj = NULL;
+  PyObject* degree_constraints_obj = NULL;
+  PyObject* num_edges_obj = NULL;
+  int num_comps = -1, no_loop = 0;
+  static char* kwlist[] = {"graph", "vertex_groups", "degree_constraints",
+                           "num_edges", "num_comps", "no_loop", NULL};
+  if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOii", kwlist, &graph_obj,
+                                   &vertex_groups_obj, &degree_constraints_obj,
+                                   &num_edges_obj, &num_comps, &no_loop))
+    return NULL;
+
+  vector<pair<string, string> > graph;
+  if (graph_obj == NULL || graph_obj == Py_None) {
+    PyErr_SetString(PyExc_TypeError, "no graph");
+    return NULL;
+  }
+  PyObject* i = PyObject_GetIter(graph_obj);
+  if (i == NULL) return NULL;
+  PyObject* eo;
+  while ((eo = PyIter_Next(i))) {
+    PyObject* j = PyObject_GetIter(eo);
+    if (j == NULL) return NULL;
+    vector<string> e;
+    PyObject* vo;
+    while ((vo = PyIter_Next(j))) {
+      if (!PyString_Check(vo)) {
+        PyErr_SetString(PyExc_TypeError, "invalid graph");
+        return NULL;
+      }
+      e.push_back(PyString_AsString(vo));
+    }
+    graph.push_back(make_pair(e[0], e[1]));
+  }
+
+  vector<vector<string> >* vertex_groups = NULL;
+  if (vertex_groups_obj != NULL && vertex_groups_obj != Py_None) {
+    vertex_groups = new vector<vector<string> >();
+    PyObject* i = PyObject_GetIter(vertex_groups_obj);
+    if (i == NULL) return NULL;
+    PyObject* uo;
+    while ((uo = PyIter_Next(i))) {
+      PyObject* j = PyObject_GetIter(uo);
+      if (j == NULL) return NULL;
+      vector<string> v;
+      PyObject* vo;
+      while ((vo = PyIter_Next(j))) {
+        if (!PyString_Check(vo)) {
+          PyErr_SetString(PyExc_TypeError, "invalid vertex groups");
+          return NULL;
+        }
+        string vertex = PyString_AsString(vo);
+        v.push_back(vertex);
+      }
+      vertex_groups->push_back(v);
+    }
+  }
+
+  map<string, Range>* degree_constraints = NULL;
+  if (degree_constraints_obj != NULL && degree_constraints_obj != Py_None) {
+    degree_constraints = new map<string, Range>();
+    PyObject* vo;
+    PyObject* lo;
+    Py_ssize_t pos = 0;
+    while (PyDict_Next(degree_constraints_obj, &pos, &vo, &lo)) {
+      if (!PyString_Check(vo)) {
+        PyErr_SetString(PyExc_TypeError, "invalid degree constraints");
+        return NULL;
+      }
+      string vertex = PyString_AsString(vo);
+      PyObject* i = PyObject_GetIter(lo);
+      if (i == NULL) return NULL;
+      vector<int> r;
+      PyObject* io;
+      while ((io = PyIter_Next(i))) {
+        if (!PyInt_Check(io)) {
+          Py_DECREF(io);
+          PyErr_SetString(PyExc_TypeError, "invalid degree constraints");
+          return NULL;
+        }
+        r.push_back(PyInt_AsLong(io));
+      }
+      (*degree_constraints)[vertex] = Range(r[0], r[1], r[2]);
+    }
+  }
+
+  Range* num_edges = NULL;
+  if (num_edges_obj != NULL && num_edges_obj != Py_None) {
+    vector<int> r;
+    PyObject* i = PyObject_GetIter(num_edges_obj);
+    PyObject* io;
+    while ((io = PyIter_Next(i))) {
+      if (!PyInt_Check(io)) {
+        Py_DECREF(io);
+        PyErr_SetString(PyExc_TypeError, "invalid degree constraints");
+        return NULL;
+      }
+      r.push_back(PyInt_AsLong(io));
+    }
+    num_edges = new Range(r[0], r[1], r[2]);
+  }
+
+  setset ss = FrontierSearch(graph, vertex_groups, degree_constraints, num_edges,
+                             num_comps, no_loop);
+
+  PySetsetObject* ret = reinterpret_cast<PySetsetObject*>(
+      PySetset_Type.tp_alloc(&PySetset_Type, 0));
+  ret->ss = new setset(ss);
+  return reinterpret_cast<PyObject*>(ret);
+}
+
 static PyMethodDef module_methods[] = {
   {"_elem_limit", reinterpret_cast<PyCFunction>(setset_elem_limit), METH_NOARGS, ""},
   {"_num_elems", setset_num_elems, METH_VARARGS, ""},
+  {"_subgraph", reinterpret_cast<PyCFunction>(graphset_subgraph), METH_VARARGS | METH_KEYWORDS, ""},
   {NULL}  /* Sentinel */
 };
 

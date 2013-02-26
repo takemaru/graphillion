@@ -17,8 +17,9 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+import _graphillion
 from graphillion import setset
-
+import pickle
 
 class GraphSet(object):
     """Represents and manipulates a set of graphs.
@@ -621,7 +622,7 @@ class GraphSet(object):
         See Also:
           randomize(), maximize(), minimize()
         """
-        for g in self._ss.randomize():
+        for g in self._ss.__iter__():
             yield GraphSet._conv_ret(g)
 
     def randomize(self):
@@ -1441,6 +1442,41 @@ class GraphSet(object):
             else:
                 edges.append(e)
         return edges
+
+    @staticmethod
+    def subgraph(vertex_groups=None, degree_constraints=None, num_edges=None,
+                 num_comps=-1, no_loop=False):
+        graph = []
+        for e in GraphSet.get_universe():
+            graph.append((pickle.dumps(e[0]), pickle.dumps(e[1])))
+
+        vg = None
+        if vertex_groups is not None:
+            vg = []
+            for vs in vertex_groups:
+                vg.append([pickle.dumps(v) for v in vs])
+
+        dc = None
+        if degree_constraints is not None:
+            dc = {}
+            for v, r in degree_constraints.iteritems():
+                if len(r) == 1:
+                    dc[pickle.dumps(v)] = (r[0], r[0] + 1, 1)
+                else:
+                    dc[pickle.dumps(v)] = (r[0], r[-1] + 1, r[1] - r[0])
+
+        ne = None
+        if num_edges is not None:
+            if len(num_edges) == 1:
+                ne = (num_edges[0], num_edges[0] + 1, 1)
+            else:
+                ne = (num_edges[0], num_edges[-1] + 1,
+                      num_edges[1] - num_edges[0])
+
+        ss = _graphillion._subgraph(graph=graph, vertex_groups=vg,
+                                    degree_constraints=dc, num_edges=ne,
+                                    num_comps=num_comps, no_loop=no_loop)
+        return GraphSet(ss)
 
     @staticmethod
     def _traverse(edges, traversal, source):

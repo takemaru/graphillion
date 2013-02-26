@@ -115,7 +115,51 @@ class TestGraphSet(unittest.TestCase):
             "GraphSet([[], [(1, 3)], [(3, 4)], [(1, 2)], [(2, 4)], [(1, 3), (3, 4)], [(1, ...")
 
     def test_subgraphs(self):
-        pass
+        GraphSet.set_universe([(1, 2), (1, 4), (2, 3), (2, 5), (3, 6), (4, 5),
+                               (5, 6)])
+
+        # any subgraph
+        gs = GraphSet.subgraph()
+        self.assertTrue(isinstance(gs, GraphSet))
+        self.assertEqual(len(gs), 2**7)
+        self.assertTrue([(1, 2)] in gs)
+
+        # subgraphs separating [1, 5] and [2]
+        gs = GraphSet.subgraph(vertex_groups=[[1, 5], [2]])
+        self.assertEqual(len(gs), 7)
+        self.assertTrue([(1, 4), (4, 5)] in gs)
+        self.assertTrue([(1, 2), (1, 4), (4, 5)] not in gs)
+
+        # matching
+        dc = {}
+        for v in range(1, 7):
+            dc[v] = range(0, 2)
+        gs = GraphSet.subgraph(degree_constraints=dc)
+        self.assertEqual(len(gs), 22)
+        self.assertTrue([(1, 2), (3, 6)] in gs)
+        self.assertTrue([(1, 2), (2, 3), (3, 6)] not in gs)
+        for g in gs:
+            self.assertTrue(len(g) < 4)
+
+        # subgraphs with 1 or 2 edges
+        gs = GraphSet.subgraph(num_edges=range(1, 3))
+        self.assertEqual(len(gs), 28)
+        for g in gs:
+            self.assertTrue(1 <= len(g) and len(g) < 3)
+
+        # single connected component and vertex islands
+        gs = GraphSet.subgraph(num_comps=1)
+        self.assertEqual(len(gs), 80)
+        self.assertTrue([(1, 2), (2, 3)] in gs)
+        self.assertTrue([(1, 2), (2, 3), (4, 5)] not in gs)
+
+        # any forest
+        gs = GraphSet.subgraph(no_loop=True)
+        self.assertEqual(len(gs), 112)
+        self.assertTrue([(1, 2), (1, 4), (2, 5)] in gs)
+        self.assertTrue([(1, 2), (1, 4), (2, 5), (4, 5)] not in gs)
+        for g in gs:
+            self.assertTrue(len(g) < 6)
 
     def test_comparison(self):
         gs = GraphSet([g12])
@@ -481,3 +525,4 @@ class TestGraphSet(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+

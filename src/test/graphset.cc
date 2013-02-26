@@ -75,7 +75,7 @@ vector<vector<vertex_t> > V(const string& str) {
   return v;
 }
 
-class TestGraphset {
+class TestGraphSet {
  public:
   void run() {
     // graph
@@ -113,12 +113,14 @@ class TestGraphset {
     // any subgraph
     setset ss = FrontierSearch(graph);
     assert(ss.size() == "128");
+    set<int> s = S(1, e12);
+    assert(ss.find(s) != ss.end());
 
     // subgraphs separating [1, 5] and [2]
     vector<vector<vertex_t> > vertex_groups = V("{{1, 5}, {2}}");
     ss = FrontierSearch(graph, &vertex_groups);
     assert(ss.size() == "7");
-    set<int> s = S(2, e14, e45);
+    s = S(2, e14, e45);
     assert(ss.find(s) != ss.end());
     s.insert(e12);
     assert(ss.find(s) == ss.end());
@@ -162,13 +164,13 @@ class TestGraphset {
     for (setset::const_iterator g = ss.begin(); g != ss.end(); ++g)
       assert((*g).size() < 6);
 
-    // subsetting method
-    ss = FrontierSearch(graph, NULL, NULL, NULL, 1, false, &ss);
+    // TODO: subsetting method
+    /*ss = FrontierSearch(graph, NULL, NULL, NULL, 1, false, &ss);
     assert(ss.size() == "66");
     s = S(3, e12, e14, e25);
     assert(ss.find(s) != ss.end());
     s.insert(e45);
-    assert(ss.find(s) == ss.end());
+    assert(ss.find(s) == ss.end());*/
 
     // two clusters
     vertex_groups = V("{{1, 5}, {2}}");
@@ -374,7 +376,9 @@ class TestGraphset {
 }  // namespace graphillion
 
 int main() {
-  graphillion::TestGraphset().run();
+  graphillion::TestGraphSet().run();
+  printf("ok\n");
+  graphillion::TestGraphSet().run();  // XXX
   printf("ok\n");
   return 0;
 }
