@@ -2,7 +2,7 @@
  * Top-Down ZDD Construction Library for Frontier-Based Search
  * by Hiroaki Iwashita <iwashita@erato.ist.hokudai.ac.jp>
  * Copyright (c) 2012 Japan Science and Technology Agency
- * $Id: DegreeZeroOrTwoZdd.hpp 415 2013-02-22 12:55:13Z iwashita $
+ * $Id: DegreeZeroOrTwoZdd.hpp 426 2013-02-26 06:50:04Z iwashita $
  */
 
 #pragma once
@@ -21,13 +21,12 @@ class DegreeZeroOrTwoZdd: public PodArrayDdSpec<DegreeZeroOrTwoZdd,int16_t> {
     int const n;
     int const mateSize;
 
-    void shiftMate(Mate* mate, int v1, int i) const {
-        int const vv = graph.edgeInfo(i).v1;
-        int const d = vv - v1;
+    void shiftMate(Mate* mate, int v0, int vv0) const {
+        int const d = vv0 - v0;
         if (d > 0) {
             std::memmove(mate, mate + d, (mateSize - d) * sizeof(*mate));
             for (int k = mateSize - d; k < mateSize; ++k) {
-                mate[k] = graph.colorNumber(vv + k) ? 1 : 0;
+                mate[k] = graph.colorNumber(vv0 + k) ? 1 : 0;
             }
         }
     }
@@ -48,10 +47,10 @@ public:
     }
 
     int getRoot(Mate* mate) const {
-        int const v1 = graph.edgeInfo(0).v1;
+        int const v0 = graph.edgeInfo(0).v0;
 
         for (int k = 0; k < mateSize; ++k) {
-            mate[k] = graph.colorNumber(v1 + k) ? 1 : 0;
+            mate[k] = graph.colorNumber(v0 + k) ? 1 : 0;
         }
 
         return n;
@@ -61,40 +60,40 @@ public:
         assert(1 <= level && level <= n);
         int i = n - level;
         Graph::EdgeInfo const& e = graph.edgeInfo(i);
-        int const w1 = mate[0];
-        int const w2 = mate[e.v2 - e.v1];
+        int const w1 = mate[e.v1 - e.v0];
+        int const w2 = mate[e.v2 - e.v0];
         assert(e.v1 <= e.v2);
 
         if (take) {
             if (!takable(w1, w2, e.v1final, e.v2final)) return 0;
 
-            mate[0] = w1 + 1;
-            mate[e.v2 - e.v1] = w2 + 1;
+            mate[e.v1 - e.v0] = w1 + 1;
+            mate[e.v2 - e.v0] = w2 + 1;
         }
         else {
             if (!leavable(w1, w2, e.v1final, e.v2final)) return 0;
         }
 
-        if (e.v1final) mate[0] = 0;
-        if (e.v2final) mate[e.v2 - e.v1] = 0;
+        if (e.v1final) mate[e.v1 - e.v0] = 0;
+        if (e.v2final) mate[e.v2 - e.v0] = 0;
 
         if (++i == n) return -1;
-        shiftMate(mate, e.v1, i);
+        shiftMate(mate, e.v0, graph.edgeInfo(i).v0);
 
         while (true) {
             Graph::EdgeInfo const& e = graph.edgeInfo(i);
-            int const w1 = mate[0];
-            int const w2 = mate[e.v2 - e.v1];
+            int const w1 = mate[e.v1 - e.v0];
+            int const w2 = mate[e.v2 - e.v0];
             assert(e.v1 <= e.v2);
 
             if (takable(w1, w2, e.v1final, e.v2final)) break;
             if (!leavable(w1, w2, e.v1final, e.v2final)) return 0;
 
-            if (e.v1final) mate[0] = 0;
-            if (e.v2final) mate[e.v2 - e.v1] = 0;
+            if (e.v1final) mate[e.v1 - e.v0] = 0;
+            if (e.v2final) mate[e.v2 - e.v0] = 0;
 
             if (++i == n) return -1;
-            shiftMate(mate, e.v1, i);
+            shiftMate(mate, e.v0, graph.edgeInfo(i).v0);
         }
 
         assert(i < n);

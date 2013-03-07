@@ -2,7 +2,7 @@
  * Top-Down ZDD Construction Library for Frontier-Based Search
  * by Hiroaki Iwashita <iwashita@erato.ist.hokudai.ac.jp>
  * Copyright (c) 2012 Japan Science and Technology Agency
- * $Id: SimpathBasedImpl.hpp 414 2013-02-15 04:04:57Z iwashita $
+ * $Id: SimpathBasedImpl.hpp 426 2013-02-26 06:50:04Z iwashita $
  */
 
 #pragma once
@@ -32,20 +32,19 @@ private:
         NO, YES, HIT
     };
 
-    void shiftMate(Mate* mate, int v1, int i) const {
-        int const vv = graph.edgeInfo(i).v1;
-        int const d = vv - v1;
+    void shiftMate(Mate* mate, int v0, int vv0) const {
+        int const d = vv0 - v0;
         if (d > 0) {
             std::memmove(mate, mate + d, (mateArraySize_ - d) * sizeof(*mate));
             for (int k = mateArraySize_ - d; k < mateArraySize_; ++k) {
-                mate[k] = initialMate[vv + k];
+                mate[k] = initialMate[vv0 + k];
             }
         }
     }
 
     Takable takable(Mate const* mate, Graph::EdgeInfo const& e) const {
-        int const w1 = mate[0];
-        int const w2 = mate[e.v2 - e.v1];
+        int const w1 = mate[e.v1 - e.v0];
+        int const w2 = mate[e.v2 - e.v0];
 
         if (w1 == 0) return NO;
         if (e.v1final && w1 == e.v1) return NO;
@@ -62,11 +61,12 @@ private:
                 if (!e.allColorsSeen) return YES;
 
                 bool clean = true;
-                for (int k = 1; k < mateArraySize_; ++k) {
-                    if (e.v1 + k == e.v2) continue;
+                for (int k = 0; k < mateArraySize_; ++k) {
+                    if (e.v0 + k == e.v1) continue;
+                    if (e.v0 + k == e.v2) continue;
                     int w = mate[k];
                     if (w < 0) return YES;
-                    if (w != 0 && (hamilton || w != e.v1 + k)) clean = false;
+                    if (w != 0 && (hamilton || w != e.v0 + k)) clean = false;
                 }
                 return clean ? HIT : NO;
             }
@@ -76,9 +76,10 @@ private:
                 assert(w2 == e.v1);
 
                 for (int k = 1; k < mateArraySize_; ++k) {
-                    if (e.v1 + k == e.v2) continue;
+                    if (e.v0 + k == e.v1) continue;
+                    if (e.v0 + k == e.v2) continue;
                     int w = mate[k];
-                    if (w != 0 && (hamilton || w != e.v1 + k)) return NO;
+                    if (w != 0 && (hamilton || w != e.v0 + k)) return NO;
                 }
                 return HIT;
             }
@@ -89,8 +90,8 @@ private:
     }
 
     bool leavable(Mate const* mate, Graph::EdgeInfo const& e) const {
-        int const w1 = mate[0];
-        int const w2 = mate[e.v2 - e.v1];
+        int const w1 = mate[e.v1 - e.v0];
+        int const w2 = mate[e.v2 - e.v0];
 
         if (hamilton) {
             if (e.v1final && w1 != 0) return false;
@@ -126,10 +127,10 @@ public:
     }
 
     int getRoot(Mate* mate) const {
-        int const v1 = graph.edgeInfo(0).v1;
+        int const v0 = graph.edgeInfo(0).v0;
 
         for (int k = 0; k < mateArraySize_; ++k) {
-            mate[k] = initialMate[v1 + k];
+            mate[k] = initialMate[v0 + k];
         }
 
         return n;
@@ -155,24 +156,24 @@ public:
                 break;
             }
 
-            int w1 = mate[0];
-            int w2 = mate[e.v2 - e.v1];
-            if (w1 > 0) mate[w1 - e.v1] = w2;
-            if (w2 > 0) mate[w2 - e.v1] = w1;
-            if (e.v1final || w1 != e.v1) mate[0] = 0;
-            if (e.v2final || w2 != e.v2) mate[e.v2 - e.v1] = 0;
+            int w1 = mate[e.v1 - e.v0];
+            int w2 = mate[e.v2 - e.v0];
+            if (w1 > 0) mate[w1 - e.v0] = w2;
+            if (w2 > 0) mate[w2 - e.v0] = w1;
+            if (e.v1final || w1 != e.v1) mate[e.v1 - e.v0] = 0;
+            if (e.v2final || w2 != e.v2) mate[e.v2 - e.v0] = 0;
         }
         else {
             if (!leavable(mate, e)) return 0;
 
-            Mate& w1 = mate[0];
-            Mate& w2 = mate[e.v2 - e.v1];
+            Mate& w1 = mate[e.v1 - e.v0];
+            Mate& w2 = mate[e.v2 - e.v0];
             if (e.v1final || (e.v1final2 && w1 == e.v1)) w1 = 0;
             if (e.v2final || (e.v2final2 && w2 == e.v2)) w2 = 0;
         }
 
         if (++i == n) return 0;
-        shiftMate(mate, e.v1, i);
+        shiftMate(mate, e.v0, graph.edgeInfo(i).v0);
 
         while (lookahead) {
             Graph::EdgeInfo const& e = graph.edgeInfo(i);
@@ -182,12 +183,12 @@ public:
             if (!leavable(mate, e)) return 0;
             if (++i == n) return 0;
 
-            Mate& w1 = mate[0];
-            Mate& w2 = mate[e.v2 - e.v1];
+            Mate& w1 = mate[e.v1 - e.v0];
+            Mate& w2 = mate[e.v2 - e.v0];
             if (e.v1final || (e.v1final2 && w1 == e.v1)) w1 = 0;
             if (e.v2final || (e.v2final2 && w2 == e.v2)) w2 = 0;
 
-            shiftMate(mate, e.v1, i);
+            shiftMate(mate, e.v0, graph.edgeInfo(i).v0);
         }
 
         //    std::cerr << " ->";

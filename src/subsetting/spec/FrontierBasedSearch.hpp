@@ -2,7 +2,7 @@
  * Top-Down ZDD Construction Library for Frontier-Based Search
  * by Hiroaki Iwashita <iwashita@erato.ist.hokudai.ac.jp>
  * Copyright (c) 2012 Japan Science and Technology Agency
- * $Id: FrontierBasedSearch.hpp 424 2013-02-25 09:17:54Z iwashita $
+ * $Id: FrontierBasedSearch.hpp 426 2013-02-26 06:50:04Z iwashita $
  */
 
 #pragma once
@@ -382,7 +382,7 @@ class FrontierBasedSearch: public PodHybridDdSpec<FrontierBasedSearch,
     }
 
 public:
-    FrontierBasedSearch(Graph const& graph, int numUEC, bool noLoop = false)
+    FrontierBasedSearch(Graph const& graph, int numUEC = -1, bool noLoop = false)
             : graph(graph), m(graph.vertexSize()), n(graph.edgeSize()),
               mateSize(graph.maxFrontierSize()), initialMate(1 + m + mateSize),
               numUEC(numUEC), noLoop(noLoop) {

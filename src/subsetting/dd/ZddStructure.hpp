@@ -2,7 +2,7 @@
  * Top-Down ZDD Construction Library for Frontier-Based Search
  * by Hiroaki Iwashita <iwashita@erato.ist.hokudai.ac.jp>
  * Copyright (c) 2012 Japan Science and Technology Agency
- * $Id: ZddStructure.hpp 414 2013-02-15 04:04:57Z iwashita $
+ * $Id: ZddStructure.hpp 427 2013-02-26 07:11:13Z iwashita $
  */
 
 #pragma once
@@ -59,6 +59,7 @@ public:
     /**
      * DD construction.
      * @param spec DD spec.
+     * @param doReduce call reduce() if true.
      */
     template<typename SPEC>
     ZddStructure(DdSpec<SPEC>& spec, bool doReduce = true) {
@@ -79,6 +80,7 @@ public:
     /**
      * ZDD subsetting.
      * @param spec ZDD spec.
+     * @param doReduce call reduce() if true.
      */
     template<typename SPEC>
     void subset(DdSpec<SPEC>& spec, bool doReduce = true) {
@@ -534,23 +536,24 @@ public:
                         os << "  \"" << f << "\" -> \"" << f1
                                 << "\" [style=solid];\n";
                     }
-
                 }
+
+                os << "  {rank=same; " << i;
+                for (size_t j = 0; j < m; ++j) {
+                    os << "; \"" << DdNodeId(i, j) << "\"";
+                }
+                os << "}\n";
             }
             else if (root == 0) {
                 os << "  \"" << DdNodeId(0)
                         << "\" [shape=square,label=\"0\"];\n";
+                os << "  {rank=same; 0; \"" << DdNodeId(0) << "\"}\n";
             }
             else {
                 os << "  \"" << DdNodeId(1)
                         << "\" [shape=square,label=\"1\"];\n";
+                os << "  {rank=same; 0; \"" << DdNodeId(1) << "\"}\n";
             }
-
-            os << "  {rank=same; " << i;
-            for (size_t j = 0; j < m; ++j) {
-                os << "; \"" << DdNodeId(i, j) << "\"";
-            }
-            os << "}\n";
         }
 
         os << "}\n";
