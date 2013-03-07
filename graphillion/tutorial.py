@@ -40,15 +40,18 @@ def grid(m, n=None, edge_probability=1.0):
         shuffle(edges_removed)
         p = 1 - edge_probability
         g.remove_edges_from(edges_removed[:int(len(edges)*p)])
-        if nx.is_connected(g):
+        if nx.is_connected(g) and len(g[1]) == 2:
             break
     return g
 
-def draw(g, universe):
+def draw(g, universe=None):
     import networkx as nx
     import matplotlib.pyplot as plt
     if not isinstance(g, nx.Graph):
         g = nx.Graph(list(g))
+    if universe is None:
+        from graphillion import GraphSet
+        universe = GraphSet.get_universe()
     if not isinstance(universe, nx.Graph):
         universe = nx.Graph(list(universe))
     n = sorted(universe[1].keys())[1] - 1
@@ -59,3 +62,20 @@ def draw(g, universe):
         pos[v] = ((v - 1) % n, (m * n - v) / n)
     nx.draw(g, pos)
     plt.show()
+
+def how_many_turns(path):
+    path = set(path)
+    turns = 0
+    pos = 1
+    direction = 1
+    while (True):
+        edges = [e for e in path if e[0] == pos or e[1] == pos]
+        if not edges: break
+        edge = edges[0]
+        path -= set([edge])
+        next_direction = abs(edge[1] - edge[0])
+        if direction != next_direction:
+            turns +=1
+        pos = edge[1] if edge[0] == pos else edge[0]
+        direction = next_direction
+    return turns
