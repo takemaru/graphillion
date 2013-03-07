@@ -180,6 +180,7 @@ class setset {
 
   static iterator end() { return iterator(); }
   static elem_t elem_limit();
+  static elem_t max_elem();
   static elem_t num_elems();
   static void num_elems(elem_t num_elems);
 

@@ -68,6 +68,11 @@ elem_t elem_limit() {
   return BDD_MaxVar;
 }
 
+elem_t max_elem() {
+  assert(BDD_VarUsed() == max_elem_);
+  return max_elem_;
+}
+
 void new_elems(elem_t max_elem) {
   assert(max_elem <= elem_limit());
   if (!initialized_) init();
@@ -77,6 +82,7 @@ void new_elems(elem_t max_elem) {
     num_elems_ = ++max_elem_;
   }
   assert(num_elems_ <= max_elem_);
+  assert(BDD_VarUsed() == max_elem_);
 }
 
 elem_t num_elems() {

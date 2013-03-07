@@ -65,51 +65,6 @@ int Range::upperBound() const {
   return this->max_;
 }
 
-struct ToZBDD2 : public DdEval<ToZBDD, ZBDD> {
-  ToZBDD2(int num_elems) : num_elems_(num_elems) {}
-
-  void evalTerminal(ZBDD& f, bool one) {
-    f = ZBDD(one ? 1 : 0);
-  }
-
-  void evalNode(ZBDD& f, int level, ZBDD& f0, int i0, ZBDD& f1, int i1) {
-    while (BDD_VarUsed() < level)
-      BDD_NewVar();
-    f = f0 + f1.Change(this->num_elems_ - level + 1);
-  }
-
-  int num_elems_;
-};
-
-class SapporoZdd2 : public ScalarDdSpec<SapporoZdd, ZBDD> {
- public:
-  SapporoZdd2(ZBDD const& f, int num_elems)
-      : root(f), num_elems_(num_elems) {
-  }
-
-  int getRoot(ZBDD& f) const {
-    f = root;
-    return f == 1 ?  -1 : BDD_LevOfVar(f.Top());
-  }
-
-  int getChild(ZBDD& f, int level, bool take) const {
-//    f = take ? f.OnSet0(BDD_VarOfLev(level)) : f.OffSet(BDD_VarOfLev(level));
-    f = take ? f.OnSet0(this->num_elems_ - level + 1) : f.OffSet(this->num_elems_ - level + 1);
-//    assert(BDD_LevOfVar(f.Top()) < level);
-    assert(level > this->num_elems_ - f.Top() + 1);
-//    return f == 1 ?  -1 : BDD_LevOfVar(f.Top());
-    return f == 1 ?  -1 : this->num_elems_ - f.Top() + 1;
-  }
-
-  size_t hashCode(ZBDD const& f) const {
-    return const_cast<ZBDD*>(&f)->GetID();
-  }
-
- private:
-  ZBDD root;
-  int num_elems_;
-};
-
 setset FrontierSearch(
     const vector<edge_t>& graph,
     const vector<vector<vertex_t> >* vertex_groups,
@@ -128,7 +83,7 @@ setset FrontierSearch(
 
   ZddStructure* dd = NULL;
   if (search_space != NULL) {
-    SapporoZdd2 f(search_space->zdd_, setset::num_elems());
+    SapporoZdd f(search_space->zdd_, setset::max_elem() - setset::num_elems());
     dd = new ZddStructure(f);
   } else {
     dd = new ZddStructure(g.edgeSize());
@@ -159,7 +114,7 @@ setset FrontierSearch(
   FrontierBasedSearch fbs(g, num_comps, no_loop);
   dd->subset(fbs);
 
-  zdd_t f = dd->evaluate(ToZBDD2(setset::num_elems()));
+  zdd_t f = dd->evaluate(ToZBDD(setset::max_elem() - setset::num_elems()));
   delete dd;
   return setset(f);
 }

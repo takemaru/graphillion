@@ -164,13 +164,13 @@ class TestGraphSet {
     for (setset::const_iterator g = ss.begin(); g != ss.end(); ++g)
       assert((*g).size() < 6);
 
-    // TODO: subsetting method
-    /*ss = FrontierSearch(graph, NULL, NULL, NULL, 1, false, &ss);
+    // subsetting method
+    ss = FrontierSearch(graph, NULL, NULL, NULL, 1, false, &ss);
     assert(ss.size() == "66");
     s = S(3, e12, e14, e25);
     assert(ss.find(s) != ss.end());
     s.insert(e45);
-    assert(ss.find(s) == ss.end());*/
+    assert(ss.find(s) == ss.end());
 
     // two clusters
     vertex_groups = V("{{1, 5}, {2}}");
@@ -320,7 +320,7 @@ class TestGraphSet {
     e23 = 4;
     e25 = 5;
     int e26 = 6;
-    int e35 = 7;
+//    int e35 = 7;
     e45 = 8;
     int e46 = 9;
     e56 = 10;
@@ -346,17 +346,6 @@ class TestGraphSet {
 
     setset::num_elems(10);
 
-    // edge disjoint path (XXX two paths must be crossed)
-    /*degree_constraints.clear();
-    for (vector<vertex_t>::const_iterator v = vertices.begin();
-         v != vertices.end(); ++v) 
-      degree_constraints[*v]
-          = *v != "5" && *v != "6" ? Range(1, 2) : Range(0, vertices.size(), 2);
-    ss = FrontierSearch(graph, NULL, &degree_constraints, NULL, 1, true);
-    assert(ss.size() == "2");
-    s = S(5, e16, e26, e35, e46, e56);
-    assert(ss.find(s) != ss.end());*/
-
     // clique
     int k = 3;
     degree_constraints.clear();
@@ -377,8 +366,7 @@ class TestGraphSet {
 
 int main() {
   graphillion::TestGraphSet().run();
-  printf("ok\n");
-  graphillion::TestGraphSet().run();  // XXX
+  graphillion::TestGraphSet().run();  // XXX tests for shrinking the universe
   printf("ok\n");
   return 0;
 }

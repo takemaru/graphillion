@@ -453,6 +453,10 @@ elem_t setset::elem_limit() {
   return graphillion::elem_limit();
 }
 
+elem_t setset::max_elem() {
+  return graphillion::max_elem();
+}
+
 elem_t setset::num_elems() {
   return graphillion::num_elems();
 }

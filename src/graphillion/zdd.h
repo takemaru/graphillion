@@ -37,6 +37,7 @@ namespace graphillion {
 
 void init();
 elem_t elem_limit();
+elem_t max_elem();
 void new_elems(elem_t max_elem);
 elem_t num_elems();
 void num_elems(elem_t num_elems);
