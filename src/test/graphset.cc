@@ -75,290 +75,368 @@ vector<vector<vertex_t> > V(const string& str) {
   return v;
 }
 
+int e12 = 0;
+int e13 = 0;
+int e14 = 0;
+int e15 = 0;
+int e23 = 0;
+int e24 = 0;
+int e25 = 0;
+int e34 = 0;
+int e35 = 0;
+int e36 = 0;
+int e45 = 0;
+int e56 = 0;
+
+vector<edge_t> graph;
+vector<vertex_t> vertices;
+
+void setup() {
+  // 1 --- 2 --- 3
+  // |     |     |
+  // 4 --- 5 --- 6
+
+  e12 = 1;
+  e14 = 2;
+  e23 = 3;
+  e25 = 4;
+  e36 = 5;
+  e45 = 6;
+  e56 = 7;
+
+  graph.clear();
+  graph.push_back(make_pair("1", "2"));
+  graph.push_back(make_pair("1", "4"));
+  graph.push_back(make_pair("2", "3"));
+  graph.push_back(make_pair("2", "5"));
+  graph.push_back(make_pair("3", "6"));
+  graph.push_back(make_pair("4", "5"));
+  graph.push_back(make_pair("5", "6"));
+
+  vertices.clear();
+  for (int v = 1; v <= 6; ++v) {
+    stringstream sstr;
+    sstr << v;
+    vertices.push_back(sstr.str());
+  }
+
+  setset::num_elems(7);
+}
+
+void setup_clique() {  // 5-clique
+  e12 = 1;
+  e13 = 2;
+  e14 = 3;
+  e15 = 4;
+  e23 = 5;
+  e24 = 6;
+  e25 = 7;
+  e34 = 8;
+  e35 = 9;
+  e45 = 10;
+
+  graph.clear();
+  graph.push_back(make_pair("1", "2"));
+  graph.push_back(make_pair("1", "3"));
+  graph.push_back(make_pair("1", "4"));
+  graph.push_back(make_pair("1", "5"));
+  graph.push_back(make_pair("2", "3"));
+  graph.push_back(make_pair("2", "4"));
+  graph.push_back(make_pair("2", "5"));
+  graph.push_back(make_pair("3", "4"));
+  graph.push_back(make_pair("3", "5"));
+  graph.push_back(make_pair("4", "5"));
+
+  vertices.clear();
+  for (int v = 1; v <= 5; ++v) {
+    stringstream sstr;
+    sstr << v;
+    vertices.push_back(sstr.str());
+  }
+
+  setset::num_elems(10);
+}
+
 class TestGraphSet {
  public:
   void run() {
-    // graph
-    //   1 --- 2 --- 3
-    //   |     |     |
-    //   4 --- 5 --- 6
+    this->any_subgraphs();
+    this->two_clusters();
+    this->matchings();
+    this->small_subgraphs();
+    this->single_components();
+    this->any_forests();
+    this->constrained_by_setset();
+    this->two_clusters_only();
+    this->single_components_only();
+    this->clique();
+    this->spanning_trees();
+    this->rooted_forests();
+    this->cycles();
+    this->single_cycles();
+    this->hamilton_cycles();
+    this->any_paths();
+    this->pinned_paths();
+    this->rooted_paths();
+    this->hamilton_paths();
+  }
 
-    // edges
-    int e12 = 1;
-    int e14 = 2;
-    int e23 = 3;
-    int e25 = 4;
-    int e36 = 5;
-    int e45 = 6;
-    int e56 = 7;
-    
-    vector<edge_t> graph;
-    graph.push_back(make_pair("1", "2"));
-    graph.push_back(make_pair("1", "4"));
-    graph.push_back(make_pair("2", "3"));
-    graph.push_back(make_pair("2", "5"));
-    graph.push_back(make_pair("3", "6"));
-    graph.push_back(make_pair("4", "5"));
-    graph.push_back(make_pair("5", "6"));
-
-    vector<vertex_t> vertices;
-    for (int v = 1; v <= 6; ++v) {
-      stringstream sstr;
-      sstr << v;
-      vertices.push_back(sstr.str());
-    }
-
-    setset::num_elems(7);
-
-    // any subgraph
+  void any_subgraphs() {
+    setup();
     setset ss = FrontierSearch(graph);
     assert(ss.size() == "128");
     set<int> s = S(1, e12);
     assert(ss.find(s) != ss.end());
+  }
 
-    // subgraphs separating [1, 5] and [2]
+  void two_clusters() {  // subgraphs separating [1, 5] and [2]
+    setup();
     vector<vector<vertex_t> > vertex_groups = V("{{1, 5}, {2}}");
-    ss = FrontierSearch(graph, &vertex_groups);
+    setset ss = FrontierSearch(graph, &vertex_groups);
     assert(ss.size() == "7");
-    s = S(2, e14, e45);
+    set<int> s = S(2, e14, e45);
     assert(ss.find(s) != ss.end());
     s.insert(e12);
     assert(ss.find(s) == ss.end());
+  }
 
-    // matching
+  void matchings() {
+    setup();
     map<vertex_t, Range> degree_constraints;
     for (vector<vertex_t>::const_iterator v = vertices.begin();
          v != vertices.end(); ++v) 
       degree_constraints[*v] = Range(0, 2);
-    ss = FrontierSearch(graph, NULL, &degree_constraints);
+    setset ss = FrontierSearch(graph, NULL, &degree_constraints);
     assert(ss.size() == "22");
-    s = S(2, e12, e36);
+    set<int> s = S(2, e12, e36);
     assert(ss.find(s) != ss.end());
     s.insert(e23);
     assert(ss.find(s) == ss.end());
     for (setset::const_iterator g = ss.begin(); g != ss.end(); ++g)
       assert((*g).size() < 4);
+  }
 
-    // subgraphs with 1 or 2 edges
+  void small_subgraphs() {  // subgraphs with 1 or 2 edges
+    setup();
     Range num_edges(1, 3);
-    ss = FrontierSearch(graph, NULL, NULL, &num_edges);
+    setset ss = FrontierSearch(graph, NULL, NULL, &num_edges);
     assert(ss.size() == "28");
     for (setset::const_iterator g = ss.begin(); g != ss.end(); ++g)
       assert(1 <= (*g).size() && (*g).size() < 3);
+  }
 
-    // single connected component and vertex islands
-    ss = FrontierSearch(graph, NULL, NULL, NULL, 1);
+  void single_components() {  // with vertex islands
+    setup();
+    setset ss = FrontierSearch(graph, NULL, NULL, NULL, 1);
     assert(ss.size() == "80");
-    s = S(2, e12, e23);
+    set<int> s = S(2, e12, e23);
     assert(ss.find(s) != ss.end());
     s.insert(e45);
     assert(ss.find(s) == ss.end());
+  }
 
-    // any forest
-    ss = FrontierSearch(graph, NULL, NULL, NULL, -1, true);
+  void any_forests() {
+    setup();
+    setset ss = FrontierSearch(graph, NULL, NULL, NULL, -1, true);
     assert(ss.size() == "112");
-    s = S(3, e12, e14, e25);
+    set<int> s = S(3, e12, e14, e25);
     assert(ss.find(s) != ss.end());
     s.insert(e45);
     assert(ss.find(s) == ss.end());
     for (setset::const_iterator g = ss.begin(); g != ss.end(); ++g)
       assert((*g).size() < 6);
+  }
 
-    // subsetting method
+  void constrained_by_setset() {  // subsetting method
+    setup();
+    setset ss = FrontierSearch(graph, NULL, NULL, NULL, -1, true);  // any forest
     ss = FrontierSearch(graph, NULL, NULL, NULL, 1, false, &ss);
     assert(ss.size() == "66");
-    s = S(3, e12, e14, e25);
+    set<int> s = S(3, e12, e14, e25);
     assert(ss.find(s) != ss.end());
     s.insert(e45);
     assert(ss.find(s) == ss.end());
+  }
 
-    // two clusters
-    vertex_groups = V("{{1, 5}, {2}}");
-    ss = FrontierSearch(graph, &vertex_groups, NULL, NULL, 0);
+  void two_clusters_only() {
+    setup();
+    vector<vector<vertex_t> > vertex_groups = V("{{1, 5}, {2}}");
+    setset ss = FrontierSearch(graph, &vertex_groups, NULL, NULL, 0);
     assert(ss.size() == "6");
-    s = S(2, e14, e45);
+    set<int> s = S(2, e14, e45);
     assert(ss.find(s) != ss.end());
     s.insert(e36);
     assert(ss.find(s) == ss.end());
+  }
 
-    // single connected component
-    degree_constraints.clear();
+  void single_components_only() {
+    setup();
+    map<vertex_t, Range> degree_constraints;
     for (vector<vertex_t>::const_iterator v = vertices.begin();
          v != vertices.end(); ++v) 
-      degree_constraints[*v] = Range(1);
-    ss = FrontierSearch(graph, NULL, &degree_constraints, NULL, 1);
+      degree_constraints[*v] = Range(1, vertices.size());
+    setset ss = FrontierSearch(graph, NULL, &degree_constraints, NULL, 1);
     assert(ss.size() == "23");
-    s = S(5, e12, e14, e23, e25, e36);
+    set<int> s = S(5, e12, e14, e23, e25, e36);
     assert(ss.find(s) != ss.end());
     s = S(5, e12, e14, e23, e25, e45);
     assert(ss.find(s) == ss.end());
     for (setset::const_iterator g = ss.begin(); g != ss.end(); ++g)
       assert((*g).size() > 4);
+  }
 
-    // spanning tree
-    ss = FrontierSearch(graph, NULL, &degree_constraints, NULL, 1, true);
+  void clique() {
+    setup_clique();
+    int k = 4;
+    map<vertex_t, Range> degree_constraints;
+    for (vector<vertex_t>::const_iterator v = vertices.begin();
+         v != vertices.end(); ++v) 
+      degree_constraints[*v] = Range(0, k, k - 1);
+    Range num_edges(k * (k - 1) / 2, k * (k - 1) / 2 + 1);
+    setset ss = FrontierSearch(graph, NULL, &degree_constraints, &num_edges, 1);
+    assert(ss.size() == "5");
+    set<int> s = S(6, e12, e13, e14, e23, e24, e34);
+    assert(ss.find(s) != ss.end());
+    s = S(6, e12, e13, e15, e23, e24, e35);
+    assert(ss.find(s) == ss.end());
+  }
+
+  void spanning_trees() {
+    setup();
+    map<vertex_t, Range> degree_constraints;
+    for (vector<vertex_t>::const_iterator v = vertices.begin();
+         v != vertices.end(); ++v) 
+      degree_constraints[*v] = Range(1, vertices.size());
+    setset ss = FrontierSearch(graph, NULL, &degree_constraints, NULL, 1, true);
     assert(ss.size() == "15");
-    s = S(5, e12, e14, e23, e25, e36);
+    set<int> s = S(5, e12, e14, e23, e25, e36);
     assert(ss.find(s) != ss.end());
     s = S(5, e12, e14, e23, e25, e45);
     assert(ss.find(s) == ss.end());
     for (setset::const_iterator g = ss.begin(); g != ss.end(); ++g)
       assert((*g).size() == 5);
+  }
 
-    // rooted forest
-    vertex_groups = V("{{1}, {3}}");
-    degree_constraints.clear();
+  void rooted_forests() {
+    setup();
+    vector<vector<vertex_t> > vertex_groups = V("{{1}, {3}}");
+    map<vertex_t, Range> degree_constraints;
     for (vector<vertex_t>::const_iterator v = vertices.begin();
          v != vertices.end(); ++v) 
       if (*v != "1" && *v != "3")
-        degree_constraints[*v] = Range(1);
-    ss = FrontierSearch(graph, &vertex_groups, &degree_constraints, NULL, 0,
-                        true);
+        degree_constraints[*v] = Range(1, vertices.size());
+    setset ss = FrontierSearch(graph, &vertex_groups, &degree_constraints, NULL,
+                               0, true);
     assert(ss.size() == "20");
-    s = S(4, e12, e14, e25, e36);
+    set<int> s = S(4, e12, e14, e25, e36);
     assert(ss.find(s) != ss.end());
     s = S(4, e12, e14, e23, e25);
     assert(ss.find(s) == ss.end());
     for (setset::const_iterator g = ss.begin(); g != ss.end(); ++g)
       assert((*g).size() == 4);
+  }
 
-    // cycles
-    degree_constraints.clear();
+  void cycles() {
+    setup();
+    map<vertex_t, Range> degree_constraints;
     for (vector<vertex_t>::const_iterator v = vertices.begin();
          v != vertices.end(); ++v) 
       degree_constraints[*v] = Range(0, 3, 2);
-    ss = FrontierSearch(graph, NULL, &degree_constraints);
+    setset ss = FrontierSearch(graph, NULL, &degree_constraints);
     assert(ss.size() == "4");
-    s = S(0);
+    set<int> s = S(0);
     assert(ss.find(s) != ss.end());
     s = S(3, e12, e14, e23);
     assert(ss.find(s) == ss.end());
+  }
 
-    // single cycle
-    degree_constraints.clear();
+  void single_cycles() {
+    setup();
+    map<vertex_t, Range> degree_constraints;
     for (vector<vertex_t>::const_iterator v = vertices.begin();
          v != vertices.end(); ++v) 
       degree_constraints[*v] = Range(0, 3, 2);
-    ss = FrontierSearch(graph, NULL, &degree_constraints, NULL, 1);
+    setset ss = FrontierSearch(graph, NULL, &degree_constraints, NULL, 1);
     assert(ss.size() == "3");
-    s = S(4, e12, e14, e25, e45);
+    set<int> s = S(4, e12, e14, e25, e45);
     assert(ss.find(s) != ss.end());
     s = S(0);
     assert(ss.find(s) == ss.end());
+  }
 
-    // hamilton cycle
-    degree_constraints.clear();
+  void hamilton_cycles() {
+    setup();
+    map<vertex_t, Range> degree_constraints;
     for (vector<vertex_t>::const_iterator v = vertices.begin();
          v != vertices.end(); ++v) 
       degree_constraints[*v] = Range(2, 3);
-    ss = FrontierSearch(graph, NULL, &degree_constraints, NULL, 1);
+    setset ss = FrontierSearch(graph, NULL, &degree_constraints, NULL, 1);
     assert(ss.size() == "1");
-    s = S(6, e12, e14, e23, e36, e45, e56);
+    set<int> s = S(6, e12, e14, e23, e36, e45, e56);
     assert(ss.find(s) != ss.end());
+  }
 
-    // any path
-    degree_constraints.clear();
+  void any_paths() {
+    setup();
+    map<vertex_t, Range> degree_constraints;
     for (vector<vertex_t>::const_iterator v = vertices.begin();
          v != vertices.end(); ++v) 
       degree_constraints[*v] = Range(0, 3);
-    ss = FrontierSearch(graph, NULL, &degree_constraints, NULL, -1, true);
+    setset ss = FrontierSearch(graph, NULL, &degree_constraints, NULL, -1, true);
     assert(ss.size() == "95");
-    s = S(4, e12, e14, e36, e45);
+    set<int> s = S(4, e12, e14, e36, e45);
     assert(ss.find(s) != ss.end());
     s = S(3, e12, e23, e25);
     assert(ss.find(s) == ss.end());
+  }
 
-    // pinned path
-    vertex_groups = V("{{1, 6}}");
+  void pinned_paths() {
+    setup();
+    vector<vector<vertex_t> > vertex_groups = V("{{1, 6}}");
+    map<vertex_t, Range> degree_constraints;
     for (vector<vertex_t>::const_iterator v = vertices.begin();
          v != vertices.end(); ++v) 
       degree_constraints[*v]
           = *v == "1" || *v == "6" ? Range(1, 2) : Range(0, 3, 2);
-    ss = FrontierSearch(graph, &vertex_groups, &degree_constraints, NULL, 0,
-                        true);
+    setset ss = FrontierSearch(graph, &vertex_groups, &degree_constraints, NULL,
+                               0, true);
     assert(ss.size() == "4");
-    s = S(3, e12, e23, e36);
+    set<int> s = S(3, e12, e23, e36);
     assert(ss.find(s) != ss.end());
     s = S(3, e12, e23, e56);
     assert(ss.find(s) == ss.end());
+  }
 
-    // rooted path
-    vertex_groups = V("{{1}, {6}}");
+  void rooted_paths() {
+    setup();
+    vector<vector<vertex_t> > vertex_groups = V("{{1}, {6}}");
+    map<vertex_t, Range> degree_constraints;
     for (vector<vertex_t>::const_iterator v = vertices.begin();
          v != vertices.end(); ++v) 
       degree_constraints[*v]
           = *v == "1" || *v == "6" ? Range(1, 2) : Range(0, 3);
-    ss = FrontierSearch(graph, &vertex_groups, &degree_constraints, NULL, 0,
-                        true);
+    setset ss = FrontierSearch(graph, &vertex_groups, &degree_constraints, NULL,
+                               0, true);
     assert(ss.size() == "16");
-    s = S(3, e12, e23, e56);
+    set<int> s = S(3, e12, e23, e56);
     assert(ss.find(s) != ss.end());
     s = S(3, e12, e23, e36);
     assert(ss.find(s) == ss.end());
+  }
 
-    // hamilton path
-    vertex_groups = V("{{1, 6}}");
+  void hamilton_paths() {
+    setup();
+    vector<vector<vertex_t> > vertex_groups = V("{{1, 6}}");
+    map<vertex_t, Range> degree_constraints;
     for (vector<vertex_t>::const_iterator v = vertices.begin();
          v != vertices.end(); ++v) 
       degree_constraints[*v]
           = *v == "1" || *v == "6" ? Range(1, 2) : Range(2, 3);
-    ss = FrontierSearch(graph, &vertex_groups, &degree_constraints, NULL, 0,
-                        true);
+    setset ss = FrontierSearch(graph, &vertex_groups, &degree_constraints, NULL,
+                               0, true);
     assert(ss.size() == "1");
-    s = S(5, e14, e23, e25, e36, e45);
+    set<int> s = S(5, e14, e23, e25, e36, e45);
     assert(ss.find(s) != ss.end());
-
-    // graph
-    //   1 --- 2 --- 3
-    //   |  6  |  /
-    //   4 --- 5 
-
-    // edges
-    e12 = 1;
-    e14 = 2;
-    int e16 = 3;
-    e23 = 4;
-    e25 = 5;
-    int e26 = 6;
-//    int e35 = 7;
-    e45 = 8;
-    int e46 = 9;
-    e56 = 10;
-
-    graph.clear();
-    graph.push_back(make_pair("1", "2"));
-    graph.push_back(make_pair("1", "4"));
-    graph.push_back(make_pair("1", "6"));
-    graph.push_back(make_pair("2", "3"));
-    graph.push_back(make_pair("2", "5"));
-    graph.push_back(make_pair("2", "6"));
-    graph.push_back(make_pair("3", "5"));
-    graph.push_back(make_pair("4", "5"));
-    graph.push_back(make_pair("4", "6"));
-    graph.push_back(make_pair("5", "6"));
-
-    vertices.clear();
-    for (int v = 1; v <= 6; ++v) {
-      stringstream sstr;
-      sstr << v;
-      vertices.push_back(sstr.str());
-    }
-
-    setset::num_elems(10);
-
-    // clique
-    int k = 3;
-    degree_constraints.clear();
-    for (vector<vertex_t>::const_iterator v = vertices.begin();
-         v != vertices.end(); ++v) 
-      degree_constraints[*v] = Range(0, k, k - 1);
-    num_edges = Range(k * (k - 1) / 2, k * (k - 1) / 2 + 1);
-    ss = FrontierSearch(graph, NULL, &degree_constraints, &num_edges, 1);
-    assert(ss.size() == "5");
-    s = S(3, e12, e16, e26);
-    assert(ss.find(s) != ss.end());
-    s = S(4, e12, e14, e26, e46);
-    assert(ss.find(s) == ss.end());
   }
 };
 
@@ -366,7 +444,6 @@ class TestGraphSet {
 
 int main() {
   graphillion::TestGraphSet().run();
-  graphillion::TestGraphSet().run();  // XXX tests for shrinking the universe
   printf("ok\n");
   return 0;
 }

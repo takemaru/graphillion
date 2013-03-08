@@ -33,7 +33,8 @@ namespace graphillion {
 
 class Range : public IntSubset {
  public:
-  Range(int min = 0, int max = INT_MAX, int step = 1);
+  Range(int max = 1);
+  Range(int min, int max, int step = 1);
 
   bool contains(int x) const;
   int lowerBound() const;

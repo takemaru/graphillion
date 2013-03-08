@@ -45,6 +45,10 @@ using std::map;
 using std::set;
 using std::vector;
 
+Range::Range(int max) : min_(0), max_(max - 1), step_(1) {
+  assert(this->min_ <= this->max_);
+}
+
 Range::Range(int min, int max, int step)
     : min_(min), max_(max - 1), step_(step) {
   assert(this->min_ <= this->max_);
