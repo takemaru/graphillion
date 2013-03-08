@@ -977,13 +977,18 @@ static PyObject* setset_num_elems(PyObject*, PyObject* args) {
 }
 
 static PyObject* graphset_subgraph(PyObject*, PyObject* args, PyObject* kwds) {
+  static char s1[] = "graph";
+  static char s2[] = "vertex_groups";
+  static char s3[] = "degree_constraints";
+  static char s4[] = "num_edges";
+  static char s5[] = "num_comps";
+  static char s6[] = "no_loop";
+  static char* kwlist[7] = {s1, s2, s3, s4, s5, s6, NULL};
   PyObject* graph_obj = NULL;
   PyObject* vertex_groups_obj = NULL;
   PyObject* degree_constraints_obj = NULL;
   PyObject* num_edges_obj = NULL;
   int num_comps = -1, no_loop = 0;
-  static char* kwlist[] = {"graph", "vertex_groups", "degree_constraints",
-                           "num_edges", "num_comps", "no_loop", NULL};
   if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOii", kwlist, &graph_obj,
                                    &vertex_groups_obj, &degree_constraints_obj,
                                    &num_edges_obj, &num_comps, &no_loop))
@@ -1007,8 +1012,14 @@ static PyObject* graphset_subgraph(PyObject*, PyObject* args, PyObject* kwds) {
         PyErr_SetString(PyExc_TypeError, "invalid graph");
         return NULL;
       }
-      e.push_back(PyString_AsString(vo));
+      string v = PyString_AsString(vo);
+      if (v.find(',') != string::npos) {
+        PyErr_SetString(PyExc_TypeError, "invalid vertex in the graph");
+        return NULL;
+      }
+      e.push_back(v);
     }
+    assert(e.size() == 2);
     graph.push_back(make_pair(e[0], e[1]));
   }
 
@@ -1043,7 +1054,7 @@ static PyObject* graphset_subgraph(PyObject*, PyObject* args, PyObject* kwds) {
     Py_ssize_t pos = 0;
     while (PyDict_Next(degree_constraints_obj, &pos, &vo, &lo)) {
       if (!PyString_Check(vo)) {
-        PyErr_SetString(PyExc_TypeError, "invalid degree constraints");
+        PyErr_SetString(PyExc_TypeError, "invalid vertex in degree constraints");
         return NULL;
       }
       string vertex = PyString_AsString(vo);
@@ -1054,7 +1065,7 @@ static PyObject* graphset_subgraph(PyObject*, PyObject* args, PyObject* kwds) {
       while ((io = PyIter_Next(i))) {
         if (!PyInt_Check(io)) {
           Py_DECREF(io);
-          PyErr_SetString(PyExc_TypeError, "invalid degree constraints");
+          PyErr_SetString(PyExc_TypeError, "invalid degree in degree constraints");
           return NULL;
         }
         r.push_back(PyInt_AsLong(io));
@@ -1071,7 +1082,7 @@ static PyObject* graphset_subgraph(PyObject*, PyObject* args, PyObject* kwds) {
     while ((io = PyIter_Next(i))) {
       if (!PyInt_Check(io)) {
         Py_DECREF(io);
-        PyErr_SetString(PyExc_TypeError, "invalid degree constraints");
+        PyErr_SetString(PyExc_TypeError, "invalid number of edges");
         return NULL;
       }
       r.push_back(PyInt_AsLong(io));
@@ -1082,8 +1093,8 @@ static PyObject* graphset_subgraph(PyObject*, PyObject* args, PyObject* kwds) {
   setset ss = FrontierSearch(graph, vertex_groups, degree_constraints, num_edges,
                              num_comps, no_loop);
 
-  PySetsetObject* ret = reinterpret_cast<PySetsetObject*>(
-      PySetset_Type.tp_alloc(&PySetset_Type, 0));
+  PySetsetObject* ret = reinterpret_cast<PySetsetObject*>
+      (PySetset_Type.tp_alloc(&PySetset_Type, 0));
   ret->ss = new setset(ss);
   return reinterpret_cast<PyObject*>(ret);
 }
