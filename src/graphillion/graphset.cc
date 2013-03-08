@@ -30,7 +30,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <vector>
 
 #include "subsetting/dd/ZddStructure.hpp"
-#include "subsetting/eval/Cardinality.hpp"
 #include "subsetting/eval/ToZBDD.hpp"
 #include "subsetting/spec/DegreeConstraint.hpp"
 #include "subsetting/spec/FrontierBasedSearch.hpp"

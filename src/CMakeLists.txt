@@ -1,7 +1,7 @@
 SET(SRCS SAPPOROBDD/bddc SAPPOROBDD/BDD SAPPOROBDD/ZBDD
   graphillion/util graphillion/zdd graphillion/setset)
 
-ADD_LIBRARY(${PROJECT_NAME} ${SRCS})
+ADD_LIBRARY(${PROJECT_NAME} ${SRCS} graphillion/graphset)
 INSTALL(TARGETS ${PROJECT_NAME} ARCHIVE DESTINATION lib)
 
 ADD_EXECUTABLE(test_setset ${SRCS} test/setset)
