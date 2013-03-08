@@ -22,8 +22,8 @@ OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 **********************************************************************/
 
-#ifndef GRAPHILLION_PYSETSET_H_
-#define GRAPHILLION_PYSETSET_H_
+#ifndef GRAPHILLION_PYGRAPHILLION_H_
+#define GRAPHILLION_PYGRAPHILLION_H_
 
 #include "graphillion/setset.h"
 
@@ -38,4 +38,4 @@ PyAPI_DATA(PyTypeObject) PySetset_Type;
   (Py_TYPE(ob) == &PySetset_Type ||                     \
    PyType_IsSubtype(Py_TYPE(ob), &PySetset_Type))
 
-#endif  // GRAPHILLION_PYSETSET_H_
+#endif  // GRAPHILLION_PYGRAPHILLION_H_

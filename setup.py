@@ -57,7 +57,7 @@ trillions of graphs can be handled in a single computer.
       zip_safe=False,
       ext_modules=[
         Extension('_graphillion', 
-                  sources=[os.path.join('src', 'pysetset.cc'),
+                  sources=[os.path.join('src', 'pygraphillion.cc'),
                            os.path.join('src', 'graphillion', 'graphset.cc'),
                            os.path.join('src', 'graphillion', 'setset.cc'),
                            os.path.join('src', 'graphillion', 'util.cc'),

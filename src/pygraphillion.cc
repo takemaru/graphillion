@@ -25,7 +25,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <Python.h>
 #include "structmember.h"
 
-#include "pysetset.h"
+#include "pygraphillion.h"
 
 #include <cstdlib>
 #include <climits>
