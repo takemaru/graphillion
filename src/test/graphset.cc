@@ -169,7 +169,7 @@ class TestGraphSet {
     this->constrained_by_setset();
     this->two_clusters_only();
     this->single_components_only();
-    this->clique();
+    this->cliques();
     this->spanning_trees();
     this->rooted_forests();
     this->cycles();
@@ -285,7 +285,7 @@ class TestGraphSet {
       assert((*g).size() > 4);
   }
 
-  void clique() {
+  void cliques() {
     setup_clique();
     int k = 4;
     map<vertex_t, Range> degree_constraints;
