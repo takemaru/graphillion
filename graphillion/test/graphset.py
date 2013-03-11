@@ -53,8 +53,7 @@ g1234 = [e1, e2, e3, e4]
 class TestGraphSet(unittest.TestCase):
 
     def setUp(self):
-        GraphSet.set_universe([e1 + (.3,), e2 + (-.2,), e3 + (-.2,), e4 + (.4,)],
-                              traversal='dfs', source=1)
+        GraphSet.set_universe([e1 + (.3,), e2 + (-.2,), e3 + (-.2,), e4 + (.4,)])
 
     def tearDown(self):
         pass
@@ -63,16 +62,14 @@ class TestGraphSet(unittest.TestCase):
         GraphSet.set_universe([('i', 'ii')])
         self.assertEqual(GraphSet.get_universe(), [('i', 'ii')])
 
-        gs = GraphSet({})
-        self.assertEqual(len(gs), 2**1)
+        GraphSet.set_universe([e1 + (.3,), e2 + (-.2,), e3 + (-.2,), e4 + (.4,)])
+        self.assertEqual(GraphSet.get_universe(),
+                         [e1 + (.3,), e2 + (-.2,), e3 + (-.2,), e4 + (.4,)])
 
         GraphSet.set_universe([e1 + (.3,), e2 + (-.2,), e3 + (-.2,), e4 + (.4,)],
                               traversal='dfs', source=1)
         self.assertEqual(GraphSet.get_universe(),
                          [e2 + (-.2,), e4 + (.4,), e1 + (.3,), e3 + (-.2,)])
-
-        gs = GraphSet({})
-        self.assertEqual(len(gs), 2**4)
 
         self.assertRaises(KeyError, GraphSet.set_universe, [(1,2), (2,1)])
 
@@ -81,10 +78,16 @@ class TestGraphSet(unittest.TestCase):
         self.assertTrue(isinstance(gs, GraphSet))
         self.assertEqual(len(gs), 0)
 
+        gs = GraphSet([])
+        self.assertEqual(len(gs), 0)
+
         gs = GraphSet([g1, [(3,1)]])
         self.assertEqual(len(gs), 2)
         self.assertTrue(g1 in gs)
         self.assertTrue(g2 in gs)
+
+        gs = GraphSet({})
+        self.assertEqual(len(gs), 2**4)
 
         gs = GraphSet({'include': [e1, e2], 'exclude': [(4,3)]})
         self.assertEqual(len(gs), 2)
@@ -112,7 +115,7 @@ class TestGraphSet(unittest.TestCase):
         gs = GraphSet({})
         self.assertEqual(
             repr(gs),
-            "GraphSet([[], [(1, 3)], [(3, 4)], [(1, 2)], [(2, 4)], [(1, 3), (3, 4)], [(1, ...")
+            "GraphSet([[], [(1, 2)], [(1, 3)], [(2, 4)], [(3, 4)], [(1, 2), (1, 3)], [(1, ...")
 
     def test_subgraphs(self):
         GraphSet.set_universe([(1, 2), (1, 4), (2, 3), (2, 5), (3, 6), (4, 5),
@@ -397,6 +400,15 @@ class TestGraphSet(unittest.TestCase):
         self.assertEqual(r[2], g4)
 
         r = []
+        for g in gs.maximize({e1: -.3, e2: .2, e3: .2, e4: -.4}):
+            self.assertTrue(isinstance(g, list))
+            r.append(g)
+        self.assertEqual(len(r), 8)
+        self.assertEqual(r[0], g123)
+        self.assertEqual(r[1], g0)
+        self.assertEqual(r[2], g12)
+
+        r = []
         for g in gs.minimize():
             self.assertTrue(isinstance(g, list))
             r.append(g)
@@ -404,6 +416,15 @@ class TestGraphSet(unittest.TestCase):
         self.assertEqual(r[0], g123)
         self.assertEqual(r[1], g0)
         self.assertEqual(r[2], g12)
+
+        r = []
+        for g in gs.minimize({e1: -.3, e2: .2, e3: .2, e4: -.4}):
+            self.assertTrue(isinstance(g, list))
+            r.append(g)
+        self.assertEqual(len(r), 8)
+        self.assertEqual(r[0], g14)
+        self.assertEqual(r[1], g134)
+        self.assertEqual(r[2], g4)
 
     def test_lookup(self):
         gs1 = GraphSet({}) - GraphSet([g1, g34])

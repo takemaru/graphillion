@@ -649,23 +649,27 @@ class GraphSet(object):
         for g in self._ss.randomize():
             yield GraphSet._conv_ret(g)
 
-    def minimize(self):
+    def minimize(self, weights=None):
         """Iterates over graphs in the ascending order of weights.
 
         Returns a generator that iterates over graphs in `self`
         GraphSet.  The graphs are selected in the ascending order of
-        weights, which are specified with the universe (or 1.0 if not
-        specified).
+        edge weights, which are specified by the argument or the
+        universe (1.0 if not specified).
 
         Examples:
-          >>> GraphSet.set_universe([(1, 2, 2.0), (1, 4, -3.0), (2, 3)])
           >>> graph1 = [(1, 2), (1, 4)]
           >>> graph2 = [(2, 3)]
           >>> gs = GraphSet([graph1, graph2])
-          >>> for g in gs.minimize():
+          >>> weights = {(1, 2): 2.0, (1, 4): -3.0}  # (2, 3): 1.0
+          >>> for g in gs.minimize(weights):
           ...   g
           [(1, 2), (1, 4)]
           [(2, 3)]
+
+        Args:
+          weights: Optional.  A dictionary of edges to the weight
+            values.
 
         Returns:
           A generator.
@@ -676,26 +680,32 @@ class GraphSet(object):
         See Also:
           __iter__(), randomize(), maximize()
         """
-        for g in self._ss.minimize(GraphSet._weights):
+        if weights is None:
+            weights = GraphSet._weights
+        for g in self._ss.minimize(weights):
             yield GraphSet._conv_ret(g)
 
-    def maximize(self):
+    def maximize(self, weights=None):
         """Iterates over graphs in the descending order of weights.
 
         Returns a generator that iterates over graphs in `self`
         GraphSet.  The graphs are selected in the descending order of
-        weights, which are specified with the universe (or 1.0 if not
-        specified).
+        edge weights, which are specified by the argument or the
+        universe (1.0 if not specified).
 
         Examples:
           >>> graph1 = [(1, 2), (1, 4)]
           >>> graph2 = [(2, 3)]
-          >>> GraphSet.set_universe([(1, 2, 2.0), (1, 4, -3.0), (2, 3)])
           >>> gs = GraphSet([graph1, graph2])
-          >>> for g in gs.maximize():
+          >>> weights = {(1, 2): 2.0, (1, 4): -3.0}  # (2, 3): 1.0
+          >>> for g in gs.maximize(weights):
           ...   g
           [(2, 3)]
           [(1, 2), (1, 4)]
+
+        Args:
+          weights: Optional.  A dictionary of edges to the weight
+            values.
 
         Returns:
           A generator.
@@ -706,7 +716,9 @@ class GraphSet(object):
         See Also:
           __iter__(), randomize(), minimize()
         """
-        for g in self._ss.maximize(GraphSet._weights):
+        if weights is None:
+            weights = GraphSet._weights
+        for g in self._ss.maximize(weights):
             yield GraphSet._conv_ret(g)
 
     def __contains__(self, graph):
@@ -1393,7 +1405,7 @@ class GraphSet(object):
 
         Args:
           universe: A list of edges that represents the new universe.
-            An edge may come along with a weight, which can be
+            An edge may come along with an edge weight, which can be
             positive as well as negative (or 1.0 if not specified).
 
           traversal: Optional.  This argument specifies the order of
