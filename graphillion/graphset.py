@@ -721,10 +721,10 @@ class GraphSet(object):
         for g in self._ss.maximize(weights):
             yield GraphSet._conv_ret(g)
 
-    def __contains__(self, graph):
-        """Returns True if `graph` is in the `self`, False otherwise.
+    def __contains__(self, obj):
+        """Returns True if `obj` is in the `self`, False otherwise.
 
-        Use the expression `graph in gs`.
+        Use the expression `obj in gs`.
 
         Examples:
           >>> graph1 = [(1, 2), (1, 4)]
@@ -734,19 +734,24 @@ class GraphSet(object):
           True
 
         Args:
-          graph: A graph (a set of edges) in the universe.
+          obj: A graph (an edge list), an edge, or a vertex in the
+            universe.
 
         Returns:
           True or False.
 
         Raises:
-          KeyError: If the given graph is not found in the universe.
+          KeyError: If the given object is not found in the universe.
         """
-        graph = GraphSet._conv_arg(graph)
-        return graph in self._ss
+        type, obj = GraphSet._conv_arg(obj)
+        if type == 'graph' or type == 'edge':
+            return obj in self._ss
+        elif type == 'vertex':
+            return len([e for e in obj if e in self._ss]) > 0
+        raise TypeError, obj
 
     def include(self, obj):
-        """Returns a new set of graphs that include `obj`.
+        """Returns a new GraphSet that include `obj`.
 
         Returns a new set of graphs that include `obj`, which can be a
         GraphSet, a graph, an edge, or a vertex.  If `obj` is a
@@ -766,34 +771,31 @@ class GraphSet(object):
           GraphSet([[(1, 2), (1, 4)]])
 
         Args:
-          obj: A GraphSet, a graph, an edge, or a vertex.
+          obj: A GraphSet, a graph (an edge list), an edge, or a
+            vertex.
 
         Returns:
           A new GraphSet object.
 
         Raises:
           KeyError: If a given edge or a vertex is not found in the
-          universe.
+            universe.
 
         See Also:
           exclude()
         """
-        if isinstance(obj, GraphSet):
+        type, obj = GraphSet._conv_arg(obj)
+        if type == 'graphset':
             return GraphSet(self._ss.supersets(obj._ss))
-        elif isinstance(obj, (list, set, frozenset)):
-            ss = setset([set([GraphSet._conv_edge(e) for e in obj])])
-            return self.include(GraphSet(ss))
-        try:  # if obj is edge
-            return self._ss.include(GraphSet._conv_edge(obj))
-        except KeyError:  # if obj is vertex
-            gs = GraphSet()
-            edges = [e for e in setset.get_universe() if obj in e]
-            for edge in edges:
-                gs._ss |= self._ss.include(edge)
-            return GraphSet(gs._ss & self._ss)
+        elif type == 'graph':
+            return self.include(GraphSet(setset([obj])))
+        elif type == 'edge':
+            return GraphSet(self._ss.include(obj))
+        else:
+            return self.include(GraphSet([set([e]) for e in obj]))
 
     def exclude(self, obj):
-        """Returns a new set of graphs that don't include `obj`.
+        """Returns a new GraphSet that don't include `obj`.
 
         Returns a new set of graphs that don't include `obj`, which
         can be a GraphSet, a graph, an edge, or a vertex.  If `obj` is
@@ -813,28 +815,29 @@ class GraphSet(object):
           GraphSet([[(2, 3)]])
 
         Args:
-          obj: A GraphSet, a graph, an edge, or a vertex.
+          obj: A GraphSet, a graph (an edge list), an edge, or a
+            vertex.
 
         Returns:
           A new GraphSet object.
 
         Raises:
           KeyError: If a given edge or vertex is not found in the
-          universe.
+            universe.
 
         See Also:
           include()
         """
-        if isinstance(obj, GraphSet):
+        type, obj = GraphSet._conv_arg(obj)
+        if type == 'graphset':
 #            return GraphSet(self._ss.non_supersets(obj._ss))  # correct but slow
             return self - self.include(obj)
-        elif isinstance(obj, (list, set, frozenset)):
-            ss = setset([set([GraphSet._conv_edge(e) for e in obj])])
-            return self.exclude(GraphSet(ss))
-        try:  # if obj is edge
-            return self._ss.exclude(GraphSet._conv_edge(obj))
-        except KeyError:  # if obj is vertex
-            return self - self.include(obj)
+        elif type == 'graph':
+            return self.exclude(GraphSet(setset([obj])))
+        elif type == 'edge':
+            return GraphSet(self._ss.exclude(obj))
+        else:
+            return self.exclude(GraphSet([set([e]) for e in obj]))
 
     def add(self, graph_or_edge):
         """Adds a given graph or edge to `self`.
@@ -853,22 +856,26 @@ class GraphSet(object):
           GraphSet([[(1, 2), (1, 4)], [(1, 2), (2, 3)]])
 
         Args:
-          graph_or_edge: A graph (a set of edges) or an edge in the
-          universe.
+          graph_or_edge: A graph (an edge list) or an edge in the
+            universe.
 
         Returns:
           None.
 
         Raises:
-          KeyError: If given edges are not found in the universe.
+          KeyError: If a given edge or vertex is not found in the
+            universe.
 
         See Also:
           remove(), discard()
         """
-        graph_or_edge = GraphSet._conv_arg(graph_or_edge)
-        return self._ss.add(graph_or_edge)
+        type, obj = GraphSet._conv_arg(graph_or_edge)
+        if type == 'graph' or type == 'edge':
+            self._ss.add(obj)
+        else:
+            raise TypeError, graph_or_edge
 
-    def remove(self, graph_or_edge):
+    def remove(self, obj):
         """Removes a given graph or edge from `self`.
 
         If a graph is given, the graph is just removed from `self`
@@ -885,23 +892,30 @@ class GraphSet(object):
           GraphSet([[(1, 4)], [(2, 3)]])
 
         Args:
-          graph_or_edge: A graph (a set of edges) or an edge in the
-          universe.
+          obj: A graph (an edge list), an edge, or a vertex in the
+            universe.
 
         Returns:
           None.
 
         Raises:
-          KeyError: If given edges are not found in the universe, or
-            if the given graph is not stored in `self`.
+          KeyError: If a given edge or vertex is not found in the
+            universe, or if the given graph is not stored in `self`.
 
         See Also:
           add(), discard(), pop()
         """
-        graph_or_edge = GraphSet._conv_arg(graph_or_edge)
-        return self._ss.remove(graph_or_edge)
+        type, obj = GraphSet._conv_arg(obj)
+        if type == 'graph' or type == 'edge':
+            self._ss.remove(obj)
+        elif type == 'vertex':
+            for edge in obj:
+                self.remove(edge)
+        else:
+            raise TypeError, obj
+        return None
 
-    def discard(self, graph_or_edge):
+    def discard(self, obj):
         """Removes a given graph or edge from `self`.
 
         If a graph is given, the graph is just removed from `self`
@@ -918,20 +932,28 @@ class GraphSet(object):
           GraphSet([[(1, 4)], [(2, 3)]])
 
         Args:
-          graph_or_edge: A graph (a set of edges) or an edge in the
-          universe.
+          obj: A graph (an edge list), an edge, or a vertex in the
+            universe.
 
         Returns:
           None.
 
         Raises:
-          KeyError: If given edges are not found in the universe.
+          KeyError: If a given edge or vertex is not found in the
+            universe.
 
         See Also:
           add(), remove(), pop()
         """
-        graph_or_edge = GraphSet._conv_arg(graph_or_edge)
-        return self._ss.discard(graph_or_edge)
+        type, obj = GraphSet._conv_arg(obj)
+        if type == 'graph' or type == 'edge':
+            self._ss.discard(obj)
+        elif type == 'vertex':
+            for edge in obj:
+                self.discard(edge)
+        else:
+            raise TypeError, obj
+        return None
 
     def pop(self):
         """Removes and returns an arbitrary graph from `self`.
@@ -1156,8 +1178,11 @@ class GraphSet(object):
         Raises:
           KeyError: If a given edge is not found in the universe.
         """
-        edge = GraphSet._conv_edge(edge)
-        return GraphSet(self._ss.flip(edge))
+        type, obj = GraphSet._conv_arg(edge)
+        if type == 'edge':
+            return GraphSet(self._ss.flip(edge))
+        else:
+            raise TypeError, edge
 
     def complement(self):
         """Returns a new GraphSet with complement graphs of `self`.
@@ -1439,6 +1464,7 @@ class GraphSet(object):
             point of the edge traversal.
         """
         edges = []
+        GraphSet._vertices = set()
         GraphSet._weights = {}
         for e in universe:
             if e in edges or (e[1], e[0]) in edges:
@@ -1452,6 +1478,9 @@ class GraphSet(object):
                 for e in edges:
                     source = min(e[0], e[1], source)
             edges = GraphSet._traverse(edges, traversal, source)
+        for u, v in edges:
+            GraphSet._vertices.add(u)
+            GraphSet._vertices.add(v)
         setset.set_universe(edges)
 
     @staticmethod
@@ -1550,11 +1579,15 @@ class GraphSet(object):
 
     @staticmethod
     def _conv_arg(obj):
-        if isinstance(obj, (set, frozenset, list)):  # a graph
-            return set([GraphSet._conv_edge(e) for e in obj])
-        elif isinstance(obj, tuple):  # an edge
-            return GraphSet._conv_edge(obj)
-        raise TypeError, obj
+        if isinstance(obj, GraphSet):
+            return 'graphset', obj
+        elif isinstance(obj, (set, frozenset, list)):
+            return 'graph', set([GraphSet._conv_edge(e) for e in obj])
+        elif isinstance(obj, tuple):
+            return 'edge', GraphSet._conv_edge(obj)
+        elif obj in GraphSet._vertices:
+            return 'vertex', [e for e in setset.get_universe() if obj in e]
+        raise KeyError, obj
 
     @staticmethod
     def _conv_edge(edge):
@@ -1574,4 +1607,5 @@ class GraphSet(object):
             return sorted(list(obj))
         raise TypeError, obj
 
+    _vertices = set()
     _weights = {}

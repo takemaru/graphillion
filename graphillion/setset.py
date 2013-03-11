@@ -89,9 +89,9 @@ class setset(_graphillion.setset):
         else:
             return ret[:(maxchar - 4)] + ' ...'
 
-    def __contains__(self, set):
-        set = setset._conv_arg(set)
-        return _graphillion.setset.__contains__(self, set)
+    def __contains__(self, set_or_elem):
+        set_or_elem = setset._conv_arg(set_or_elem)
+        return _graphillion.setset.__contains__(self, set_or_elem)
 
     def include(self, elem):
         elem = setset._conv_elem(elem)

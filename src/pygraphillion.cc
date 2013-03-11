@@ -525,11 +525,18 @@ static PyObject* setset_minimize(PySetsetObject* self, PyObject* weights) {
 }
 
 // If an item in o is equal to value, return 1, otherwise return 0. On error, return -1.
-static int setset_contains(PySetsetObject* self, PyObject* so) {
-  CHECK_OR_ERROR(so, PyAnySet_Check, "set", -1);
-  set<int> s;
-  if (setset_parse_set(so, &s) == -1) return -1;
-  return self->ss->find(s) != setset::end() ? 1 : 0;
+static int setset_contains(PySetsetObject* self, PyObject* obj) {
+  if (PyAnySet_Check(obj)) {
+    set<int> s;
+    if (setset_parse_set(obj, &s) == -1) return -1;
+    return self->ss->find(s) != self->ss->end() ? 1 : 0;
+  } else if (PyInt_Check(obj)) {
+    int e = PyLong_AsLong(obj);
+    return self->ss->include(e) != setset() ? 1 : 0;
+  } else {
+    PyErr_SetString(PyExc_TypeError, "not set nor int");
+    return -1;
+  }
 }
 
 static PyObject* setset_include(PySetsetObject* self, PyObject* eo) {
@@ -603,7 +610,7 @@ static PyObject* setset_discard(PySetsetObject* self, PyObject* obj) {
 
 static PyObject* setset_pop(PySetsetObject* self) {
   setset::iterator i = self->ss->begin();
-  if (i == setset::end()) {
+  if (i == self->ss->end()) {
     PyErr_SetString(PyExc_KeyError, "not found");
     return NULL;
   }

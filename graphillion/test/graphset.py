@@ -427,31 +427,54 @@ class TestGraphSet(unittest.TestCase):
         self.assertEqual(r[2], g4)
 
     def test_lookup(self):
-        gs1 = GraphSet({}) - GraphSet([g1, g34])
+        gs1 = GraphSet([g1, g12])
 
         self.assertTrue(g12 in gs1)
-        self.assertTrue(g1 not in gs1)
+        self.assertTrue(g2 not in gs1)
+        self.assertTrue(e1 in gs1)
+        self.assertTrue(e4 not in gs1)
+        self.assertTrue(1 in gs1)
+        self.assertTrue(4 not in gs1)
+
+        gs1 = GraphSet({}) - GraphSet([g1, g34])
 
         gs2 = gs1.include(GraphSet([g1, g2]))
+        self.assertTrue(isinstance(gs2, GraphSet))
         self.assertEqual(len(gs2), 11)
 
         gs2 = gs1.include(g1)
+        self.assertTrue(isinstance(gs2, GraphSet))
         self.assertEqual(len(gs2), 7)
 
         gs2 = gs1.include((2,1))
+        self.assertTrue(isinstance(gs2, GraphSet))
         self.assertEqual(len(gs2), 7)
 
+        gs2 = gs1.include(1)
+        self.assertTrue(isinstance(gs2, GraphSet))
+        self.assertEqual(len(gs2), 11)
+
+        self.assertRaises(KeyError, gs1.include, (1, 4))
+        self.assertRaises(KeyError, gs1.include, 5)
+
         gs2 = gs1.exclude(GraphSet([g1, g2]))
+        self.assertTrue(isinstance(gs2, GraphSet))
         self.assertEqual(len(gs2), 3)
 
         gs2 = gs1.exclude(g1)
+        self.assertTrue(isinstance(gs2, GraphSet))
         self.assertEqual(len(gs2), 7)
 
         gs2 = gs1.exclude(e2)
+        self.assertTrue(isinstance(gs2, GraphSet))
         self.assertEqual(len(gs2), 6)
 
-        self.assertEqual(len(gs1.include(1)), 11)
-        self.assertEqual(len(gs1.exclude(1)), 3)
+        gs2 = gs1.exclude(1)
+        self.assertTrue(isinstance(gs2, GraphSet))
+        self.assertEqual(len(gs2), 3)
+
+        self.assertRaises(KeyError, gs1.exclude, (1, 4))
+        self.assertRaises(KeyError, gs1.exclude, 5)
 
     def test_modifiers(self):
         v = [g0, g12, g13]
@@ -558,4 +581,3 @@ class TestGraphSet(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
-
