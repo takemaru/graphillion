@@ -745,11 +745,16 @@ class GraphSet(object):
         graph = GraphSet._conv_arg(graph)
         return graph in self._ss
 
-    def include(self, edge_or_vertex):
-        """Returns a new set of graphs that include a given edge or vertex.
+    def include(self, obj):
+        """Returns a new set of graphs that include `obj`.
 
-        The graphs stored in the new GraphSet are selected from the
-        `self`.  The `self` is not changed.
+        Returns a new set of graphs that include `obj`, which can be a
+        GraphSet, a graph, an edge, or a vertex.  If `obj` is a
+        GraphSet, a graph returned includes *one of* graphs in the
+        given GraphSet.
+
+        The graphs stored in the new GraphSet are selected from `self`
+        GraphSet.  The `self` is not changed.
 
         Examples:
           >>> graph1 = [(1, 2), (1, 4)]
@@ -761,29 +766,39 @@ class GraphSet(object):
           GraphSet([[(1, 2), (1, 4)]])
 
         Args:
-          edge_or_vertex: An edge or a vertex in the universe.
+          obj: A GraphSet, a graph, an edge, or a vertex.
 
         Returns:
           A new GraphSet object.
 
         Raises:
-          KeyError: If a given edge or vertex is not found in the
+          KeyError: If a given edge or a vertex is not found in the
           universe.
 
         See Also:
           exclude()
         """
-        try:  # if edge
-            return self._ss.include(GraphSet._conv_edge(edge_or_vertex))
-        except KeyError:  # else
+        if isinstance(obj, GraphSet):
+            return GraphSet(self._ss.supersets(obj._ss))
+        elif isinstance(obj, (list, set, frozenset)):
+            ss = setset([set([GraphSet._conv_edge(e) for e in obj])])
+            return self.include(GraphSet(ss))
+        try:  # if obj is edge
+            return self._ss.include(GraphSet._conv_edge(obj))
+        except KeyError:  # if obj is vertex
             gs = GraphSet()
-            edges = [e for e in setset.get_universe() if edge_or_vertex in e]
+            edges = [e for e in setset.get_universe() if obj in e]
             for edge in edges:
                 gs._ss |= self._ss.include(edge)
             return GraphSet(gs._ss & self._ss)
 
-    def exclude(self, edge_or_vertex):
-        """Returns a new set of graphs that don't include a given edge or vertex.
+    def exclude(self, obj):
+        """Returns a new set of graphs that don't include `obj`.
+
+        Returns a new set of graphs that don't include `obj`, which
+        can be a GraphSet, a graph, an edge, or a vertex.  If `obj` is
+        a GraphSet, a graph returned doesn't include *any of* graphs
+        in the given GraphSet.
 
         The graphs stored in the new GraphSet are selected from `self`
         GraphSet.  The `self` is not changed.
@@ -798,7 +813,7 @@ class GraphSet(object):
           GraphSet([[(2, 3)]])
 
         Args:
-          edge_or_vertex: An edge or a vertex in the universe.
+          obj: A GraphSet, a graph, an edge, or a vertex.
 
         Returns:
           A new GraphSet object.
@@ -810,10 +825,16 @@ class GraphSet(object):
         See Also:
           include()
         """
-        try:  # if edge
-            return self._ss.exclude(GraphSet._conv_edge(edge_or_vertex))
-        except KeyError:  # else
-            return self - self.include(edge_or_vertex)
+        if isinstance(obj, GraphSet):
+#            return GraphSet(self._ss.non_supersets(obj._ss))  # correct but slow
+            return self - self.include(obj)
+        elif isinstance(obj, (list, set, frozenset)):
+            ss = setset([set([GraphSet._conv_edge(e) for e in obj])])
+            return self.exclude(GraphSet(ss))
+        try:  # if obj is edge
+            return self._ss.exclude(GraphSet._conv_edge(obj))
+        except KeyError:  # if obj is vertex
+            return self - self.include(obj)
 
     def add(self, graph_or_edge):
         """Adds a given graph or edge to `self`.
@@ -1237,29 +1258,29 @@ class GraphSet(object):
         """
         return GraphSet(self._ss.subsets(other._ss))
 
-    def supergraphs(self, other):
-        """Returns a new GraphSet with supergraphs of a graph in `other`.
-
-        The `self` is not changed.
-
-        Examples:
-          >>> graph1 = [(1, 2), (2, 3)]
-          >>> graph2 = [(1, 4), (2, 3)]
-          >>> graph3 = [(1, 2)]          # graph1 - (2, 3)
-          >>> graph4 = [(1, 2), (1, 4)]
-          >>> gs1 = GraphSet([graph1, graph2])
-          >>> gs2 = GraphSet([graph3, graph4])
-          >>> gs = gs1.supergraphs(gs2)
-          >>> gs
-          GraphSet([[(1, 2), (2, 3)]])
-
-        Returns:
-          A new GraphSet object.
-
-        See Also:
-          subsets(), non_supersets()
-        """
-        return GraphSet(self._ss.supersets(other._ss))
+#    def supergraphs(self, other):
+#        """Returns a new GraphSet with supergraphs of a graph in `other`.
+#
+#        The `self` is not changed.
+#
+#        Examples:
+#          >>> graph1 = [(1, 2), (2, 3)]
+#          >>> graph2 = [(1, 4), (2, 3)]
+#          >>> graph3 = [(1, 2)]          # graph1 - (2, 3)
+#          >>> graph4 = [(1, 2), (1, 4)]
+#          >>> gs1 = GraphSet([graph1, graph2])
+#          >>> gs2 = GraphSet([graph3, graph4])
+#          >>> gs = gs1.supergraphs(gs2)
+#          >>> gs
+#          GraphSet([[(1, 2), (2, 3)]])
+#
+#        Returns:
+#          A new GraphSet object.
+#
+#        See Also:
+#          subsets(), non_supersets()
+#        """
+#        return GraphSet(self._ss.supersets(other._ss))
 
 #    def non_subgraphs(self, other):
 #        """Returns a new GraphSet with graphs that aren't subgraphs of any graph in `other`.

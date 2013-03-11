@@ -342,9 +342,9 @@ class TestGraphSet(unittest.TestCase):
         self.assertTrue(isinstance(gs, GraphSet))
         self.assertEqual(gs, GraphSet([g0, g1, g12, g14, g4]))
 
-        gs = GraphSet(u).supergraphs(GraphSet(v))
-        self.assertTrue(isinstance(gs, GraphSet))
-        self.assertEqual(gs, GraphSet([g12, g123, g1234, g134, g14]))
+#        gs = GraphSet(u).supergraphs(GraphSet(v))
+#        self.assertTrue(isinstance(gs, GraphSet))
+#        self.assertEqual(gs, GraphSet([g12, g123, g1234, g134, g14]))
 
 #        gs = GraphSet(u).non_subgraphs(GraphSet(v))
 #        self.assertTrue(isinstance(gs, GraphSet))
@@ -432,7 +432,19 @@ class TestGraphSet(unittest.TestCase):
         self.assertTrue(g12 in gs1)
         self.assertTrue(g1 not in gs1)
 
+        gs2 = gs1.include(GraphSet([g1, g2]))
+        self.assertEqual(len(gs2), 11)
+
+        gs2 = gs1.include(g1)
+        self.assertEqual(len(gs2), 7)
+
         gs2 = gs1.include((2,1))
+        self.assertEqual(len(gs2), 7)
+
+        gs2 = gs1.exclude(GraphSet([g1, g2]))
+        self.assertEqual(len(gs2), 3)
+
+        gs2 = gs1.exclude(g1)
         self.assertEqual(len(gs2), 7)
 
         gs2 = gs1.exclude(e2)
