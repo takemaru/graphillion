@@ -117,18 +117,18 @@ class TestGraphSet(unittest.TestCase):
             repr(gs),
             "GraphSet([[], [(1, 2)], [(1, 3)], [(2, 4)], [(3, 4)], [(1, 2), (1, 3)], [(1, ...")
 
-    def test_subgraphs(self):
+    def test_graphs(self):
         GraphSet.set_universe([(1, 2), (1, 4), (2, 3), (2, 5), (3, 6), (4, 5),
                                (5, 6)])
 
         # any subgraph
-        gs = GraphSet.subgraph()
+        gs = GraphSet.graphs()
         self.assertTrue(isinstance(gs, GraphSet))
         self.assertEqual(len(gs), 2**7)
         self.assertTrue([(1, 2)] in gs)
 
         # subgraphs separating [1, 5] and [2]
-        gs = GraphSet.subgraph(vertex_groups=[[1, 5], [2]])
+        gs = GraphSet.graphs(vertex_groups=[[1, 5], [2]])
         self.assertEqual(len(gs), 7)
         self.assertTrue([(1, 4), (4, 5)] in gs)
         self.assertTrue([(1, 2), (1, 4), (4, 5)] not in gs)
@@ -137,7 +137,7 @@ class TestGraphSet(unittest.TestCase):
         dc = {}
         for v in range(1, 7):
             dc[v] = range(0, 2)
-        gs = GraphSet.subgraph(degree_constraints=dc)
+        gs = GraphSet.graphs(degree_constraints=dc)
         self.assertEqual(len(gs), 22)
         self.assertTrue([(1, 2), (3, 6)] in gs)
         self.assertTrue([(1, 2), (2, 3), (3, 6)] not in gs)
@@ -145,19 +145,19 @@ class TestGraphSet(unittest.TestCase):
             self.assertTrue(len(g) < 4)
 
         # subgraphs with 1 or 2 edges
-        gs = GraphSet.subgraph(num_edges=range(1, 3))
+        gs = GraphSet.graphs(num_edges=range(1, 3))
         self.assertEqual(len(gs), 28)
         for g in gs:
             self.assertTrue(1 <= len(g) and len(g) < 3)
 
         # single connected component and vertex islands
-        gs = GraphSet.subgraph(num_comps=1)
+        gs = GraphSet.graphs(num_comps=1)
         self.assertEqual(len(gs), 80)
         self.assertTrue([(1, 2), (2, 3)] in gs)
         self.assertTrue([(1, 2), (2, 3), (4, 5)] not in gs)
 
         # any forest
-        gs = GraphSet.subgraph(no_loop=True)
+        gs = GraphSet.graphs(no_loop=True)
         self.assertEqual(len(gs), 112)
         self.assertTrue([(1, 2), (1, 4), (2, 5)] in gs)
         self.assertTrue([(1, 2), (1, 4), (2, 5), (4, 5)] not in gs)

@@ -46,7 +46,7 @@ class Range : public IntSubset {
   int step_;
 };
 
-setset FrontierSearch(
+setset SearchGraphs(
     const std::vector<edge_t>& graph,
     const std::vector<std::vector<vertex_t> >* vertex_groups = NULL,
     const std::map<vertex_t, Range>* degree_constraints = NULL,

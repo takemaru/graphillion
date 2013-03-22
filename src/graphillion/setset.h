@@ -194,7 +194,7 @@ class setset {
   zdd_t zdd_;
 
   friend class TestSetset;
-  friend setset FrontierSearch(
+  friend setset SearchGraphs(
       const std::vector<edge_t>& graph,
       const std::vector<std::vector<vertex_t> >* vertex_groups,
       const std::map<vertex_t, Range>* degree_constraints,

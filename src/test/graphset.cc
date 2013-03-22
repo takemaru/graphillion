@@ -183,7 +183,7 @@ class TestGraphSet {
 
   void any_subgraphs() {
     setup();
-    setset ss = FrontierSearch(graph);
+    setset ss = SearchGraphs(graph);
     assert(ss.size() == "128");
     assert(ss.find(S(1, e12)) != ss.end());
   }
@@ -191,7 +191,7 @@ class TestGraphSet {
   void two_clusters() {  // subgraphs separating [1, 5] and [2]
     setup();
     vector<vector<vertex_t> > vertex_groups = V("{{1, 5}, {2}}");
-    setset ss = FrontierSearch(graph, &vertex_groups);
+    setset ss = SearchGraphs(graph, &vertex_groups);
     assert(ss.size() == "7");
     assert(ss.find(S(2, e14, e45)) != ss.end());
     assert(ss.find(S(3, e12, e14, e45)) == ss.end());
@@ -203,7 +203,7 @@ class TestGraphSet {
     for (vector<vertex_t>::const_iterator v = vertices.begin();
          v != vertices.end(); ++v) 
       degree_constraints[*v] = Range(0, 2);
-    setset ss = FrontierSearch(graph, NULL, &degree_constraints);
+    setset ss = SearchGraphs(graph, NULL, &degree_constraints);
     assert(ss.size() == "22");
     assert(ss.find(S(2, e12, e36)) != ss.end());
     assert(ss.find(S(3, e12, e23, e36)) == ss.end());
@@ -214,7 +214,7 @@ class TestGraphSet {
   void small_subgraphs() {  // subgraphs with 1 or 2 edges
     setup();
     Range num_edges(1, 3);
-    setset ss = FrontierSearch(graph, NULL, NULL, &num_edges);
+    setset ss = SearchGraphs(graph, NULL, NULL, &num_edges);
     assert(ss.size() == "28");
     for (setset::const_iterator g = ss.begin(); g != ss.end(); ++g)
       assert(1 <= (*g).size() && (*g).size() < 3);
@@ -222,7 +222,7 @@ class TestGraphSet {
 
   void single_components() {  // with vertex islands
     setup();
-    setset ss = FrontierSearch(graph, NULL, NULL, NULL, 1);
+    setset ss = SearchGraphs(graph, NULL, NULL, NULL, 1);
     assert(ss.size() == "80");
     assert(ss.find(S(2, e12, e23)) != ss.end());
     assert(ss.find(S(3, e12, e23, e45)) == ss.end());
@@ -230,7 +230,7 @@ class TestGraphSet {
 
   void any_forests() {
     setup();
-    setset ss = FrontierSearch(graph, NULL, NULL, NULL, -1, true);
+    setset ss = SearchGraphs(graph, NULL, NULL, NULL, -1, true);
     assert(ss.size() == "112");
     assert(ss.find(S(3, e12, e14, e25)) != ss.end());
     assert(ss.find(S(4, e12, e14, e25, e45)) == ss.end());
@@ -240,8 +240,8 @@ class TestGraphSet {
 
   void constrained_by_setset() {  // subsetting method
     setup();
-    setset ss = FrontierSearch(graph, NULL, NULL, NULL, -1, true);  // any forest
-    ss = FrontierSearch(graph, NULL, NULL, NULL, 1, false, &ss);
+    setset ss = SearchGraphs(graph, NULL, NULL, NULL, -1, true);  // any forest
+    ss = SearchGraphs(graph, NULL, NULL, NULL, 1, false, &ss);
     assert(ss.size() == "66");
     assert(ss.find(S(3, e12, e14, e25)) != ss.end());
     assert(ss.find(S(4, e12, e14, e25, e45)) == ss.end());
@@ -250,7 +250,7 @@ class TestGraphSet {
   void two_clusters_only() {
     setup();
     vector<vector<vertex_t> > vertex_groups = V("{{1, 5}, {2}}");
-    setset ss = FrontierSearch(graph, &vertex_groups, NULL, NULL, 0);
+    setset ss = SearchGraphs(graph, &vertex_groups, NULL, NULL, 0);
     assert(ss.size() == "6");
     assert(ss.find(S(2, e14, e45)) != ss.end());
     assert(ss.find(S(3, e14, e36, e45)) == ss.end());
@@ -262,7 +262,7 @@ class TestGraphSet {
     for (vector<vertex_t>::const_iterator v = vertices.begin();
          v != vertices.end(); ++v) 
       degree_constraints[*v] = Range(1, vertices.size());
-    setset ss = FrontierSearch(graph, NULL, &degree_constraints, NULL, 1);
+    setset ss = SearchGraphs(graph, NULL, &degree_constraints, NULL, 1);
     assert(ss.size() == "23");
     assert(ss.find(S(5, e12, e14, e23, e25, e36)) != ss.end());
     assert(ss.find(S(5, e12, e14, e23, e25, e45)) == ss.end());
@@ -278,7 +278,7 @@ class TestGraphSet {
          v != vertices.end(); ++v) 
       degree_constraints[*v] = Range(0, k, k - 1);
     Range num_edges(k * (k - 1) / 2, k * (k - 1) / 2 + 1);
-    setset ss = FrontierSearch(graph, NULL, &degree_constraints, &num_edges, 1);
+    setset ss = SearchGraphs(graph, NULL, &degree_constraints, &num_edges, 1);
     assert(ss.size() == "5");
     assert(ss.find(S(6, e12, e13, e14, e23, e24, e34)) != ss.end());
     assert(ss.find(S(6, e12, e13, e14, e23, e24, e35)) == ss.end());
@@ -290,7 +290,7 @@ class TestGraphSet {
     for (vector<vertex_t>::const_iterator v = vertices.begin();
          v != vertices.end(); ++v) 
       degree_constraints[*v] = Range(1, vertices.size());
-    setset ss = FrontierSearch(graph, NULL, &degree_constraints, NULL, 1, true);
+    setset ss = SearchGraphs(graph, NULL, &degree_constraints, NULL, 1, true);
     assert(ss.size() == "15");
     assert(ss.find(S(5, e12, e14, e23, e25, e36)) != ss.end());
     assert(ss.find(S(5, e12, e14, e23, e25, e45)) == ss.end());
@@ -306,8 +306,8 @@ class TestGraphSet {
          v != vertices.end(); ++v) 
       if (*v != "1" && *v != "3")
         degree_constraints[*v] = Range(1, vertices.size());
-    setset ss = FrontierSearch(graph, &vertex_groups, &degree_constraints, NULL,
-                               0, true);
+    setset ss = SearchGraphs(graph, &vertex_groups, &degree_constraints, NULL,
+                             0, true);
     assert(ss.size() == "20");
     assert(ss.find(S(4, e12, e14, e25, e36)) != ss.end());
     assert(ss.find(S(4, e12, e14, e23, e25)) == ss.end());
@@ -321,7 +321,7 @@ class TestGraphSet {
     for (vector<vertex_t>::const_iterator v = vertices.begin();
          v != vertices.end(); ++v) 
       degree_constraints[*v] = Range(0, 3, 2);
-    setset ss = FrontierSearch(graph, NULL, &degree_constraints);
+    setset ss = SearchGraphs(graph, NULL, &degree_constraints);
     assert(ss.size() == "4");
     assert(ss.find(S(0)) != ss.end());
     assert(ss.find(S(3, e12, e14, e23)) == ss.end());
@@ -333,7 +333,7 @@ class TestGraphSet {
     for (vector<vertex_t>::const_iterator v = vertices.begin();
          v != vertices.end(); ++v) 
       degree_constraints[*v] = Range(0, 3, 2);
-    setset ss = FrontierSearch(graph, NULL, &degree_constraints, NULL, 1);
+    setset ss = SearchGraphs(graph, NULL, &degree_constraints, NULL, 1);
     assert(ss.size() == "3");
     assert(ss.find(S(4, e12, e14, e25, e45)) != ss.end());
     assert(ss.find(S(0)) == ss.end());
@@ -345,7 +345,7 @@ class TestGraphSet {
     for (vector<vertex_t>::const_iterator v = vertices.begin();
          v != vertices.end(); ++v) 
       degree_constraints[*v] = Range(2, 3);
-    setset ss = FrontierSearch(graph, NULL, &degree_constraints, NULL, 1);
+    setset ss = SearchGraphs(graph, NULL, &degree_constraints, NULL, 1);
     assert(ss.size() == "1");
     assert(ss.find(S(6, e12, e14, e23, e36, e45, e56)) != ss.end());
   }
@@ -356,7 +356,7 @@ class TestGraphSet {
     for (vector<vertex_t>::const_iterator v = vertices.begin();
          v != vertices.end(); ++v) 
       degree_constraints[*v] = Range(0, 3);
-    setset ss = FrontierSearch(graph, NULL, &degree_constraints, NULL, -1, true);
+    setset ss = SearchGraphs(graph, NULL, &degree_constraints, NULL, -1, true);
     assert(ss.size() == "95");
     assert(ss.find(S(4, e12, e14, e36, e45)) != ss.end());
     assert(ss.find(S(3, e12, e23, e25)) == ss.end());
@@ -370,8 +370,8 @@ class TestGraphSet {
          v != vertices.end(); ++v) 
       degree_constraints[*v]
           = *v == "1" || *v == "6" ? Range(1, 2) : Range(0, 3, 2);
-    setset ss = FrontierSearch(graph, &vertex_groups, &degree_constraints, NULL,
-                               0, true);
+    setset ss = SearchGraphs(graph, &vertex_groups, &degree_constraints, NULL,
+                             0, true);
     assert(ss.size() == "4");
     assert(ss.find(S(3, e12, e23, e36)) != ss.end());
     assert(ss.find(S(3, e12, e23, e56)) == ss.end());
@@ -385,8 +385,8 @@ class TestGraphSet {
          v != vertices.end(); ++v) 
       degree_constraints[*v]
           = *v == "1" || *v == "6" ? Range(1, 2) : Range(0, 3);
-    setset ss = FrontierSearch(graph, &vertex_groups, &degree_constraints, NULL,
-                               0, true);
+    setset ss = SearchGraphs(graph, &vertex_groups, &degree_constraints, NULL,
+                             0, true);
     assert(ss.size() == "16");
     assert(ss.find(S(3, e12, e23, e56)) != ss.end());
     assert(ss.find(S(3, e12, e23, e36)) == ss.end());
@@ -400,8 +400,8 @@ class TestGraphSet {
          v != vertices.end(); ++v) 
       degree_constraints[*v]
           = *v == "1" || *v == "6" ? Range(1, 2) : Range(2, 3);
-    setset ss = FrontierSearch(graph, &vertex_groups, &degree_constraints, NULL,
-                               0, true);
+    setset ss = SearchGraphs(graph, &vertex_groups, &degree_constraints, NULL,
+                             0, true);
     assert(ss.size() == "1");
     assert(ss.find(S(5, e14, e23, e25, e36, e45)) != ss.end());
   }

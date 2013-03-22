@@ -990,7 +990,7 @@ static PyObject* setset_num_elems(PyObject*, PyObject* args) {
   }
 }
 
-static PyObject* graphset_subgraph(PyObject*, PyObject* args, PyObject* kwds) {
+static PyObject* graphset_graphs(PyObject*, PyObject* args, PyObject* kwds) {
   static char s1[] = "graph";
   static char s2[] = "vertex_groups";
   static char s3[] = "degree_constraints";
@@ -1104,8 +1104,8 @@ static PyObject* graphset_subgraph(PyObject*, PyObject* args, PyObject* kwds) {
     num_edges = new Range(r[0], r[1], r[2]);
   }
 
-  setset ss = FrontierSearch(graph, vertex_groups, degree_constraints, num_edges,
-                             num_comps, no_loop);
+  setset ss = SearchGraphs(graph, vertex_groups, degree_constraints, num_edges,
+                           num_comps, no_loop);
 
   PySetsetObject* ret = reinterpret_cast<PySetsetObject*>
       (PySetset_Type.tp_alloc(&PySetset_Type, 0));
@@ -1116,7 +1116,7 @@ static PyObject* graphset_subgraph(PyObject*, PyObject* args, PyObject* kwds) {
 static PyMethodDef module_methods[] = {
   {"_elem_limit", reinterpret_cast<PyCFunction>(setset_elem_limit), METH_NOARGS, ""},
   {"_num_elems", setset_num_elems, METH_VARARGS, ""},
-  {"_subgraph", reinterpret_cast<PyCFunction>(graphset_subgraph), METH_VARARGS | METH_KEYWORDS, ""},
+  {"_graphs", reinterpret_cast<PyCFunction>(graphset_graphs), METH_VARARGS | METH_KEYWORDS, ""},
   {NULL}  /* Sentinel */
 };
 

@@ -1526,8 +1526,8 @@ class GraphSet(object):
         return edges
 
     @staticmethod
-    def subgraph(vertex_groups=None, degree_constraints=None, num_edges=None,
-                 num_comps=-1, no_loop=False):
+    def graphs(vertex_groups=None, degree_constraints=None, num_edges=None,
+               num_comps=-1, no_loop=False):
         graph = []
         for e in GraphSet.universe():
             graph.append((pickle.dumps(e[0]), pickle.dumps(e[1])))
@@ -1555,9 +1555,9 @@ class GraphSet(object):
                 ne = (num_edges[0], num_edges[-1] + 1,
                       num_edges[1] - num_edges[0])
 
-        ss = _graphillion._subgraph(graph=graph, vertex_groups=vg,
-                                    degree_constraints=dc, num_edges=ne,
-                                    num_comps=num_comps, no_loop=no_loop)
+        ss = _graphillion._graphs(graph=graph, vertex_groups=vg,
+                                  degree_constraints=dc, num_edges=ne,
+                                  num_comps=num_comps, no_loop=no_loop)
         return GraphSet(ss)
 
     @staticmethod

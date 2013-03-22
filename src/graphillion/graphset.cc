@@ -68,7 +68,7 @@ int Range::upperBound() const {
   return this->max_;
 }
 
-setset FrontierSearch(
+setset SearchGraphs(
     const vector<edge_t>& graph,
     const vector<vector<vertex_t> >* vertex_groups,
     const map<vertex_t, Range>* degree_constraints,
