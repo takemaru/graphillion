@@ -166,7 +166,7 @@ class TestGraphSet(unittest.TestCase):
 
         # constrained by GraphSet
         gs = GraphSet.graphs(no_loop=True)
-        gs = GraphSet.graphs(num_comps=1, graphset=gs)
+        gs = gs.graphs(num_comps=1)
         self.assertEqual(len(gs), 66)
         self.assertTrue([(1, 2), (1, 4), (2, 5)] in gs)
         self.assertTrue([(1, 2), (1, 4), (2, 5), (4, 5)] not in gs)

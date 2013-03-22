@@ -17,6 +17,7 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+from functools import partial
 import _graphillion
 from graphillion import setset
 import pickle
@@ -127,6 +128,7 @@ class GraphSet(object):
                     d[k] = [GraphSet._conv_edge(e) for e in l]
                 obj = d
             self._ss = setset(obj)
+        self.graphs = partial(GraphSet.graphs, graphset=self)
 
     def copy(self):
         """Returns a new GraphSet with a shallow copy of `self`.
