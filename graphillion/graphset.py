@@ -1156,28 +1156,28 @@ class GraphSet(object):
 #        """
 #        return GraphSet(self._ss.meet(other._ss))
 
-    def subgraphs(self, other):
-        """Returns a new GraphSet with subgraphs of a graph in `other`.
-
-        The `self` is not changed.
-
-        Examples:
-          >>> graph1 = [(1, 2)]
-          >>> graph2 = [(1, 2), (1, 4)]
-          >>> graph3 = graph1 + [(2, 3)]
-          >>> graph4 = [(1, 4), (2, 3)]
-          >>> gs1 = GraphSet([graph1, graph2])
-          >>> gs2 = GraphSet([graph3, graph4])
-          >>> gs1.subgraphs(gs2)
-          GraphSet([[(1, 2)]])
-
-        Returns:
-          A new GraphSet object.
-
-        See Also:
-          supersets(), non_subsets()
-        """
-        return GraphSet(self._ss.subsets(other._ss))
+#    def subgraphs(self, other):
+#        """Returns a new GraphSet with subgraphs of a graph in `other`.
+#
+#        The `self` is not changed.
+#
+#        Examples:
+#          >>> graph1 = [(1, 2)]
+#          >>> graph2 = [(1, 2), (1, 4)]
+#          >>> graph3 = graph1 + [(2, 3)]
+#          >>> graph4 = [(1, 4), (2, 3)]
+#          >>> gs1 = GraphSet([graph1, graph2])
+#          >>> gs2 = GraphSet([graph3, graph4])
+#          >>> gs1.subgraphs(gs2)
+#          GraphSet([[(1, 2)]])
+#
+#        Returns:
+#          A new GraphSet object.
+#
+#        See Also:
+#          supersets(), non_subsets()
+#        """
+#        return GraphSet(self._ss.subsets(other._ss))
 
 #    def supergraphs(self, other):
 #        """Returns a new GraphSet with supergraphs of a graph in `other`.
@@ -1344,6 +1344,29 @@ class GraphSet(object):
             return GraphSet(self._ss.non_supersets(obj))
         else:
             return self.excluding(GraphSet([set([e]) for e in obj]))
+
+    def included(self, other):
+        """Returns a new GraphSet with subgraphs of a graph in `other`.
+
+        The `self` is not changed.
+
+        Examples:
+          >>> graph1 = [(1, 2)]
+          >>> graph2 = [(1, 2), (1, 4)]
+          >>> graph3 = graph1 + [(2, 3)]
+          >>> graph4 = [(1, 4), (2, 3)]
+          >>> gs1 = GraphSet([graph1, graph2])
+          >>> gs2 = GraphSet([graph3, graph4])
+          >>> gs1.included(gs2)
+          GraphSet([[(1, 2)]])
+
+        Returns:
+          A new GraphSet object.
+
+        See Also:
+          including()
+        """
+        return GraphSet(self._ss.subsets(other._ss))
 
     def dump(self, fp):
         """Serialize `self` to a file `fp`.
