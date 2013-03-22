@@ -624,6 +624,20 @@ static PyObject* setset_clear(PySetsetObject* self) {
   Py_RETURN_NONE;
 }
 
+static PyObject* setset_flip(PySetsetObject* self, PyObject* args) {
+  PyObject* obj = NULL;
+  if (!PyArg_ParseTuple(args, "|O", &obj)) return NULL;
+  if (obj == NULL || obj == Py_None) {
+    self->ss->flip();
+  } else if (PyInt_Check(obj)) {
+    int e = PyLong_AsLong(obj);
+    self->ss->flip(e);
+  } else {
+    PyErr_SetString(PyExc_TypeError, "not int");
+  }
+  Py_RETURN_NONE;
+}
+
 static PyObject* setset_minimal(PySetsetObject* self) {
   RETURN_NEW_SETSET(self, self->ss->minimal());
 }
@@ -664,19 +678,6 @@ static PyObject* setset_same_len(PySetsetObject* self, PyObject* io) {
     return NULL;
   }
   RETURN_NEW_SETSET(self, self->ss->same_size(set_size));
-}
-
-static PyObject* setset_flip(PySetsetObject* self, PyObject* args) {
-  PyObject* obj = NULL;
-  if (!PyArg_ParseTuple(args, "|O", &obj)) return NULL;
-  if (obj == NULL || obj == Py_None) {
-    RETURN_NEW_SETSET(self, self->ss->flip());
-  } else if (PyInt_Check(obj)) {
-    int e = PyLong_AsLong(obj);
-    RETURN_NEW_SETSET(self, self->ss->flip(e));
-  }
-  PyErr_SetString(PyExc_TypeError, "not int");
-  return NULL;
 }
 
 static PyObject* setset_join(PySetsetObject* self, PyObject* other) {

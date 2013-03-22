@@ -146,6 +146,8 @@ class setset {
   void erase(elem_t e);
   void clear();
   void swap(setset& ss);
+  void flip(elem_t e);
+  void flip();
 
   setset minimal() const;
   setset maximal() const;
@@ -154,8 +156,6 @@ class setset {
   setset larger(size_t set_size) const;
   setset same_size(size_t set_size) const;
 
-  setset flip(elem_t e) const;
-  setset flip() const;
   setset join(const setset& ss) const;
   setset meet(const setset& ss) const;
   setset subsets(const setset& ss) const;

@@ -269,12 +269,6 @@ class TestSetset(unittest.TestCase):
         self.assertTrue(isinstance(ss, setset))
         self.assertEqual(ss, setset([s0, s1, s134, s14, s4]))
 
-        ss = setset(u).flip('1')
-        self.assertEqual(ss, setset([s0, s1, s14, s2, s23, s234, s34, s4]))
-
-        ss = setset(u).flip()
-        self.assertEqual(ss, setset([s0, s123, s1234, s2, s23, s234, s34, s4]))
-
         v = [s12, s14, s23, s34]
         ss = setset(u).join(setset(v))
         self.assertTrue(isinstance(ss, setset))
@@ -418,6 +412,15 @@ class TestSetset(unittest.TestCase):
         self.assertFalse(ss)
 
         self.assertRaises(KeyError, ss.pop)
+
+        u = [s0, s1, s12, s123, s1234, s134, s14, s4]
+        ss = setset(u)
+        ss.flip('1')
+        self.assertEqual(ss, setset([s0, s1, s14, s2, s23, s234, s34, s4]))
+
+        ss = setset(u)
+        ss.flip()
+        self.assertEqual(ss, setset([s0, s123, s1234, s2, s23, s234, s34, s4]))
 
     def test_io(self):
         ss = setset()

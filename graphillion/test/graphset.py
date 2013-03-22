@@ -321,9 +321,6 @@ class TestGraphSet(unittest.TestCase):
 #        self.assertTrue(isinstance(gs, GraphSet))
 #        self.assertEqual(gs, GraphSet([g0, g1, g134, g14, g4]))
 
-        gs = GraphSet(u).flip(e1)
-        self.assertEqual(gs, GraphSet([g0, g1, g14, g2, g23, g234, g34, g4]))
-
         gs = GraphSet(u).complement()
         self.assertEqual(gs, GraphSet([g0, g123, g1234, g2, g23, g234, g34, g4]))
 
@@ -525,6 +522,11 @@ class TestGraphSet(unittest.TestCase):
         self.assertRaises(KeyError, gs.add, (1,4))
         self.assertRaises(KeyError, gs.remove, (1,4))
         self.assertRaises(KeyError, gs.discard, (1,4))
+
+        u = [g0, g1, g12, g123, g1234, g134, g14, g4]
+        gs = GraphSet(u)
+        gs.flip(e1)
+        self.assertEqual(gs, GraphSet([g0, g1, g14, g2, g23, g234, g34, g4]))
 
     def test_io(self):
         gs = GraphSet()

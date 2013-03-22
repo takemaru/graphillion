@@ -79,11 +79,9 @@ class GraphSet(object):
         Examples:
           >>> graph1 = [(1, 4)]
           >>> graph2 = [(1, 2), (2, 3)]
-          >>> gs = GraphSet([graph1, graph2])
-          >>> gs
+          >>> GraphSet([graph1, graph2])
           GraphSet([[(1, 4)], [(1, 2), (2, 3)]])
-          >>> gs = GraphSet({'include': graph1, 'exclude': graph2})
-          >>> gs
+          >>> GraphSet({'include': graph1, 'exclude': graph2})
           GraphSet([[(1, 4)], [(1, 4), (2, 5)], [(1, 4), (3, 6)], ...
 
         Args:
@@ -164,8 +162,7 @@ class GraphSet(object):
           >>> graph3 = [(1, 2), (1, 4)]
           >>> gs1 = GraphSet([graph1, graph2])
           >>> gs2 = GraphSet([graph2, graph3])
-          >>> gs = gs1 | gs2
-          >>> gs
+          >>> gs1 | gs2
           GraphSet([[], [(1, 2)], [(1, 2), (1, 4)]])
 
         Returns:
@@ -188,8 +185,7 @@ class GraphSet(object):
           >>> graph3 = [(1, 2), (1, 4)]
           >>> gs1 = GraphSet([graph1, graph2])
           >>> gs2 = GraphSet([graph2, graph3])
-          >>> gs = gs1 & gs2
-          >>> gs
+          >>> gs1 & gs2
           GraphSet([[(1, 2)]])
 
         Returns:
@@ -212,8 +208,7 @@ class GraphSet(object):
           >>> graph3 = [(1, 2), (1, 4)]
           >>> gs1 = GraphSet([graph1, graph2])
           >>> gs2 = GraphSet([graph2, graph3])
-          >>> gs = gs1 - gs2
-          >>> gs
+          >>> gs1 - gs2
           GraphSet([])
 
         Returns:
@@ -236,8 +231,7 @@ class GraphSet(object):
           >>> graph3 = [(1, 2), (1, 4)]
           >>> gs1 = GraphSet([graph1, graph2])
           >>> gs2 = GraphSet([graph2, graph3])
-          >>> gs = gs1 ^ gs2
-          >>> gs
+          >>> gs1 ^ gs2
           GraphSet([[], [(1, 2), (1, 4)]])
 
         Returns:
@@ -264,8 +258,7 @@ class GraphSet(object):
 #          >>> graph2 = [(2, 3), (2, 5)]
 #          >>> graph3 = [(1, 4)]
 #          >>> gs = GraphSet([graph1, graph2])
-#          >>> gs = gs / GraphSet([graph3])
-#          >>> gs
+#          >>> gs / GraphSet([graph3])
 #          GraphSet([[(1, 2)]])
 #
 #        Returns:
@@ -291,8 +284,7 @@ class GraphSet(object):
 #          >>> graph2 = [(2, 3), (2, 5)]
 #          >>> graph3 = [(1, 4)]
 #          >>> gs = GraphSet([graph1, graph2])
-#          >>> gs = gs % GraphSet([graph3])
-#          >>> gs
+#          >>> gs % GraphSet([graph3])
 #          GraphSet([[(2, 3), (2, 5)]])
 #
 #        Returns:
@@ -440,8 +432,7 @@ class GraphSet(object):
           >>> GraphSet.set_universe([(1, 2), (1, 4)])
           >>> graph = [(1, 2)]
           >>> gs = GraphSet([graph])
-          >>> gs = ~gs
-          >>> gs
+          >>> ~gs
           GraphSet([[], [(1, 4)], [(1, 2), (1, 4)]])
 
         Returns:
@@ -766,8 +757,7 @@ class GraphSet(object):
           >>> graph2 = [(2, 3)]
           >>> gs = GraphSet([graph1, graph2])
           >>> vertex = 4
-          >>> gs = gs.include(vertex)
-          >>> gs
+          >>> gs.include(vertex)
           GraphSet([[(1, 2), (1, 4)]])
 
         Args:
@@ -810,8 +800,7 @@ class GraphSet(object):
           >>> graph2 = [(2, 3)]
           >>> gs = GraphSet([graph1, graph2])
           >>> vertex = 4
-          >>> gs = gs.exclude(vertex)
-          >>> gs
+          >>> gs.exclude(vertex)
           GraphSet([[(2, 3)]])
 
         Args:
@@ -966,6 +955,8 @@ class GraphSet(object):
           >>> gs = GraphSet([graph1, graph2])
           >>> gs.pop()
           [(1, 2), (1, 4)]
+          >>> gs
+          GraphSet([[(2, 3)]])
 
         Returns:
           A graph.
@@ -991,6 +982,39 @@ class GraphSet(object):
         """
         return self._ss.clear()
 
+    def flip(self, edge):
+        """Flips the state of a given edge.
+
+        If a graph in `self` includes the given edge, the edge is
+        removed from the graph.  If a graph in `self` does not include
+        the given edge, the edge is added to the graph.
+
+        The `self` will be changed.
+
+        Examples:
+          >>> graph1 = [(1, 2), (1, 4)]
+          >>> graph2 = [(2, 3)]
+          >>> gs = GraphSet([graph1, graph2])
+          >>> edge = (1, 2)
+          >>> gs.flip(edge)
+          >>> gs
+          GraphSet([[(1, 4)], [(1, 2), (2, 3)]])
+
+        Args:
+          edge: An edge in the universe.
+
+        Returns:
+          A new GraphSet object.
+
+        Raises:
+          KeyError: If a given edge is not found in the universe.
+        """
+        type, obj = GraphSet._conv_arg(edge)
+        if type == 'edge':
+            self._ss.flip(edge)
+        else:
+            raise TypeError, edge
+
     def minimal(self):
         """Returns a new GraphSet of minimal edge sets.
 
@@ -1006,8 +1030,7 @@ class GraphSet(object):
           >>> graph2 = [(1, 2), (1, 4)]
           >>> graph3 = [(1, 4), (2, 3)]
           >>> gs = GraphSet([graph1, graph2, graph3])
-          >>> gs = gs.minimal()
-          >>> gs
+          >>> gs.minimal()
           GraphSet([[(1, 2)], [(1, 4), (2, 3)]])
 
         Returns:
@@ -1033,8 +1056,7 @@ class GraphSet(object):
           >>> graph2 = [(1, 2), (1, 4)]
           >>> graph3 = [(1, 4), (2, 3)]
           >>> gs = GraphSet([graph1, graph2, graph3])
-          >>> gs = gs.maximal()
-          >>> gs
+          >>> gs.maximal()
           GraphSet([[(1, 2), (1, 4)], [(1, 4), (2, 3)]])
 
         Returns:
@@ -1064,8 +1086,7 @@ class GraphSet(object):
           >>> graph1 = [(1, 2), (1, 4)]
           >>> graph2 = [(1, 4), (2, 3)]
           >>> gs = GraphSet([graph1, graph2])
-          >>> gs = gs.blocking().minimal()
-          >>> gs
+          >>> gs.blocking().minimal()
           GraphSet([[(1, 4)], [(1, 2), (2, 3)]])
 
         Returns:
@@ -1086,8 +1107,7 @@ class GraphSet(object):
           >>> graph2 = [(1, 2), (1, 4)]
           >>> graph3 = [(1, 2), (1, 4), (2, 3)]
           >>> gs = GraphSet([graph1, graph2, graph3])
-          >>> gs = gs.smaller(2)
-          >>> gs
+          >>> gs.smaller(2)
           GraphSet([[(1, 2)]])
 
         Args:
@@ -1111,8 +1131,7 @@ class GraphSet(object):
           >>> graph2 = [(1, 2), (1, 4)]
           >>> graph3 = [(1, 2), (1, 4), (2, 3)]
           >>> gs = GraphSet([graph1, graph2, graph3])
-          >>> gs = gs.larger(2)
-          >>> gs
+          >>> gs.larger(2)
           GraphSet([[(1, 2), (1, 4), (2, 3)]])
 
         Args:
@@ -1136,8 +1155,7 @@ class GraphSet(object):
           >>> graph2 = [(1, 2), (1, 4)]
           >>> graph3 = [(1, 2), (1, 4), (2, 3)]
           >>> gs = GraphSet([graph1, graph2, graph3])
-          >>> gs = gs.same_len(2)
-          >>> gs
+          >>> gs.same_len(2)
           GraphSet([[(1, 2), (1, 4)]])
 
         Args:
@@ -1151,39 +1169,6 @@ class GraphSet(object):
         """
         return GraphSet(self._ss.same_len(size))
 
-    def flip(self, edge):
-        """Returns a new set of graphs by flipping the state of a given edge.
-
-        If a graph in `self` includes the given edge, the edge is
-        removed from the graph.  If a graph in `self` does not include
-        the given edge, the edge is added to the graph.
-
-        The `self` is not changed.
-
-        Examples:
-          >>> graph1 = [(1, 2), (1, 4)]
-          >>> graph2 = [(2, 3)]
-          >>> gs = GraphSet([graph1, graph2])
-          >>> edge = (1, 2)
-          >>> gs = gs.flip(edge)
-          >>> gs
-          GraphSet([[(1, 4)], [(1, 2), (2, 3)]])
-
-        Args:
-          edge: An edge in the universe.
-
-        Returns:
-          A new GraphSet object.
-
-        Raises:
-          KeyError: If a given edge is not found in the universe.
-        """
-        type, obj = GraphSet._conv_arg(edge)
-        if type == 'edge':
-            return GraphSet(self._ss.flip(edge))
-        else:
-            raise TypeError, edge
-
     def complement(self):
         """Returns a new GraphSet with complement graphs of `self`.
 
@@ -1194,14 +1179,15 @@ class GraphSet(object):
           >>> graph1 = [(1, 2)]
           >>> graph2 = [(1, 2), (1, 4)]
           >>> gs = GraphSet([graph1, graph2])
-          >>> gs = ~gs
-          >>> gs
+          >>> gs.complement()
           GraphSet([[], [(1, 4)]])
 
         Returns:
           A new GraphSet object.
         """
-        return GraphSet(self._ss.flip())
+        ss = self._ss.copy()
+        ss.flip()
+        return GraphSet(ss)
 
 #    def join(self, other):
 #        """Returns a new GraphSet of join between `self` and `other`.
@@ -1219,8 +1205,7 @@ class GraphSet(object):
 #          >>> graph3 = [(2, 3)]
 #          >>> gs1 = GraphSet([graph1, graph2])
 #          >>> gs2 = GraphSet([graph3])
-#          >>> gs = gs1.join(gs2)
-#          >>> gs
+#          >>> gs1.join(gs2)
 #          GraphSet([[(1, 2), (2, 3)], [(1, 2), (1, 4), (2, 3)]])
 #
 #        Returns:
@@ -1247,8 +1232,7 @@ class GraphSet(object):
 #          >>> graph3 = [(1, 4), (2, 3)]
 #          >>> gs1 = GraphSet([graph1, graph2])
 #          >>> gs2 = GraphSet([graph3])
-#          >>> gs = gs1.meet(gs2)
-#          >>> gs
+#          >>> gs1.meet(gs2)
 #          GraphSet([[(1, 4)], [(2, 3)]])
 #
 #        Returns:
@@ -1271,8 +1255,7 @@ class GraphSet(object):
           >>> graph4 = [(1, 4), (2, 3)]
           >>> gs1 = GraphSet([graph1, graph2])
           >>> gs2 = GraphSet([graph3, graph4])
-          >>> gs = gs1.subgraphs(gs2)
-          >>> gs
+          >>> gs1.subgraphs(gs2)
           GraphSet([[(1, 2)]])
 
         Returns:
@@ -1295,8 +1278,7 @@ class GraphSet(object):
 #          >>> graph4 = [(1, 2), (1, 4)]
 #          >>> gs1 = GraphSet([graph1, graph2])
 #          >>> gs2 = GraphSet([graph3, graph4])
-#          >>> gs = gs1.supergraphs(gs2)
-#          >>> gs
+#          >>> gs1.supergraphs(gs2)
 #          GraphSet([[(1, 2), (2, 3)]])
 #
 #        Returns:
@@ -1324,8 +1306,7 @@ class GraphSet(object):
 #          >>> graph4 = [(1, 4), (2, 3)]
 #          >>> gs1 = GraphSet([graph1, graph2])
 #          >>> gs2 = GraphSet([graph3, graph4])
-#          >>> gs = gs1.non_subgraphs(gs2)
-#          >>> gs
+#          >>> gs1.non_subgraphs(gs2)
 #          GraphSet([[(1, 2), (1, 4)]])
 #
 #        Returns:
@@ -1353,8 +1334,7 @@ class GraphSet(object):
 #          >>> graph4 = [(1, 2), (1, 4)]
 #          >>> gs1 = GraphSet([graph1, graph2])
 #          >>> gs2 = GraphSet([graph3, graph4])
-#          >>> gs = gs1.non_supergraphs(gs2)
-#          >>> gs
+#          >>> gs1.non_supergraphs(gs2)
 #          GraphSet([[(1, 4), (2, 3)]])
 #
 #        Returns:

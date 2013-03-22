@@ -361,6 +361,15 @@ void setset::swap(setset& ss) {
   ss.zdd_ = z;
 }
 
+void setset::flip(elem_t e) {
+  this->zdd_ = this->zdd_.Change(e);
+}
+
+void setset::flip() {
+  for (elem_t e = 1; e <= graphillion::num_elems(); ++e)
+    this->zdd_ = this->zdd_.Change(e);
+}
+
 setset setset::minimal() const {
   return setset(graphillion::minimal(this->zdd_));
 }
@@ -383,17 +392,6 @@ setset setset::larger(size_t set_size) const {
 
 setset setset::same_size(size_t set_size) const {
   zdd_t z = this->zdd_.PermitSym(set_size) - this->zdd_.PermitSym(set_size - 1);
-  return setset(z);
-}
-
-setset setset::flip(elem_t e) const {
-  return setset(this->zdd_.Change(e));
-}
-
-setset setset::flip() const {
-  zdd_t z = this->zdd_;
-  for (elem_t e = 1; e <= graphillion::num_elems(); ++e)
-    z = z.Change(e);
   return setset(z);
 }
 
