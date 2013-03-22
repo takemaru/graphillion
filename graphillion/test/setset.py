@@ -305,6 +305,15 @@ class TestSetset(unittest.TestCase):
         self.assertTrue(isinstance(ss2, setset))
         self.assertEqual(ss2, setset([s0, s13]))
 
+        v = [s1, s12, s13]
+        ss = setset(v)
+        s = ss.choice()
+        self.assertTrue(s in ss)
+        self.assertEqual(len(ss), 3)
+
+        ss.clear()
+        self.assertRaises(KeyError, ss.choice)
+
     def capacity(self):
         ss = setset()
         self.assertFalse(ss)
@@ -330,16 +339,16 @@ class TestSetset(unittest.TestCase):
 
         ss1 = setset([s0, s12, s13])
         ss2 = setset()
-        for s in ss1.randomize():
+        for s in ss1.rand_iter():
             ss2 = ss2 | setset([s])
         self.assertEqual(ss1, ss2)
 
-        gen = ss1.randomize()
+        gen = ss1.rand_iter()
         self.assertTrue(isinstance(gen.next(), set))
 
         ss = setset([s0, s1, s12, s123, s1234, s134, s14, s4])
         r = []
-        for s in ss.maximize({'1': .3, '2': -.2, '3': -.2}, default=.4):
+        for s in ss.max_iter({'1': .3, '2': -.2, '3': -.2}, default=.4):
             r.append(s)
         self.assertEqual(len(r), 8)
         self.assertEqual(r[0], s14)
@@ -347,14 +356,14 @@ class TestSetset(unittest.TestCase):
         self.assertEqual(r[2], s4)
 
         r = []
-        for s in ss.maximize():
+        for s in ss.max_iter():
             r.append(s)
         self.assertEqual(len(r), 8)
         self.assertEqual(r[0], s1234)
         self.assertEqual(r[-1], s0)
 
         r = []
-        for s in ss.minimize({'1': .3, '2': -.2, '3': -.2}, default=.4):
+        for s in ss.min_iter({'1': .3, '2': -.2, '3': -.2}, default=.4):
             r.append(s)
         self.assertEqual(len(r), 8)
         self.assertEqual(r[0], s123)
@@ -362,7 +371,7 @@ class TestSetset(unittest.TestCase):
         self.assertEqual(r[2], s12)
 
         r = []
-        for s in ss.minimize():
+        for s in ss.min_iter():
             r.append(s)
         self.assertEqual(len(r), 8)
         self.assertEqual(r[0], set())

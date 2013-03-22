@@ -76,7 +76,7 @@ class setset(_graphillion.setset):
         ret = outer_braces[0]
         maxchar = 80
         no_comma = True
-        for s in setset.minimize(self, w):
+        for s in setset.min_iter(self, w):
             if no_comma:
                 no_comma = False
             else:
@@ -119,16 +119,16 @@ class setset(_graphillion.setset):
         while (True):
             yield setset._conv_ret(i.next())
 
-    def randomize(self):
-        i = _graphillion.setset.randomize(self)
+    def rand_iter(self):
+        i = _graphillion.setset.rand_iter(self)
         while (True):
             yield setset._conv_ret(i.next())
 
-    def minimize(self, weights=None, default=1):
-        return self._optimize(weights, default, _graphillion.setset.minimize)
+    def min_iter(self, weights=None, default=1):
+        return self._optimize(weights, default, _graphillion.setset.min_iter)
 
-    def maximize(self, weights=None, default=1):
-        return self._optimize(weights, default, _graphillion.setset.maximize)
+    def max_iter(self, weights=None, default=1):
+        return self._optimize(weights, default, _graphillion.setset.max_iter)
 
     def _optimize(self, weights, default, generator):
         ws = [default] * (_graphillion._num_elems() + 1)
@@ -149,6 +149,10 @@ class setset(_graphillion.setset):
         if (not isinstance(obj, setset)):
             obj = setset._conv_elem(obj)
         return _graphillion.setset.non_supersets(self, obj)
+
+    def choice(self):
+        set = _graphillion.setset.choice(self)
+        return setset._conv_ret(set)
 
     @staticmethod
     def set_universe(universe):

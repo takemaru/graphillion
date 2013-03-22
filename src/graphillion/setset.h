@@ -131,9 +131,9 @@ class setset {
   bool empty() const;
   std::string size() const;
   iterator begin() const;
-  random_iterator randomize() const;
-  weighted_iterator minimize(const std::vector<double>& weights) const;
-  weighted_iterator maximize(const std::vector<double>& weights) const;
+  random_iterator begin_randomly() const;
+  weighted_iterator begin_from_min(const std::vector<double>& weights) const;
+  weighted_iterator begin_from_max(const std::vector<double>& weights) const;
   iterator find(const std::set<elem_t>& s) const;
   size_t count(const std::set<elem_t>& s) const;
   std::pair<iterator, bool> insert(const std::set<elem_t>& s);

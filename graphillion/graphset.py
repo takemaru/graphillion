@@ -611,7 +611,7 @@ class GraphSet(object):
         """Iterates over graphs.
 
         This is the fastest iterator among Graphset iterators, such as
-        randomize() and maximize().
+        rand_iter() and max_iter().
 
         Examples:
           >>> graph1 = [(1, 2)]
@@ -629,19 +629,19 @@ class GraphSet(object):
           A graph.
 
         See Also:
-          randomize(), maximize(), minimize()
+          rand_iter(), max_iter(), min_iter()
         """
         for g in self._ss.__iter__():
             yield GraphSet._conv_ret(g)
 
-    def randomize(self):
+    def rand_iter(self):
         """Iterates over graphs uniformly randomly.
 
         Examples:
           >>> graph1 = [(1, 2)]
           >>> graph2 = [(1, 2), (1, 4)]
           >>> gs = GraphSet([graph1, graph2])
-          >>> for g in gs.randomize():
+          >>> for g in gs.rand_iter():
           ...   g
           [(1, 2)]
           [(1, 2), (1, 4)]
@@ -653,12 +653,12 @@ class GraphSet(object):
           A graph.
 
         See Also:
-          __iter__(), maximize(), minimize()
+          __iter__(), max_iter(), min_iter()
         """
-        for g in self._ss.randomize():
+        for g in self._ss.rand_iter():
             yield GraphSet._conv_ret(g)
 
-    def minimize(self, weights=None):
+    def min_iter(self, weights=None):
         """Iterates over graphs in the ascending order of weights.
 
         Returns a generator that iterates over graphs in `self`
@@ -671,7 +671,7 @@ class GraphSet(object):
           >>> graph2 = [(2, 3)]
           >>> gs = GraphSet([graph1, graph2])
           >>> weights = {(1, 2): 2.0, (1, 4): -3.0}  # (2, 3): 1.0
-          >>> for g in gs.minimize(weights):
+          >>> for g in gs.min_iter(weights):
           ...   g
           [(1, 2), (1, 4)]
           [(2, 3)]
@@ -687,14 +687,14 @@ class GraphSet(object):
           A graph.
 
         See Also:
-          __iter__(), randomize(), maximize()
+          __iter__(), rand_iter(), max_iter()
         """
         if weights is None:
             weights = GraphSet._weights
-        for g in self._ss.minimize(weights):
+        for g in self._ss.min_iter(weights):
             yield GraphSet._conv_ret(g)
 
-    def maximize(self, weights=None):
+    def max_iter(self, weights=None):
         """Iterates over graphs in the descending order of weights.
 
         Returns a generator that iterates over graphs in `self`
@@ -707,7 +707,7 @@ class GraphSet(object):
           >>> graph2 = [(2, 3)]
           >>> gs = GraphSet([graph1, graph2])
           >>> weights = {(1, 2): 2.0, (1, 4): -3.0}  # (2, 3): 1.0
-          >>> for g in gs.maximize(weights):
+          >>> for g in gs.max_iter(weights):
           ...   g
           [(2, 3)]
           [(1, 2), (1, 4)]
@@ -723,11 +723,11 @@ class GraphSet(object):
           A graph.
 
         See Also:
-          __iter__(), randomize(), minimize()
+          __iter__(), rand_iter(), min_iter()
         """
         if weights is None:
             weights = GraphSet._weights
-        for g in self._ss.maximize(weights):
+        for g in self._ss.max_iter(weights):
             yield GraphSet._conv_ret(g)
 
     def __contains__(self, obj):
@@ -896,7 +896,7 @@ class GraphSet(object):
           KeyError: If `self` is empty.
 
         See Also:
-          remove(), discard(), randomize()
+          remove(), discard(), choice()
         """
         return GraphSet._conv_ret(self._ss.pop())
 
@@ -1361,6 +1361,29 @@ class GraphSet(object):
           including()
         """
         return GraphSet(self._ss.subsets(other._ss))
+
+    def choice(self):
+        """Returns an arbitrary graph from `self`.
+
+        The `self` is not changed.
+
+        Examlpes:
+          >>> graph1 = [(1, 2), (1, 4)]
+          >>> graph2 = [(2, 3)]
+          >>> gs = GraphSet([graph1, graph2])
+          >>> gs.choice()
+          [(1, 2), (1, 4)]
+
+        Returns:
+          A graph.
+
+        Raises:
+          KeyError: If `self` is empty.
+
+        See Also:
+          pop()
+        """
+        return GraphSet._conv_ret(self._ss.choice())
 
     def dump(self, fp):
         """Serialize `self` to a file `fp`.

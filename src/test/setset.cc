@@ -289,7 +289,7 @@ class TestSetset {
     assert(ss == setset(v));
 
     v.clear();
-    for (setset::random_iterator s = ss.randomize(); s != ss.end(); ++s)
+    for (setset::random_iterator s = ss.begin_randomly(); s != ss.end(); ++s)
       v.push_back(*s);
     assert(v.size() == 3);
     assert(ss == setset(v));
@@ -303,7 +303,7 @@ class TestSetset {
     w.push_back(.4);
 
     v.clear();
-    for (setset::weighted_iterator s = ss.maximize(w); s != ss.end(); ++s)
+    for (setset::weighted_iterator s = ss.begin_from_max(w); s != ss.end(); ++s)
       v.push_back(*s);
     assert(v.size() == 8);
     assert(v[0] == S("{1,4}"));
@@ -311,7 +311,7 @@ class TestSetset {
     assert(v[2] == S("{4}"));
 
     v.clear();
-    for (setset::weighted_iterator s = ss.minimize(w); s != ss.end(); ++s)
+    for (setset::weighted_iterator s = ss.begin_from_min(w); s != ss.end(); ++s)
       v.push_back(*s);
     assert(v.size() == 8);
     assert(v[0] == S("{1,2,3}"));

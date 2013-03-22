@@ -269,11 +269,11 @@ setset::iterator setset::begin() const {
   return setset::iterator(*this);
 }
 
-setset::random_iterator setset::randomize() const {
+setset::random_iterator setset::begin_randomly() const {
   return setset::random_iterator(*this);
 }
 
-setset::weighted_iterator setset::minimize(const vector<double>& weights) const {
+setset::weighted_iterator setset::begin_from_min(const vector<double>& weights) const {
   vector<double> inverted_weights;
   for (vector<double>::const_iterator i = weights.begin();
        i != weights.end(); ++i)
@@ -281,7 +281,7 @@ setset::weighted_iterator setset::minimize(const vector<double>& weights) const 
   return setset::weighted_iterator(*this, inverted_weights);
 }
 
-setset::weighted_iterator setset::maximize(const vector<double>& weights) const {
+setset::weighted_iterator setset::begin_from_max(const vector<double>& weights) const {
   return setset::weighted_iterator(*this, weights);
 }
 

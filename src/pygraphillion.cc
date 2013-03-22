@@ -479,10 +479,10 @@ static PyObject* setset_iter(PySetsetObject* self) {
   return reinterpret_cast<PyObject*>(ssi);
 }
 
-static PyObject* setset_randomize(PySetsetObject* self) {
+static PyObject* setset_rand_iter(PySetsetObject* self) {
   PySetsetIterObject* ssi = PyObject_New(PySetsetIterObject, &PySetsetIter_Type);
   if (ssi == NULL) return NULL;
-  ssi->it = new setset::random_iterator(self->ss->randomize());
+  ssi->it = new setset::random_iterator(self->ss->begin_randomly());
   if (ssi->it == NULL) {
     PyErr_NoMemory();
     return NULL;
@@ -517,7 +517,7 @@ static PyObject* setset_optimize(PySetsetObject* self, PyObject* weights,
   PySetsetIterObject* ssi = PyObject_New(PySetsetIterObject, &PySetsetIter_Type);
   if (ssi == NULL) return NULL;
   ssi->it = new setset::weighted_iterator(
-      is_maximizing ? self->ss->maximize(w) : self->ss->minimize(w));
+      is_maximizing ? self->ss->begin_from_max(w) : self->ss->begin_from_min(w));
   if (ssi->it == NULL) {
     PyErr_NoMemory();
     return NULL;
@@ -525,11 +525,11 @@ static PyObject* setset_optimize(PySetsetObject* self, PyObject* weights,
   return reinterpret_cast<PyObject*>(ssi);
 }
 
-static PyObject* setset_maximize(PySetsetObject* self, PyObject* weights) {
+static PyObject* setset_max_iter(PySetsetObject* self, PyObject* weights) {
   return setset_optimize(self, weights, true);
 }
 
-static PyObject* setset_minimize(PySetsetObject* self, PyObject* weights) {
+static PyObject* setset_min_iter(PySetsetObject* self, PyObject* weights) {
   return setset_optimize(self, weights, false);
 }
 
@@ -604,7 +604,7 @@ static PyObject* setset_discard(PySetsetObject* self, PyObject* obj) {
 static PyObject* setset_pop(PySetsetObject* self) {
   setset::iterator i = self->ss->begin();
   if (i == self->ss->end()) {
-    PyErr_SetString(PyExc_KeyError, "not found");
+    PyErr_SetString(PyExc_KeyError, "'pop' from an empty set");
     return NULL;
   }
   set<int> s = *i;
@@ -706,6 +706,16 @@ static PyObject* setset_non_supersets(PySetsetObject* self, PyObject* obj) {
     PyErr_SetString(PyExc_TypeError, "not setset nor int");
     return NULL;
   }
+}
+
+static PyObject* setset_choice(PySetsetObject* self) {
+  setset::iterator i = self->ss->begin();
+  if (i == self->ss->end()) {
+    PyErr_SetString(PyExc_KeyError, "'choice' from an empty set");
+    return NULL;
+  }
+  set<int> s = *i;
+  return setset_build_set(s);
 }
 
 static PyObject* setset_dump(PySetsetObject* self, PyObject* obj) {
@@ -839,9 +849,9 @@ static PyMethodDef setset_methods[] = {
   {"issuperset", reinterpret_cast<PyCFunction>(setset_issuperset), METH_O, ""},
   {"len", reinterpret_cast<PyCFunction>(setset_len2), METH_VARARGS, ""},
   {"iter", reinterpret_cast<PyCFunction>(setset_iter), METH_NOARGS, ""},
-  {"randomize", reinterpret_cast<PyCFunction>(setset_randomize), METH_NOARGS, ""},
-  {"maximize", reinterpret_cast<PyCFunction>(setset_maximize), METH_O, ""},
-  {"minimize", reinterpret_cast<PyCFunction>(setset_minimize), METH_O, ""},
+  {"rand_iter", reinterpret_cast<PyCFunction>(setset_rand_iter), METH_NOARGS, ""},
+  {"max_iter", reinterpret_cast<PyCFunction>(setset_max_iter), METH_O, ""},
+  {"min_iter", reinterpret_cast<PyCFunction>(setset_min_iter), METH_O, ""},
   {"add", reinterpret_cast<PyCFunction>(setset_add), METH_O, ""},
   {"remove", reinterpret_cast<PyCFunction>(setset_remove), METH_O, ""},
   {"discard", reinterpret_cast<PyCFunction>(setset_discard), METH_O, ""},
@@ -859,6 +869,7 @@ static PyMethodDef setset_methods[] = {
   {"supersets", reinterpret_cast<PyCFunction>(setset_supersets), METH_O, ""},
   {"non_subsets", reinterpret_cast<PyCFunction>(setset_non_subsets), METH_O, ""},
   {"non_supersets", reinterpret_cast<PyCFunction>(setset_non_supersets), METH_O, ""},
+  {"choice", reinterpret_cast<PyCFunction>(setset_choice), METH_NOARGS, ""},
   {"dump", reinterpret_cast<PyCFunction>(setset_dump), METH_O, ""},
   {"dumps", reinterpret_cast<PyCFunction>(setset_dumps), METH_NOARGS, ""},
   {"load", reinterpret_cast<PyCFunction>(setset_load), METH_O, ""},
