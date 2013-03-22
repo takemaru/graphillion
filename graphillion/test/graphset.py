@@ -164,6 +164,13 @@ class TestGraphSet(unittest.TestCase):
         for g in gs:
             self.assertTrue(len(g) < 6)
 
+        # constrained by GraphSet
+        gs = GraphSet.graphs(no_loop=True)
+        gs = GraphSet.graphs(num_comps=1, graphset=gs)
+        self.assertEqual(len(gs), 66)
+        self.assertTrue([(1, 2), (1, 4), (2, 5)] in gs)
+        self.assertTrue([(1, 2), (1, 4), (2, 5), (4, 5)] not in gs)
+
     def test_comparison(self):
         gs = GraphSet([g12])
         self.assertEqual(gs, GraphSet([g12]))

@@ -1527,7 +1527,37 @@ class GraphSet(object):
 
     @staticmethod
     def graphs(vertex_groups=None, degree_constraints=None, num_edges=None,
-               num_comps=-1, no_loop=False):
+               num_comps=-1, no_loop=False, graphset=None):
+        """Returns a GraphSet with graphs under given constraints.
+
+        Examples: a set of paths from vertex 1 to vertex 6
+          >>> start = 1
+          >>> end = 6
+          >>> zero_or_two = range(0, 3, 2)
+          >>> degree_constraints = {start: 1, end: 1,
+          ...                       2: zero_or_two, 3: zero_or_two,
+          ...                       4: zero_or_two, 5: zero_or_two}
+          >>> GraphSet.graphs(vertex_groups=[[start, end]],
+          ...                 degree_constraints=degree_constraints,
+          ...                 no_loop=True)
+          GraphSet([[(1, 2), (2, 3), (3, 6)], [(1, 2), (2, 5), (5, 6)], [(1, 4), (4, 5 ...
+
+        Args:
+          vertex_groups: Optional.
+
+          degree_constraints: Optional.
+
+          num_edges: Optional.
+
+          num_comps: Optional.
+
+          no_loop: Optional.
+
+          graphset: Optional.
+
+        Returns:
+          A new GraphSet object.
+        """
         graph = []
         for e in GraphSet.universe():
             graph.append((pickle.dumps(e[0]), pickle.dumps(e[1])))
@@ -1542,22 +1572,29 @@ class GraphSet(object):
         if degree_constraints is not None:
             dc = {}
             for v, r in degree_constraints.iteritems():
-                if len(r) == 1:
+                if isinstance(r, (int, long)):
+                    dc[pickle.dumps(v)] = (r, r + 1, 1)
+                elif len(r) == 1:
                     dc[pickle.dumps(v)] = (r[0], r[0] + 1, 1)
                 else:
                     dc[pickle.dumps(v)] = (r[0], r[-1] + 1, r[1] - r[0])
 
         ne = None
         if num_edges is not None:
-            if len(num_edges) == 1:
+            if isinstance(num_edges, (int, long)):
+                ne = (ne, ne + 1, 1)
+            elif len(num_edges) == 1:
                 ne = (num_edges[0], num_edges[0] + 1, 1)
             else:
                 ne = (num_edges[0], num_edges[-1] + 1,
                       num_edges[1] - num_edges[0])
 
+        ss = None if graphset is None else graphset._ss
+
         ss = _graphillion._graphs(graph=graph, vertex_groups=vg,
                                   degree_constraints=dc, num_edges=ne,
-                                  num_comps=num_comps, no_loop=no_loop)
+                                  num_comps=num_comps, no_loop=no_loop,
+                                  search_space=ss)
         return GraphSet(ss)
 
     @staticmethod

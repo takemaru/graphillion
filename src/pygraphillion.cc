@@ -997,15 +997,18 @@ static PyObject* graphset_graphs(PyObject*, PyObject* args, PyObject* kwds) {
   static char s4[] = "num_edges";
   static char s5[] = "num_comps";
   static char s6[] = "no_loop";
-  static char* kwlist[7] = {s1, s2, s3, s4, s5, s6, NULL};
+  static char s7[] = "search_space";
+  static char* kwlist[8] = {s1, s2, s3, s4, s5, s6, s7, NULL};
   PyObject* graph_obj = NULL;
   PyObject* vertex_groups_obj = NULL;
   PyObject* degree_constraints_obj = NULL;
   PyObject* num_edges_obj = NULL;
   int num_comps = -1, no_loop = 0;
-  if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOii", kwlist, &graph_obj,
+  PyObject* search_space_obj = NULL;
+  if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOiiO", kwlist, &graph_obj,
                                    &vertex_groups_obj, &degree_constraints_obj,
-                                   &num_edges_obj, &num_comps, &no_loop))
+                                   &num_edges_obj, &num_comps, &no_loop,
+                                   &search_space_obj))
     return NULL;
 
   vector<pair<string, string> > graph;
@@ -1104,8 +1107,12 @@ static PyObject* graphset_graphs(PyObject*, PyObject* args, PyObject* kwds) {
     num_edges = new Range(r[0], r[1], r[2]);
   }
 
+  setset* search_space = NULL;
+  if (search_space_obj != NULL && search_space_obj != Py_None)
+    search_space = reinterpret_cast<PySetsetObject*>(search_space_obj)->ss;
+
   setset ss = SearchGraphs(graph, vertex_groups, degree_constraints, num_edges,
-                           num_comps, no_loop);
+                           num_comps, no_loop, search_space);
 
   PySetsetObject* ret = reinterpret_cast<PySetsetObject*>
       (PySetset_Type.tp_alloc(&PySetset_Type, 0));
