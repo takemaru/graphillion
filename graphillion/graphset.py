@@ -571,8 +571,12 @@ class GraphSet(object):
         """
         return len(self._ss)
 
-    def len(self):
-        """Returns the number of graphs in `self`.
+    def len(self, size=None):
+        """Returns the number of graphs, or a new GraphSet with `size` edges.
+
+        If no argument is given, this method returns the number of
+        graphs in `self`.  Otherwise, this method returns a new
+        GraphSet with graphs that have `size` edges.
 
         This method never raises OverflowError unlike built-in len(gs).
 
@@ -581,13 +585,27 @@ class GraphSet(object):
           >>> gs.len()
           2L
 
+        Examples:
+          >>> graph1 = [(1, 2)]
+          >>> graph2 = [(1, 2), (1, 4)]
+          >>> graph3 = [(1, 2), (1, 4), (2, 3)]
+          >>> gs = GraphSet([graph1, graph2, graph3])
+          >>> gs.same_len(2)
+          GraphSet([[(1, 2), (1, 4)]])
+
+        Args:
+          size: Optional.  The number of edges in a graph.
+
         Returns:
-          The number of graphs.
+          The number of graphs, or a new GraphSet object.
 
         See Also:
-          __len__()
+          __len__(), smaller(), larger()
         """
-        return self._ss.len()
+        if size is None:
+            return self._ss.len()
+        else:
+            return GraphSet(self._ss.len(size))
 
     def __iter__(self):
         """Iterates over graphs.
@@ -1030,7 +1048,7 @@ class GraphSet(object):
           A new GraphSet object.
 
         See Also:
-          larger(), same_len()
+          larger(), len()
         """
         return GraphSet(self._ss.smaller(size))
 
@@ -1054,33 +1072,9 @@ class GraphSet(object):
           A new GraphSet object.
 
         See Also:
-          smaller(), same_len()
+          smaller(), len()
         """
         return GraphSet(self._ss.larger(size))
-
-    def same_len(self, size):
-        """Returns a new GraphSet with graphs that have `size` edges.
-
-        The `self` is not changed.
-
-        Examples:
-          >>> graph1 = [(1, 2)]
-          >>> graph2 = [(1, 2), (1, 4)]
-          >>> graph3 = [(1, 2), (1, 4), (2, 3)]
-          >>> gs = GraphSet([graph1, graph2, graph3])
-          >>> gs.same_len(2)
-          GraphSet([[(1, 2), (1, 4)]])
-
-        Args:
-          size: The number of edges in a graph.
-
-        Returns:
-          A new GraphSet object.
-
-        See Also:
-          smaller(), larger()
-        """
-        return GraphSet(self._ss.same_len(size))
 
     def complement(self):
         """Returns a new GraphSet with complement graphs of `self`.

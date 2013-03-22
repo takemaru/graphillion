@@ -376,7 +376,7 @@ setset setset::larger(size_t set_size) const {
   return setset(this->zdd_ - this->zdd_.PermitSym(set_size));
 }
 
-setset setset::same_size(size_t set_size) const {
+setset setset::size(size_t set_size) const {
   zdd_t z = this->zdd_.PermitSym(set_size) - this->zdd_.PermitSym(set_size - 1);
   return setset(z);
 }

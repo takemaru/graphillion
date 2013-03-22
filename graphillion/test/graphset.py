@@ -202,8 +202,8 @@ class TestGraphSet(unittest.TestCase):
         self.assertEqual(gs.smaller(3), GraphSet([g0, g1, g12, g14, g4]))
         self.assertTrue(isinstance(gs.larger(3), GraphSet))
         self.assertEqual(gs.larger(3), GraphSet([g1234]))
-        self.assertTrue(isinstance(gs.same_len(3), GraphSet))
-        self.assertEqual(gs.same_len(3), GraphSet([g123, g134]))
+        self.assertTrue(isinstance(gs.len(3), GraphSet))
+        self.assertEqual(gs.len(3), GraphSet([g123, g134]))
 
         gs = GraphSet([g12, g123, g234])
         self.assertTrue(isinstance(gs.minimal(), GraphSet))

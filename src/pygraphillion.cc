@@ -445,18 +445,27 @@ static Py_ssize_t setset_len(PyObject* obj) {
   }
 }
 
-static PyObject* setset_long_len(PyObject* obj) {
-  PySetsetObject* self = reinterpret_cast<PySetsetObject*>(obj);
-  vector<char> buf;
-  string size = self->ss->size();
-  for (string::const_iterator c = size.begin(); c != size.end(); ++c)
-    buf.push_back(*c);
-  buf.push_back('\0');
+static PyObject* setset_len2(PySetsetObject* self, PyObject* args) {
+  PyObject* obj = NULL;
+  if (!PyArg_ParseTuple(args, "|O", &obj)) return NULL;
+  if (obj == NULL || obj == Py_None) {
+    string size = self->ss->size();
+    vector<char> buf;
+    for (string::const_iterator c = size.begin(); c != size.end(); ++c)
+      buf.push_back(*c);
+    buf.push_back('\0');
 #ifdef HAVE_LIBGMPXX
-  return PyLong_FromString(buf.data(), NULL, 0);
+    return PyLong_FromString(buf.data(), NULL, 0);
 #else
-  return PyLong_FromDouble(strtod(buf.data(), NULL));
+    return PyLong_FromDouble(strtod(buf.data(), NULL));
 #endif
+  } else if (PyInt_Check(obj)) {
+    int len = PyLong_AsLong(obj);
+    RETURN_NEW_SETSET(self, self->ss->size(len));
+  } else {
+    PyErr_SetString(PyExc_TypeError, "not int");
+    return NULL;
+  }
 }
 
 static PyObject* setset_iter(PySetsetObject* self) {
@@ -618,6 +627,7 @@ static PyObject* setset_flip(PySetsetObject* self, PyObject* args) {
     self->ss->flip(e);
   } else {
     PyErr_SetString(PyExc_TypeError, "not int");
+    return NULL;
   }
   Py_RETURN_NONE;
 }
@@ -652,16 +662,6 @@ static PyObject* setset_larger(PySetsetObject* self, PyObject* io) {
     return NULL;
   }
   RETURN_NEW_SETSET(self, self->ss->larger(set_size));
-}
-
-static PyObject* setset_same_len(PySetsetObject* self, PyObject* io) {
-  CHECK_OR_ERROR(io, PyInt_Check, "int", NULL);
-  int set_size = PyLong_AsLong(io);
-  if (set_size < 0) {
-    PyErr_SetString(PyExc_ValueError, "not unsigned int");
-    return NULL;
-  }
-  RETURN_NEW_SETSET(self, self->ss->same_size(set_size));
 }
 
 static PyObject* setset_join(PySetsetObject* self, PyObject* other) {
@@ -837,7 +837,7 @@ static PyMethodDef setset_methods[] = {
   {"isdisjoint", reinterpret_cast<PyCFunction>(setset_isdisjoint), METH_O, ""},
   {"issubset", reinterpret_cast<PyCFunction>(setset_issubset), METH_O, ""},
   {"issuperset", reinterpret_cast<PyCFunction>(setset_issuperset), METH_O, ""},
-  {"len", reinterpret_cast<PyCFunction>(setset_long_len), METH_NOARGS, ""},
+  {"len", reinterpret_cast<PyCFunction>(setset_len2), METH_VARARGS, ""},
   {"iter", reinterpret_cast<PyCFunction>(setset_iter), METH_NOARGS, ""},
   {"randomize", reinterpret_cast<PyCFunction>(setset_randomize), METH_NOARGS, ""},
   {"maximize", reinterpret_cast<PyCFunction>(setset_maximize), METH_O, ""},
@@ -852,7 +852,6 @@ static PyMethodDef setset_methods[] = {
   {"hitting", reinterpret_cast<PyCFunction>(setset_hitting), METH_NOARGS, ""},
   {"smaller", reinterpret_cast<PyCFunction>(setset_smaller), METH_O, ""},
   {"larger", reinterpret_cast<PyCFunction>(setset_larger), METH_O, ""},
-  {"same_len", reinterpret_cast<PyCFunction>(setset_same_len), METH_O, ""},
   {"flip", reinterpret_cast<PyCFunction>(setset_flip), METH_VARARGS, ""},
   {"join", reinterpret_cast<PyCFunction>(setset_join), METH_O, ""},
   {"meet", reinterpret_cast<PyCFunction>(setset_meet), METH_O, ""},
