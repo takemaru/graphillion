@@ -741,93 +741,6 @@ class GraphSet(object):
             return len([e for e in obj if e in self._ss]) > 0
         raise TypeError, obj
 
-    def including(self, obj):
-        """Returns a new GraphSet that include `obj`.
-
-        Returns a new set of graphs that include `obj`, which can be a
-        GraphSet, a graph, an edge, or a vertex.  If `obj` is a
-        GraphSet, a graph returned includes *one of* graphs in the
-        given GraphSet.
-
-        The graphs stored in the new GraphSet are selected from `self`
-        GraphSet.  The `self` is not changed.
-
-        Examples:
-          >>> graph1 = [(1, 2), (1, 4)]
-          >>> graph2 = [(2, 3)]
-          >>> gs = GraphSet([graph1, graph2])
-          >>> vertex = 4
-          >>> gs.including(vertex)
-          GraphSet([[(1, 2), (1, 4)]])
-
-        Args:
-          obj: A GraphSet, a graph (an edge list), an edge, or a
-            vertex.
-
-        Returns:
-          A new GraphSet object.
-
-        Raises:
-          KeyError: If a given edge or a vertex is not found in the
-            universe.
-
-        See Also:
-          excluding()
-        """
-        type, obj = GraphSet._conv_arg(obj)
-        if type == 'graphset':
-            return GraphSet(self._ss.supersets(obj._ss))
-        elif type == 'graph':
-            return self.including(GraphSet(setset([obj])))
-        elif type == 'edge':
-            return GraphSet(self._ss.supersets(obj))
-        else:
-            return self.including(GraphSet([set([e]) for e in obj]))
-
-    def excluding(self, obj):
-        """Returns a new GraphSet that don't include `obj`.
-
-        Returns a new set of graphs that don't include `obj`, which
-        can be a GraphSet, a graph, an edge, or a vertex.  If `obj` is
-        a GraphSet, a graph returned doesn't include *any of* graphs
-        in the given GraphSet.
-
-        The graphs stored in the new GraphSet are selected from `self`
-        GraphSet.  The `self` is not changed.
-
-        Examples:
-          >>> graph1 = [(1, 2), (1, 4)]
-          >>> graph2 = [(2, 3)]
-          >>> gs = GraphSet([graph1, graph2])
-          >>> vertex = 4
-          >>> gs.excluding(vertex)
-          GraphSet([[(2, 3)]])
-
-        Args:
-          obj: A GraphSet, a graph (an edge list), an edge, or a
-            vertex.
-
-        Returns:
-          A new GraphSet object.
-
-        Raises:
-          KeyError: If a given edge or vertex is not found in the
-            universe.
-
-        See Also:
-          including()
-        """
-        type, obj = GraphSet._conv_arg(obj)
-        if type == 'graphset':
-#            return GraphSet(self._ss.non_supersets(obj._ss))  # correct but slow
-            return self - self.including(obj)
-        elif type == 'graph':
-            return self.excluding(GraphSet(setset([obj])))
-        elif type == 'edge':
-            return GraphSet(self._ss.non_supersets(obj))
-        else:
-            return self.excluding(GraphSet([set([e]) for e in obj]))
-
     def add(self, graph_or_edge):
         """Adds a given graph or edge to `self`.
 
@@ -1344,6 +1257,93 @@ class GraphSet(object):
 #          non_subsets(), supersets()
 #        """
 #        return GraphSet(self._ss.non_supersets(other._ss))
+
+    def including(self, obj):
+        """Returns a new GraphSet that includes `obj`.
+
+        Returns a new set of graphs that include `obj`, which can be a
+        GraphSet, a graph, an edge, or a vertex.  If `obj` is a
+        GraphSet, a graph returned includes *one of* graphs in the
+        given GraphSet.
+
+        The graphs stored in the new GraphSet are selected from `self`
+        GraphSet.  The `self` is not changed.
+
+        Examples:
+          >>> graph1 = [(1, 2), (1, 4)]
+          >>> graph2 = [(2, 3)]
+          >>> gs = GraphSet([graph1, graph2])
+          >>> vertex = 4
+          >>> gs.including(vertex)
+          GraphSet([[(1, 2), (1, 4)]])
+
+        Args:
+          obj: A GraphSet, a graph (an edge list), an edge, or a
+            vertex.
+
+        Returns:
+          A new GraphSet object.
+
+        Raises:
+          KeyError: If a given edge or a vertex is not found in the
+            universe.
+
+        See Also:
+          excluding()
+        """
+        type, obj = GraphSet._conv_arg(obj)
+        if type == 'graphset':
+            return GraphSet(self._ss.supersets(obj._ss))
+        elif type == 'graph':
+            return self.including(GraphSet(setset([obj])))
+        elif type == 'edge':
+            return GraphSet(self._ss.supersets(obj))
+        else:
+            return self.including(GraphSet([set([e]) for e in obj]))
+
+    def excluding(self, obj):
+        """Returns a new GraphSet that doesn't include `obj`.
+
+        Returns a new set of graphs that don't include `obj`, which
+        can be a GraphSet, a graph, an edge, or a vertex.  If `obj` is
+        a GraphSet, a graph returned doesn't include *any of* graphs
+        in the given GraphSet.
+
+        The graphs stored in the new GraphSet are selected from `self`
+        GraphSet.  The `self` is not changed.
+
+        Examples:
+          >>> graph1 = [(1, 2), (1, 4)]
+          >>> graph2 = [(2, 3)]
+          >>> gs = GraphSet([graph1, graph2])
+          >>> vertex = 4
+          >>> gs.excluding(vertex)
+          GraphSet([[(2, 3)]])
+
+        Args:
+          obj: A GraphSet, a graph (an edge list), an edge, or a
+            vertex.
+
+        Returns:
+          A new GraphSet object.
+
+        Raises:
+          KeyError: If a given edge or vertex is not found in the
+            universe.
+
+        See Also:
+          including()
+        """
+        type, obj = GraphSet._conv_arg(obj)
+        if type == 'graphset':
+#            return GraphSet(self._ss.non_supersets(obj._ss))  # correct but slow
+            return self - self.including(obj)
+        elif type == 'graph':
+            return self.excluding(GraphSet(setset([obj])))
+        elif type == 'edge':
+            return GraphSet(self._ss.non_supersets(obj))
+        else:
+            return self.excluding(GraphSet([set([e]) for e in obj]))
 
     def dump(self, fp):
         """Serialize `self` to a file `fp`.
