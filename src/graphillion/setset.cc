@@ -292,20 +292,6 @@ setset::iterator setset::find(const set<elem_t>& s) const {
     return setset::iterator();
 }
 
-setset setset::include(elem_t e) const {
-  set<elem_t> s;
-  s.insert(e);
-  zdd_t z1 = setset(s).zdd_;
-  zdd_t z2 = this->zdd_ / z1;
-  return setset(z2 * z1);
-}
-
-setset setset::exclude(elem_t e) const {
-  set<elem_t> s;
-  s.insert(e);
-  return setset(this->zdd_ % setset(s).zdd_);
-}
-
 size_t setset::count(const set<elem_t>& s) const {
   return this->zdd_ / setset(s).zdd_ != bot() ? 1 : 0;
 }
@@ -411,12 +397,26 @@ setset setset::supersets(const setset& ss) const {
   return setset(this->zdd_.Restrict(ss.zdd_));
 }
 
+setset setset::supersets(elem_t e) const {
+  set<elem_t> s;
+  s.insert(e);
+  zdd_t z1 = setset(s).zdd_;
+  zdd_t z2 = this->zdd_ / z1;
+  return setset(z2 * z1);
+}
+
 setset setset::non_subsets(const setset& ss) const {
   return setset(graphillion::non_subsets(this->zdd_, ss.zdd_));
 }
 
 setset setset::non_supersets(const setset& ss) const {
   return setset(graphillion::non_supersets(this->zdd_, ss.zdd_));
+}
+
+setset setset::non_supersets(elem_t e) const {
+  set<elem_t> s;
+  s.insert(e);
+  return setset(this->zdd_ % setset(s).zdd_);
 }
 
 void setset::dump(ostream& out) const {

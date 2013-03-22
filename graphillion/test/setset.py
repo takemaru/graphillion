@@ -296,6 +296,15 @@ class TestSetset(unittest.TestCase):
         self.assertTrue(isinstance(ss, setset))
         self.assertEqual(ss, setset([s0, s1, s4]))
 
+        ss1 = setset([s0, s12, s13])
+        ss2 = ss1.supersets('1')
+        self.assertTrue(isinstance(ss2, setset))
+        self.assertEqual(ss2, setset([s12, s13]))
+
+        ss2 = ss1.non_supersets('2')
+        self.assertTrue(isinstance(ss2, setset))
+        self.assertEqual(ss2, setset([s0, s13]))
+
     def capacity(self):
         ss = setset()
         self.assertFalse(ss)
@@ -363,14 +372,6 @@ class TestSetset(unittest.TestCase):
         ss1 = setset([s0, s12, s13])
         self.assertTrue(s12 in ss1)
         self.assertTrue(s1 not in ss1)
-
-        ss2 = ss1.include('1')
-        self.assertTrue(isinstance(ss2, setset))
-        self.assertEqual(ss2, setset([s12, s13]))
-
-        ss2 = ss1.exclude('2')
-        self.assertTrue(isinstance(ss2, setset))
-        self.assertEqual(ss2, setset([s0, s13]))
 
     def test_modifiers(self):
         v = [s0, s12, s13]

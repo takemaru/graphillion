@@ -435,43 +435,43 @@ class TestGraphSet(unittest.TestCase):
 
         gs1 = GraphSet({}) - GraphSet([g1, g34])
 
-        gs2 = gs1.include(GraphSet([g1, g2]))
+        gs2 = gs1.including(GraphSet([g1, g2]))
         self.assertTrue(isinstance(gs2, GraphSet))
         self.assertEqual(len(gs2), 11)
 
-        gs2 = gs1.include(g1)
+        gs2 = gs1.including(g1)
         self.assertTrue(isinstance(gs2, GraphSet))
         self.assertEqual(len(gs2), 7)
 
-        gs2 = gs1.include((2,1))
+        gs2 = gs1.including((2,1))
         self.assertTrue(isinstance(gs2, GraphSet))
         self.assertEqual(len(gs2), 7)
 
-        gs2 = gs1.include(1)
+        gs2 = gs1.including(1)
         self.assertTrue(isinstance(gs2, GraphSet))
         self.assertEqual(len(gs2), 11)
 
-        self.assertRaises(KeyError, gs1.include, (1, 4))
-        self.assertRaises(KeyError, gs1.include, 5)
+        self.assertRaises(KeyError, gs1.including, (1, 4))
+        self.assertRaises(KeyError, gs1.including, 5)
 
-        gs2 = gs1.exclude(GraphSet([g1, g2]))
+        gs2 = gs1.excluding(GraphSet([g1, g2]))
         self.assertTrue(isinstance(gs2, GraphSet))
         self.assertEqual(len(gs2), 3)
 
-        gs2 = gs1.exclude(g1)
+        gs2 = gs1.excluding(g1)
         self.assertTrue(isinstance(gs2, GraphSet))
         self.assertEqual(len(gs2), 7)
 
-        gs2 = gs1.exclude(e2)
+        gs2 = gs1.excluding(e2)
         self.assertTrue(isinstance(gs2, GraphSet))
         self.assertEqual(len(gs2), 6)
 
-        gs2 = gs1.exclude(1)
+        gs2 = gs1.excluding(1)
         self.assertTrue(isinstance(gs2, GraphSet))
         self.assertEqual(len(gs2), 3)
 
-        self.assertRaises(KeyError, gs1.exclude, (1, 4))
-        self.assertRaises(KeyError, gs1.exclude, 5)
+        self.assertRaises(KeyError, gs1.excluding, (1, 4))
+        self.assertRaises(KeyError, gs1.excluding, 5)
 
     def test_modifiers(self):
         v = [g0, g12, g13]

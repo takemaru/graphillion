@@ -93,14 +93,6 @@ class setset(_graphillion.setset):
         set_or_elem = setset._conv_arg(set_or_elem)
         return _graphillion.setset.__contains__(self, set_or_elem)
 
-    def include(self, elem):
-        elem = setset._conv_elem(elem)
-        return _graphillion.setset.include(self, elem)
-
-    def exclude(self, elem):
-        elem = setset._conv_elem(elem)
-        return _graphillion.setset.exclude(self, elem)
-
     def add(self, set_or_elem):
         set_or_elem = setset._conv_arg(set_or_elem)
         return _graphillion.setset.add(self, set_or_elem)
@@ -147,6 +139,16 @@ class setset(_graphillion.setset):
         i = generator(self, ws)
         while (True):
             yield setset._conv_ret(i.next())
+
+    def supersets(self, obj):
+        if (not isinstance(obj, setset)):
+            obj = setset._conv_elem(obj)
+        return _graphillion.setset.supersets(self, obj)
+
+    def non_supersets(self, obj):
+        if (not isinstance(obj, setset)):
+            obj = setset._conv_elem(obj)
+        return _graphillion.setset.non_supersets(self, obj)
 
     @staticmethod
     def set_universe(universe):

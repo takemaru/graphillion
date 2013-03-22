@@ -66,7 +66,7 @@ class GraphSet(object):
       Give constraints in which edge 1-4 must not be passed but 2 must
       be passed, and show the paths that meet the constraints.
 
-      >>> paths = paths.exclude((1, 4)).include(2)
+      >>> paths = paths.excluding((1, 4)).including(2)
       >>> for path in paths:
       ...   path
       [(1, 2), (2, 3), (3, 6)]
@@ -741,7 +741,7 @@ class GraphSet(object):
             return len([e for e in obj if e in self._ss]) > 0
         raise TypeError, obj
 
-    def include(self, obj):
+    def including(self, obj):
         """Returns a new GraphSet that include `obj`.
 
         Returns a new set of graphs that include `obj`, which can be a
@@ -757,7 +757,7 @@ class GraphSet(object):
           >>> graph2 = [(2, 3)]
           >>> gs = GraphSet([graph1, graph2])
           >>> vertex = 4
-          >>> gs.include(vertex)
+          >>> gs.including(vertex)
           GraphSet([[(1, 2), (1, 4)]])
 
         Args:
@@ -772,19 +772,19 @@ class GraphSet(object):
             universe.
 
         See Also:
-          exclude()
+          excluding()
         """
         type, obj = GraphSet._conv_arg(obj)
         if type == 'graphset':
             return GraphSet(self._ss.supersets(obj._ss))
         elif type == 'graph':
-            return self.include(GraphSet(setset([obj])))
+            return self.including(GraphSet(setset([obj])))
         elif type == 'edge':
-            return GraphSet(self._ss.include(obj))
+            return GraphSet(self._ss.supersets(obj))
         else:
-            return self.include(GraphSet([set([e]) for e in obj]))
+            return self.including(GraphSet([set([e]) for e in obj]))
 
-    def exclude(self, obj):
+    def excluding(self, obj):
         """Returns a new GraphSet that don't include `obj`.
 
         Returns a new set of graphs that don't include `obj`, which
@@ -800,7 +800,7 @@ class GraphSet(object):
           >>> graph2 = [(2, 3)]
           >>> gs = GraphSet([graph1, graph2])
           >>> vertex = 4
-          >>> gs.exclude(vertex)
+          >>> gs.excluding(vertex)
           GraphSet([[(2, 3)]])
 
         Args:
@@ -815,18 +815,18 @@ class GraphSet(object):
             universe.
 
         See Also:
-          include()
+          including()
         """
         type, obj = GraphSet._conv_arg(obj)
         if type == 'graphset':
 #            return GraphSet(self._ss.non_supersets(obj._ss))  # correct but slow
-            return self - self.include(obj)
+            return self - self.including(obj)
         elif type == 'graph':
-            return self.exclude(GraphSet(setset([obj])))
+            return self.excluding(GraphSet(setset([obj])))
         elif type == 'edge':
-            return GraphSet(self._ss.exclude(obj))
+            return GraphSet(self._ss.non_supersets(obj))
         else:
-            return self.exclude(GraphSet([set([e]) for e in obj]))
+            return self.excluding(GraphSet([set([e]) for e in obj]))
 
     def add(self, graph_or_edge):
         """Adds a given graph or edge to `self`.

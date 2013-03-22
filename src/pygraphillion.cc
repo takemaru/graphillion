@@ -532,27 +532,11 @@ static int setset_contains(PySetsetObject* self, PyObject* obj) {
     return self->ss->find(s) != self->ss->end() ? 1 : 0;
   } else if (PyInt_Check(obj)) {
     int e = PyLong_AsLong(obj);
-    return self->ss->include(e) != setset() ? 1 : 0;
+    return self->ss->supersets(e) != setset() ? 1 : 0;
   } else {
     PyErr_SetString(PyExc_TypeError, "not set nor int");
     return -1;
   }
-}
-
-static PyObject* setset_include(PySetsetObject* self, PyObject* eo) {
-  CHECK_OR_ERROR(eo, PyInt_Check, "int", NULL);
-  PySetsetObject* sso = reinterpret_cast<PySetsetObject*>(
-      self->ob_type->tp_alloc(self->ob_type, 0));
-  sso->ss = new setset(self->ss->include(PyInt_AsLong(eo)));
-  return reinterpret_cast<PyObject*>(sso);
-}
-
-static PyObject* setset_exclude(PySetsetObject* self, PyObject* eo) {
-  CHECK_OR_ERROR(eo, PyInt_Check, "int", NULL);
-  PySetsetObject* sso = reinterpret_cast<PySetsetObject*>(
-      self->ob_type->tp_alloc(self->ob_type, 0));
-  sso->ss = new setset(self->ss->exclude(PyInt_AsLong(eo)));
-  return reinterpret_cast<PyObject*>(sso);
 }
 
 static PyObject* setset_add(PySetsetObject* self, PyObject* obj) {
@@ -581,7 +565,7 @@ static PyObject* setset_remove(PySetsetObject* self, PyObject* obj) {
     self->ss->erase(s);
   } else if (PyInt_Check(obj)) {
     int e = PyLong_AsLong(obj);
-    if (self->ss->include(e).empty()) {
+    if (self->ss->supersets(e).empty()) {
       PyErr_SetString(PyExc_KeyError, "not found");
       return NULL;
     }
@@ -695,9 +679,16 @@ static PyObject* setset_subsets(PySetsetObject* self, PyObject* other) {
   RETURN_NEW_SETSET2(self, other, _other, self->ss->subsets(*_other->ss));
 }
 
-static PyObject* setset_supersets(PySetsetObject* self, PyObject* other) {
-  CHECK_SETSET_OR_ERROR(other);
-  RETURN_NEW_SETSET2(self, other, _other, self->ss->supersets(*_other->ss));
+static PyObject* setset_supersets(PySetsetObject* self, PyObject* obj) {
+  if (PySetset_Check(obj)) {
+    RETURN_NEW_SETSET2(self, obj, _obj, self->ss->supersets(*_obj->ss));
+  } else if (PyInt_Check(obj)) {
+    int e = PyLong_AsLong(obj);
+    RETURN_NEW_SETSET(self, self->ss->supersets(e));
+  } else {
+    PyErr_SetString(PyExc_TypeError, "not setset nor int");
+    return NULL;
+  }
 }
 
 static PyObject* setset_non_subsets(PySetsetObject* self, PyObject* other) {
@@ -705,9 +696,16 @@ static PyObject* setset_non_subsets(PySetsetObject* self, PyObject* other) {
   RETURN_NEW_SETSET2(self, other, _other, self->ss->non_subsets(*_other->ss));
 }
 
-static PyObject* setset_non_supersets(PySetsetObject* self, PyObject* other) {
-  CHECK_SETSET_OR_ERROR(other);
-  RETURN_NEW_SETSET2(self, other, _other, self->ss->non_supersets(*_other->ss));
+static PyObject* setset_non_supersets(PySetsetObject* self, PyObject* obj) {
+  if (PySetset_Check(obj)) {
+    RETURN_NEW_SETSET2(self, obj, _obj, self->ss->non_supersets(*_obj->ss));
+  } else if (PyInt_Check(obj)) {
+    int e = PyLong_AsLong(obj);
+    RETURN_NEW_SETSET(self, self->ss->non_supersets(e));
+  } else {
+    PyErr_SetString(PyExc_TypeError, "not setset nor int");
+    return NULL;
+  }
 }
 
 static PyObject* setset_dump(PySetsetObject* self, PyObject* obj) {
@@ -844,8 +842,6 @@ static PyMethodDef setset_methods[] = {
   {"randomize", reinterpret_cast<PyCFunction>(setset_randomize), METH_NOARGS, ""},
   {"maximize", reinterpret_cast<PyCFunction>(setset_maximize), METH_O, ""},
   {"minimize", reinterpret_cast<PyCFunction>(setset_minimize), METH_O, ""},
-  {"include", reinterpret_cast<PyCFunction>(setset_include), METH_O, ""},
-  {"exclude", reinterpret_cast<PyCFunction>(setset_exclude), METH_O, ""},
   {"add", reinterpret_cast<PyCFunction>(setset_add), METH_O, ""},
   {"remove", reinterpret_cast<PyCFunction>(setset_remove), METH_O, ""},
   {"discard", reinterpret_cast<PyCFunction>(setset_discard), METH_O, ""},

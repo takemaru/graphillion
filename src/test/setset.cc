@@ -258,6 +258,10 @@ class TestSetset {
 
     ss = setset(u).non_supersets(setset(v));
     assert(ss.zdd_ == s0 + s1 + s4);
+
+    ss = setset(V("{{}, {1,2}, {1,3}}"));
+    assert(ss.supersets(1).zdd_ == s12 + s13);
+    assert(ss.non_supersets(2).zdd_ == s0 + s13);
   }
 
   void capacity() {
@@ -322,10 +326,6 @@ class TestSetset {
     assert(*s == S("{1,2}"));
 
     assert(ss.find(S("{1}")) == ss.end());
-
-    assert(ss.include(1).zdd_ == s12 + s13);
-
-    assert(ss.exclude(2).zdd_ == s0 + s13);
 
     assert(ss.count(S("{1,2}")) == 1);
     assert(ss.count(S("{2,3}")) == 0);

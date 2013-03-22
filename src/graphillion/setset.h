@@ -135,8 +135,6 @@ class setset {
   weighted_iterator minimize(const std::vector<double>& weights) const;
   weighted_iterator maximize(const std::vector<double>& weights) const;
   iterator find(const std::set<elem_t>& s) const;
-  setset include(elem_t e) const;
-  setset exclude(elem_t e) const;
   size_t count(const std::set<elem_t>& s) const;
   std::pair<iterator, bool> insert(const std::set<elem_t>& s);
   iterator insert(const_iterator hint, const std::set<elem_t>& s);
@@ -160,8 +158,10 @@ class setset {
   setset meet(const setset& ss) const;
   setset subsets(const setset& ss) const;
   setset supersets(const setset& ss) const;
+  setset supersets(elem_t e) const;
   setset non_subsets(const setset& ss) const;
   setset non_supersets(const setset& ss) const;
+  setset non_supersets(elem_t e) const;
 
   void dump(std::ostream& out) const;
   void dump(FILE* fp = stdout) const;
