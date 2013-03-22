@@ -288,6 +288,13 @@ class TestSetset {
     assert(v.size() == 3);
     assert(ss == setset(v));
 
+    ss = setset(V("{{1}, {1,2}, {1,3}}"));
+    v.clear();
+    for (setset::iterator s = ss.begin(); s != ss.end(); ++s)
+      v.push_back(*s);
+    assert(v.size() == 3);
+    assert(ss == setset(v));
+
     v.clear();
     for (setset::random_iterator s = ss.begin_randomly(); s != ss.end(); ++s)
       v.push_back(*s);

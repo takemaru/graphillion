@@ -73,10 +73,13 @@ void setset::iterator::next() {
     vector<elem_t> stack(this->s_.begin(), this->s_.end());
     sort(stack.begin(), stack.end());
     bool res = choose(this->zdd_, &stack);
-    if (res)
+    if (res) {
       this->s_ = set<elem_t>(stack.begin(), stack.end());
-    if (!res || stack.size() == 0)
-      this->zdd_ = bot();
+      if (stack.size() == 0)  // reach to the empty set (the last)
+        this->zdd_ = bot();
+    } else {
+      this->zdd_ = null();
+    }
   }
 }
 
