@@ -325,17 +325,25 @@ class TestSetset(unittest.TestCase):
         self.assertEqual(ss.len(), 3)
 
     def test_iterators(self):
-        ss1 = setset([s0, s12, s13])
-        ss2 = setset()
-        for s in ss1:
-            ss2 = ss2 | setset([s])
-        self.assertEqual(ss1, setset([s0, s12, s13]))
-        self.assertEqual(ss1, ss2)
+        ss = setset([s0, s12, s13])
+        v = []
+        for s in ss:
+            v.append(s)
+        self.assertEqual(len(v), 3)
+        self.assertEqual(ss, setset(v))
 
-        ss2 = setset()
-        for s in ss1:
-            ss2 = ss2 | setset([s])
-        self.assertEqual(ss1, ss2)
+        v = []
+        for s in ss:
+            v.append(s)
+        self.assertEqual(len(v), 3)
+        self.assertEqual(ss, setset(v))
+
+        ss = setset([s1, s12, s13])
+        v = []
+        for s in ss:
+            v.append(s)
+        self.assertEqual(len(v), 3)
+        self.assertEqual(ss, setset(v))
 
         ss1 = setset([s0, s12, s13])
         ss2 = setset()
