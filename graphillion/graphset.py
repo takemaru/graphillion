@@ -1529,7 +1529,7 @@ class GraphSet(object):
 
     @staticmethod
     def graphs(vertex_groups=None, degree_constraints=None, num_edges=None,
-               num_comps=-1, no_loop=False, graphset=None):
+               no_loop=False, graphset=None):
         """Returns a GraphSet with graphs under given constraints.
 
         Examples: a set of paths from vertex 1 to vertex 6
@@ -1551,8 +1551,6 @@ class GraphSet(object):
 
           num_edges: Optional.
 
-          num_comps: Optional.
-
           no_loop: Optional.
 
           graphset: Optional.
@@ -1565,10 +1563,14 @@ class GraphSet(object):
             graph.append((pickle.dumps(e[0]), pickle.dumps(e[1])))
 
         vg = None
+        nc = -1
         if vertex_groups is not None:
             vg = []
             for vs in vertex_groups:
-                vg.append([pickle.dumps(v) for v in vs])
+                if len(vs) == 0:
+                    nc = 1 if nc < 0 else nc + 1
+                else:
+                    vg.append([pickle.dumps(v) for v in vs])
 
         dc = None
         if degree_constraints is not None:
@@ -1595,7 +1597,7 @@ class GraphSet(object):
 
         ss = _graphillion._graphs(graph=graph, vertex_groups=vg,
                                   degree_constraints=dc, num_edges=ne,
-                                  num_comps=num_comps, no_loop=no_loop,
+                                  num_comps=nc, no_loop=no_loop,
                                   search_space=ss)
         return GraphSet(ss)
 

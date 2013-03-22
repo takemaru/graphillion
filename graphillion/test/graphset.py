@@ -151,7 +151,7 @@ class TestGraphSet(unittest.TestCase):
             self.assertTrue(1 <= len(g) and len(g) < 3)
 
         # single connected component and vertex islands
-        gs = GraphSet.graphs(num_comps=1)
+        gs = GraphSet.graphs(vertex_groups=[[]])
         self.assertEqual(len(gs), 80)
         self.assertTrue([(1, 2), (2, 3)] in gs)
         self.assertTrue([(1, 2), (2, 3), (4, 5)] not in gs)
@@ -166,7 +166,7 @@ class TestGraphSet(unittest.TestCase):
 
         # constrained by GraphSet
         gs = GraphSet.graphs(no_loop=True)
-        gs = gs.graphs(num_comps=1)
+        gs = gs.graphs(vertex_groups=[[]])
         self.assertEqual(len(gs), 66)
         self.assertTrue([(1, 2), (1, 4), (2, 5)] in gs)
         self.assertTrue([(1, 2), (1, 4), (2, 5), (4, 5)] not in gs)
