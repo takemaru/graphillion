@@ -642,21 +642,24 @@ class TestGraphSet(unittest.TestCase):
     def test_large(self):
         import networkx as nx
 
-        g = nx.grid_2d_graph(11, 11)
+        g = nx.grid_2d_graph(8, 8)
         v00, v01, v10 = (0,0), (0,1), (1,0)
 
         GraphSet.set_universe(g.edges())
-        self.assertEqual(len(GraphSet.universe()), 220)
-        self.assertEqual(GraphSet.universe()[:2], [(v01, v00), (v10, v00)])
+        self.assertEqual(len(GraphSet.universe()), 112)
+#        self.assertEqual(GraphSet.universe()[:2], [(v00, v01), (v00, v10)])
 
         gs = GraphSet({});
-        gs -= GraphSet([[(v01, v00)], [(v01, v00), (v10, v00)]])
-        self.assertAlmostEqual(gs.len() / (2**220 - 2), 1)
+        gs -= GraphSet([[(v00, v01)], [(v00, v01), (v00, v10)]])
+        self.assertAlmostEqual(gs.len() / (2**112 - 2), 1)
 
         i = 0
         for g in gs:
             if i > 100: break
             i += 1
+
+        paths = GraphSet.paths((0, 0), (7, 7))
+        self.assertEqual(len(paths), 789360053252)
 
         del nx
 

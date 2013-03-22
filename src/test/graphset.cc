@@ -157,6 +157,35 @@ void setup_clique() {  // 5-clique
   setset::num_elems(10);
 }
 
+void setup_large(int n) {
+  // n x n grid
+
+  graph.clear();
+  for (int v = 1; v <= n * n; ++v) {
+    stringstream sstr1;
+    sstr1 << v;
+    if (v % n != 0) {
+      stringstream sstr2;
+      sstr2 << v + 1;
+      graph.push_back(make_pair(sstr1.str(), sstr2.str()));
+    }
+    if (v <= (n - 1) * n) {
+      stringstream sstr2;
+      sstr2 << v + n;
+      graph.push_back(make_pair(sstr1.str(), sstr2.str()));
+    }
+  }
+
+  vertices.clear();
+  for (int v = 1; v <= n * n; ++v) {
+    stringstream sstr;
+    sstr << v;
+    vertices.push_back(sstr.str());
+  }
+
+  setset::num_elems(graph.size());
+}
+
 class TestGraphSet {
  public:
   void run() {
@@ -179,6 +208,7 @@ class TestGraphSet {
     this->pinned_paths();
     this->rooted_paths();
     this->hamilton_paths();
+    this->large();
   }
 
   void any_subgraphs() {
@@ -404,6 +434,19 @@ class TestGraphSet {
                              0, true);
     assert(ss.size() == "1");
     assert(ss.find(S(5, e14, e23, e25, e36, e45)) != ss.end());
+  }
+
+  void large() {
+    setup_large(8);
+    vector<vector<vertex_t> > vertex_groups = V("{{1, 64}}");
+    map<vertex_t, Range> degree_constraints;
+    for (vector<vertex_t>::const_iterator v = vertices.begin();
+         v != vertices.end(); ++v)
+      degree_constraints[*v]
+          = *v == "1" || *v == "64" ? Range(1, 2) : Range(0, 3, 2);
+    setset ss = SearchGraphs(graph, &vertex_groups, &degree_constraints, NULL,
+                             0, true);
+    assert(ss.size() == "789360053252");
   }
 };
 
