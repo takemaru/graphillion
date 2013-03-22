@@ -58,12 +58,12 @@ class TestSetset(unittest.TestCase):
 
         self.assertEqual(setset._obj2int, {})
         self.assertEqual(setset._int2obj, [None])
-        self.assertEqual(setset.get_universe(), [])
+        self.assertEqual(setset.universe(), [])
 
         setset.set_universe(['i', 'ii'])
         self.assertEqual(setset._obj2int, {'i': 1, 'ii': 2})
         self.assertEqual(setset._int2obj, [None, 'i', 'ii'])
-        self.assertEqual(setset.get_universe(), ['i', 'ii'])
+        self.assertEqual(setset.universe(), ['i', 'ii'])
 
         ss = setset({})
         self.assertEqual(
@@ -73,7 +73,7 @@ class TestSetset(unittest.TestCase):
         setset.set_universe(['1'])
         self.assertEqual(setset._obj2int, {'1': 1})
         self.assertEqual(setset._int2obj, [None, '1'])
-        self.assertEqual(setset.get_universe(), ['1'])
+        self.assertEqual(setset.universe(), ['1'])
 
         ss = setset({})
         self.assertEqual(ss, setset([s0, s1]))

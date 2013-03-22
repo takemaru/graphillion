@@ -166,7 +166,7 @@ class setset(_graphillion.setset):
         setset._check_universe()
 
     @staticmethod
-    def get_universe():
+    def universe():
         setset._check_universe()
         return setset._int2obj[1:]
 

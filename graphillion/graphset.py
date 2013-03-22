@@ -1396,7 +1396,7 @@ class GraphSet(object):
           >>> fp = open('/path/to/graphset', 'wb')
           >>> gs.dump(fp)
           >>> fp = open('/path/to/universe' 'wb')
-          >>> pickle.dump(GraphSet.get_universe(), fp)
+          >>> pickle.dump(GraphSet.universe(), fp)
 
         Args:
           fp: A write-supporting file-like object.
@@ -1415,7 +1415,7 @@ class GraphSet(object):
         Examples:
           >>> import pickle
           >>> graphset_str = gs.dumps()
-          >>> universe_str = pickle.dumps(GraphSet.get_universe())
+          >>> universe_str = pickle.dumps(GraphSet.universe())
 
         See Also:
           dump(), loads()
@@ -1504,7 +1504,7 @@ class GraphSet(object):
         setset.set_universe(edges)
 
     @staticmethod
-    def get_universe():
+    def universe():
         """Returns the current universe.
 
         The list of edges that represents the current universe is
@@ -1518,7 +1518,7 @@ class GraphSet(object):
           The universe if no argument is given, or None otherwise.
         """
         edges = []
-        for e in setset.get_universe():
+        for e in setset.universe():
             if e in GraphSet._weights:
                 edges.append((e[0], e[1], GraphSet._weights[e]))
             else:
@@ -1529,7 +1529,7 @@ class GraphSet(object):
     def subgraph(vertex_groups=None, degree_constraints=None, num_edges=None,
                  num_comps=-1, no_loop=False):
         graph = []
-        for e in GraphSet.get_universe():
+        for e in GraphSet.universe():
             graph.append((pickle.dumps(e[0]), pickle.dumps(e[1])))
 
         vg = None
@@ -1606,7 +1606,7 @@ class GraphSet(object):
         elif isinstance(obj, tuple):
             return 'edge', GraphSet._conv_edge(obj)
         elif obj in GraphSet._vertices:
-            return 'vertex', [e for e in setset.get_universe() if obj in e]
+            return 'vertex', [e for e in setset.universe() if obj in e]
         raise KeyError, obj
 
     @staticmethod

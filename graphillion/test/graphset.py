@@ -60,15 +60,15 @@ class TestGraphSet(unittest.TestCase):
 
     def test_init(self):
         GraphSet.set_universe([('i', 'ii')])
-        self.assertEqual(GraphSet.get_universe(), [('i', 'ii')])
+        self.assertEqual(GraphSet.universe(), [('i', 'ii')])
 
         GraphSet.set_universe([e1 + (.3,), e2 + (-.2,), e3 + (-.2,), e4 + (.4,)])
-        self.assertEqual(GraphSet.get_universe(),
+        self.assertEqual(GraphSet.universe(),
                          [e1 + (.3,), e2 + (-.2,), e3 + (-.2,), e4 + (.4,)])
 
         GraphSet.set_universe([e1 + (.3,), e2 + (-.2,), e3 + (-.2,), e4 + (.4,)],
                               traversal='dfs', source=1)
-        self.assertEqual(GraphSet.get_universe(),
+        self.assertEqual(GraphSet.universe(),
                          [e2 + (-.2,), e4 + (.4,), e1 + (.3,), e3 + (-.2,)])
 
         self.assertRaises(KeyError, GraphSet.set_universe, [(1,2), (2,1)])
@@ -571,8 +571,8 @@ class TestGraphSet(unittest.TestCase):
         v00, v01, v10 = (0,0), (0,1), (1,0)
 
         GraphSet.set_universe(g.edges())
-        self.assertEqual(len(GraphSet.get_universe()), 220)
-        self.assertEqual(GraphSet.get_universe()[:2], [(v01, v00), (v10, v00)])
+        self.assertEqual(len(GraphSet.universe()), 220)
+        self.assertEqual(GraphSet.universe()[:2], [(v01, v00), (v10, v00)])
 
         gs = GraphSet({});
         gs -= GraphSet([[(v01, v00)], [(v01, v00), (v10, v00)]])
