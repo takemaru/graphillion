@@ -1535,7 +1535,7 @@ class GraphSet(object):
         Examples: a set of paths from vertex 1 to vertex 6
           >>> start = 1
           >>> end = 6
-          >>> zero_or_two = range(0, 3, 2)
+          >>> zero_or_two = xrange(0, 3, 2)
           >>> degree_constraints = {start: 1, end: 1,
           ...                       2: zero_or_two, 3: zero_or_two,
           ...                       4: zero_or_two, 5: zero_or_two}
@@ -1562,20 +1562,22 @@ class GraphSet(object):
         for e in GraphSet.universe():
             graph.append((pickle.dumps(e[0]), pickle.dumps(e[1])))
 
-        vg = None
-        nc = -1
+        vg = []
+        nc = 0
         if vertex_groups is not None:
-            vg = []
             for vs in vertex_groups:
                 if len(vs) == 0:
-                    nc = 1 if nc < 0 else nc + 1
+                    nc += 1
                 else:
                     vg.append([pickle.dumps(v) for v in vs])
+        if not vg and nc == 0:
+            nc = -1
 
         dc = None
         if degree_constraints is not None:
             dc = {}
             for v, r in degree_constraints.iteritems():
+                assert v in GraphSet._vertices
                 if isinstance(r, (int, long)):
                     dc[pickle.dumps(v)] = (r, r + 1, 1)
                 elif len(r) == 1:
@@ -1600,6 +1602,61 @@ class GraphSet(object):
                                   num_comps=nc, no_loop=no_loop,
                                   search_space=ss)
         return GraphSet(ss)
+
+    @staticmethod
+    def connected_components(vertices):
+        return GraphSet.graphs(vertex_groups=[vertices])
+
+    @staticmethod
+    def cliques(k):
+        dc = {}
+        for v in GraphSet._vertices:
+            dc[v] = xrange(0, k, k - 1)
+        ne = range(k * (k - 1) / 2, k * (k - 1) / 2 + 1)
+        return GraphSet.graphs(vertex_groups=[[]], degree_constraints=dc,
+                               num_edges=ne)
+
+    @staticmethod
+    def trees(root=None, is_spanning=False):
+        vg = [[]] if root is None else [[root]]
+        dc = None
+        if is_spanning:
+            dc = {}
+            for v in GraphSet._vertices:
+                dc[v] = xrange(1, len(GraphSet._vertices))
+        return GraphSet.graphs(vertex_groups=vg, degree_constraints=dc,
+                               no_loop=True)
+
+    @staticmethod
+    def forests(roots, is_spanning=False):
+        vg = [[r] for r in roots]
+        dc = None
+        if is_spanning:
+            dc = {}
+            for v in GraphSet._vertices:
+                if v not in roots:
+                    dc[v] = xrange(1, len(GraphSet._vertices))
+        return GraphSet.graphs(vertex_groups=vg, degree_constraints=dc,
+                               no_loop=True)
+
+    @staticmethod
+    def cycles(is_hamilton=False):
+        dc = {}
+        for v in GraphSet._vertices:
+            dc[v] = 2 if is_hamilton else xrange(0, 3, 2)
+        return GraphSet.graphs(vertex_groups=[[]], degree_constraints=dc)
+
+    @staticmethod
+    def paths(terminal1, terminal2, is_hamilton=False):
+        dc = {}
+        for v in GraphSet._vertices:
+            if v in (terminal1, terminal2):
+                dc[v] = 1
+            else:
+                dc[v] = 2 if is_hamilton else xrange(0, 3, 2)
+        return GraphSet.graphs(vertex_groups=[[terminal1, terminal2]],
+                               degree_constraints=dc,
+                               no_loop=True)
 
     @staticmethod
     def _traverse(edges, traversal, source):

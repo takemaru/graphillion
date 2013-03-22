@@ -129,7 +129,7 @@ class TestGraphSet(unittest.TestCase):
 
         # subgraphs separating [1, 5] and [2]
         gs = GraphSet.graphs(vertex_groups=[[1, 5], [2]])
-        self.assertEqual(len(gs), 7)
+        self.assertEqual(len(gs), 6)
         self.assertTrue([(1, 4), (4, 5)] in gs)
         self.assertTrue([(1, 2), (1, 4), (4, 5)] not in gs)
 
@@ -170,6 +170,74 @@ class TestGraphSet(unittest.TestCase):
         self.assertEqual(len(gs), 66)
         self.assertTrue([(1, 2), (1, 4), (2, 5)] in gs)
         self.assertTrue([(1, 2), (1, 4), (2, 5), (4, 5)] not in gs)
+
+        # single connected components across 1, 3, and 5
+        gs = GraphSet.connected_components([1, 3, 5])
+        self.assertEqual(len(gs), 35)
+        self.assertTrue([(1, 2), (2, 3), (2, 5)] in gs)
+        self.assertTrue([(1, 2), (2, 3), (5, 6)] not in gs)
+
+        GraphSet.set_universe([(1, 2), (1, 3), (1, 4), (1, 5), (2, 3), (2, 4),
+                               (2, 5), (3, 4), (3, 5), (4, 5)])
+
+        # cliques with 4 vertices
+        gs = GraphSet.cliques(4)
+        self.assertEqual(len(gs), 5)
+        self.assertTrue([(1, 2), (1, 3), (1, 4), (2, 3), (2, 4), (3, 4)] in gs)
+        self.assertTrue([(1, 2), (1, 3), (1, 4), (2, 3), (2, 4), (3, 5)] not in gs)
+
+        GraphSet.set_universe([(1, 2), (1, 4), (2, 3), (2, 5), (3, 6), (4, 5),
+                               (5, 6)])
+
+        # trees rooted at 1
+        gs = GraphSet.trees(1)
+        self.assertEqual(len(gs), 45)
+        self.assertTrue([] in gs)
+        self.assertTrue([(1, 2), (1, 4), (2, 5), (4, 5)] not in gs)
+
+        # spanning trees
+        gs = GraphSet.trees(is_spanning=True)
+        self.assertEqual(len(gs), 15)
+        self.assertTrue([(1, 2), (1, 4), (2, 3), (2, 5), (3, 6)] in gs)
+        self.assertTrue([(1, 2), (1, 4), (2, 3), (2, 5), (4, 5)] not in gs)
+        for g in gs:
+            self.assertEqual(len(g), 5)
+
+        # forests rooted at 1 and 3
+        gs = GraphSet.forests([1, 3])
+        self.assertEqual(len(gs), 54)
+        self.assertTrue([] in gs)
+        self.assertTrue([(1, 2), (2, 3)] not in gs)
+
+        # spanning forests rooted at 1 and 3
+        gs = GraphSet.forests([1, 3], is_spanning=True)
+        self.assertEqual(len(gs), 20)
+        self.assertTrue([(1, 2), (1, 4), (2, 5), (3, 6)] in gs)
+        self.assertTrue([(1, 2), (1, 4), (2, 3), (2, 5)] not in gs)
+        for g in gs:
+            self.assertEqual(len(g), 4)
+
+        # cycles
+        gs = GraphSet.cycles()
+        self.assertEqual(len(gs), 3)
+        self.assertTrue([(1, 2), (1, 4), (2, 5), (4, 5)] in gs)
+        self.assertTrue([] not in gs)
+
+        # hamilton cycles
+        gs = GraphSet.cycles(is_hamilton=True)
+        self.assertEqual(len(gs), 1)
+        self.assertTrue([(1, 2), (1, 4), (2, 3), (3, 6), (4, 5), (5, 6)] in gs)
+
+        # paths between 1 and 6
+        gs = GraphSet.paths(1, 6)
+        self.assertEqual(len(gs), 4)
+        self.assertTrue([(1, 2), (2, 3), (3, 6)] in gs)
+        self.assertTrue([(1, 2), (2, 3), (5, 6)] not in gs)
+
+        # hamilton paths between 1 and 6
+        gs = GraphSet.paths(1, 6, is_hamilton=True)
+        self.assertEqual(len(gs), 1)
+        self.assertTrue([(1, 4), (2, 3), (2, 5), (3, 6), (4, 5)] in gs)
 
     def test_comparison(self):
         gs = GraphSet([g12])
