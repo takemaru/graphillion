@@ -639,6 +639,9 @@ class GraphSet(object):
     def rand_iter(self):
         """Iterates over graphs uniformly randomly.
 
+        This method relies on its own random number generator, doesn't
+        rely on Python random module.
+
         Examples:
           >>> graph1 = [(1, 2)]
           >>> graph2 = [(1, 2), (1, 4)]
