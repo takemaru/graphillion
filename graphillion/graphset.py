@@ -1491,6 +1491,8 @@ class GraphSet(object):
         edges = []
         GraphSet._vertices = set()
         GraphSet._weights = {}
+        if hasattr(universe, 'edges'):
+            universe = universe.edges()
         for e in universe:
             if e in edges or (e[1], e[0]) in edges:
                 raise KeyError, e

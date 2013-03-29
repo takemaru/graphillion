@@ -645,7 +645,7 @@ class TestGraphSet(unittest.TestCase):
         g = nx.grid_2d_graph(8, 8)
         v00, v01, v10 = (0,0), (0,1), (1,0)
 
-        GraphSet.set_universe(g.edges())
+        GraphSet.set_universe(g)
         self.assertEqual(len(GraphSet.universe()), 112)
 #        self.assertEqual(GraphSet.universe()[:2], [(v00, v01), (v00, v10)])
 
