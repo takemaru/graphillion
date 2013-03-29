@@ -51,7 +51,7 @@ def draw(g, universe=None):
         g = nx.Graph(list(g))
     if universe is None:
         from graphillion import GraphSet
-        universe = GraphSet.get_universe()
+        universe = GraphSet.universe()
     if not isinstance(universe, nx.Graph):
         universe = nx.Graph(list(universe))
     n = sorted(universe[1].keys())[1] - 1
