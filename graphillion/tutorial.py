@@ -82,6 +82,6 @@ def how_many_turns(path):
     return turns
 
 def current_edges():
-    edges = GraphSet.universe().edges()
+    edges = GraphSet.universe()
     shuffle(edges)
     return edges[:int(len(edges) * 0.75)]
