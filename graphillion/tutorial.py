@@ -17,9 +17,11 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+from graphillion import GraphSet
+from random import shuffle
+
 def grid(m, n=None, edge_probability=1.0):
     import networkx as nx
-    from random import shuffle
     # critical edge probability is 0.5 in the percolation theory
     assert 0.6 < edge_probability and edge_probability <= 1
     m += 1
@@ -50,7 +52,6 @@ def draw(g, universe=None):
     if not isinstance(g, nx.Graph):
         g = nx.Graph(list(g))
     if universe is None:
-        from graphillion import GraphSet
         universe = GraphSet.universe()
     if not isinstance(universe, nx.Graph):
         universe = nx.Graph(list(universe))
@@ -79,3 +80,8 @@ def how_many_turns(path):
         pos = edge[1] if edge[0] == pos else edge[0]
         direction = next_direction
     return turns
+
+def current_edges():
+    edges = GraphSet.universe().edges()
+    shuffle(edges)
+    return edges[:int(len(edges) * 0.75)]
