@@ -18,12 +18,13 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 from graphillion import GraphSet
-from random import shuffle
+from random import seed, shuffle
 
-def grid(m, n=None, edge_probability=1.0):
+def grid(m, n=None, prob_to_remove_edge=0.0):
     import networkx as nx
     # critical edge probability is 0.5 in the percolation theory
-    assert 0.6 < edge_probability and edge_probability <= 1
+    assert 0 <= prob_to_remove_edge and prob_to_remove_edge < 0.4
+    seed(1)
     m += 1
     if n is None:
         n = m
@@ -36,12 +37,11 @@ def grid(m, n=None, edge_probability=1.0):
         if v <= (m - 1) * n:
             edges.append((v, v + n))
     g = nx.Graph(edges)
-    while edge_probability < 1.0:
+    while prob_to_remove_edge > 0:
         g = nx.Graph(edges)
         edges_removed = edges[:]
         shuffle(edges_removed)
-        p = 1 - edge_probability
-        g.remove_edges_from(edges_removed[:int(len(edges)*p)])
+        g.remove_edges_from(edges_removed[:int(len(edges)*prob_to_remove_edge)])
         if nx.is_connected(g) and len(g[1]) == 2:
             break
     return g
@@ -81,7 +81,12 @@ def how_many_turns(path):
         direction = next_direction
     return turns
 
-def current_edges():
+def hist(data):
+    import matplotlib.pyplot as plt
+    plt.hist(data)
+    plt.show()
+
+def current_config():
     edges = GraphSet.universe()
     shuffle(edges)
     return edges[:int(len(edges) * 0.75)]
