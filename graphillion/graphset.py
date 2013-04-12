@@ -55,12 +55,12 @@ class GraphSet(object):
       |     |     |
       4 --- 5 --- 6
 
-      >>> edges = [(1, 2), (1, 4), (2, 3), (2, 5), (3, 6), (4, 5), (5, 6)]
-      >>> GraphSet.set_universe(edges)
+      >>> universe = [(1, 2), (1, 4), (2, 3), (2, 5), (3, 6), (4, 5), (5, 6)]
+      >>> GraphSet.set_universe(universe)
 
       Find all paths from 1 to 6 and count them.
 
-      >>> paths = GraphSet.path(1, 6)
+      >>> paths = GraphSet.paths(1, 6)
       >>> len(paths)
       3
 
@@ -128,7 +128,11 @@ class GraphSet(object):
                     d[k] = [GraphSet._conv_edge(e) for e in l]
                 obj = d
             self._ss = setset(obj)
-        self.graphs = partial(GraphSet.graphs, graphset=self)
+        methods = ['graphs', 'connected_components', 'cliques', 'trees',
+                   'forests', 'cycles', 'paths']
+        for method in methods:
+            expr = 'self.%s = partial(GraphSet.%s, graphset=self)'
+            exec expr % (method, method)
 
     def copy(self):
         """Returns a new GraphSet with a shallow copy of `self`.
@@ -1550,15 +1554,26 @@ class GraphSet(object):
           GraphSet([[(1, 2), (2, 3), (3, 6)], [(1, 2), (2, 5), (5, 6)], [(1, 4), (4, 5 ...
 
         Args:
-          vertex_groups: Optional.
+          vertex_groups: Optional.  A nested list.  Verticies in an
+            inner list are connected while those in different inner
+            lists are disconnected.  For `[[1, 5], [3]]`, 1 and 5 are
+            connected, while they are not connected with 3.
 
-          degree_constraints: Optional.
+          degree_constraints: Optional.  A dict with a vertex and a
+            range or int.  The degree of a vertex is restricted by the
+            range.  For `{1: 2, 6: range(2)}`, the degree of vertex 1
+            is 2 and that of 6 is less than 2, while others are not
+            cared.
 
-          num_edges: Optional.
+          num_edges: Optional.  A range or int.  This argument
+            specifies the number of edges used in graphs to be stored.
+            For `range(5)`, less than 5 edges can be used.
 
-          no_loop: Optional.
+          no_loop: Optional.  True or False.  This argument specifies
+            if loop is not allowed.
 
-          graphset: Optional.
+          graphset: Optional.  A GraphSet object.  Graphs to be stored
+            are selected from this object.
 
         Returns:
           A new GraphSet object.
@@ -1609,20 +1624,70 @@ class GraphSet(object):
         return GraphSet(ss)
 
     @staticmethod
-    def connected_components(vertices):
-        return GraphSet.graphs(vertex_groups=[vertices])
+    def connected_components(vertices, graphset=None):
+        """Returns a GraphSet with connected components.
+
+        Examples:
+          >>> GraphSet.connected_components([1, 3, 5])
+          GraphSet([[(1, 2), (2, 3), (2, 5)], [(1, 2), (1, 4), (2, 3), (2, 5)], [(1, 2 ...
+
+        Args:
+          vertices: A list of vertices to be connected.
+
+          graphset: Optional.  A GraphSet object.  Components to be
+            stored are selected from this object.
+
+        Returns:
+          A new GraphSet object.
+        """
+        return GraphSet.graphs(vertex_groups=[vertices], graphset=graphset)
 
     @staticmethod
-    def cliques(k):
+    def cliques(k, graphset=None):
+        """Returns a GraphSet with k-cliques.
+
+        Examples:
+          >>> GraphSet.set_universe([(1, 2), (1, 3), (1, 4), (1, 5), (2, 3), (2, 4),
+                                     (2, 5), (3, 4), (3, 5), (4, 5)])
+          >>> GraphSet.cliques(4)
+          GraphSet([[(1, 2), (1, 3), (1, 4), (2, 3), (2, 4), (3, 4)], [(1, 2), (1, 3), ...
+
+        Args:
+          k: An integer.  The number of vertices in a clique.
+
+          graphset: Optional.  A GraphSet object.  Cliques to be
+            stored are selected from this object.
+
+        Returns:
+          A new GraphSet object.
+        """
         dc = {}
         for v in GraphSet._vertices:
             dc[v] = xrange(0, k, k - 1)
         ne = range(k * (k - 1) / 2, k * (k - 1) / 2 + 1)
         return GraphSet.graphs(vertex_groups=[[]], degree_constraints=dc,
-                               num_edges=ne)
+                               num_edges=ne, graphset=graphset)
 
     @staticmethod
-    def trees(root=None, is_spanning=False):
+    def trees(root=None, is_spanning=False, graphset=None):
+        """Returns a GraphSet with trees.
+
+        Examples:
+          >>> GraphSet.trees(1, is_spanning=True)
+          GraphSet([[(1, 2), (1, 4), (2, 3), (2, 5), (3, 6)], [(1, 2), (1, 4), (2, 3), ...
+
+        Args:
+          root:  Optional.  A vertex, at which trees are rooted.
+
+          is_spanning: Optional.  True or False.  If true, trees must
+            be composed of all vertices.
+
+          graphset: Optional.  A GraphSet object.  Trees to be stored
+            are selected from this object.
+
+        Returns:
+          A new GraphSet object.
+        """
         vg = [[]] if root is None else [[root]]
         dc = None
         if is_spanning:
@@ -1630,10 +1695,29 @@ class GraphSet(object):
             for v in GraphSet._vertices:
                 dc[v] = xrange(1, len(GraphSet._vertices))
         return GraphSet.graphs(vertex_groups=vg, degree_constraints=dc,
-                               no_loop=True)
+                               no_loop=True, graphset=graphset)
 
     @staticmethod
-    def forests(roots, is_spanning=False):
+    def forests(roots, is_spanning=False, graphset=None):
+        """Returns a GraphSet with forests, sets of trees.
+
+        Examples:
+          >>> GraphSet.forests([1, 6])
+          GraphSet([[], [(1, 2)], [(1, 4)], [(3, 6)], [(5, 6)], [(1, 2), (1, 4)], [(1, ...
+
+        Args:
+          roots: Optional.  A list of vertices, at which trees are
+            rooted.
+
+          is_spanning: Optional.  True or False.  If true, forests must
+            be composed of all vertices.
+
+          graphset: Optional.  A GraphSet object.  Forests to be stored
+            are selected from this object.
+
+        Returns:
+          A new GraphSet object.
+        """
         vg = [[r] for r in roots]
         dc = None
         if is_spanning:
@@ -1642,17 +1726,49 @@ class GraphSet(object):
                 if v not in roots:
                     dc[v] = xrange(1, len(GraphSet._vertices))
         return GraphSet.graphs(vertex_groups=vg, degree_constraints=dc,
-                               no_loop=True)
+                               no_loop=True, graphset=graphset)
 
     @staticmethod
-    def cycles(is_hamilton=False):
+    def cycles(is_hamilton=False, graphset=None):
+        """Returns a GraphSet with cycles.
+
+        Examples:
+          >>> GraphSet.cycles(is_hamilton=True)
+          GraphSet([[(1, 2), (1, 4), (2, 3), (3, 6), (4, 5), (5, 6)]])
+
+        Args:
+          is_hamilton: Optional.  True or False.  If true, cycles must
+            be composed of all vertices.
+
+          graphset: Optional.  A GraphSet object.  Cycles to be stored
+            are selected from this object.
+
+        Returns:
+          A new GraphSet object.
+        """
         dc = {}
         for v in GraphSet._vertices:
             dc[v] = 2 if is_hamilton else xrange(0, 3, 2)
-        return GraphSet.graphs(vertex_groups=[[]], degree_constraints=dc)
+        return GraphSet.graphs(vertex_groups=[[]], degree_constraints=dc,
+                               graphset=graphset)
 
     @staticmethod
-    def paths(terminal1, terminal2, is_hamilton=False):
+    def paths(terminal1, terminal2, is_hamilton=False, graphset=None):
+        """Returns a GraphSet with paths.
+
+        Examples:
+          >>> GraphSet.paths(1, 6)
+          GraphSet([[(1, 2), (2, 3), (3, 6)], [(1, 2), (2, 5), (5, 6)], [(1, 4), (4, 5 ...
+
+        Args:
+          terminal1 and terminal2: Both end verticies of a paths.
+
+          graphset: Optional.  A GraphSet object.  Paths to be stored
+            are selected from this object.
+
+        Returns:
+          A new GraphSet object.
+        """
         dc = {}
         for v in GraphSet._vertices:
             if v in (terminal1, terminal2):
@@ -1661,7 +1777,7 @@ class GraphSet(object):
                 dc[v] = 2 if is_hamilton else xrange(0, 3, 2)
         return GraphSet.graphs(vertex_groups=[[terminal1, terminal2]],
                                degree_constraints=dc,
-                               no_loop=True)
+                               no_loop=True, graphset=graphset)
 
     @staticmethod
     def _traverse(edges, traversal, source):

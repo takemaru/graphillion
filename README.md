@@ -169,7 +169,7 @@ this tutorial is also provided as a movie (to appear).
 We believe you enjoyed the movies and understood the necessity and
 features of Graphillion.  Now, let's see Graphillion in more detail.
 
-We first introduce the terminology used in Graphillion, as follows:
+We first introduce terminology used in Graphillion, as follows:
 
 | Term          | Description                  | Example                                          |
 |:--------------|:-----------------------------|:-------------------------------------------------|
@@ -181,11 +181,11 @@ We first introduce the terminology used in Graphillion, as follows:
 
 Vertices (or nodes) can be any hashable object; e.g., a number, a text
 string, etc.  Edges (or links) are a pair of vertices, and a graph is
-a list of edges; currently, Graphillion supports undirected graphs
+defined as a list of edges; currently, Graphillion supports undirected graphs
 only.  A GraphSet object stores a set of graphs; we will manipulate
 graphs in the object in a variety of ways.
 
-Before anything else, we import Graphillion and a helper module,
+Before anything else, we import Graphillion as well as a helper module,
 which provides some functions like graph creation and drawing for the
 tutorial.
 
@@ -409,6 +409,122 @@ available online at [DNET](https://github.com/takemaru/dnet).
 
 Creating Graphsets
 --------------------------------------------------------------------------------
+
+Graphillion provides three ways to create a GraphSet object; providing
+a list of graphs, giving edge constraints, and specifying graph types
+like paths and trees.  GraphSet objects created can be modified by
+operations described in the next section.
+
+Please don't forget to set the universal graph before working with
+GraphSet, as mentioned in the tutorial.
+
+```python
+>>> from graphillion import GraphSet
+>>> universe = [(1, 2), (1, 4), (2, 3), (2, 5), (3, 6), (4, 5), (5, 6)]
+>>> GraphSet.set_universe(universe)
+```
+
+### List of graph
+
+This is the most stright-forward way to create a GraphSet object.
+Specify a list of graphs and get an object that includes the graphs.
+
+In the following example, two graphs, one has a single edge and the
+other has two edges, are given, and a GraphSet object with these
+graphs is created.
+
+```python
+>>> graph1 = [(1, 4)]
+>>> graph2 = [(1, 2), (2, 3)]
+>>> gs = GraphSet([graph1, graph2])
+>>> gs
+GraphSet([[(1, 4)], [(1, 2), (2, 3)]])
+```
+
+If no argument is given, it is treated as an empty list `[]` and an
+empty GraphSet is returned.
+
+```python
+>>> gs = GraphSet()
+>>> gs
+GraphSet([])
+```
+
+### Edge constraints
+
+Edge constraints specify edges to be included or not in the object to
+be created.  The constraints must be represented by a dict of included
+or excluded edge lists.  Edges not specified in the dict are
+"don't-care"; they can be included and exculded in the object.
+
+In the following example, edge (1, 4) must be included while edges (1,
+2) and (2, 3) must not be.
+
+```python
+>>> edges1 = [(1, 4)]
+>>> edges2 = [(1, 2), (2, 3)]
+>>> GraphSet({'include': edges1, 'exclude': edges2})
+GraphSet([[(1, 4)], [(1, 4), (2, 5)], [(1, 4), (3, 6)], ...
+```
+
+An empty dict `{}` means that no constraint is specified, and so a
+GraphSet including all possible graphs in the universe is returned
+(let N the number of edges in the universe, 2^N graphs are stored).
+
+```python
+>>> gs = GraphSet({})
+>>> len(gs)
+128  # 2^7
+```
+
+### Graph types
+
+You can specify a graph type, such as paths and trees, and create a
+GraphSet object that stores all graphs matching the specified type.
+Graphillion supports the following graph types:
+
+- connected components,
+- cliques,
+- trees,
+- forests,
+- cycles, and
+- paths.
+
+For example, `paths()` method takes two arguments, two end vertices,
+and finds all paths between the vertices.
+
+```python
+>>> paths = GraphSet.paths(1, 6)
+>>> paths
+GraphSet([[(1, 2), (2, 3), (3, 6)], [(1, 2), (2, 5), (5, 6)], [(1, 4), (4, 5 ...
+```
+
+The arguments are defined for each graph type, please see the library
+reference in detail.
+
+Graphillion also provides low-level interface `graphs()` to specify
+more complicated graph types; actually, the above methods call this
+low-level interface internally.
+
+The following example is the same with `paths(1, 6)`, paths between 1
+and 6.
+
+```python
+>>> start = 1
+>>> end = 6
+>>> zero_or_two = xrange(0, 3, 2)
+>>> degree_constraints = {start: 1, end: 1,
+...                       2: zero_or_two, 3: zero_or_two,
+...                       4: zero_or_two, 5: zero_or_two}
+>>> GraphSet.graphs(vertex_groups=[[start, end]],
+...                 degree_constraints=degree_constraints,
+...                 no_loop=True)
+GraphSet([[(1, 2), (2, 3), (3, 6)], [(1, 2), (2, 5), (5, 6)], [(1, 4), (4, 5 ...
+```
+
+If these methods are called as object methods, `gs.paths(1, 6)`,
+graphs to be found are selected from the object.  Please see the
+library reference for more detail.
 
 Manipulating Graphsets
 --------------------------------------------------------------------------------
