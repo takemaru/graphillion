@@ -424,7 +424,7 @@ GraphSet, as mentioned in the tutorial.
 >>> GraphSet.set_universe(universe)
 ```
 
-### List of graph
+### List of graphs
 
 This is the most stright-forward way to create a GraphSet object.
 Specify a list of graphs and get an object that includes the graphs.
@@ -607,7 +607,10 @@ graph just an element of the set and don't care the graph structure.
 
 ### Iterators
 
-Graphillion provides various iterators.
+Graphillion provides various iterators.  `rand_iter()` generates a
+random sequence of graphs.  `min_iter()` and `max_iter()` provides
+optimization by iterating graphs in the weight order.  `choice()` is
+not an iterator, but it returns a graph in it.
 
 - `(default iterator)`,
 - `rand_iter()`,

@@ -239,6 +239,19 @@ class TestGraphSet(unittest.TestCase):
         self.assertEqual(len(gs), 1)
         self.assertTrue([(1, 4), (2, 3), (2, 5), (3, 6), (4, 5)] in gs)
 
+        # called as instance methods
+        gs = GraphSet.graphs(no_loop=True)
+        gs.connected_components([1, 3, 5])
+        gs.cliques(4)
+        gs.trees(1)
+        gs.forests([1, 3])
+        gs.cycles()
+        gs.paths(1, 6)
+
+        # exceptions
+        self.assertRaises(KeyError, GraphSet.graphs, vertex_groups=[[7]])
+        self.assertRaises(KeyError, GraphSet.graphs, degree_constraints={7: 1})
+
     def test_comparison(self):
         gs = GraphSet([g12])
         self.assertEqual(gs, GraphSet([g12]))

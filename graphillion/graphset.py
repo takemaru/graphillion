@@ -1589,6 +1589,9 @@ class GraphSet(object):
                 if len(vs) == 0:
                     nc += 1
                 else:
+                    for v in vs:
+                        if v not in GraphSet._vertices:
+                            raise KeyError, v
                     vg.append([pickle.dumps(v) for v in vs])
         if not vg and nc == 0:
             nc = -1
@@ -1597,7 +1600,8 @@ class GraphSet(object):
         if degree_constraints is not None:
             dc = {}
             for v, r in degree_constraints.iteritems():
-                assert v in GraphSet._vertices
+                if v not in GraphSet._vertices:
+                    raise KeyError, v
                 if isinstance(r, (int, long)):
                     dc[pickle.dumps(v)] = (r, r + 1, 1)
                 elif len(r) == 1:
