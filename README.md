@@ -5,8 +5,8 @@ Graphillion - A fast, lightweight graphset operation library
 * [Overview](#overview "Overview")
 * [Installing](#installing "Installing")
 * [Tutorial](#tutorial "Tutorial")
-* [Creating Graphsets](#creating-graphsets "Creating Graphsets")
-* [Manipulating Graphsets](#manipulating-graphsets "Manipulating Graphsets")
+* [Creating graphsets](#creating-graphsets "Creating graphsets")
+* [Graphset operations](#graphset-operations "Graphset operations")
 * [Dumping and loading graphsets](#dumping-and-loading-graphsets "Dumping and loading graphsets")
 * [Working with NetworkX](#working-with-networkx "Working with NetworkX")
 * [Library reference](#library-reference "Library reference")
@@ -407,7 +407,7 @@ minimization tool, which features a nonconvex optimization, is
 available online at [DNET](https://github.com/takemaru/dnet).
 
 
-Creating Graphsets
+Creating graphsets
 --------------------------------------------------------------------------------
 
 Graphillion provides three ways to create a GraphSet object; providing
@@ -526,8 +526,95 @@ If these methods are called as object methods, `gs.paths(1, 6)`,
 graphs to be found are selected from the object.  Please see the
 library reference for more detail.
 
-Manipulating Graphsets
+Graphset operations
 --------------------------------------------------------------------------------
+
+Graphillion provides many operations to manipulate graphs in a
+GraphSet object.  These operations are classified into selection,
+modification, and comparison; some of them are derived from Python's
+set methods.  Graphillon also provides some iterators to traverse the
+set.  Please see the library reference for details of each method.
+
+### Selection methods
+
+The following methods select graphs from a given GraphSet object (or
+from two given GraphSet objects if binary operation).  No new graphs
+are generated during the operation.
+
+- `union(gs)`, `|`,
+- `intersection(gs)`, `&`,
+- `difference(gs)`, `-`,
+- `symmetric_difference(gs)`, `^`,
+- `update(gs)`,
+- `including(gs, g, e, or v)`,
+- `excluding(gs, g, e, or v)`,
+- `included(gs)`,
+- `larger(n)`,
+- `smaller(n)`,
+- `len(n)`,
+- `minimal()`, and
+- `maximal()`.
+
+### Modification or generation methods
+
+The following methods generate new graphs.  Some store new graphs into
+`self`, while others return new GraphSet.
+
+#### Modifying self
+
+- `add(g or e)`,
+- `remove(g, e, or v)`, `discard(g, e, or v)`,
+- `flip(e)`,
+- `pop()`, and
+- `clear()`.
+
+#### Returning new GraphSet
+
+- `~`,
+- `complement()`, and
+- `blocking()`.
+
+### Comparison or evaluation methods
+
+The following methods provide comparison or evaluation.
+
+- `isdisjoint(gs)`,
+- `issubset(gs)`,
+- `issuperset(gs)`,
+- `in`, and
+- `len`.
+
+### Python's set methods
+
+Graphillion supports Python's set methods.  These methods treat a
+graph just an element of the set and don't care the graph structure.
+
+- `union(gs)`, `|`,
+- `intersection(gs)`, `&`,
+- `difference(gs)`, `-`,
+- `symmetric_difference(gs)`, `^`,
+- `update(gs)`,
+- `add(g)`,
+- `remove(g)`, `discard(g)`,
+- `pop()`,
+- `clear()`,
+- `isdisjoint(gs)`,
+- `issubset(gs)`,
+- `issuperset(gs)`,
+- `in`,
+- `len`, and
+- `copy()`.
+
+### Iterators
+
+Graphillion provides various iterators.
+
+- `(default iterator)`,
+- `rand_iter()`,
+- `min_iter()`,
+- `max_iter()`, and
+- `choice()`.
+
 
 Dumping and loading graphsets
 --------------------------------------------------------------------------------
