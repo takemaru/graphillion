@@ -9,6 +9,7 @@ Graphillion - A fast, lightweight graphset operation library
 * [Manipulating graphsets](#manipulating-graphsets "Manipulating graphsets")
 * [Working with NetworkX](#working-with-networkx "Working with NetworkX")
 * [Library reference](#library-reference "Library reference")
+* [TODOs](#todos "TODOs")
 * [References](#references "References")
 
 Features
@@ -17,9 +18,9 @@ Features
 Graphillion is a Python language software package for the
 manipulation, optimization, and study of a large set of graphs.
 
-* Python language data structures for a graphset, a large set of graphs
-* Search, optimization, and enumeration on a large graphset
-* Several efficient operations designed for graphsets
+* Python language data structures for a graphset, a set of graphs
+* Search, optimization, and enumeration on a quite huge graphset
+* Fast and efficient implementation extending Python with C/C++
 * Working with existing graph tools like [NetworkX](http://networkx.github.io/)
 * Open source MIT license
 * Well tested: more than 600 unit tests
@@ -697,6 +698,19 @@ Or in HTML.
 ```bash
 $ pydoc -w graphillion.GraphSet
 ```
+
+TODOs
+--------------------------------------------------------------------------------
+
+* Efficient internal data conversion
+* Efficient search in optimization
+* Nonlinear objective functions in optimization
+* Efficient algorithm for cliques
+* Multithreading
+* Garbage collections
+* Mailing lists
+* Coding rules
+* Deveroper documents
 
 References
 --------------------------------------------------------------------------------
