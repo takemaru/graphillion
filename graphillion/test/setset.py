@@ -17,14 +17,9 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import glob
-import os
-import sys
+from graphillion import setset
 import tempfile
 import unittest
-
-sys.path = ['.'] + glob.glob(os.path.join('build', 'lib.*')) + sys.path
-from graphillion import setset
 
 
 s0 = set()

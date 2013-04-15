@@ -30,60 +30,65 @@ class TestTutorial(unittest.TestCase):
         pass
 
     def test_paths(self):
-        universe = tl.grid(8, 8)
-        GraphSet.set_universe(universe)
+        try:
+            universe = tl.grid(8, 8)
+            GraphSet.set_universe(universe)
 
-        start = 1
-        goal = 81
-        paths = GraphSet.paths(start, goal)
-        self.assertEqual(len(paths), 3266598486981642)
+            start = 1
+            goal = 81
+            paths = GraphSet.paths(start, goal)
+            self.assertEqual(len(paths), 3266598486981642)
 
-        key = 64
-        treasure = 18
-        paths_to_key = GraphSet.paths(start, key).excluding(treasure)
-        treasure_paths = paths.including(paths_to_key).including(treasure)
-        self.assertEqual(len(treasure_paths), 789438891932744)
+            key = 64
+            treasure = 18
+            paths_to_key = GraphSet.paths(start, key).excluding(treasure)
+            treasure_paths = paths.including(paths_to_key).including(treasure)
+            self.assertEqual(len(treasure_paths), 789438891932744)
 
-        self.assertTrue(treasure_paths < paths)
+            self.assertTrue(treasure_paths < paths)
 
-        i = 0
-        data = []
-        for path in treasure_paths.rand_iter():
-            data.append(tl.how_many_turns(path))
-            if i == 100: break
-            i += 1
+            i = 0
+            data = []
+            for path in treasure_paths.rand_iter():
+                data.append(tl.how_many_turns(path))
+                if i == 100: break
+                i += 1
 
-        for path in treasure_paths.min_iter():
-            min_turns = tl.how_many_turns(path)
-            break
-        self.assertEqual(min_turns, 5)
+            for path in treasure_paths.min_iter():
+                min_turns = tl.how_many_turns(path)
+                break
+            self.assertEqual(min_turns, 5)
+        except ImportError:
+            pass
 
     def test_forests(self):
-        universe = tl.grid(8, 8, 0.37)
-        GraphSet.set_universe(universe)
+        try:
+            universe = tl.grid(8, 8, 0.37)
+            GraphSet.set_universe(universe)
 
-        generators = [1, 9, 73, 81]
-        forests = GraphSet.forests(roots=generators, is_spanning=True)
-        self.assertEqual(len(forests), 54060425088)
+            generators = [1, 9, 73, 81]
+            forests = GraphSet.forests(roots=generators, is_spanning=True)
+            self.assertEqual(len(forests), 54060425088)
 
-        too_large_trees = GraphSet()
-        for substation in generators:
-            too_large_trees |= GraphSet.trees(root=substation).larger(23)
-        safe_forests = forests.excluding(too_large_trees)
-        self.assertEqual(len(safe_forests), 294859080)
+            too_large_trees = GraphSet()
+            for substation in generators:
+                too_large_trees |= GraphSet.trees(root=substation).larger(23)
+            safe_forests = forests.excluding(too_large_trees)
+            self.assertEqual(len(safe_forests), 294859080)
 
-        closed_switches = tl.current_config()
-        weights = {}
-        for switch in universe.edges():
-            weights[switch] = 1 if switch in closed_switches else -1
+            closed_switches = tl.current_config()
+            weights = {}
+            for switch in universe.edges():
+                weights[switch] = 1 if switch in closed_switches else -1
 
-        failures = safe_forests.blocking().minimal()
-        self.assertEqual(len(failures), 1936)
-        failure = failures.choice()
-        for line in failure:
-            safe_forests = safe_forests.excluding(line)
-        self.assertEqual(len(safe_forests), 0)
-
+            failures = safe_forests.blocking().minimal()
+            self.assertEqual(len(failures), 1936)
+            failure = failures.choice()
+            for line in failure:
+                safe_forests = safe_forests.excluding(line)
+            self.assertEqual(len(safe_forests), 0)
+        except ImportError:
+            pass
 
 if __name__ == '__main__':
     unittest.main()

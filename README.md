@@ -16,9 +16,9 @@ Features
 --------------------------------------------------------------------------------
 
 Graphillion is a Python language software package for the
-manipulation, optimization, and study of a large set of subgraphs.
+manipulation, optimization, and study of a large set of graphs.
 
-* Python language data structures for a graphset, a large set of subgraphs
+* Python language data structures for a graphset, a large set of graphs
 * Search, optimization, and enumeration on a large graphset
 * Several efficient operations designed for graphsets
 * Working with existing graph tools like NetworkX
@@ -26,7 +26,7 @@ manipulation, optimization, and study of a large set of subgraphs.
 * Well tested: more than 600 unit tests
 * Additional benefits from Python: fast prototyping, easy to teach, multi-platform
 
-We provide funny short movies to answer the following questions.
+We provide funny short movies to answer your questions.
 
 * Why Graphillion? [Time with class! Let's
   count!](http://youtu.be/Q4gTV4r0zRs) (viewed more than a million times)
