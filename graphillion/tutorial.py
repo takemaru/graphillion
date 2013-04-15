@@ -85,8 +85,3 @@ def hist(data):
     import matplotlib.pyplot as plt
     plt.hist(data)
     plt.show()
-
-def current_config():
-    edges = GraphSet.universe()
-    shuffle(edges)
-    return edges[:int(len(edges) * 0.75)]

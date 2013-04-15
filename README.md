@@ -200,13 +200,16 @@ tutorial.
 
 At the beginning, we define our *universe*.  The universe can be any graph,
 and a graph handled by Graphillion must be a subgraph of this graph.  In this
-tutorial, we use the 8x8 grid graph as our universe.
+tutorial, we use the 8x8 grid graph as our universe (the graph size
+should be regarded as 9x9, but we follow the definition in the movie).
 
 ```python
 >>> universe = tl.grid(8, 8)
 >>> GraphSet.set_universe(universe)
 >>> tl.draw(universe)  # show a pop-up window of our universe
 ```
+
+![A grid graph](http://github.com/takemaru/graphillion/blob/master/doc/fig1.png?raw=true)
 
 We find all the simple paths between the opposing corners; it took
 four hours with the supercomputer in the movie.
@@ -229,11 +232,17 @@ paths, you can enumerate them one by one.
 >>> tl.draw(paths.choice())  # show one of the paths
 ```
 
+![A path from start to goal](http://github.com/takemaru/graphillion/blob/master/doc/fig2.png?raw=true)
+
 Next, in order to
 demonstrate the filtering or search capability of Graphillion,
 we choose paths with given conditions.  Let's assume
 that a treasure box and its key are placed on the grid as shown in the
-figure.  We consider all paths on which the key is picked up before
+figure.
+
+![Key and treasure box](http://github.com/takemaru/graphillion/blob/master/doc/fig3.png?raw=true)
+
+We consider all paths on which the key is picked up before
 reaching the treasure box.  First, search for the paths to the key not
 through the treasure box, and then select the paths including the
 key's paths and the treasure box.
@@ -245,7 +254,10 @@ key's paths and the treasure box.
 >>> treasure_paths = paths.including(paths_to_key).including(treasure)
 >>> len(treasure_paths)
 789438891932744
+>>> tl.draw(treasure_paths.choice())  # show one of the paths
 ```
+
+![A path on which the box is opened](http://github.com/takemaru/graphillion/blob/master/doc/fig4.png?raw=true)
 
 Test if all the treasure paths are a subset of the original paths,
 which connect between the corners.
@@ -270,6 +282,8 @@ follows:
 ...
 >>> tl.hist(data)
 ```
+
+![Histogram of turn counts](http://github.com/takemaru/graphillion/blob/master/doc/fig5.png?raw=true)
 
 The histogram shows that you usually turn a corner 30-50 times on a path.
 However, you also find that the shortest path involves only five turns,
@@ -298,6 +312,8 @@ provided from the four generators at corners.
 >>> tl.draw(universe)
 ```
 
+![A power distribution network](http://github.com/takemaru/graphillion/blob/master/doc/fig6.png?raw=true)
+
 The power flow is determined by configuring switches, which are placed
 on each line.  If a switch is closed (an edge exists on a graph), the power is
 transmitted on the line; otherwise, not.  The power must be
@@ -313,6 +329,8 @@ forests as follows:
 54060425088
 >>> tl.draw(forests.choice())
 ```
+
+![An unsafe power flow](http://github.com/takemaru/graphillion/blob/master/doc/fig7.png?raw=true)
 
 The amount of power transmitted from a single generator should be
 strictly restricted, so as not to exceed the capacity.  The forest shown above may have a very large
@@ -333,14 +351,18 @@ dangerous cases.
 >>> tl.draw(safe_forests.choice())
 ```
 
+![A safe power flow](http://github.com/takemaru/graphillion/blob/master/doc/fig8.png?raw=true)
+
 Since we found all the safe flows, we try to change the network from
 the current configuration to a safe one using an optimization technique.  The
 current configuration is given by:
 
 ```python
->>> closed_switches = tl.current_config()
+>>> closed_switches = (forests - safe_forests).choice()
 >>> tl.draw(closed_switches)
 ```
+
+![Current unsafe configuration](http://github.com/takemaru/graphillion/blob/master/doc/fig9.png?raw=true)
 
 New configuration must be one of the safe flows, and
 must be realized with least switch operations.  We put a *score* (edge weight) on a
@@ -354,7 +376,7 @@ in the table.
 
 ```python
 >>> scores = {}  # scores for closed switches in the new configuration (default is 0)
->>> for switch in universe.edges():
+>>> for switch in universe:
 ...     # if current status is closed then the score is 1, else -1
 ...     scores[switch] = 1 if switch in closed_switches else -1
 ...
@@ -363,7 +385,8 @@ in the table.
 We try to find a new configuration (forest) with a maximum score.  The configuration has a maximum
 score and can be realized with the least switch operations.  Compare
 it with the current configuration above, and you'll find them quite
-alike.
+alike; only eight switch operations are required from the terrible unsafe
+configuration to a safe one.
 
 ```python
 >>> for forest in safe_forests.max_iter(scores):
@@ -371,6 +394,8 @@ alike.
 ...     break
 ...
 ```
+
+![Similar but safe configuration](http://github.com/takemaru/graphillion/blob/master/doc/fig10.png?raw=true)
 
 Finally, we investigate serious failures that prevent the safe power
 delivery.  We search for minimal blocking sets, or minimal hitting

@@ -76,7 +76,7 @@ class TestTutorial(unittest.TestCase):
             safe_forests = forests.excluding(too_large_trees)
             self.assertEqual(len(safe_forests), 294859080)
 
-            closed_switches = tl.current_config()
+            closed_switches = (forests - safe_forests).choice()
             scores = {}
             for switch in universe:
                 scores[switch] = 1 if switch in closed_switches else -1
