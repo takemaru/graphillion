@@ -6,8 +6,7 @@ Graphillion - A fast, lightweight graphset operation library
 * [Installing](#installing "Installing")
 * [Tutorial](#tutorial "Tutorial")
 * [Creating graphsets](#creating-graphsets "Creating graphsets")
-* [Graphset operations](#graphset-operations "Graphset operations")
-* [Dumping and loading graphsets](#dumping-and-loading-graphsets "Dumping and loading graphsets")
+* [Manipulating graphsets](#manipulating-graphsets "Manipulating graphsets")
 * [Working with NetworkX](#working-with-networkx "Working with NetworkX")
 * [Library reference](#library-reference "Library reference")
 * [References](#references "References")
@@ -403,8 +402,9 @@ patterns, which should be investigated careflly.
 
 Though actual power distribution networks are much more complicated,
 we basically rely on the same idea with Graphillion.  Our power loss
-minimization tool, which features a nonconvex optimization, is
-available online at [DNET](https://github.com/takemaru/dnet).
+minimization tool, which deals with nonlinear objective function with
+nonconvex constraints, is available online at
+[DNET](https://github.com/takemaru/dnet).
 
 
 Creating graphsets
@@ -526,14 +526,15 @@ If these methods are called as object methods, `gs.paths(1, 6)`,
 graphs to be found are selected from the object.  Please see the
 library reference for more detail.
 
-Graphset operations
+Manipulating graphsets
 --------------------------------------------------------------------------------
 
 Graphillion provides many operations to manipulate graphs in a
 GraphSet object.  These operations are classified into selection,
 modification, and comparison; some of them are derived from Python's
 set methods.  Graphillon also provides some iterators to traverse the
-set.  Please see the library reference for details of each method.
+set, and supports serialization.  Please see the library reference for
+details of each method.
 
 ### Selection methods
 
@@ -541,19 +542,29 @@ The following methods select graphs from a given GraphSet object (or
 from two given GraphSet objects if binary operation).  No new graphs
 are generated during the operation.
 
-- `union(gs)`, `|`,
-- `intersection(gs)`, `&`,
-- `difference(gs)`, `-`,
-- `symmetric_difference(gs)`, `^`,
-- `update(gs)`,
-- `including(gs, g, e, or v)`,
-- `excluding(gs, g, e, or v)`,
-- `included(gs)`,
-- `larger(n)`,
-- `smaller(n)`,
-- `len(n)`,
-- `minimal()`, and
-- `maximal()`.
+| `gs.union(other)`, `gs | other` | Returns a new GraphSet with graphs from `self` and all others |
+| `gs.intersection(other)`, `gs & other` | Returns a new GraphSet with graphs common to `self` and all others |
+| `gs.difference(other)`, `gs - other` | Returns a new GraphSet with graphs in `self` that are not in the others |
+| `gs.symmetric_difference(other)`, `gs ^ other` | Returns a new GraphSet with graphs in either `self` or `other` but not both |
+| `gs.update(other(s))`, `gs |= other` | Updates `self`, adding graphs from all others |
+| `gs.including(obj)` | Returns a new GraphSet that includes `obj` (graphset, graph, edge, or vertex) |
+| `gs.excluding(obj)` | Returns a new GraphSet that doesn't include `obj`  (graphset, graph, edge, or vertex) |
+| `gs.included(obj)` | Returns a new GraphSet with subgraphs of a graph in `obj` (graphset or graph) |
+| `gs.larger(size)` | Returns a new GraphSet with graphs that have more than `size` edges |
+| `gs.smaller(size)` | Returns a new GraphSet with graphs that have less than `size` edges |
+| `gs.len(size)` | Returns a new GraphSet with `size` edges |
+| `gs.minimal()` | Returns a new GraphSet of minimal edge sets |
+| `gs.maximal()` | Returns a new GraphSet of maximal edge sets |
+
+Creation methods specifying graph types also work as selection methods.
+
+| `gs.graphs(constraints) | Returns a GraphSet with graphs under given constraints |
+| `gs.connected_components(vertices) | Returns a GraphSet with connected components |
+| `gs.cliques(k)` | Returns a GraphSet with k-cliques |
+| `gs.trees(root, is_spanning)` | Returns a GraphSet with trees |
+| `gs.forests(roots, is_spanning)` | Returns a GraphSet with forests, sets of trees |
+| `gs.cycles(is_hamilton, graphset)` | Returns a GraphSet with cycles |
+| `gs.paths(terminal1, terminal2, is_hamilton)` | Returns a GraphSet with paths |
 
 ### Modification or generation methods
 
@@ -562,65 +573,71 @@ The following methods generate new graphs.  Some store new graphs into
 
 #### Modifying self
 
-- `add(g or e)`,
-- `remove(g, e, or v)`, `discard(g, e, or v)`,
-- `flip(e)`,
-- `pop()`, and
-- `clear()`.
+| `gs.add(graph_or_edge)` | Adds a given graph or edge to `self` |
+| `gs.remove(obj)`, `gs.discard(obj)` | Removes a given graph, edge, or vertex from `self` |
+| `gs.flip(e)` | Flips the state of a given edge over all graphs in `self` |
+| `gs.clear()` | Removes all graphs from `self` |
 
 #### Returning new GraphSet
 
-- `~`,
-- `complement()`, and
-- `blocking()`.
+| `~ gs` | Returns a new GraphSet with graphs not stored in `self` |
+| `gs.complement()` | Returns a new GraphSet with complement graphs of `self` |
+| `gs.blocking()` | Returns a new GraphSet of all blocking sets |
 
-### Comparison or evaluation methods
+### Comparison and evaluation methods
 
 The following methods provide comparison or evaluation.
 
-- `isdisjoint(gs)`,
-- `issubset(gs)`,
-- `issuperset(gs)`,
-- `in`, and
-- `len`.
+| `gs.isdisjoint(other)` | Returns True if `self` has no graphs in common with `other` |
+| `gs.issubset(other)` | Tests if every graph in `self` is in `other` |
+| `gs.issuperset(other)` | Tests if every graph in `other` is in `self` |
+| `graph in gs` | Returns True if `obj` is in the `self`, False otherwise |
+| `len(gs)`, `gs.len()` | Returns the number of graphs in `self` |
+
+### Iterators
+
+Graphillion provides various iterators.  `rand_iter()` can be used for
+statistical analysis, and `min_iter()` and `max_iter()` can be used as
+an optimizer.  `pop()` and `choice()` return a graph in the GraphSet
+object, though they aren't iterators.
+
+| `iter(gs)` | Iterates over graphs |
+| `gs.rand_iter()` | Iterates over graphs uniformly randomly |
+| `gs.min_iter()` | Iterates over graphs in the ascending order of weights |
+| `gs.max_iter()` | Iterates over graphs in the descending order of weights |
+| `gs.pop()` | Removes and returns an arbitrary graph from `self` |
+| `gs.choice()` | Returns an arbitrary graph from `self` |
+
+### Dumping and loading methods
+
+Graphillion allows you to dump a graphset to a file, and to load it
+from the file.  Dumping and loading operations must be done together
+with pkckling the universe; see the library reference in detail.
+
+| `gs.dump(fp)` | Serialize `self` to a file `fp` |
+| `gs.load(fp)` | Deserialize a file `fp` to `self` |
 
 ### Python's set methods
 
 Graphillion supports Python's set methods.  These methods treat a
 graph just an element of the set and don't care the graph structure.
 
-- `union(gs)`, `|`,
-- `intersection(gs)`, `&`,
-- `difference(gs)`, `-`,
-- `symmetric_difference(gs)`, `^`,
-- `update(gs)`,
-- `add(g)`,
-- `remove(g)`, `discard(g)`,
-- `pop()`,
-- `clear()`,
-- `isdisjoint(gs)`,
-- `issubset(gs)`,
-- `issuperset(gs)`,
-- `in`,
-- `len`, and
-- `copy()`.
+- `gs.union(other)`, `gs | other`,
+- `gs.intersection(other)`, `gs & other`,
+- `gs.difference(other)`, `gs - other`,
+- `gs.symmetric_difference(other)`, `gs ^ other`,
+- `gs.update(other)`, `gs |= other`,
+- `gs.add(graph)`,
+- `gs.remove(graph)`, `gs.discard(graph)`,
+- `gs.clear()`,
+- `gs.isdisjoint(gs)`,
+- `gs.issubset(gs)`,
+- `gs.issuperset(gs)`,
+- `graph in gs`,
+- `len(gs)`,
+- `gs.pop()`, and
+- `gs.copy()`.
 
-### Iterators
-
-Graphillion provides various iterators.  `rand_iter()` generates a
-random sequence of graphs.  `min_iter()` and `max_iter()` provides
-optimization by iterating graphs in the weight order.  `choice()` is
-not an iterator, but it returns a graph in it.
-
-- `(default iterator)`,
-- `rand_iter()`,
-- `min_iter()`,
-- `max_iter()`, and
-- `choice()`.
-
-
-Dumping and loading graphsets
---------------------------------------------------------------------------------
 
 Working with NetworkX
 --------------------------------------------------------------------------------
@@ -630,8 +647,14 @@ Library reference
 
 Library reference can be browsed using pydoc:
 
+In the terminal window,
 ```bash
 $ pydoc graphillion.GraphSet
+```
+
+Or in HTML.
+```bash
+$ pydoc -w graphillion.GraphSet
 ```
 
 References

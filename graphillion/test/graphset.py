@@ -479,6 +479,10 @@ class TestGraphSet(unittest.TestCase):
         self.assertTrue(isinstance(gs, GraphSet))
         self.assertEqual(gs, GraphSet([g0, g1, g12, g14, g4]))
 
+        gs = GraphSet(u).included(g12)
+        self.assertTrue(isinstance(gs, GraphSet))
+        self.assertEqual(gs, GraphSet([g0, g1, g12]))
+
     def capacity(self):
         gs = GraphSet()
         self.assertFalse(gs)

@@ -805,7 +805,7 @@ class GraphSet(object):
             raise TypeError, graph_or_edge
 
     def remove(self, obj):
-        """Removes a given graph or edge from `self`.
+        """Removes a given graph, edge, or vertex from `self`.
 
         If a graph is given, the graph is just removed from `self`
         GraphSet.  If an edge is given, the edge is removed from all
@@ -845,7 +845,7 @@ class GraphSet(object):
         return None
 
     def discard(self, obj):
-        """Removes a given graph or edge from `self`.
+        """Removes a given graph, edge, or vertex from `self`.
 
         If a graph is given, the graph is just removed from `self`
         GraphSet.  If an edge is given, the edge is removed from all
@@ -923,7 +923,7 @@ class GraphSet(object):
         return self._ss.clear()
 
     def flip(self, edge):
-        """Flips the state of a given edge.
+        """Flips the state of a given edge over all graphs in `self`.
 
         If a graph in `self` includes the given edge, the edge is
         removed from the graph.  If a graph in `self` does not include
@@ -1298,7 +1298,7 @@ class GraphSet(object):
         if type == 'graphset':
             return GraphSet(self._ss.supersets(obj._ss))
         elif type == 'graph':
-            return self.including(GraphSet(setset([obj])))
+            return self.including(GraphSet([obj]))
         elif type == 'edge':
             return GraphSet(self._ss.supersets(obj))
         else:
@@ -1342,14 +1342,14 @@ class GraphSet(object):
 #            return GraphSet(self._ss.non_supersets(obj._ss))  # correct but slow
             return self - self.including(obj)
         elif type == 'graph':
-            return self.excluding(GraphSet(setset([obj])))
+            return self.excluding(GraphSet([obj]))
         elif type == 'edge':
             return GraphSet(self._ss.non_supersets(obj))
         else:
             return self.excluding(GraphSet([set([e]) for e in obj]))
 
-    def included(self, other):
-        """Returns a new GraphSet with subgraphs of a graph in `other`.
+    def included(self, obj):
+        """Returns a new GraphSet with subgraphs of a graph in `obj`.
 
         The `self` is not changed.
 
@@ -1363,13 +1363,22 @@ class GraphSet(object):
           >>> gs1.included(gs2)
           GraphSet([[(1, 2)]])
 
+        Args:
+          obj: A GraphSet or a graph (an edge list).
+
         Returns:
           A new GraphSet object.
 
         See Also:
           including()
         """
-        return GraphSet(self._ss.subsets(other._ss))
+        type, obj = GraphSet._conv_arg(obj)
+        if type == 'graphset':
+            return GraphSet(self._ss.subsets(obj._ss))
+        elif type == 'graph':
+            return self.included(GraphSet([obj]))
+        else:
+            raise TypeError, obj
 
     def choice(self):
         """Returns an arbitrary graph from `self`.
