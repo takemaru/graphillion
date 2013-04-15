@@ -80,7 +80,7 @@ Installing
 Just type:
 
 ```bash
-$ easy_install graphillion
+$ sudo easy_install graphillion
 ```
 
 and an attempt will be made to find and install an appropriate version
@@ -104,10 +104,7 @@ source code repository.
 
 #### GitHub repository
 
-1. Clone the Graphillion repository
-```bash
-$ git clone https://github.com/takemaru/graphillion.git
-```
+1. Clone the Graphillion repository `git clone https://github.com/takemaru/graphillion.git`
 2. Change directory to "graphillion"
 3. Run `python setup.py build` to build
 4. (optional) Run `python setup.py test -q` to execute the tests
@@ -156,8 +153,8 @@ tutorial.  They can be
 installed by:
 
 ```bash
-$ easy_install networkx
-$ easy_install matplotlib
+$ sudo easy_install networkx
+$ sudo easy_install matplotlib
 ```
 
 Tutorial
