@@ -411,7 +411,7 @@ Creating graphsets
 --------------------------------------------------------------------------------
 
 Graphillion provides three ways to create a GraphSet object; providing
-a list of graphs, giving edge constraints, and specifying graph types
+a list of graphs, giving edge status, and specifying graph types
 like paths and trees.  GraphSet objects created can be modified by
 operations described in the next section.
 
@@ -450,10 +450,10 @@ empty GraphSet is returned.
 GraphSet([])
 ```
 
-### Edge constraints
+### Edge Status
 
-Edge constraints specify edges to be included or not in the object to
-be created.  The constraints must be represented by a dict of included
+Edge Status specifies edges to be included or not in the object to
+be created.  These constraints must be represented by a dict of included
 or excluded edge lists.  Edges not specified in the dict are
 "don't-care"; they can be included and exculded in the object.
 
@@ -542,29 +542,33 @@ The following methods select graphs from a given GraphSet object (or
 from two given GraphSet objects if binary operation).  No new graphs
 are generated during the operation.
 
-| `gs.union(other)`, `gs | other` | Returns a new GraphSet with graphs from `self` and all others |
-| `gs.intersection(other)`, `gs & other` | Returns a new GraphSet with graphs common to `self` and all others |
-| `gs.difference(other)`, `gs - other` | Returns a new GraphSet with graphs in `self` that are not in the others |
-| `gs.symmetric_difference(other)`, `gs ^ other` | Returns a new GraphSet with graphs in either `self` or `other` but not both |
-| `gs.update(other(s))`, `gs |= other` | Updates `self`, adding graphs from all others |
-| `gs.including(obj)` | Returns a new GraphSet that includes `obj` (graphset, graph, edge, or vertex) |
-| `gs.excluding(obj)` | Returns a new GraphSet that doesn't include `obj`  (graphset, graph, edge, or vertex) |
-| `gs.included(obj)` | Returns a new GraphSet with subgraphs of a graph in `obj` (graphset or graph) |
-| `gs.larger(size)` | Returns a new GraphSet with graphs that have more than `size` edges |
-| `gs.smaller(size)` | Returns a new GraphSet with graphs that have less than `size` edges |
-| `gs.len(size)` | Returns a new GraphSet with `size` edges |
-| `gs.minimal()` | Returns a new GraphSet of minimal edge sets |
-| `gs.maximal()` | Returns a new GraphSet of maximal edge sets |
+| Method                                         | Description                                                                           |
+| :--------------------------------------------- | :------------------------------------------------------------------------------------ |
+| `gs.union(other)`, `gs (pipe) other`           | Returns a new GraphSet with graphs from `self` and all others                         |
+| `gs.intersection(other)`, `gs & other`         | Returns a new GraphSet with graphs common to `self` and all others                    |
+| `gs.difference(other)`, `gs - other`           | Returns a new GraphSet with graphs in `self` that are not in the others               |
+| `gs.symmetric_difference(other)`, `gs ^ other` | Returns a new GraphSet with graphs in either `self` or `other` but not both           |
+| `gs.update(other(s))`                          | Updates `self`, adding graphs from all others                                         |
+| `gs.including(obj)`                            | Returns a new GraphSet that includes `obj` (graphset, graph, edge, or vertex)         |
+| `gs.excluding(obj)`                            | Returns a new GraphSet that doesn't include `obj`  (graphset, graph, edge, or vertex) |
+| `gs.included(obj)`                             | Returns a new GraphSet with subgraphs of a graph in `obj` (graphset or graph)         |
+| `gs.larger(size)`                              | Returns a new GraphSet with graphs that have more than `size` edges                   |
+| `gs.smaller(size)`                             | Returns a new GraphSet with graphs that have less than `size` edges                   |
+| `gs.len(size)`                                 | Returns a new GraphSet with `size` edges                                              |
+| `gs.minimal()`                                 | Returns a new GraphSet of minimal edge sets                                           |
+| `gs.maximal()`                                 | Returns a new GraphSet of maximal edge sets                                           |
 
 Creation methods specifying graph types also work as selection methods.
 
-| `gs.graphs(constraints) | Returns a GraphSet with graphs under given constraints |
-| `gs.connected_components(vertices) | Returns a GraphSet with connected components |
-| `gs.cliques(k)` | Returns a GraphSet with k-cliques |
-| `gs.trees(root, is_spanning)` | Returns a GraphSet with trees |
-| `gs.forests(roots, is_spanning)` | Returns a GraphSet with forests, sets of trees |
-| `gs.cycles(is_hamilton, graphset)` | Returns a GraphSet with cycles |
-| `gs.paths(terminal1, terminal2, is_hamilton)` | Returns a GraphSet with paths |
+| Method                                        | Description                                            |
+| :-------------------------------------------- | :----------------------------------------------------- |
+| `gs.graphs(constraints)`                      | Returns a GraphSet with graphs under given constraints |
+| `gs.connected_components(vertices)`           | Returns a GraphSet with connected components           |
+| `gs.cliques(k)`                               | Returns a GraphSet with k-cliques                      |
+| `gs.trees(root, is_spanning)`                 | Returns a GraphSet with trees                          |
+| `gs.forests(roots, is_spanning)`              | Returns a GraphSet with forests, sets of trees         |
+| `gs.cycles(is_hamilton, graphset)`            | Returns a GraphSet with cycles                         |
+| `gs.paths(terminal1, terminal2, is_hamilton)` | Returns a GraphSet with paths                          |
 
 ### Modification or generation methods
 
@@ -573,26 +577,32 @@ The following methods generate new graphs.  Some store new graphs into
 
 #### Modifying self
 
-| `gs.add(graph_or_edge)` | Adds a given graph or edge to `self` |
-| `gs.remove(obj)`, `gs.discard(obj)` | Removes a given graph, edge, or vertex from `self` |
-| `gs.flip(e)` | Flips the state of a given edge over all graphs in `self` |
-| `gs.clear()` | Removes all graphs from `self` |
+| Method                              | Description                                               |
+| :---------------------------------- | :-------------------------------------------------------- |
+| `gs.add(graph_or_edge)`             | Adds a given graph or edge to `self`                      |
+| `gs.remove(obj)`, `gs.discard(obj)` | Removes a given graph, edge, or vertex from `self`        |
+| `gs.flip(e)`                        | Flips the state of a given edge over all graphs in `self` |
+| `gs.clear()`                        | Removes all graphs from `self`                            |
 
 #### Returning new GraphSet
 
-| `~ gs` | Returns a new GraphSet with graphs not stored in `self` |
+| Method            | Description                                             |
+| :---------------- | :------------------------------------------------------ |
+| `~ gs`            | Returns a new GraphSet with graphs not stored in `self` |
 | `gs.complement()` | Returns a new GraphSet with complement graphs of `self` |
-| `gs.blocking()` | Returns a new GraphSet of all blocking sets |
+| `gs.blocking()`   | Returns a new GraphSet of all blocking sets             |
 
 ### Comparison and evaluation methods
 
 The following methods provide comparison or evaluation.
 
+| Method                 | Description                                                 |
+| :--------------------- | :---------------------------------------------------------- |
 | `gs.isdisjoint(other)` | Returns True if `self` has no graphs in common with `other` |
-| `gs.issubset(other)` | Tests if every graph in `self` is in `other` |
-| `gs.issuperset(other)` | Tests if every graph in `other` is in `self` |
-| `graph in gs` | Returns True if `obj` is in the `self`, False otherwise |
-| `len(gs)`, `gs.len()` | Returns the number of graphs in `self` |
+| `gs.issubset(other)`   | Tests if every graph in `self` is in `other`                |
+| `gs.issuperset(other)` | Tests if every graph in `other` is in `self`                |
+| `graph in gs`          | Returns True if `obj` is in the `self`, False otherwise     |
+| `len(gs)`, `gs.len()`  | Returns the number of graphs in `self`                      |
 
 ### Iterators
 
@@ -601,12 +611,14 @@ statistical analysis, and `min_iter()` and `max_iter()` can be used as
 an optimizer.  `pop()` and `choice()` return a graph in the GraphSet
 object, though they aren't iterators.
 
-| `iter(gs)` | Iterates over graphs |
-| `gs.rand_iter()` | Iterates over graphs uniformly randomly |
-| `gs.min_iter()` | Iterates over graphs in the ascending order of weights |
-| `gs.max_iter()` | Iterates over graphs in the descending order of weights |
-| `gs.pop()` | Removes and returns an arbitrary graph from `self` |
-| `gs.choice()` | Returns an arbitrary graph from `self` |
+| Method           | Description                                             |
+| :--------------- | :------------------------------------------------------ |
+| `iter(gs)`       | Iterates over graphs                                    |
+| `gs.rand_iter()` | Iterates over graphs uniformly randomly                 |
+| `gs.min_iter()`  | Iterates over graphs in the ascending order of weights  |
+| `gs.max_iter()`  | Iterates over graphs in the descending order of weights |
+| `gs.pop()`       | Removes and returns an arbitrary graph from `self`      |
+| `gs.choice()`    | Returns an arbitrary graph from `self`                  |
 
 ### Dumping and loading methods
 
@@ -614,7 +626,9 @@ Graphillion allows you to dump a graphset to a file, and to load it
 from the file.  Dumping and loading operations must be done together
 with pkckling the universe; see the library reference in detail.
 
-| `gs.dump(fp)` | Serialize `self` to a file `fp` |
+| Method        | Description                       |
+| :------------ | :-------------------------------- |
+| `gs.dump(fp)` | Serialize `self` to a file `fp`   |
 | `gs.load(fp)` | Deserialize a file `fp` to `self` |
 
 ### Python's set methods
