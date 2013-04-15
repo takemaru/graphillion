@@ -651,29 +651,70 @@ class TestGraphSet(unittest.TestCase):
         gs.load(f)
         self.assertEqual(gs, GraphSet(v))
 
+    def test_networkx(self):
+        try:
+            import networkx as nx
+        except ImportError:
+            return
+
+        try:
+            GraphSet.bridges = { 'to_graph': nx.Graph,
+                                 'to_edges': nx.Graph.edges }
+
+            g = nx.grid_2d_graph(3, 3)
+            GraphSet.set_universe(g)
+            g = GraphSet.universe()
+            self.assertTrue(isinstance(g, nx.Graph))
+            self.assertEqual(len(g.edges()), 12)
+
+            v00, v01, v10 = (0,0), (0,1), (1,0)
+            e1, e2 = (v00, v01), (v00, v10)
+            gs = GraphSet([nx.Graph([e1])])
+            self.assertEqual(len(gs), 1)
+            g = gs.pop()
+            self.assertEqual(len(gs), 0)
+            self.assertTrue(isinstance(g, nx.Graph))
+            self.assertTrue(g.edges() == [(v00, v01)] or g.edges() == [(v01, v00)])
+            gs.add(nx.Graph([e2]))
+            self.assertEqual(len(gs), 1)
+        except:
+            raise
+        finally:
+            GraphSet.bridges = { 'to_graph': lambda edges: edges,
+                                 'to_edges': lambda graph: graph }
+
     def test_large(self):
-        import networkx as nx
+        try:
+            import networkx as nx
+        except ImportError:
+            return
 
-        g = nx.grid_2d_graph(8, 8)
-        v00, v01, v10 = (0,0), (0,1), (1,0)
+        try:
+            GraphSet.bridges['to_edges'] = nx.Graph.edges
 
-        GraphSet.set_universe(g)
-        self.assertEqual(len(GraphSet.universe()), 112)
-#        self.assertEqual(GraphSet.universe()[:2], [(v00, v01), (v00, v10)])
+            g = nx.grid_2d_graph(8, 8)
+            v00, v01, v10 = (0,0), (0,1), (1,0)
 
-        gs = GraphSet({});
-        gs -= GraphSet([[(v00, v01)], [(v00, v01), (v00, v10)]])
-        self.assertAlmostEqual(gs.len() / (2**112 - 2), 1)
+            GraphSet.set_universe(g)
+            self.assertEqual(len(GraphSet.universe()), 112)
+#            self.assertEqual(GraphSet.universe()[:2], [(v00, v01), (v00, v10)])
 
-        i = 0
-        for g in gs:
-            if i > 100: break
-            i += 1
+            gs = GraphSet({});
+            gs -= GraphSet([nx.Graph([(v00, v01)]),
+                            nx.Graph([(v00, v01), (v00, v10)])])
+            self.assertAlmostEqual(gs.len() / (2**112 - 2), 1)
 
-        paths = GraphSet.paths((0, 0), (7, 7))
-        self.assertEqual(len(paths), 789360053252)
+            i = 0
+            for g in gs:
+                if i > 100: break
+                i += 1
 
-        del nx
+            paths = GraphSet.paths((0, 0), (7, 7))
+            self.assertEqual(len(paths), 789360053252)
+        except:
+            raise
+        finally:
+            GraphSet.bridges['to_edges'] = lambda graph: graph
 
 
 if __name__ == '__main__':

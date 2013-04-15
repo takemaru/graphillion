@@ -78,7 +78,7 @@ class TestTutorial(unittest.TestCase):
 
             closed_switches = tl.current_config()
             weights = {}
-            for switch in universe.edges():
+            for switch in universe:
                 weights[switch] = 1 if switch in closed_switches else -1
 
             failures = safe_forests.blocking().minimal()

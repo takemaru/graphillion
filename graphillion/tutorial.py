@@ -44,7 +44,7 @@ def grid(m, n=None, prob_to_remove_edge=0.0):
         g.remove_edges_from(edges_removed[:int(len(edges)*prob_to_remove_edge)])
         if nx.is_connected(g) and len(g[1]) == 2:
             break
-    return g
+    return g.edges()
 
 def draw(g, universe=None):
     import networkx as nx

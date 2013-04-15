@@ -20,7 +20,7 @@ manipulation, optimization, and study of a large set of graphs.
 * Python language data structures for a graphset, a large set of graphs
 * Search, optimization, and enumeration on a large graphset
 * Several efficient operations designed for graphsets
-* Working with existing graph tools like NetworkX
+* Working with existing graph tools like [NetworkX](http://networkx.github.io/)
 * Open source MIT license
 * Well tested: more than 600 unit tests
 * Additional benefits from Python: fast prototyping, easy to teach, multi-platform
@@ -411,7 +411,7 @@ Creating graphsets
 --------------------------------------------------------------------------------
 
 Graphillion provides three ways to create a GraphSet object; providing
-a list of graphs, giving edge status, and specifying graph types
+a list of graphs, giving edge constraints, and specifying graph types
 like paths and trees.  GraphSet objects created can be modified by
 operations described in the next section.
 
@@ -450,9 +450,9 @@ empty GraphSet is returned.
 GraphSet([])
 ```
 
-### Edge Status
+### Edge constraints
 
-Edge Status specifies edges to be included or not in the object to
+Edge constraints specify edges to be included or not in the object to
 be created.  These constraints must be represented by a dict of included
 or excluded edge lists.  Edges not specified in the dict are
 "don't-care"; they can be included and exculded in the object.
@@ -588,7 +588,7 @@ The following methods generate new graphs.  Some store new graphs into
 
 | Method            | Description                                             |
 | :---------------- | :------------------------------------------------------ |
-| `~ gs`            | Returns a new GraphSet with graphs not stored in `self` |
+| `~gs`             | Returns a new GraphSet with graphs not stored in `self` |
 | `gs.complement()` | Returns a new GraphSet with complement graphs of `self` |
 | `gs.blocking()`   | Returns a new GraphSet of all blocking sets             |
 
@@ -607,9 +607,9 @@ The following methods provide comparison or evaluation.
 ### Iterators
 
 Graphillion provides various iterators.  `rand_iter()` can be used for
-statistical analysis, and `min_iter()` and `max_iter()` can be used as
-an optimizer.  `pop()` and `choice()` return a graph in the GraphSet
-object, though they aren't iterators.
+random sampling in statistical analysis, and `min_iter()` and
+`max_iter()` can be used as an optimizer.  `pop()` and `choice()`
+return a graph in the GraphSet object, though they aren't iterators.
 
 | Method           | Description                                             |
 | :--------------- | :------------------------------------------------------ |
@@ -655,6 +655,33 @@ graph just an element of the set and don't care the graph structure.
 
 Working with NetworkX
 --------------------------------------------------------------------------------
+
+Graphillion transparently works with existing graph tools like
+NetworkX; any object of specified class can be recognized as a graph
+in Graphillion, while an edge list is a graph by default.
+
+Define two methods that associate the new graph class with edge lists;
+one is to convert an edge list into a graph object, and the other is
+vice versa.
+
+We show an example for NetworkX.
+
+```python
+>>> GraphSet.bridges = { 'to_graph': nx.Graph, 'to_edges': nx.Graph.edges }
+```
+
+We can now pass NetworkX's graph objects to Graphillion like this.
+
+```python
+>>> GraphSet.set_universe(nx.Graph(...))
+```
+
+We also receive NetworkX's graph objects from Graphillion.
+
+```python
+>>> GraphSet(...).pop()
+<networkx.classes.graph.Graph object at 0x100456d10>
+```
 
 Library reference
 --------------------------------------------------------------------------------

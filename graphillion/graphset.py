@@ -117,10 +117,11 @@ class GraphSet(object):
         else:
             if obj is None:
                 obj = []
-            elif isinstance(obj, list):  # a set of graphs [graph+]
+            elif isinstance(obj, (set, frozenset, list)):  # a list of graphs [graph+]
                 l = []
                 for g in obj:
-                    l.append(set([GraphSet._conv_edge(e) for e in g]))
+                    edges = GraphSet.bridges['to_edges'](g)
+                    l.append(set([GraphSet._conv_edge(e) for e in edges]))
                 obj = l
             elif isinstance(obj, dict):  # constraints
                 d = {}
@@ -1504,8 +1505,7 @@ class GraphSet(object):
         edges = []
         GraphSet._vertices = set()
         GraphSet._weights = {}
-        if hasattr(universe, 'edges'):
-            universe = universe.edges()
+        universe = GraphSet.bridges['to_edges'](universe)
         for e in universe:
             if e in edges or (e[1], e[0]) in edges:
                 raise KeyError, e
@@ -1543,7 +1543,7 @@ class GraphSet(object):
                 edges.append((e[0], e[1], GraphSet._weights[e]))
             else:
                 edges.append(e)
-        return edges
+        return GraphSet.bridges['to_graph'](edges)
 
     @staticmethod
     def graphs(vertex_groups=None, degree_constraints=None, num_edges=None,
@@ -1839,7 +1839,15 @@ class GraphSet(object):
             return 'edge', GraphSet._conv_edge(obj)
         elif obj in GraphSet._vertices:
             return 'vertex', [e for e in setset.universe() if obj in e]
-        raise KeyError, obj
+        try:
+            edges = GraphSet.bridges['to_edges'](obj)
+            return 'graph', set([GraphSet._conv_edge(e) for e in edges])
+        except TypeError:  # if fail to convert obj into edge list
+            raise KeyError, obj
+
+    @staticmethod
+    def _conv_graph(obj):
+        return GraphSet.bridges['to_edges'](obj)
 
     @staticmethod
     def _conv_edge(edge):
@@ -1856,8 +1864,11 @@ class GraphSet(object):
     @staticmethod
     def _conv_ret(obj):
         if isinstance(obj, (set, frozenset)):  # a graph
-            return sorted(list(obj))
+            return GraphSet.bridges['to_graph'](sorted(list(obj)))
         raise TypeError, obj
+
+    bridges = { 'to_graph': lambda edges: edges,
+                'to_edges': lambda graph: graph }
 
     _vertices = set()
     _weights = {}
