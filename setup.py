@@ -55,6 +55,7 @@ trillions of graphs can be processed in a single computer.
       url='http://graphillion.org/',
       license=release.license,
       zip_safe=False,
+      packages = ['graphillion'],
       ext_modules=[
         Extension('_graphillion', 
                   sources=[os.path.join('src', 'pygraphillion.cc'),
