@@ -18,18 +18,19 @@ Features
 Graphillion is a Python language software package for the
 manipulation, optimization, and study of a large set of graphs.
 
-* Python language data structures for a graphset, a set of graphs
-* Search, optimization, and enumeration on a very large graphset
+* Python language data structures for a graphset (a set of graphs)
+* Search, optimization, and enumeration on a large and complex graphset
 * Fast and efficient implementation extending Python with C/C++
 * Working with existing graph tools like [NetworkX](http://networkx.github.io/)
 * Open source MIT license
 * Well tested: more than 600 unit tests
-* Additional benefits from Python: fast prototyping, easy to teach, multi-platform
+* Additional benefits from Python: fast prototyping, easy to teach,
+  and multi-platform
 
 We provide funny short movies to answer your questions.
 
 * Why Graphillion? [Time with class! Let's
-  count!](http://youtu.be/Q4gTV4r0zRs) (viewed more than a million times)
+  count!](http://youtu.be/Q4gTV4r0zRs) (viewed more than a million times!)
 * What's Graphillion? (to appear)
 
 Overview
@@ -38,37 +39,37 @@ Overview
 Graphillion is a Python library for efficient *graphset operations*.
 Unlike existing graph tools such as NetworkX, which are designed to
 manipulate just a single graph at a time, Graphillion handles a large
-*set* of graphs with great efficiency.  Surprisingly, trillions of
-trillions of graphs can be processed in a single computer.
+*set* of graphs very efficiently.  Surprisingly, trillions of
+trillions of graphs can be processed in a single computer with Graphillion.
 
 You may be curious about an uncommon concept of *graphset*, but it
 comes along with any graph or network when you consider multiple
 subgraphs cut from the graph; e.g., considering possible driving routes on
 a road map, examining feasible electric flows on a power grid, or
 evaluating the structure of chemical reaction networks.  The number of
-such subgraphs can be more than googol, 10^100, even in a graph with
-just a few hundreds of edges, since subgraphs increase exponentially
+such subgraphs can be trillions even in a graph with
+just a few hundreds of edges, since the number of subgraphs increases exponentially
 with the graph size.  It takes millions of years to examine all
 subgraphs with a naive approach as demonstrated in the funny movie above;
 Graphillion is our answer to resolve this issue.
 
-Graphillion allows you to exhaustively but efficiently search a given
-graphset (a set of subgraphs) with complex, even nonconvex, constraints.
+Graphillion allows you to exhaustively but efficiently search a
+graphset with complex, even nonconvex, constraints.
 In addition, you can find top-k optimal
-graphs from the complicated set, and can also extract common
-properties seen among all graphs in the set.  Thanks to these features,
+graphs from the complex graphset, and can also extract common
+properties among all graphs in the set.  Thanks to these features,
 Graphillion has a variety of applications including graph database,
 combinatorial optimization, and a graph structure analysis.  We
-will show some practical use cases in the following tutorial, such as
+will show some practical use cases in the following tutorial, including
 evaluation of power distribution networks.
 
-Graphillion can be used freely under the MIT license.  Graphillion is
+Graphillion can be used freely under the MIT license.  It is
 mainly developed in [JST ERATO Minato
 project](http://www-erato.ist.hokudai.ac.jp/?language=en).  We would
 really appreciate if you would refer to our paper (to appear)
 and address our contribution on the use of Graphillion in your paper.
 
-Now, install Graphillion and go to the tutorial, and you'll find its power
+Now, install Graphillion and go to the tutorial.  You'll find its power
 and utility.
 
 Installing
@@ -97,8 +98,9 @@ source code repository.
    https://github.com/takemaru/graphillion
 2. Unpack and change directory to the source directory (it should have
    the file setup.py)
-3. Run `python setup.py install` to build and install
+3. Run `python setup.py build` to build
 4. (optional) Run `python setup.py test -q` to execute the tests
+5. Run `sudo python setup.py install` to install
 
 #### GitHub repository
 
@@ -107,8 +109,9 @@ source code repository.
 $ git clone https://github.com/takemaru/graphillion.git
 ```
 2. Change directory to "graphillion"
-3. Run `python setup.py install` to build and install
+3. Run `python setup.py build` to build
 4. (optional) Run `python setup.py test -q` to execute the tests
+5. Run `sudo python setup.py install` to install
 
 If you don't have permission to install software on your system, you
 can install into another directory using the `-user`, `-prefix`, or
@@ -136,20 +139,20 @@ http://www.python.org/
 
 #### GCC (The Gnu Compiler Collection)
 
-To compile Graphillion, you need gcc version 4.2 or later.
+To build Graphillion, you need gcc version 4.2 or later.
 http://gcc.gnu.org/
 
 #### GMP (The Gnu multiple precision arithmetic library) - optional
 
-With GMP, Graphillion provides arbitrary precision in counting the
+With GMP, Graphillion provides arbitrary precision numbers in counting the
 number of graphs in a set; otherwise double precision floating-point
 numbers are used.  http://gmplib.org/
 
-#### NetworkX and Matplotlib - used just in the tutorial
+#### NetworkX and Matplotlib - optional for the tutorial
 
-NetworkX and Matplotlib are used to create and draw a graph.  These
-packages are not required for Graphillion, but just used in the
-tutorial for helping graph creation and drawings.  They can be
+NetworkX and Matplotlib are Python modules for creating and drawing a graph.  These
+packages are not required for Graphillion, but used in the following
+tutorial.  They can be
 installed by:
 
 ```bash
@@ -160,50 +163,49 @@ $ easy_install matplotlib
 Tutorial
 --------------------------------------------------------------------------------
 
-If you haven't seen this funny movie, [Time with class! Let's
-count!](http://youtu.be/Q4gTV4r0zRs), please watch it before the
+If you haven't seen our funny movie, [Time with class! Let's
+count!](http://youtu.be/Q4gTV4r0zRs), please watch it before beginning the
 tutorial.  This movie, which has been viewed more than a million
 times, will convince you of a need for Graphillion.  The summary of
 this tutorial is also provided as a movie (to appear).
 
-We believe you enjoyed the movies and understood the necessity and
+We believe that you enjoyed the movies and understood the necessity and
 features of Graphillion.  Now, let's see Graphillion in more detail.
 
 We first introduce terminology used in Graphillion, as follows:
 
-| Term          | Description                  | Example                                          |
-|:--------------|:-----------------------------|:-------------------------------------------------|
-| vertex        | any hashable object          | `1`, `'v1'`                                      |
-| edge          | tuple of vertices            | `(1, 2)`                                         |
-| weighted edge | tuple of vertices and weight | `(1, 2, -1.5)`                                   |
-| graph         | list of (weighted) edges     | `[(1, 2), (1, 3)]`                               |
-| set of graphs | GraphSet object              | `GraphSet([[(1, 2), (1, 3)], [(1, 2), (2, 3)]])` |
+| Term          | Description                   | Example                                          |
+|:--------------|:------------------------------|:-------------------------------------------------|
+| vertex        | any hashable object           | `1`, `'v1'`, `(x, y)`                            |
+| edge          | tuple of vertices             | `(1, 2)`                                         |
+| weighted edge | tuple of vertices with weight | `(1, 2, -1.5)`                                   |
+| graph         | list of (weighted) edges      | `[(1, 2, -1.5), (1, 3)]`                               |
+| set of graphs | GraphSet object               | `GraphSet([[(1, 2), (1, 3)], [(1, 2), (2, 3)]])` |
 
 Vertices (or nodes) can be any hashable object; e.g., a number, a text
-string, etc.  Edges (or links) are a pair of vertices, and a graph is
-defined as a list of edges; currently, Graphillion supports undirected graphs
-only.  A GraphSet object stores a set of graphs; we will manipulate
-graphs in the object in a variety of ways.
+string, etc.  Edges (or links) are defined as a pair of vertices, and a graph is
+a list of edges; currently, Graphillion supports *undirected* graphs
+only.  A GraphSet object stores a set of graphs.
 
-Before anything else, we import Graphillion as well as a helper module,
-which provides some functions like graph creation and drawing for the
+Before anything else, we import Graphillion and a helper module;
+the latter provides some functions like graph creation and drawing for the
 tutorial.
 
 ```python
 >>> from graphillion import GraphSet
->>> import graphillion.tutorial as tl  # helper functions just for tutorial
+>>> import graphillion.tutorial as tl  # helper functions just for the tutorial
 ```
 
-### Paths on a grid
+### Paths on a grid graph
 
-At the beginning, we define our universe; a graph handled in
-Graphillion must be a subgraph of this universal graph.  In this
-tutorial, we use the 8x8 grid graph.
+At the beginning, we define our *universe*.  The universe can be any graph,
+and a graph handled by Graphillion must be a subgraph of this graph.  In this
+tutorial, we use the 8x8 grid graph as our universe.
 
 ```python
 >>> universe = tl.grid(8, 8)
 >>> GraphSet.set_universe(universe)
->>> tl.draw(universe)  # show pop-up window for universal graph
+>>> tl.draw(universe)  # show a pop-up window of our universe
 ```
 
 We find all the simple paths between the opposing corners; it took
@@ -218,21 +220,22 @@ four hours with the supercomputer in the movie.
 ```
 
 It's very quick, isn't it?  Since the `paths` object contains all the
-paths, you can enumerate them one by one though it'll take years.
+paths, you can enumerate them one by one.
 
 ```python
 >>> for path in paths:
 ...     path
-... # stop by Ctrl-C
+... # stop by Ctrl-C because it'll take years
 >>> tl.draw(paths.choice())  # show one of the paths
 ```
 
-Next, we select some of the paths with given conditions, in order to
-demonstrate the filtering capability of Graphillion.  Let's assume
+Next, in order to
+demonstrate the filtering or search capability of Graphillion,
+we choose paths with given conditions.  Let's assume
 that a treasure box and its key are placed on the grid as shown in the
 figure.  We consider all paths on which the key is picked up before
-reaching the treasure box.  First, search for paths to the key not
-through the treasure box, and then select the paths that include the
+reaching the treasure box.  First, search for the paths to the key not
+through the treasure box, and then select the paths including the
 key's paths and the treasure box.
 
 ```python
@@ -244,17 +247,17 @@ key's paths and the treasure box.
 789438891932744
 ```
 
-Test whether all the treasure paths are a subset of the original paths
-between the corners.
+Test if all the treasure paths are a subset of the original paths,
+which connect between the corners.
 
 ```python
->>> treasure_paths < paths  # "<" means subset-of
+>>> treasure_paths < paths  # "<" means subset-of in Graphillion
 True
 ```
 
 We conduct statistical processing with random sampling.  Graphillion
 enables you to choose a sample (a graph) from the graphset uniformly
-randomly.  Draw a histogram of turn-counts on the treasure paths as
+randomly.  Draw a histogram of "how many turns on the treasure paths" as
 follows:
 
 ```python
@@ -268,9 +271,9 @@ follows:
 >>> tl.hist(data)
 ```
 
-The histogram shows that you might turn about 30-50 times on a path in
-most cases.  However, you also find that it is only five turns on the
-shortest path, which is derived by method `min_iter()`, an optimizer
+The histogram shows that you usually turn a corner 30-50 times on a path.
+However, you also find that the shortest path involves only five turns,
+which is derived by method `min_iter()`, an optimizer
 provided by Graphillion.
 
 ```python
@@ -281,12 +284,12 @@ provided by Graphillion.
 5
 ```
 
-### Switch configurations on a power distribution network
+### Power flows on a distribution network
 
 Graphillion works on any graphs other than square grids, and handles
-other subgraphs as well as simple paths.  Next, we consider a power
-distribution network in the figure.  In the network, a vertex is a
-house, and an edge is a power line with a switch.  The power is
+other subgraphs than simple paths.  Next, we consider a power
+distribution network in the figure.  In this network, we asuume that a vertex is a
+house and an edge is a power line with a switch.  The power is
 provided from the four generators at corners.
 
 ```python
@@ -296,10 +299,10 @@ provided from the four generators at corners.
 ```
 
 The power flow is determined by configuring switches, which are placed
-on each line.  If a switch is closed (an edge exists), the power is
+on each line.  If a switch is closed (an edge exists on a graph), the power is
 transmitted on the line; otherwise, not.  The power must be
 transmitted to all houses, while the flow must not have a loop to
-protect against short circuit.  The power flow, hence, must be a
+protect against short circuit.  The power flow, hence, must form a
 *forest*, a set of trees, rooted at generators.  We find all of such
 forests as follows:
 
@@ -312,11 +315,11 @@ forests as follows:
 ```
 
 The amount of power transmitted from a single generator should be
-strictly restricted.  The forest shown above may have a very large
-tree, which implies that a generator sends much power beyond its
+strictly restricted, so as not to exceed the capacity.  The forest shown above may have a very large
+tree, which implies that the generator sends too much power beyond its
 capacity.  Here, we assume that each generator is allowed to provide
-less than 23 houses for protection.  We first find all dangerous cases
-with too much power, and then select safe power flows without the
+power to less than 23 houses.  We first find all dangerous cases
+of too much power, and then select safe flows without the
 dangerous cases.
 
 ```python
@@ -331,7 +334,7 @@ dangerous cases.
 ```
 
 Since we found all the safe flows, we try to change the network from
-the current configuration to a safe one with optimization.  The
+the current configuration to a safe one using an optimization technique.  The
 current configuration is given by:
 
 ```python
@@ -339,9 +342,9 @@ current configuration is given by:
 >>> tl.draw(closed_switches)
 ```
 
-Next configuration must be corresponding with one of safe flows, and
-must be realized with least switch operations.  We put a penalty on a
-switch status if it is inconsistent with the current status, as shown
+New configuration must be one of the safe flows, and
+must be realized with least switch operations.  We put a *score* (edge weight) on a
+new switch status if it is inconsistent with the current status, as shown
 in the table.
 
 | current \ next | open | closed |
@@ -350,19 +353,20 @@ in the table.
 | closed         |    0 |      1 |
 
 ```python
->>> weights = {}
+>>> scores = {}  # scores for closed switches in the new configuration (default is 0)
 >>> for switch in universe.edges():
-...     weights[switch] = 1 if switch in closed_switches else -1
+...     # if current status is closed then the score is 1, else -1
+...     scores[switch] = 1 if switch in closed_switches else -1
 ...
 ```
 
-Find a flow (forest) with a maximum weight.  The flow has a least
-penalty and can be realized with the least switch operations.  Compare
+We try to find a new configuration (forest) with a maximum score.  The configuration has a maximum
+score and can be realized with the least switch operations.  Compare
 it with the current configuration above, and you'll find them quite
 alike.
 
 ```python
->>> for forest in safe_forests.max_iter(weights):
+>>> for forest in safe_forests.max_iter(scores):
 ...     tl.draw(forest)
 ...     break
 ...
@@ -372,19 +376,20 @@ Finally, we investigate serious failures that prevent the safe power
 delivery.  We search for minimal blocking sets, or minimal hitting
 sets more generally, to study such failures.  A hitting set is roughly
 defined such that all the given sets are *hit* by at least one element
-in a hitting set; e.g., given {1, 2}, {2, 3}, and {3}, hitting sets
-are {1, 3} and {2, 3}.  If power lines in a hitting set against the
-safe flows are broken, all the flows can't be configured.
+in the hitting set; e.g., given {1, 2}, {2, 3}, and {3}, minimal hitting sets
+are {1, 3} and {2, 3}.  A hitting set indicates a critical failure
+pattern; if power lines in a hitting set
+are broken, all the flows can't be configured.
 
 ```python
->>> failures = safe_forests.blocking().minimal()
+>>> failures = safe_forests.blocking().minimal()  # a set of all minimal blocking sets
 ```
 
 To help your understanding, remove all lines in a hitting set from
-each safe flows.  Then, you'll find no safe flow.
+the network, and you'll find no safe flow.
 
 ```python
->>> failure = failures.choice()
+>>> failure = failures.choice()  # a hitting set (a set of critical power lines)
 >>> for line in failure:
 ...     safe_forests = safe_forests.excluding(line)
 ...
@@ -393,7 +398,7 @@ each safe flows.  Then, you'll find no safe flow.
 ```
 
 Small hitting sets (e.g., less than five lines) might imply
-vulnerability of the network.  We now find several small failure
+vulnerability of the network.  We now find 767 small failure
 patterns, which should be investigated carefully.
 
 ```python
@@ -402,8 +407,9 @@ patterns, which should be investigated carefully.
 ```
 
 Though actual power distribution networks are much more complicated,
-we basically rely on the same idea with Graphillion.  Our power loss
-minimization tool, which deals with nonlinear objective function with
+we basically rely on the same idea in the study of power distribution
+networks.  Our power loss
+minimization tool, which optimizes the network with nonlinear objective function with
 nonconvex constraints, is available online at
 [DNET](https://github.com/takemaru/dnet).
 
@@ -411,13 +417,13 @@ nonconvex constraints, is available online at
 Creating graphsets
 --------------------------------------------------------------------------------
 
-Graphillion provides three ways to create a GraphSet object; providing
-a list of graphs, giving edge constraints, and specifying graph types
-like paths and trees.  GraphSet objects created can be modified by
-operations described in the next section.
+Graphillion provides three ways to create a GraphSet object; with
+a graph list, edge constraints, and graph types
+like paths and trees.
 
-Please don't forget to set the universal graph before working with
-GraphSet, as mentioned in the tutorial.
+Please don't forget to set the universe before working with
+GraphSet, as mentioned in the tutorial.  We use the following universe
+in this section.
 
 ```python
 >>> from graphillion import GraphSet
@@ -425,13 +431,13 @@ GraphSet, as mentioned in the tutorial.
 >>> GraphSet.set_universe(universe)
 ```
 
-### List of graphs
+### Graph list
 
 This is the most straight-forward way to create a GraphSet object.
-Specify a list of graphs and get an object that includes the graphs.
+Specify a list of graphs and get an object with the graphs.
 
 In the following example, two graphs, one has a single edge and the
-other has two edges, are given, and a GraphSet object with these
+other has two edges, are given.  A GraphSet object with the two
 graphs is created.
 
 ```python
@@ -453,13 +459,13 @@ GraphSet([])
 
 ### Edge constraints
 
-Edge constraints specify edges to be included or not in the object to
-be created.  These constraints must be represented by a dict of included
+Edge constraints specify edges to be included or not included in the object.
+These constraints must be represented by a dict of included
 or excluded edge lists.  Edges not specified in the dict are
 "don't-care"; they can be included and excluded in the object.
 
-In the following example, edge (1, 4) must be included while edges (1,
-2) and (2, 3) must not be.
+In the following example, edge (1, 4) is included while edges (1,
+2) and (2, 3) aren't.
 
 ```python
 >>> edges1 = [(1, 4)]
@@ -470,7 +476,8 @@ GraphSet([[(1, 4)], [(1, 4), (2, 5)], [(1, 4), (3, 6)], ...
 
 An empty dict `{}` means that no constraint is specified, and so a
 GraphSet including all possible graphs in the universe is returned
-(let N the number of edges in the universe, 2^N graphs are stored).
+(let N the number of edges in the universe, 2^N graphs are stored in
+the new object).
 
 ```python
 >>> gs = GraphSet({})
@@ -481,7 +488,7 @@ GraphSet including all possible graphs in the universe is returned
 ### Graph types
 
 You can specify a graph type, such as paths and trees, and create a
-GraphSet object that stores all graphs matching the specified type.
+GraphSet object that stores all graphs matching the type.
 Graphillion supports the following graph types:
 
 - connected components,
@@ -500,15 +507,13 @@ and finds all paths between the vertices.
 GraphSet([[(1, 2), (2, 3), (3, 6)], [(1, 2), (2, 5), (5, 6)], [(1, 4), (4, 5 ...
 ```
 
-The arguments are defined for each graph type, please see the library
+The arguments are defined for each type, please see the library
 reference in detail.
 
 Graphillion also provides low-level interface `graphs()` to specify
-more complicated graph types; actually, the above methods call this
-low-level interface internally.
-
-The following example is the same with `paths(1, 6)`, paths between 1
-and 6.
+more complicated graph types; actually, the specific methods call this
+low-level interface internally.  The following example is the same
+with `paths(1, 6)`.
 
 ```python
 >>> start = 1
@@ -523,8 +528,8 @@ and 6.
 GraphSet([[(1, 2), (2, 3), (3, 6)], [(1, 2), (2, 5), (5, 6)], [(1, 4), (4, 5 ...
 ```
 
-If these methods are called as object methods, `gs.paths(1, 6)`,
-graphs to be found are selected from the object.  Please see the
+If these methods are called as object methods, like `gs.paths(1, 6)`,
+graphs are selected only from the GraphSet object.  Please see the
 library reference for more detail.
 
 Manipulating graphsets
@@ -533,48 +538,48 @@ Manipulating graphsets
 Graphillion provides many operations to manipulate graphs in a
 GraphSet object.  These operations are classified into selection,
 modification, and comparison; some of them are derived from Python's
-set methods.  Graphillion also provides some iterators to traverse the
-set, and supports serialization.  Please see the library reference for
-details of each method.
+set methods.  Graphillion also provides some iterators and
+serialization.  Please see the library reference for details of each
+method.
 
 ### Selection methods
 
 The following methods select graphs from a given GraphSet object (or
-from two given GraphSet objects if binary operation).  No new graphs
+two given GraphSet objects if binary operation).  No new graphs
 are generated during the operation.
 
-| Method                                         | Description                                                                           |
-| :--------------------------------------------- | :------------------------------------------------------------------------------------ |
-| `gs.union(other)`, `gs (pipe) other`           | Returns a new GraphSet with graphs from `self` and all others                         |
-| `gs.intersection(other)`, `gs & other`         | Returns a new GraphSet with graphs common to `self` and all others                    |
-| `gs.difference(other)`, `gs - other`           | Returns a new GraphSet with graphs in `self` that are not in the others               |
-| `gs.symmetric_difference(other)`, `gs ^ other` | Returns a new GraphSet with graphs in either `self` or `other` but not both           |
-| `gs.update(other(s))`                          | Updates `self`, adding graphs from all others                                         |
-| `gs.including(obj)`                            | Returns a new GraphSet that includes `obj` (graphset, graph, edge, or vertex)         |
-| `gs.excluding(obj)`                            | Returns a new GraphSet that doesn't include `obj`  (graphset, graph, edge, or vertex) |
-| `gs.included(obj)`                             | Returns a new GraphSet with subgraphs of a graph in `obj` (graphset or graph)         |
-| `gs.larger(size)`                              | Returns a new GraphSet with graphs that have more than `size` edges                   |
-| `gs.smaller(size)`                             | Returns a new GraphSet with graphs that have less than `size` edges                   |
-| `gs.len(size)`                                 | Returns a new GraphSet with `size` edges                                              |
-| `gs.minimal()`                                 | Returns a new GraphSet of minimal edge sets                                           |
-| `gs.maximal()`                                 | Returns a new GraphSet of maximal edge sets                                           |
+| Method                                            | Description                                                                           |
+| :------------------------------------------------ | :------------------------------------------------------------------------------------ |
+| `gs.union(other(s))`, `gs (pipe) other`           | Returns a new GraphSet with graphs from `self` and all others                         |
+| `gs.intersection(other(s))`, `gs & other`         | Returns a new GraphSet with graphs common to `self` and all others                    |
+| `gs.difference(other(s))`, `gs - other`           | Returns a new GraphSet with graphs in `self` that are not in the others               |
+| `gs.symmetric_difference(other(s))`, `gs ^ other` | Returns a new GraphSet with graphs in either `self` or `other` but not both           |
+| `gs.update(other(s))`                             | Updates `self`, adding graphs from all others                                         |
+| `gs.including(obj)`                               | Returns a new GraphSet that includes `obj` (graphset, graph, edge, or vertex)         |
+| `gs.excluding(obj)`                               | Returns a new GraphSet that doesn't include `obj`  (graphset, graph, edge, or vertex) |
+| `gs.included(obj)`                                | Returns a new GraphSet with subgraphs of a graph in `obj` (graphset or graph)         |
+| `gs.larger(size)`                                 | Returns a new GraphSet with graphs that have more than `size` edges                   |
+| `gs.smaller(size)`                                | Returns a new GraphSet with graphs that have less than `size` edges                   |
+| `gs.len(size)`                                    | Returns a new GraphSet with `size` edges                                              |
+| `gs.minimal()`                                    | Returns a new GraphSet of minimal graphs                                              |
+| `gs.maximal()`                                    | Returns a new GraphSet of maximal graphs                                              |
 
 Creation methods specifying graph types also work as selection methods.
 
 | Method                                        | Description                                            |
 | :-------------------------------------------- | :----------------------------------------------------- |
 | `gs.graphs(constraints)`                      | Returns a GraphSet with graphs under given constraints |
-| `gs.connected_components(vertices)`           | Returns a GraphSet with connected components           |
-| `gs.cliques(k)`                               | Returns a GraphSet with k-cliques                      |
-| `gs.trees(root, is_spanning)`                 | Returns a GraphSet with trees                          |
-| `gs.forests(roots, is_spanning)`              | Returns a GraphSet with forests, sets of trees         |
-| `gs.cycles(is_hamilton, graphset)`            | Returns a GraphSet with cycles                         |
-| `gs.paths(terminal1, terminal2, is_hamilton)` | Returns a GraphSet with paths                          |
+| `gs.connected_components(vertices)`           | Returns a GraphSet of connected components           |
+| `gs.cliques(k)`                               | Returns a GraphSet of k-cliques                      |
+| `gs.trees(root, is_spanning)`                 | Returns a GraphSet of trees                          |
+| `gs.forests(roots, is_spanning)`              | Returns a GraphSet of forests, sets of trees         |
+| `gs.cycles(is_hamilton, graphset)`            | Returns a GraphSet of cycles                         |
+| `gs.paths(terminal1, terminal2, is_hamilton)` | Returns a GraphSet of paths                          |
 
 ### Modification or generation methods
 
-The following methods generate new graphs.  Some store new graphs into
-`self`, while others return new GraphSet.
+The following methods generate new graphs.  Some methods store new graphs into
+`self`, while others return a GraphSet with the newly generated graphs.
 
 #### Modifying self
 
@@ -591,25 +596,25 @@ The following methods generate new graphs.  Some store new graphs into
 | :---------------- | :------------------------------------------------------ |
 | `~gs`             | Returns a new GraphSet with graphs not stored in `self` |
 | `gs.complement()` | Returns a new GraphSet with complement graphs of `self` |
-| `gs.blocking()`   | Returns a new GraphSet of all blocking sets             |
+| `gs.blocking()`   | Returns a new GraphSet of all blocking (hitting) sets   |
 
 ### Comparison and evaluation methods
 
-The following methods provide comparison or evaluation.
+The following methods provide comparison or evaluation for GraphSet objects.
 
-| Method                 | Description                                                 |
-| :--------------------- | :---------------------------------------------------------- |
-| `gs.isdisjoint(other)` | Returns True if `self` has no graphs in common with `other` |
-| `gs.issubset(other)`   | Tests if every graph in `self` is in `other`                |
-| `gs.issuperset(other)` | Tests if every graph in `other` is in `self`                |
-| `graph in gs`          | Returns True if `obj` is in the `self`, False otherwise     |
-| `len(gs)`, `gs.len()`  | Returns the number of graphs in `self`                      |
+| Method                 | Description                                                                      |
+| :--------------------- | :------------------------------------------------------------------------------- |
+| `gs.isdisjoint(other)` | Returns True if `self` has no graphs in common with `other`                      |
+| `gs.issubset(other)`   | Tests if every graph in `self` is in `other`                                     |
+| `gs.issuperset(other)` | Tests if every graph in `other` is in `self`                                     |
+| `obj in gs`            | Returns True if `obj` (graph, edge, or vertex) is in the `self`, False otherwise |
+| `len(gs)`, `gs.len()`  | Returns the number of graphs in `self`                                           |
 
 ### Iterators
 
 Graphillion provides various iterators.  `rand_iter()` can be used for
 random sampling in statistical analysis, and `min_iter()` and
-`max_iter()` can be used as an optimizer.  `pop()` and `choice()`
+`max_iter()` can be used as optimizers.  `pop()` and `choice()`
 return a graph in the GraphSet object, though they aren't iterators.
 
 | Method           | Description                                             |
@@ -635,7 +640,7 @@ with pickling the universe; see the library reference in detail.
 ### Python's set methods
 
 Graphillion supports Python's set methods.  These methods treat a
-graph just an element of the set and don't care the graph structure.
+graph just as an element of the set and don't care the graph structure.
 
 - `gs.union(other)`, `gs | other`,
 - `gs.intersection(other)`, `gs & other`,
@@ -658,23 +663,23 @@ Working with NetworkX
 --------------------------------------------------------------------------------
 
 Graphillion transparently works with existing graph tools like
-NetworkX; any object of specified class can be recognized as a graph
+NetworkX.  Any object like `networkx.Graph` can be recognized as a graph
 in Graphillion, while an edge list is a graph by default.
 
-Define two methods that associate the new graph class with edge lists;
-one is to convert an edge list into a graph object, and the other is
-vice versa.
-
-We show an example for NetworkX.
+Define two methods that associate a new graph object with an edge list;
+one method is used for converting an edge list into a graph object, and the other is
+vice versa.  We show an example for NetworkX.
 
 ```python
+>>> import networkx as nx
 >>> GraphSet.bridges = { 'to_graph': nx.Graph, 'to_edges': nx.Graph.edges }
 ```
 
 We can now pass NetworkX's graph objects to Graphillion like this.
 
 ```python
->>> GraphSet.set_universe(nx.Graph(...))
+>>> g = nx.Graph(...)
+>>> GraphSet.set_universe(g)
 ```
 
 We also receive NetworkX's graph objects from Graphillion.
@@ -687,14 +692,12 @@ We also receive NetworkX's graph objects from Graphillion.
 Library reference
 --------------------------------------------------------------------------------
 
-Library reference can be browsed using pydoc:
-
-In the terminal window,
+The library reference can be browsed using pydoc in your terminal window:
 ```bash
 $ pydoc graphillion.GraphSet
 ```
 
-Or in HTML.
+Or in HTML:
 ```bash
 $ pydoc -w graphillion.GraphSet
 ```

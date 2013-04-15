@@ -101,7 +101,7 @@ class GraphSet(object):
             `{}` means that no constraint is specified, and so a
             GraphSet including all possible graphs in the universe is
             returned (let N the number of edges in the universe, 2^N
-            graphs are stored).
+            graphs are stored in the new object).
 
         Raises:
           KeyError: If given edges are not found in the universe.
@@ -957,7 +957,7 @@ class GraphSet(object):
             raise TypeError, edge
 
     def minimal(self):
-        """Returns a new GraphSet of minimal edge sets.
+        """Returns a new GraphSet of minimal graphs.
 
         The minimal sets are defined by,
           gs.minimal() = {a \\in gs | b \\in gs and a \\subseteq -> a = b}.
@@ -983,7 +983,7 @@ class GraphSet(object):
         return GraphSet(self._ss.minimal())
 
     def maximal(self):
-        """Returns a new GraphSet of maximal edge sets.
+        """Returns a new GraphSet of maximal graphs.
 
         The maximal sets are defined by,
           gs.maximal() = {a \\in gs | b \\in gs and a \\superseteq -> a = b}.
@@ -1009,7 +1009,7 @@ class GraphSet(object):
         return GraphSet(self._ss.maximal())
 
     def blocking(self):
-        """Returns a new GraphSet of all blocking sets.
+        """Returns a new GraphSet of all blocking (hitting) sets.
 
         A blocking set is often called a hitting set; all graphs in
         `self` contain at least one edge in the set.  This implies
@@ -1638,7 +1638,7 @@ class GraphSet(object):
 
     @staticmethod
     def connected_components(vertices, graphset=None):
-        """Returns a GraphSet with connected components.
+        """Returns a GraphSet of connected components.
 
         Examples:
           >>> GraphSet.connected_components([1, 3, 5])
@@ -1657,7 +1657,7 @@ class GraphSet(object):
 
     @staticmethod
     def cliques(k, graphset=None):
-        """Returns a GraphSet with k-cliques.
+        """Returns a GraphSet of k-cliques.
 
         Examples:
           >>> GraphSet.set_universe([(1, 2), (1, 3), (1, 4), (1, 5), (2, 3), (2, 4),
@@ -1683,7 +1683,7 @@ class GraphSet(object):
 
     @staticmethod
     def trees(root=None, is_spanning=False, graphset=None):
-        """Returns a GraphSet with trees.
+        """Returns a GraphSet of trees.
 
         Examples:
           >>> GraphSet.trees(1, is_spanning=True)
@@ -1712,7 +1712,7 @@ class GraphSet(object):
 
     @staticmethod
     def forests(roots, is_spanning=False, graphset=None):
-        """Returns a GraphSet with forests, sets of trees.
+        """Returns a GraphSet of forests, sets of trees.
 
         Examples:
           >>> GraphSet.forests([1, 6])
@@ -1743,7 +1743,7 @@ class GraphSet(object):
 
     @staticmethod
     def cycles(is_hamilton=False, graphset=None):
-        """Returns a GraphSet with cycles.
+        """Returns a GraphSet of cycles.
 
         Examples:
           >>> GraphSet.cycles(is_hamilton=True)
@@ -1767,7 +1767,7 @@ class GraphSet(object):
 
     @staticmethod
     def paths(terminal1, terminal2, is_hamilton=False, graphset=None):
-        """Returns a GraphSet with paths.
+        """Returns a GraphSet of paths.
 
         Examples:
           >>> GraphSet.paths(1, 6)

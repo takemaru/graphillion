@@ -77,9 +77,9 @@ class TestTutorial(unittest.TestCase):
             self.assertEqual(len(safe_forests), 294859080)
 
             closed_switches = tl.current_config()
-            weights = {}
+            scores = {}
             for switch in universe:
-                weights[switch] = 1 if switch in closed_switches else -1
+                scores[switch] = 1 if switch in closed_switches else -1
 
             failures = safe_forests.blocking().minimal()
             self.assertEqual(len(failures), 1936)
