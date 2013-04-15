@@ -36,7 +36,7 @@ Overview
 
 Graphillion is a Python library for efficient *graphset operations*.
 Unlike existing graph tools such as NetworkX, which are designed to
-manipulate just a single graph at a time, Graphilion handles a large
+manipulate just a single graph at a time, Graphillion handles a large
 *set* of graphs with great efficiency.  Surprisingly, trillions of
 trillions of graphs can be processed in a single computer.
 
@@ -101,7 +101,7 @@ source code repository.
 
 #### GitHub repository
 
-1. Clone the Graphillion repostitory
+1. Clone the Graphillion repository
 ```bash
 $ git clone https://github.com/takemaru/graphillion.git
 ```
@@ -367,7 +367,7 @@ alike.
 ...
 ```
 
-Finally, we investigte serious failures that prevent the safe power
+Finally, we investigate serious failures that prevent the safe power
 delivery.  We search for minimal blocking sets, or minimal hitting
 sets more generally, to study such failures.  A hitting set is roughly
 defined such that all the given sets are *hit* by at least one element
@@ -393,7 +393,7 @@ each safe flows.  Then, you'll find no safe flow.
 
 Small hitting sets (e.g., less than five lines) might imply
 vulnerability of the network.  We now find several small failure
-patterns, which should be investigated careflly.
+patterns, which should be investigated carefully.
 
 ```python
 >>> len(failures.smaller(5))
@@ -426,7 +426,7 @@ GraphSet, as mentioned in the tutorial.
 
 ### List of graphs
 
-This is the most stright-forward way to create a GraphSet object.
+This is the most straight-forward way to create a GraphSet object.
 Specify a list of graphs and get an object that includes the graphs.
 
 In the following example, two graphs, one has a single edge and the
@@ -455,7 +455,7 @@ GraphSet([])
 Edge constraints specify edges to be included or not in the object to
 be created.  These constraints must be represented by a dict of included
 or excluded edge lists.  Edges not specified in the dict are
-"don't-care"; they can be included and exculded in the object.
+"don't-care"; they can be included and excluded in the object.
 
 In the following example, edge (1, 4) must be included while edges (1,
 2) and (2, 3) must not be.
@@ -532,7 +532,7 @@ Manipulating graphsets
 Graphillion provides many operations to manipulate graphs in a
 GraphSet object.  These operations are classified into selection,
 modification, and comparison; some of them are derived from Python's
-set methods.  Graphillon also provides some iterators to traverse the
+set methods.  Graphillion also provides some iterators to traverse the
 set, and supports serialization.  Please see the library reference for
 details of each method.
 
@@ -581,7 +581,7 @@ The following methods generate new graphs.  Some store new graphs into
 | :---------------------------------- | :-------------------------------------------------------- |
 | `gs.add(graph_or_edge)`             | Adds a given graph or edge to `self`                      |
 | `gs.remove(obj)`, `gs.discard(obj)` | Removes a given graph, edge, or vertex from `self`        |
-| `gs.flip(e)`                        | Flips the state of a given edge over all graphs in `self` |
+| `gs.flip(edge)`                     | Flips the state of a given edge over all graphs in `self` |
 | `gs.clear()`                        | Removes all graphs from `self`                            |
 
 #### Returning new GraphSet
@@ -624,7 +624,7 @@ return a graph in the GraphSet object, though they aren't iterators.
 
 Graphillion allows you to dump a graphset to a file, and to load it
 from the file.  Dumping and loading operations must be done together
-with pkckling the universe; see the library reference in detail.
+with pickling the universe; see the library reference in detail.
 
 | Method        | Description                       |
 | :------------ | :-------------------------------- |

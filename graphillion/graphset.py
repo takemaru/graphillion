@@ -890,7 +890,7 @@ class GraphSet(object):
 
         The `self` will be changed.
 
-        Examlpes:
+        Examples:
           >>> graph1 = [(1, 2), (1, 4)]
           >>> graph2 = [(2, 3)]
           >>> gs = GraphSet([graph1, graph2])
@@ -1386,7 +1386,7 @@ class GraphSet(object):
 
         The `self` is not changed.
 
-        Examlpes:
+        Examples:
           >>> graph1 = [(1, 2), (1, 4)]
           >>> graph2 = [(2, 3)]
           >>> gs = GraphSet([graph1, graph2])
@@ -1563,7 +1563,7 @@ class GraphSet(object):
           GraphSet([[(1, 2), (2, 3), (3, 6)], [(1, 2), (2, 5), (5, 6)], [(1, 4), (4, 5 ...
 
         Args:
-          vertex_groups: Optional.  A nested list.  Verticies in an
+          vertex_groups: Optional.  A nested list.  Vertices in an
             inner list are connected while those in different inner
             lists are disconnected.  For `[[1, 5], [3]]`, 1 and 5 are
             connected, while they are not connected with 3.
@@ -1774,7 +1774,7 @@ class GraphSet(object):
           GraphSet([[(1, 2), (2, 3), (3, 6)], [(1, 2), (2, 5), (5, 6)], [(1, 4), (4, 5 ...
 
         Args:
-          terminal1 and terminal2: Both end verticies of a paths.
+          terminal1 and terminal2: Both end vertices of a paths.
 
           graphset: Optional.  A GraphSet object.  Paths to be stored
             are selected from this object.
