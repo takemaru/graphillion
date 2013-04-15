@@ -19,7 +19,7 @@ Graphillion is a Python language software package for the
 manipulation, optimization, and study of a large set of graphs.
 
 * Python language data structures for a graphset, a set of graphs
-* Search, optimization, and enumeration on a quite huge graphset
+* Search, optimization, and enumeration on a very large graphset
 * Fast and efficient implementation extending Python with C/C++
 * Working with existing graph tools like [NetworkX](http://networkx.github.io/)
 * Open source MIT license
