@@ -31,7 +31,7 @@ Graphillion is a Python library for efficient graphset operations.
 Unlike existing graph tools such as NetworkX, which are designed to
 manipulate just a single graph at a time, Graphillion handles a large
 set of graphs with great efficiency.  Surprisingly, trillions of
-trillions of graphs can be processed in a single computer.
+trillions of graphs can be processed on a single computer.
 """,
       classifiers=[ # http://pypi.python.org/pypi?%3Aaction=list_classifiers
         'Development Status :: 3 - Alpha',
@@ -54,7 +54,6 @@ trillions of graphs can be processed in a single computer.
       author_email=release.authors[0][1],
       url='http://graphillion.org/',
       license=release.license,
-      zip_safe=False,
       packages = ['graphillion'],
       ext_modules=[
         Extension('_graphillion', 

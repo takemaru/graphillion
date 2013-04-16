@@ -40,7 +40,7 @@ Graphillion is a Python library for efficient *graphset operations*.
 Unlike existing graph tools such as NetworkX, which are designed to
 manipulate just a single graph at a time, Graphillion handles a large
 *set* of graphs very efficiently.  Surprisingly, trillions of
-trillions of graphs can be processed in a single computer with Graphillion.
+trillions of graphs can be processed on a single computer with Graphillion.
 
 You may be curious about an uncommon concept of *graphset*, but it
 comes along with any graph or network when you consider multiple
