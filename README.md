@@ -75,6 +75,36 @@ and utility.
 Installing
 --------------------------------------------------------------------------------
 
+### Requirements
+
+#### Python
+
+To use Graphillion, you need Python version 2.6 or later.
+http://www.python.org/
+
+#### GCC (The Gnu Compiler Collection)
+
+To build Graphillion, you need gcc version 4.2 or later.
+http://gcc.gnu.org/
+
+#### GMP (The Gnu multiple precision arithmetic library) - optional
+
+With GMP, Graphillion provides arbitrary precision numbers in counting the
+number of graphs in a set; otherwise double precision floating-point
+numbers are used.  http://gmplib.org/
+
+#### NetworkX and Matplotlib - optional for the tutorial
+
+NetworkX and Matplotlib are Python modules for creating and drawing a graph.  These
+packages are not required for Graphillion, but used in the following
+tutorial.  They can be
+installed by:
+
+```bash
+$ sudo easy_install networkx
+$ sudo easy_install matplotlib
+```
+
 ### Quick install
 
 Just type:
@@ -127,35 +157,6 @@ you will need to set your `PYTHONPATH` variable to the alternate
 location.  See http://docs.python.org/inst/search-path.html for further
 details.
 
-### Requirements
-
-#### Python
-
-To use Graphillion, you need Python version 2.6 or later.
-http://www.python.org/
-
-#### GCC (The Gnu Compiler Collection)
-
-To build Graphillion, you need gcc version 4.2 or later.
-http://gcc.gnu.org/
-
-#### GMP (The Gnu multiple precision arithmetic library) - optional
-
-With GMP, Graphillion provides arbitrary precision numbers in counting the
-number of graphs in a set; otherwise double precision floating-point
-numbers are used.  http://gmplib.org/
-
-#### NetworkX and Matplotlib - optional for the tutorial
-
-NetworkX and Matplotlib are Python modules for creating and drawing a graph.  These
-packages are not required for Graphillion, but used in the following
-tutorial.  They can be
-installed by:
-
-```bash
-$ sudo easy_install networkx
-$ sudo easy_install matplotlib
-```
 
 Tutorial
 --------------------------------------------------------------------------------
