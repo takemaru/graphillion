@@ -1507,7 +1507,7 @@ class GraphSet(object):
         GraphSet._weights = {}
         universe = GraphSet.bridges['to_edges'](universe)
         for e in universe:
-            if e in edges or (e[1], e[0]) in edges:
+            if e[:2] in edges or (e[1], e[0]) in edges:
                 raise KeyError, e
             edges.append(e[:2])
             if len(e) > 2:
