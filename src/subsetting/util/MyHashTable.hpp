@@ -212,6 +212,10 @@ public:
         delete[] table;
     }
 
+    size_t memorySize() const {
+        return tableCapacity_ * sizeof(Entry);
+    }
+
     size_t size() const {
         return size_;
     }

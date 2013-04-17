@@ -33,17 +33,18 @@ public:
             : offset(offset) {
     }
 
-    void initialize(int topLevel) {
+    void initialize(int topLevel) const {
         while (BDD_VarUsed() < topLevel + offset) {
             BDD_NewVar();
         }
     }
 
-    void evalTerminal(ZBDD& f, bool one) {
+    void evalTerminal(ZBDD& f, bool one) const {
         f = ZBDD(one ? 1 : 0);
     }
 
-    void evalNode(ZBDD& f, int level, ZBDD& f0, int i0, ZBDD& f1, int i1) {
+    void evalNode(ZBDD& f, int level, ZBDD& f0, int i0, ZBDD& f1,
+            int i1) const {
         if (level + offset <= 0) {
             f = f0;
         }

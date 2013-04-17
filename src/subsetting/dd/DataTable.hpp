@@ -17,26 +17,26 @@ class DataTable {
     size_t* rowSize_;
     T** data;
 
-//    /**
-//     * Imports a table and clear it.
-//     * @param o the table.
-//     */
-//    template<typename U>
-//    void copyToThis(DataTable<U> const& o) {
-//        int const n = o.numRows();
-//        init(n);
-//
-//        for (int i = 0; i < n; ++i) {
-//            size_t const m = o.rowSize(i);
-//            U const* p = o[i];
-//            U const* pe = p + m;
-//            T* q = initRow(i, m);
-//
-//            while (p != pe) {
-//                *q++ = *p++;
-//            }
-//        }
-//    }
+    /**
+     * Imports a table and clear it.
+     * @param o the table.
+     */
+    template<typename U>
+    void copyToThis(DataTable<U> const& o) {
+        int const n = o.numRows();
+        init(n);
+
+        for (int i = 0; i < n; ++i) {
+            size_t const m = o.rowSize(i);
+            U const* p = o[i];
+            U const* pe = p + m;
+            T* q = initRow(i, m);
+
+            while (p != pe) {
+                *q++ = *p++;
+            }
+        }
+    }
 
 //    /**
 //     * Imports a table and clear it.
@@ -63,8 +63,8 @@ class DataTable {
 //        o.init(0);
 //    }
 
-    DataTable(DataTable const& o);
-    DataTable& operator=(DataTable const& o);
+//    DataTable(DataTable const& o);
+//    DataTable& operator=(DataTable const& o);
 
 public:
     /**
@@ -86,17 +86,17 @@ public:
 //        return *this;
 //    }
 
-//    template<typename U>
-//    DataTable(DataTable<U> const& o)
-//            : numRows_(0), rowSize_(0), data(0) {
-//        copyToThis(o);
-//    }
+    template<typename U>
+    DataTable(DataTable<U> const& o)
+            : numRows_(0), rowSize_(0), data(0) {
+        copyToThis(o);
+    }
 
-//    template<typename U>
-//    DataTable& operator=(DataTable<U> const& o) {
-//        copyToThis(o);
-//        return *this;
-//    }
+    template<typename U>
+    DataTable& operator=(DataTable<U> const& o) {
+        copyToThis(o);
+        return *this;
+    }
 
 //    DataTable(DataTable&& o): numRows_(0), rowSize_(0), data(0) {
 //        *this = std::move(o);

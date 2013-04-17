@@ -27,7 +27,8 @@ public:
     /**
      * Default constructor.
      */
-    ZddStructure() {
+    ZddStructure()
+            : root(0) {
     }
 
 //    /*
@@ -44,12 +45,13 @@ public:
      */
     ZddStructure(int n)
             : nodeTable(n + 1) {
+        DdNodeTable& table = nodeTable.privateEntity();
         DdNodeId f(1);
 
         for (int i = 1; i <= n; ++i) {
-            nodeTable->initRow(i, 1);
-            (*nodeTable)[i][0].branch[0] = f;
-            (*nodeTable)[i][0].branch[1] = f;
+            table.initRow(i, 1);
+            table[i][0].branch[0] = f;
+            table[i][0].branch[1] = f;
             f = DdNodeId(i, 0);
         }
 
@@ -103,7 +105,7 @@ private:
     void construct_(SPEC& spec) {
         MessageHandler mh;
         mh.begin("construction") << " of " << typenameof(spec);
-        DdBuilder<SPEC> zc(spec, *nodeTable);
+        DdBuilder<SPEC> zc(spec, nodeTable.privateEntity());
         zc.initialize(root);
 
         if (root.row > 0) {
@@ -125,11 +127,19 @@ private:
         MessageHandler mh;
         mh.begin("subsetting") << " by " << typenameof(spec);
         DdNodeTableHandler tmpTable;
-        ZddSubsetter<SPEC> zs(*nodeTable, spec, *tmpTable);
+#ifdef _OPENMPXXX
+        ZddSubsetterMP<SPEC> zs(*nodeTable, spec, tmpTable.privateEntity());
+#else
+        ZddSubsetter<SPEC> zs(*nodeTable, spec, tmpTable.privateEntity());
+#endif
         zs.initialize(root);
 
         if (root.row > 0) {
+#ifdef _OPENMPXXX
+            mh << " (#thread = " << zs.numThreads() << ")\n";
+#else
             mh << "\n";
+#endif
             for (int i = root.row; i > 0; --i) {
                 mh << ".";
                 zs.subset(i);
@@ -149,50 +159,55 @@ public:
      * Reduce as a ZDD.
      */
     void reduce() {
+        DdNodeTable& table = nodeTable.privateEntity();
         MessageHandler mh;
         mh.begin("reduction") << " ";
         int dots = 0;
 
-        int const n = nodeTable->numRows() - 1;
-        DdNodeTableHandler tmpTable(n + 1);
+        int const n = table.numRows() - 1;
+        DdNodeTableHandler tmpTableHandler(n + 1);
+        DdNodeTable& tmpTable = tmpTableHandler.privateEntity();
 
-        /* for remaking levelJumpTable */
+        /* apply zero-suppress rule */
         for (int i = 2; i <= n; ++i) {
-            size_t const m = nodeTable->rowSize(i);
-            DdNode* const tt = (*nodeTable)[i];
+            size_t const m = table.rowSize(i);
+            DdNode* const tt = table[i];
 
+#ifdef _OPENMP
+#pragma omp parallel for schedule(static)
+#endif
             for (size_t j = 0; j < m; ++j) {
                 for (int c = 0; c <= 1; ++c) {
                     DdNodeId& fc = tt[j].branch[c];
                     if (fc.row == 0) continue;
 
-                    DdNodeId fc1 = (*nodeTable)[fc.row][fc.col].branch[1];
+                    DdNodeId fc1 = table[fc.row][fc.col].branch[1];
                     if (fc1 == 0) {
-                        fc = (*nodeTable)[fc.row][fc.col].branch[0];
+                        fc = table[fc.row][fc.col].branch[0];
                     }
                 }
             }
         }
-        nodeTable->makeIndex();
+        table.makeIndex();
 
-        DdNodeProperty<DdNodeId> newIdTable(*nodeTable);
+        DdNodeProperty<DdNodeId> newIdTable(table);
         newIdTable[0][0] = 0;
         newIdTable[0][1] = 1;
 
-        nodeTable->initRow(0, 2);
+        table.initRow(0, 2);
 
         for (int i = 1; i <= n; ++i) {
             for (; n * dots < 10 * i; ++dots) {
                 mh << ".";
             }
 
-            size_t const m = nodeTable->rowSize(i);
-            DdNode* const tt = (*nodeTable)[i];
+            size_t const m = table.rowSize(i);
+            DdNode* const tt = table[i];
 
             DdNodeId* newId = newIdTable[i];
 
             for (size_t j = m - 1; j + 1 > 0; --j) {
-                DdNodeId const f(i, j);
+                DdNodeId const mark(i, m);
                 DdNodeId& f0 = tt[j].branch[0];
                 DdNodeId& f1 = tt[j].branch[1];
 
@@ -201,24 +216,24 @@ public:
 
                 if (f1 == 0) {
                     newId[j] = f0;
-                    assert(newId[j] < f);
-                    continue;
-                }
-
-                DdNodeId& f00 = (*nodeTable)[f0.row][f0.col].branch[0];
-                if (f00.row != i) { /* the first touch from this level */
-                    newId[j] = DdNodeId(i, m);
                 }
                 else {
-                    newId[j] = f00;
+                    DdNodeId& f00 = table[f0.row][f0.col].branch[0];
+                    DdNodeId& f01 = table[f0.row][f0.col].branch[1];
+
+                    if (f01 != mark) {        // the first touch from this level
+                        f01 = mark;             // mark f0 as touched
+                        newId[j] = DdNodeId(n + 1, m); // tail of f0-equivalent list
+                    }
+                    else {
+                        newId[j] = f00;         // next of f0-equivalent list
+                    }
+                    f00 = DdNodeId(n + 1, j);  // new head of f0-equivalent list
                 }
-                f00 = f;
-                assert(newId[j].row == i);
-                assert(newId[j] > f);
             }
 
             {
-                MyVector<int> const& levels = nodeTable->lowerLevels(i);
+                MyVector<int> const& levels = table.lowerLevels(i);
                 for (int const* t = levels.begin(); t != levels.end(); ++t) {
                     newIdTable.clear(*t);
                 }
@@ -227,58 +242,284 @@ public:
 
             for (size_t j = 0; j < m; ++j) {
                 DdNodeId const f(i, j);
-                if (newId[j] <= f) continue;
-                assert(newId[j].row == i);
+                assert(newId[j].row <= i || newId[j].row == n + 1);
+                if (newId[j].row <= n) continue;
 
-                for (size_t k = j; k < m;) {
+                for (size_t k = j; k < m;) { // for each g in f0-equivalent list
                     assert(j <= k);
                     DdNodeId const g(i, k);
                     DdNodeId& g0 = tt[k].branch[0];
                     DdNodeId& g1 = tt[k].branch[1];
-                    DdNodeId& g10 = (*nodeTable)[g1.row][g1.col].branch[0];
-                    DdNodeId& g11 = (*nodeTable)[g1.row][g1.col].branch[1];
-                    if (g11 != f) {
-                        g11 = f;
-                        g10 = g;
-                        ++mm;
+                    DdNodeId& g10 = table[g1.row][g1.col].branch[0];
+                    DdNodeId& g11 = table[g1.row][g1.col].branch[1];
+                    assert(newId[k].row >= n);
+                    size_t next = newId[k].col;
+
+                    if (g11 != f) { // the first touch to g1 in f0-equivalent list
+                        g11 = f;        // mark g1 as touched
+                        g10 = g;     // record g as a canonical node for <f0,g1>
+                        newId[k] = DdNodeId(i, mm++);
                     }
                     else {
-                        g0 = g10;
-                        g1 = 0;
+                        g0 = g10;       // make a forward link
+                        g1 = 0;         // mark g as forwarded
+                        newId[k] = 0;
                     }
-                    assert(newId[k].row == i);
-                    size_t next = newId[k].col;
-                    newId[k] = 0;
+
                     k = next;
                 }
             }
 
             {
-                MyVector<int> const& levels = nodeTable->lowerLevels(i);
+                MyVector<int> const& levels = table.lowerLevels(i);
                 for (int const* t = levels.begin(); t != levels.end(); ++t) {
                     nodeTable.derefLevel(*t);
                 }
             }
 
-            DdNode* nt = tmpTable->initRow(i, mm);
-            size_t k = 0;
+            DdNode* nt = tmpTable.initRow(i, mm);
 
             for (size_t j = 0; j < m; ++j) {
-                if (tt[j].branch[1] != 0) {
-                    nt[k].branch[0] = tt[j].branch[0];
-                    nt[k].branch[1] = tt[j].branch[1];
-                    newId[j] = DdNodeId(i, k++);
+                if (tt[j].branch[1] != 0) { // not forwarded
+                    assert(newId[j].row == i);
+                    size_t k = newId[j].col;
+                    nt[k] = tt[j];
                 }
                 else {
-                    DdNodeId f0 = tt[j].branch[0];
-                    if (f0.row == i) newId[j] = newId[f0.col];
+                    assert(newId[j].row <= i);
+                    DdNodeId f = tt[j].branch[0];
+                    if (f.row == i) {
+                        assert(newId[j] == 0);
+                        newId[j] = newId[f.col];
+                    }
+                }
+            }
+        }
+
+        nodeTable = tmpTableHandler;
+        root = newIdTable[root.row][root.col];
+        mh.end(nodeTable->totalSize());
+    }
+
+    /**
+     * Reduce as a ZDD.
+     */
+    void reduceMP() {
+        MessageHandler mh;
+        mh.begin("reduction") << " ";
+        int dots = 0;
+
+        DdNodeTable& table = nodeTable.privateEntity();
+        int const n = table.numRows() - 1;
+        DdNodeTableHandler tmpTableHandler(n + 1);
+        DdNodeTable& tmpTable = tmpTableHandler.privateEntity();
+
+        ElapsedTimeCounter etc1;
+        etc1.start();
+        /* apply zero-suppress rule */
+        for (int i = 2; i <= n; ++i) {
+            size_t const m = table.rowSize(i);
+            DdNode* const tt = table[i];
+
+#ifdef _OPENMP
+#pragma omp parallel for schedule(static)
+#endif
+            for (size_t j = 0; j < m; ++j) {
+                for (int c = 0; c <= 1; ++c) {
+                    DdNodeId& fc = tt[j].branch[c];
+                    if (fc.row == 0) continue;
+
+                    DdNodeId fc1 = table[fc.row][fc.col].branch[1];
+                    if (fc1 == 0) {
+                        fc = table[fc.row][fc.col].branch[0];
+                    }
+                }
+            }
+        }
+        mh << "\nMP1: " << etc1.stop() << "\n";
+        table.makeIndex();
+
+        DdNodeProperty<DdNodeId> newIdTable(table);
+        newIdTable[0][0] = 0;
+        newIdTable[0][1] = 1;
+
+        table.initRow(0, 2);
+
+        ElapsedTimeCounter etc2;
+        ElapsedTimeCounter etc3;
+        ElapsedTimeCounter etc4;
+        ElapsedTimeCounter etc5;
+
+        for (int i = 1; i <= n; ++i) {
+            for (; n * dots < 10 * i; ++dots) {
+                mh << ".";
+            }
+
+            size_t const m = table.rowSize(i);
+            DdNode* const tt = table[i];
+
+            DdNodeId* newId = newIdTable[i];
+
+//            etc2.start();
+//#ifdef _OPENMP
+//#pragma omp parallel for schedule(static)
+//#endif
+//            for (size_t j = 0; j < m; ++j) {
+//                DdNodeId& f0 = tt[j].branch[0];
+//                DdNodeId& f1 = tt[j].branch[1];
+//
+//                if (f0.row != 0) f0 = newIdTable[f0.row][f0.col];
+//                if (f1.row != 0) f1 = newIdTable[f1.row][f1.col];
+//
+//                if (f1 == 0) {
+//                    newId[j] = f0;
+//                    assert(f0 < DdNodeId(i,j));
+//                }
+//            }
+//            etc2.stop();
+//
+//            {
+//                MyVector<int> const& levels = table.lowerLevels(i);
+//                for (int const* t = levels.begin(); t != levels.end(); ++t) {
+//                    newIdTable.clear(*t);
+//                }
+//            }
+//
+//            etc3.start();
+//            for (size_t j = m - 1; j + 1 > 0; --j) {
+//                DdNodeId f1 = tt[j].branch[1];
+//                if (f1 == 0) continue;
+//
+//                DdNodeId f0 = tt[j].branch[0];
+//                DdNodeId& f00 = table[f0.row][f0.col].branch[0];
+//
+//                if (f00.row != i) {         // the first touch from this level
+//                    newId[j] = DdNodeId(i, m); // tail of f0-equivalent list
+//                }
+//                else {
+//                    newId[j] = f00;         // next of f0-equivalent list
+//                }
+//                f00 = DdNodeId(i, j);       // new head of f0-equivalent list
+//                assert(newId[j].row == i);
+//                assert(newId[j] > f00);
+//            }
+//            etc3.stop();
+
+            etc2.start();
+//#ifdef _OPENMP
+//#pragma omp parallel for ordered schedule(dynamic)
+//#endif
+            for (size_t j = m - 1; j < m; --j) {
+                DdNodeId const mark(i, m);
+                DdNodeId& f0 = tt[j].branch[0];
+                DdNodeId& f1 = tt[j].branch[1];
+
+                if (f0.row != 0) f0 = newIdTable[f0.row][f0.col];
+                if (f1.row != 0) f1 = newIdTable[f1.row][f1.col];
+                assert(f0.row < i);
+                assert(f1.row < i);
+
+                if (f1 == 0) {
+                    newId[j] = f0;
+                }
+                else {
+                    DdNodeId& f00 = table[f0.row][f0.col].branch[0];
+                    DdNodeId& f01 = table[f0.row][f0.col].branch[1];
+
+                    if (f01 != mark) {        // the first touch from this level
+                        f01 = mark;             // mark f0 as touched
+                        newId[j] = DdNodeId(n + 1, m); // tail of f0-equivalent list
+                    }
+                    else {
+                        newId[j] = f00;         // next of f0-equivalent list
+                    }
+                    f00 = DdNodeId(n + 1, j);  // new head of f0-equivalent list
+                }
+            }
+            etc2.stop();
+
+            {
+                MyVector<int> const& levels = table.lowerLevels(i);
+                for (int const* t = levels.begin(); t != levels.end(); ++t) {
+                    newIdTable.clear(*t);
                 }
             }
 
-            assert(k == mm);
-        }
+            size_t mm = 0;
 
-        nodeTable = tmpTable;
+            etc4.start();
+//#ifdef _OPENMP
+//#pragma omp parallel for reduction(+:mm) schedule(static)
+//#endif
+            for (size_t j = 0; j < m; ++j) {
+                DdNodeId const f(i, j);
+                assert(newId[j].row <= i || newId[j].row == n + 1);
+                if (newId[j].row <= n) continue;
+
+                for (size_t k = j; k < m;) { // for each g in f0-equivalent list
+                    assert(j <= k);
+                    DdNodeId const g(i, k);
+                    DdNodeId& g0 = tt[k].branch[0];
+                    DdNodeId& g1 = tt[k].branch[1];
+                    DdNodeId& g10 = table[g1.row][g1.col].branch[0];
+                    DdNodeId& g11 = table[g1.row][g1.col].branch[1];
+                    assert(newId[k].row >= n);
+                    size_t next = newId[k].col;
+
+                    if (g11 != f) { // the first touch to g1 in f0-equivalent list
+                        g11 = f;        // mark g1 as touched
+                        g10 = g;     // record g as a canonical node for <f0,g1>
+                        newId[k] = DdNodeId(i, mm++);
+                    }
+                    else {
+                        g0 = g10;       // make a forward link
+                        g1 = 0;         // mark g as forwarded
+                        newId[k] = 0;
+                    }
+
+                    k = next;
+                }
+            }
+            etc4.stop();
+
+            {
+                MyVector<int> const& levels = table.lowerLevels(i);
+                for (int const* t = levels.begin(); t != levels.end(); ++t) {
+                    nodeTable.derefLevel(*t);
+                }
+            }
+
+            tmpTable.initRow(i, mm);
+
+            DdNode* nt = tmpTable[i];
+
+            etc5.start();
+//#ifdef _OPENMP
+//#pragma omp parallel for schedule(static)
+//#endif
+            for (size_t j = 0; j < m; ++j) {
+                if (tt[j].branch[1] != 0) { // not forwarded
+                    assert(newId[j].row == i);
+                    size_t k = newId[j].col;
+                    nt[k] = tt[j];
+                }
+                else {
+                    assert(newId[j].row <= i);
+                    DdNodeId f = tt[j].branch[0];
+                    if (f.row == i) {
+                        assert(newId[j] == 0);
+                        newId[j] = newId[f.col];
+                    }
+                }
+            }
+            etc5.stop();
+        }
+        mh << "\nMP2: " << etc2 << "\n";
+        mh << "\nMP3: " << etc3 << "\n";
+        mh << "\nMP4: " << etc4 << "\n";
+        mh << "\nMP5: " << etc5 << "\n";
+
+        nodeTable = tmpTableHandler;
         root = newIdTable[root.row][root.col];
         mh.end(nodeTable->totalSize());
     }

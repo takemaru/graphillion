@@ -20,7 +20,8 @@
 class DdNodeTable: public DataTable<DdNode> {
     typedef DataTable<DdNode> base;
 
-    mutable MyVector<MyVector<int> > levelJumpTable;
+    mutable MyVector<MyVector<int> > higherLevelTable;
+    mutable MyVector<MyVector<int> > lowerLevelTable;
 
 public:
     /**
@@ -36,7 +37,7 @@ public:
      * Clear and initialize the table.
      * @param n the number of rows.
      */
-    void init(int n) {
+    void init(int n = 1) {
         assert(n >= 1);
         base::init(n);
         deleteIndex();
@@ -46,7 +47,8 @@ public:
      * Deletes current index information.
      */
     void deleteIndex() {
-        levelJumpTable.clear();
+        higherLevelTable.clear();
+        lowerLevelTable.clear();
     }
 
     /**
@@ -54,40 +56,56 @@ public:
      */
     void makeIndex() const {
         int const n = numRows() - 1;
-        levelJumpTable.clear();
-        levelJumpTable.resize(n + 1);
-        MyVector<bool> levelMark(n + 1);
+        higherLevelTable.clear();
+        higherLevelTable.resize(n + 1);
+        lowerLevelTable.clear();
+        lowerLevelTable.resize(n + 1);
+        MyVector<bool> lowerMark(n + 1);
 
         for (int i = n; i >= 1; --i) {
             size_t const m = rowSize(i);
-            DdNode const* const nt = (*this)[i];
-            MyVector<int>& ljt = levelJumpTable[i];
+            DdNode const* const node = (*this)[i];
+            MyVector<int>& lower = lowerLevelTable[i];
+            int lowest = i;
 
             for (size_t j = 0; j < m; ++j) {
-                for (int c = 0; c <= 1; ++c) {
-                    int const ii = nt[j].branch[c].row;
+                for (int b = 0; b <= 1; ++b) {
+                    int const ii = node[j].branch[b].row;
                     if (ii == 0) continue;
 
-                    if (!levelMark[ii]) {
-                        ljt.push_back(ii);
-                        levelMark[ii] = true;
+                    if (ii < lowest) lowest = ii;
+
+                    if (!lowerMark[ii]) {
+                        lower.push_back(ii);
+                        lowerMark[ii] = true;
                     }
                 }
             }
 
-            std::sort(ljt.begin(), ljt.end());
+            std::sort(lower.begin(), lower.end());
+            higherLevelTable[lowest].push_back(i);
         }
     }
 
     /**
+     * Returns a collection of the higher levels that directly refers
+     * the given level and that does not refer any lower levels.
+     * @param level the level.
+     */
+    MyVector<int> const& higherLevels(int level) const {
+        if (higherLevelTable.empty()) makeIndex();
+        return higherLevelTable[level];
+    }
+
+    /**
      * Returns a collection of the lower levels that are referred
-     * from the given level but are not referred
-     * directly from the higher levels.
+     * by the given level and that are not referred directly by
+     * any higher levels.
      * @param level the level.
      */
     MyVector<int> const& lowerLevels(int level) const {
-        if (levelJumpTable.empty()) makeIndex();
-        return levelJumpTable[level];
+        if (lowerLevelTable.empty()) makeIndex();
+        return lowerLevelTable[level];
     }
 };
 
@@ -98,6 +116,10 @@ class DdNodeTableHandler {
 
         Object(int n)
                 : refCount(1), entity(n) {
+        }
+
+        Object(DdNodeTable const& entity)
+                : refCount(1), entity(entity) {
         }
 
         void ref() {
@@ -134,19 +156,42 @@ public:
         pointer->deref();
     }
 
-    DdNodeTable* operator->() {
-        return &pointer->entity;
+    DdNodeTable const& operator*() const {
+        return pointer->entity;
     }
 
     DdNodeTable const* operator->() const {
         return &pointer->entity;
     }
 
-    DdNodeTable& operator*() {
+    /**
+     * Make the table unshared.
+     * @return writable reference to the private table.
+     */
+    DdNodeTable& privateEntity() {
+        if (pointer->refCount >= 2) {
+            pointer->deref();
+            pointer = new Object(pointer->entity);
+#ifdef DEBUG
+            std::cerr << "DdNodeTableHandler::privateEntity()";
+#endif
+        }
         return pointer->entity;
     }
 
-    DdNodeTable const& operator*() const {
+    /**
+     * Clear and initialize the table.
+     * @param n the number of rows.
+     * @return writable reference to the private table.
+     */
+    DdNodeTable& init(int n = 1) {
+        if (pointer->refCount == 1) {
+            pointer->entity.init(n);
+        }
+        else {
+            pointer->deref();
+            pointer = new Object(n);
+        }
         return pointer->entity;
     }
 

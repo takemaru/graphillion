@@ -8,6 +8,7 @@
 #pragma once
 
 #include <cassert>
+#include <cstring>
 #include <stdint.h>
 #include <iostream>
 #include <stdexcept>
@@ -375,18 +376,19 @@ class FrontierBasedSearch: public PodHybridDdSpec<FrontierBasedSearch,
         if (d > 0) {
             std::memmove(p1, pd, (mateSize - d) * sizeof(*mate));
             for (int i = mateSize - d; i < mateSize; ++i) {
-                p1[i] = initialMate[ee.v1 + i];
+                p1[i] = initialMate[ee.v0 + i];
                 //std::cerr << "\np1[" << i << "] = " << p1[i];
             }
         }
     }
 
 public:
-    FrontierBasedSearch(Graph const& graph, int numUEC = -1, bool noLoop = false)
+    FrontierBasedSearch(Graph const& graph, int numUEC = -1,
+            bool noLoop = false)
             : graph(graph), m(graph.vertexSize()), n(graph.edgeSize()),
               mateSize(graph.maxFrontierSize()), initialMate(1 + m + mateSize),
               numUEC(numUEC), noLoop(noLoop) {
-        this->setArraySize(mateSize + 1);
+        this->setArraySize(mateSize);
 
         std::vector<int> rootOfColor(graph.numColor() + 1);
         for (int v = 1; v <= m; ++v) {
@@ -396,7 +398,7 @@ public:
             int k = graph.colorNumber(v);
             int hoc = (k > 0) ? rootOfColor[k] - v : Mate::UNCOLORED;
             initialMate[v] = Mate(hoc);
-            //std::cerr << "\nitialMate[" << v << "] = " << initialMate[v];
+//            std::cerr << "\ninitialMate[" << v << "] = " << initialMate[v];
         }
     }
 
@@ -409,6 +411,8 @@ public:
             mate[i] = initialMate[v0 + i];
         }
 
+//        std::cerr << "\nroot ";
+//        print(std::cerr, count, mate);
         return n;
     }
 

@@ -325,6 +325,10 @@ class MyListOnPool {
         return reinterpret_cast<T*>(p + 1);
     }
 
+    static T const* dataStart(Cell const* p) {
+        return reinterpret_cast<T const*>(p + 1);
+    }
+
 public:
     MyListOnPool()
             : front_(0), size_(0) {
@@ -463,7 +467,7 @@ public:
         }
 
         T const* operator*() const {
-            return *dataStart(front);
+            return dataStart(front);
         }
 
         const_iterator& operator++() {
@@ -471,11 +475,11 @@ public:
             return *this;
         }
 
-        bool operator==(iterator const& o) const {
+        bool operator==(const_iterator const& o) const {
             return front == o.front;
         }
 
-        bool operator!=(iterator const& o) const {
+        bool operator!=(const_iterator const& o) const {
             return front != o.front;
         }
     };

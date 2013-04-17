@@ -13,7 +13,7 @@
 
 union DdNodeId {
     uint64_t code;
-    struct {
+    struct { // row-col order for experimentally fast reduce()
         uint64_t row :16;
         uint64_t col :48;
     };
@@ -22,8 +22,8 @@ union DdNodeId {
             : code(0) {
     }
 
-    DdNodeId(size_t val)
-            : row(0), col(val) {
+    DdNodeId(size_t terminalValue)
+            : row(0), col(terminalValue) {
     }
 
     DdNodeId(int row, size_t col)
@@ -31,7 +31,7 @@ union DdNodeId {
     }
 
     size_t hash() const {
-        return code;
+        return code * 314159257;
     }
 
     bool operator==(DdNodeId const& o) const {
@@ -61,13 +61,46 @@ union DdNodeId {
     friend std::ostream& operator<<(std::ostream& os, DdNodeId const& o) {
         return os << o.row << ":" << o.col;
     }
-};
 
-//namespace std {
-//template<>
-//struct hash<DdNodeId> {
-//    size_t operator()(DdNodeId const& o) const {
-//        return o.hash();
+//    class RowRef {
+//        DdNodeId* id;
+//
+//    public:
+//        RowRef(DdNodeId& id)
+//                : id(&id) {
+//        }
+//
+//        void operator=(int row) {
+//            id->row = row;
+//        }
+//
+//        operator int() const {
+//            return id->row;
+//        }
+//    };
+//
+//    class ColRef {
+//        DdNodeId* id;
+//
+//    public:
+//        ColRef(DdNodeId& id)
+//                : id(&id) {
+//        }
+//
+//        void operator=(size_t col) {
+//            id->col = col;
+//        }
+//
+//        operator size_t() const {
+//            return id->col;
+//        }
+//    };
+//
+//    RowRef rowReference() {
+//        return RowRef(*this);
 //    }
-//};
-//}
+//
+//    ColRef colReference() {
+//        return ColRef(*this);
+//    }
+};

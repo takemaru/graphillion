@@ -23,3 +23,27 @@ struct IntSubset {
         return INT_MAX;
     }
 };
+
+class IntRange: public IntSubset {
+    int const min;
+    int const max;
+    int const step;
+
+public:
+    IntRange(int min = 0, int max = INT_MAX, int step = 1)
+            : min(min), max(max), step(step) {
+    }
+
+    bool contains(int x) const {
+        if (x < min || max < x) return false;
+        return (x - min) % step == 0;
+    }
+
+    int lowerBound() const {
+        return min;
+    }
+
+    int upperBound() const {
+        return max;
+    }
+};

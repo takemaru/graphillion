@@ -65,7 +65,8 @@ class MessageHandler_: public std::ostream {
             if (c == '.' && ++mh.stepCount >= 50) {
                 ResourceUsage usage;
                 ResourceUsage diff = usage - mh.prevUsage;
-                os << " " << diff << "\n";
+                os << " " << diff.elapsedTime() << ", " << diff.memory()
+                        << "\n";
                 //        auto backup = os.flags(std::ios::fixed);
                 //        os << " " << std::setprecision(2) << diff.utime << "s, ";
                 //        os << std::setprecision(0) << diff.maxrss / 1024.0 << "MB\n";
