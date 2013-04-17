@@ -185,9 +185,13 @@ string, etc.  Edges (or links) are defined as a pair of vertices, and a graph is
 a list of edges; currently, Graphillion supports *undirected* graphs
 only.  A GraphSet object stores a set of graphs.
 
-Before anything else, we import Graphillion and a helper module;
-the latter provides some functions like graph creation and drawing for the
-tutorial.
+Before anything else, we start the Python interpreter and import
+Graphillion and a helper module; the latter provides some functions
+like graph creation and drawing for the tutorial.
+
+```bash
+$ python
+```
 
 ```python
 >>> from graphillion import GraphSet
