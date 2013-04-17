@@ -60,7 +60,7 @@ graphs from the complex graphset, and can also extract common
 properties among all graphs in the set.  Thanks to these features,
 Graphillion has a variety of applications including graph database,
 combinatorial optimization, and a graph structure analysis.  We
-will show some practical use cases in the following tutorial, including
+will show some practical use cases in the following [Tutorial](#tutorial), including
 evaluation of power distribution networks.
 
 Graphillion can be used freely under the MIT license.  It is
@@ -69,7 +69,7 @@ project](http://www-erato.ist.hokudai.ac.jp/?language=en).  We would
 really appreciate if you would refer to our paper (to appear)
 and address our contribution on the use of Graphillion in your paper.
 
-Now, install Graphillion and go to the tutorial.  You'll find its power
+Now, install Graphillion and go to [Tutorial](#tutorial).  You'll find its power
 and utility.
 
 Installing
@@ -97,7 +97,7 @@ numbers are used.  http://gmplib.org/
 
 NetworkX and Matplotlib are Python modules for creating and drawing a graph.  These
 packages are not required for Graphillion, but used in the following
-tutorial.  They can be
+[Tutorial](#tutorial).  They can be
 installed by:
 
 ```bash
@@ -446,7 +446,7 @@ a graph list, edge constraints, and graph types
 like paths and trees.
 
 Please don't forget to set the universe before working with
-GraphSet, as mentioned in the tutorial.  We use the following universe
+GraphSet, as mentioned in [Tutorial](#tutorial).  We use the following universe
 in this section.
 
 ```python
