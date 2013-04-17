@@ -69,7 +69,7 @@ project](http://www-erato.ist.hokudai.ac.jp/?language=en).  We would
 really appreciate if you would refer to our paper (to appear)
 and address our contribution on the use of Graphillion in your paper.
 
-Now, install Graphillion and go to [Tutorial](#tutorial).  You'll find its power
+Now, install Graphillion and go to the tutorial.  You'll find its power
 and utility.
 
 Installing
@@ -96,7 +96,7 @@ numbers are used.  http://gmplib.org/
 #### NetworkX and Matplotlib - optional for the tutorial
 
 NetworkX and Matplotlib are Python modules for creating and drawing a graph.  These
-packages are not required for Graphillion, but used in the following
+packages are not required for Graphillion, but used in
 [Tutorial](#tutorial).  They can be
 installed by:
 
