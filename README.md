@@ -217,7 +217,7 @@ four hours with the supercomputer in the movie.
 >>> start = 1
 >>> goal = 81
 >>> paths = GraphSet.paths(start, goal)
->>> len(paths)
+>>> len(paths)  # or paths.len() for very large set
 3266598486981642
 ```
 
