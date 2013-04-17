@@ -17,6 +17,9 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+"""Module for a set of graphs.
+"""
+
 from functools import partial
 import _graphillion
 from graphillion import setset

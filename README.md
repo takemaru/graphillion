@@ -1,4 +1,4 @@
-Graphillion - A fast, lightweight graphset operation library
+Graphillion - Fast, lightweight graphset operation library
 ================================================================================
 
 * [Features](#features "Features")
@@ -64,7 +64,7 @@ will show some practical use cases in the following tutorial, including
 evaluation of power distribution networks.
 
 Graphillion can be used freely under the MIT license.  It is
-mainly developed in [JST ERATO Minato
+mainly developed by [JST ERATO Minato
 project](http://www-erato.ist.hokudai.ac.jp/?language=en).  We would
 really appreciate if you would refer to our paper (to appear)
 and address our contribution on the use of Graphillion in your paper.
@@ -189,11 +189,8 @@ Before anything else, we start the Python interpreter and import
 Graphillion and a helper module; the latter provides some functions
 like graph creation and drawing for the tutorial.
 
-```bash
-$ python
-```
-
 ```python
+$ python
 >>> from graphillion import GraphSet
 >>> import graphillion.tutorial as tl  # helper functions just for the tutorial
 ```
@@ -732,15 +729,18 @@ $ pydoc -w graphillion.GraphSet
 TODOs
 --------------------------------------------------------------------------------
 
-* Efficient internal data conversion
-* Efficient search in optimization
-* Nonlinear objective functions in optimization
-* Efficient algorithm for cliques
-* Multithreading
-* Garbage collections
-* Mailing lists
-* Coding rules
-* Deveroper documents
+- Efficient internal data conversion
+- Efficient search in optimization
+- Nonlinear objective functions in optimization
+- Efficient algorithm for cliques
+- Sync the internal random seed with Python's random
+- Multithreading
+- Garbage collections
+- Mailing lists
+- Coding rules
+- Deveroper documents
 
 References
 --------------------------------------------------------------------------------
+
+- [Graphillion : Python Package Index](https://pypi.python.org/pypi/Graphillion)

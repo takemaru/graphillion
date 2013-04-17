@@ -23,9 +23,9 @@ for prefix in prefixes:
         libraries.extend(['gmp', 'gmpxx'])
         break
 
-setup(name='graphillion',
+setup(name='Graphillion',
       version=release.version,
-      description='A fast, lightweight graphset operation library',
+      description='Fast, lightweight graphset operation library',
       long_description="""\
 Graphillion is a Python library for efficient graphset operations.
 Unlike existing graph tools such as NetworkX, which are designed to
