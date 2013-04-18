@@ -292,10 +292,12 @@ as follows:
 
 ![Histogram of turn counts](http://github.com/takemaru/graphillion/blob/master/doc/fig5.png?raw=true)
 
-The histogram shows that you usually turn a corner 30-50 times on a
-path.  However, you also find that the shortest path involves only
-five turns, which is derived by method `min_iter()`, an optimizer
-provided by Graphillion.
+The histogram shows that we usually turn corners 30-50 times on a
+single path.  Without Graphillion, it would be very hard to
+investigate such a complicated property for a very large set with
+10^14 paths.  We also find that the shortest path involves only five
+turns, which is derived by method `min_iter()`, an optimizer provided
+by Graphillion.
 
 ```python
 >>> for path in treasure_paths.min_iter():
@@ -440,7 +442,7 @@ which should be investigated carefully.
 
 Though actual power distribution networks are much more complicated,
 we basically rely on the same idea in the study of power distribution
-networks.  Our power loss minimization tool, which optimizes the
+networks.  Our power loss minimization tool, which optimizes a
 network with nonlinear objective function with nonconvex constraints,
 is available online at [DNET].
 
@@ -740,10 +742,10 @@ $ pydoc -w graphillion.GraphSet
 Future work
 --------------------------------------------------------------------------------
 
-- Efficient internal data conversion
-- Efficient search in optimization
+- More efficient internal data conversion
+- More efficient search algorithms for optimization
 - Nonlinear objective functions in optimization
-- Efficient algorithm for cliques
+- More efficient algorithms for hitting sets and cliques
 - Sync the internal random seed with Python's random
 - Multithreading
 - Garbage collections
@@ -758,12 +760,14 @@ References
   Yoshinaka, Akihiro Kishimoto, Koji Tsuda, Shin-ichi Minato, and
   Yasuhiro Hayashi, "Loss Minimization of Power Distribution Networks
   with Guaranteed Error Bound," Hokkaido University, Division of
-  Computer Science, TCS Technical Reports, TCS-TR-A-12-59, August 2012.
+  Computer Science, TCS Technical Reports, TCS-TR-A-12-59, 2012.
   ([pdf](http://www-alg.ist.hokudai.ac.jp/~thomas/TCSTR/tcstr_12_59/tcstr_12_59.pdf))
 - Ryo Yoshinaka, Toshiki Saitoh, Jun Kawahara, Koji Tsuruma, Hiroaki
   Iwashita, and Shin-ichi Minato, "Finding All Solutions and Instances
   of Numberlink and Slitherlink by ZDDs," Algorithms 2012, 5(2),
-  pp.176-213, April 2012.  ([doi](http://dx.doi.org/10.3390/a5020176))
+  pp.176-213, 2012.  ([doi](http://dx.doi.org/10.3390/a5020176))
+- Oliver Coudert, "Solving Graph Optimization Problems with ZBDDs,"
+  Proc. of EDTC, pp.224-228, 1997.
 - [DNET - Distribution Network Evaluation Tool][DNET]
 
 [JST ERATO Minato project]: http://www-erato.ist.hokudai.ac.jp/?language=en
