@@ -9,7 +9,7 @@ Graphillion - Fast, lightweight graphset operation library
 * [Manipulating graphsets](#manipulating-graphsets "Manipulating graphsets")
 * [Working with NetworkX](#working-with-networkx "Working with NetworkX")
 * [Library reference](#library-reference "Library reference")
-* [TODOs](#todos "TODOs")
+* [Future work](#future-work "Future work")
 * [References](#references "References")
 
 Features
@@ -60,7 +60,7 @@ graphs from the complex graphset, and can also extract common
 properties among all graphs in the set.  Thanks to these features,
 Graphillion has a variety of applications including graph database,
 combinatorial optimization, and a graph structure analysis.  We
-will show some practical use cases in the following [Tutorial](#tutorial), including
+will show some practical use cases in the following [tutorial](#tutorial), including
 evaluation of power distribution networks.
 
 Graphillion can be used freely under the MIT license.  It is
@@ -68,6 +68,10 @@ mainly developed by [JST ERATO Minato
 project](http://www-erato.ist.hokudai.ac.jp/?language=en).  We would
 really appreciate if you would refer to our paper (to appear)
 and address our contribution on the use of Graphillion in your paper.
+
+Graphillion is still under the development.  We really
+appreciate any pull request and patch if you add some changes that
+benefit a wide variety of people.
 
 Now, install Graphillion and go to the tutorial.  You'll find its power
 and utility.
@@ -97,7 +101,7 @@ numbers are used.  http://gmplib.org/
 
 NetworkX and Matplotlib are Python modules for creating and drawing a graph.  These
 packages are not required for Graphillion, but used in
-[Tutorial](#tutorial).  They can be
+[tutorial](#tutorial).  They can be
 installed by:
 
 ```bash
@@ -340,7 +344,7 @@ of too much power, and then select safe flows without the
 dangerous cases.
 
 ```python
->>> too_large_trees = GraphSet()
+>>> too_large_trees = GraphSet()  # empty graphset
 >>> for substation in generators:
 ...     too_large_trees |= GraphSet.trees(root=substation).larger(23)
 ...
@@ -446,7 +450,7 @@ a graph list, edge constraints, and graph types
 like paths and trees.
 
 Please don't forget to set the universe before working with
-GraphSet, as mentioned in [Tutorial](#tutorial).  We use the following universe
+GraphSet, as mentioned in [tutorial](#tutorial).  We use the following universe
 in this section.
 
 ```python
@@ -726,7 +730,7 @@ Or in HTML:
 $ pydoc -w graphillion.GraphSet
 ```
 
-TODOs
+Future work
 --------------------------------------------------------------------------------
 
 - Efficient internal data conversion
@@ -743,4 +747,15 @@ TODOs
 References
 --------------------------------------------------------------------------------
 
+- Takeru Inoue, Keiji Takano, Takayuki Watanabe, Jun Kawahara, Ryo
+  Yoshinaka, Akihiro Kishimoto, Koji Tsuda, Shin-ichi Minato, and
+  Yasuhiro Hayashi, "Loss Minimization of Power Distribution Networks
+  with Guaranteed Error Bound," Hokkaido University, Division of
+  Computer Science, TCS Technical Reports, TCS-TR-A-12-59, August 2012.
+  ([pdf](http://www-alg.ist.hokudai.ac.jp/~thomas/TCSTR/tcstr_12_59/tcstr_12_59.pdf))
+- Ryo Yoshinaka, Toshiki Saitoh, Jun Kawahara, Koji Tsuruma, Hiroaki
+  Iwashita, and Shin-ichi Minato, "Finding All Solutions and Instances
+  of Numberlink and Slitherlink by ZDDs," Algorithms 2012, 5(2),
+  pp.176-213, April 2012.  ([doi](http://dx.doi.org/10.3390/a5020176))
+- [DNET - Distribution Network Evaluation Tool](https://github.com/takemaru/dnet)
 - [Graphillion : Python Package Index](https://pypi.python.org/pypi/Graphillion)
