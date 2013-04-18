@@ -29,7 +29,7 @@ manipulation, optimization, and study of a large set of graphs.
 
 We provide funny short movies to answer your questions.
 
-* Why Graphillion? Watch "Time with class! Let's count!" (viewed more than a
+* Why Graphillion? Watch [Time with class! Let's count!][lets_count-link] (viewed more than a
   million times!)
 
     [![][lets_count-thumbnail]][lets_count-link]
