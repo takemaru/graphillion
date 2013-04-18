@@ -293,16 +293,16 @@ as follows:
 ![Histogram of turn counts](http://github.com/takemaru/graphillion/blob/master/doc/fig5.png?raw=true)
 
 The histogram shows that we make a turn at a corner usually 30-50
-times on a path.  Without Graphillion, it would be very hard to
-investigate such a complicated property for a very large set with
-10^14 paths.  We also find that the shortest path involves only five
-turns, which is derived by method `min_iter()`, an optimizer provided
-by Graphillion.
+times through a single path.  Without Graphillion, it would be very
+hard to investigate such a complicated property for a very large set
+with 10^14 paths.  We also find that the shortest path involves only
+five turns, which is derived by method `min_iter()`, an optimizer
+provided by Graphillion.
 
 ```python
 >>> for path in treasure_paths.min_iter():
 ...     tl.how_many_turns(path)
-...     break
+...     break  # if not break, multiple paths can be yielded in the ascending order
 ...
 5
 ```
@@ -400,7 +400,7 @@ required from the terrible unsafe configuration to a safe one.
 ```python
 >>> for forest in safe_forests.max_iter(scores):
 ...     tl.draw(forest)
-...     break
+...     break  # if not break, multiple configs are yielded from the highest score
 ...
 ```
 
@@ -647,9 +647,10 @@ objects.
 ### Iterators
 
 Graphillion provides various iterators.  `rand_iter()` can be used for
-random sampling in statistical analysis, and `min_iter()` and
-`max_iter()` can be used as optimizers.  `pop()` and `choice()` return
-a graph in the GraphSet object, though they aren't iterators.
+random sampling in statistical analysis.  `min_iter()` and
+`max_iter()` can be used as optimizers, and they yield not just an
+optimal graph but top-k graphs.  `pop()` and `choice()` return a graph
+in the GraphSet object, though they aren't iterators.
 
 | Method           | Description                                             |
 | :--------------- | :------------------------------------------------------ |
@@ -713,15 +714,24 @@ object, and the other is vice versa.  We show an example for NetworkX.
 We can now pass NetworkX's graph objects to Graphillion like this.
 
 ```python
->>> g = nx.Graph(...)
+>>> g = nx.Graph(...)  # create a graph by NetworkX
 >>> GraphSet.set_universe(g)
 ```
 
 We also receive NetworkX's graph objects from Graphillion.
 
 ```python
->>> GraphSet(...).pop()
+>>> gs.choice()  # choose a graph from GraphSet gs
 <networkx.classes.graph.Graph object at 0x100456d10>
+```
+
+For visualizing graphs, NetworkX provides an interface to Matplotlib
+plotting package along with several node positioning algorithms.
+
+```python
+>>> nx.draw(gs.choice())
+>>> import matplotlib.pyplot as plt
+>>> plt.show()  # show a pop-up window
 ```
 
 Library reference
