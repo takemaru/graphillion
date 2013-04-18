@@ -27,9 +27,9 @@ optimization, and study of a set of graphs.
 * Additional benefits from Python: fast prototyping, easy to teach,
   and multi-platform
 
-We provide funny short movies to answer your questions.
+We provide funny short movies to answer the following questions.
 
-* Why Graphillion? Watch [Time with class! Let's count!], 
+* Why Graphillion? Watch [Time with class! Let's count!], which is
   viewed more than a million times!
 
     [![][lets_count-thumbnail]][Time with class! Let's count!]
