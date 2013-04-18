@@ -25,4 +25,5 @@ date = ''
 license = 'MIT'
 authors = (('Takeru Inoue', 'takeru.inoue@gmail.com'),
            ('Hiroaki Iwashita', 'iwashita@erato.ist.hokudai.ac.jp'),
+           ('Jun Kawahara', 'jkawahara@is.naist.jp'),
            ('Shin-ichi Minato', 'minato@ist.hokudai.ac.jp'))
