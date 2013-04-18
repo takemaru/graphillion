@@ -770,6 +770,6 @@ References
 [JST ERATO Minato project]: http://www-erato.ist.hokudai.ac.jp/?language=en
 [DNET]: https://github.com/takemaru/dnet#dnet---distribution-network-evaluation-tool
 [NetworkX]: http://networkx.github.io/
-[lets_count-thumbnail]: http://i.ytimg.com/vi/Q4gTV4r0zRs/default.jpg
 [Time with class! Let's count!]: http://youtu.be/Q4gTV4r0zRs "Time with class! Let's count!"
+[lets_count-thumbnail]: http://i.ytimg.com/vi/Q4gTV4r0zRs/default.jpg
 [tutorial]: #tutorial
