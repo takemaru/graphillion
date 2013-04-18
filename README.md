@@ -292,8 +292,8 @@ as follows:
 
 ![Histogram of turn counts](http://github.com/takemaru/graphillion/blob/master/doc/fig5.png?raw=true)
 
-The histogram shows that we usually make a turn at a corner 30-50
-times on a single path.  Without Graphillion, it would be very hard to
+The histogram shows that we make a turn at a corner usually 30-50
+times on a path.  Without Graphillion, it would be very hard to
 investigate such a complicated property for a very large set with
 10^14 paths.  We also find that the shortest path involves only five
 turns, which is derived by method `min_iter()`, an optimizer provided
