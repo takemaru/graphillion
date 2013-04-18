@@ -21,7 +21,7 @@ manipulation, optimization, and study of a large set of graphs.
 * Python language data structures for a graphset (a set of graphs)
 * Search, optimization, and enumeration on a large and complex graphset
 * Fast and efficient implementation extending Python with C/C++
-* Working with existing graph tools like [NetworkX](http://networkx.github.io/)
+* Working with existing graph tools like [NetworkX]
 * Open source MIT license
 * Well tested: more than 600 unit tests
 * Additional benefits from Python: fast prototyping, easy to teach,
@@ -29,15 +29,18 @@ manipulation, optimization, and study of a large set of graphs.
 
 We provide funny short movies to answer your questions.
 
-* Why Graphillion? [Time with class! Let's
-  count!](http://youtu.be/Q4gTV4r0zRs) (viewed more than a million times!)
+* Why Graphillion? "Time with class! Let's count!" (viewed more than a
+  million times!)
+
+[![][lets_count-thumbnail]][lets_count-link]
+
 * What's Graphillion? (to appear)
 
 Overview
 --------------------------------------------------------------------------------
 
 Graphillion is a Python library for efficient *graphset operations*.
-Unlike existing graph tools such as NetworkX, which are designed to
+Unlike existing graph tools such as [NetworkX], which are designed to
 manipulate just a single graph at a time, Graphillion handles a large
 *set* of graphs very efficiently.  Surprisingly, trillions of
 trillions of graphs can be processed on a single computer with Graphillion.
@@ -99,7 +102,7 @@ numbers are used.  http://gmplib.org/
 
 #### NetworkX and Matplotlib - optional for the tutorial
 
-NetworkX and Matplotlib are Python modules for creating and drawing a graph.  These
+[NetworkX] and Matplotlib are Python modules for creating and drawing a graph.  These
 packages are not required for Graphillion, but used in
 [tutorial](#tutorial).  They can be
 installed by:
@@ -166,7 +169,7 @@ Tutorial
 --------------------------------------------------------------------------------
 
 If you haven't seen our funny movie, [Time with class! Let's
-count!](http://youtu.be/Q4gTV4r0zRs), please watch it before beginning the
+count!][lets_count-link], please watch it before beginning the
 tutorial.  This movie, which has been viewed more than a million
 times, will convince you of a need for Graphillion.  The summary of
 this tutorial is also provided as a movie (to appear).
@@ -438,8 +441,7 @@ Though actual power distribution networks are much more complicated,
 we basically rely on the same idea in the study of power distribution
 networks.  Our power loss
 minimization tool, which optimizes the network with nonlinear objective function with
-nonconvex constraints, is available online at
-[DNET](https://github.com/takemaru/dnet).
+nonconvex constraints, is available online at [DNET][DNET].
 
 
 Creating graphsets
@@ -691,7 +693,7 @@ Working with NetworkX
 --------------------------------------------------------------------------------
 
 Graphillion transparently works with existing graph tools like
-NetworkX.  Any object like `networkx.Graph` can be recognized as a graph
+[NetworkX].  Any object like `networkx.Graph` can be recognized as a graph
 in Graphillion, while an edge list is a graph by default.
 
 Define two methods that associate a new graph object with an edge list;
@@ -757,5 +759,9 @@ References
   Iwashita, and Shin-ichi Minato, "Finding All Solutions and Instances
   of Numberlink and Slitherlink by ZDDs," Algorithms 2012, 5(2),
   pp.176-213, April 2012.  ([doi](http://dx.doi.org/10.3390/a5020176))
-- [DNET - Distribution Network Evaluation Tool](https://github.com/takemaru/dnet)
-- [Graphillion : Python Package Index](https://pypi.python.org/pypi/Graphillion)
+- [DNET - Distribution Network Evaluation Tool][DNET]
+
+[DNET]: https://github.com/takemaru/dnet#dnet---distribution-network-evaluation-tool
+[NetworkX]: http://networkx.github.io/
+[lets_count-thumbnail]: http://i.ytimg.com/vi/Q4gTV4r0zRs/default.jpg
+[lets_count-link]: http://youtu.be/Q4gTV4r0zRs "Time with class! Let's count!"
