@@ -53,10 +53,10 @@ subgraphs cut from the graph; e.g., considering possible driving
 routes on a road map, examining feasible electric flows on a power
 grid, or evaluating the structure of chemical reaction networks.  The
 number of such subgraphs can be trillions even in a graph with just a
-few hundreds of edges, since the number of subgraphs increases
-exponentially with the graph size.  It takes millions of years to
-examine all subgraphs with a naive approach as demonstrated in the
-funny movie above; Graphillion is our answer to resolve this issue.
+few hundreds of edges, since subgraphs increase exponentially with the
+graph size.  It takes millions of years to examine all subgraphs with
+a naive approach as demonstrated in the funny movie above; Graphillion
+is our answer to resolve this issue.
 
 Graphillion allows you to exhaustively but efficiently search a
 graphset with complex, even nonconvex, constraints.  In addition, you
@@ -610,11 +610,11 @@ Creation methods specifying graph types also work as selection methods.
 
 ### Modification or generation methods
 
-The following methods generate new graphs.  Some methods store new
-graphs into `self`, while others return a GraphSet with the newly
+The following methods generate new graphs.  Some methods modify graphs
+stored in `self`, while others return a GraphSet with the newly
 generated graphs.
 
-#### Modifying self
+#### Modifying graphs in self
 
 | Method                              | Description                                               |
 | :---------------------------------- | :-------------------------------------------------------- |
@@ -623,7 +623,7 @@ generated graphs.
 | `gs.flip(edge)`                     | Flips the state of a given edge over all graphs in `self` |
 | `gs.clear()`                        | Removes all graphs from `self`                            |
 
-#### Returning new GraphSet
+#### Generating new graphs
 
 | Method            | Description                                             |
 | :---------------- | :------------------------------------------------------ |
@@ -721,7 +721,7 @@ We can now pass NetworkX's graph objects to Graphillion like this.
 We also receive NetworkX's graph objects from Graphillion.
 
 ```python
->>> gs.choice()  # choose a graph from GraphSet gs
+>>> gs.choice()  # return a NeworkX's graph object
 <networkx.classes.graph.Graph object at 0x100456d10>
 ```
 
@@ -776,8 +776,6 @@ References
   Iwashita, and Shin-ichi Minato, "Finding All Solutions and Instances
   of Numberlink and Slitherlink by ZDDs," Algorithms 2012, 5(2),
   pp.176-213, 2012.  ([doi](http://dx.doi.org/10.3390/a5020176))
-- Oliver Coudert, "Solving Graph Optimization Problems with ZBDDs,"
-  Proc. of EDTC, pp.224-228, 1997.
 - [DNET - Distribution Network Evaluation Tool][DNET]
 
 [JST ERATO Minato project]: http://www-erato.ist.hokudai.ac.jp/?language=en
