@@ -467,11 +467,11 @@ class TestSetset(unittest.TestCase):
         self.assertEqual(ss, setset(v))
 
     def test_large(self):
-        n = 5000
+        n = 1000
         setset.set_universe(xrange(n))
         ss = setset({}) - setset([set([1]) - set([1, 2])])
         self.assertTrue(ss)
-        self.assertAlmostEqual(ss.len() / (2**n - 2), 1)
+        self.assertAlmostEqual(ss.len() / (2**n - 2), 1, 5)
 
         i = 0
         for s in ss:

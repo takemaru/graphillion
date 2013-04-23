@@ -453,7 +453,7 @@ class TestSetset {
   }
 
   void large() {
-    int n = 5000;
+    int n = 1000;
     setset::num_elems(n);
     map<string, vector<int> > m;
     setset ss = setset(m) - setset(V("{{1}, {1,2}}"));
