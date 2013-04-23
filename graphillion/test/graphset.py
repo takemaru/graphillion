@@ -658,8 +658,8 @@ class TestGraphSet(unittest.TestCase):
             return
 
         try:
-            GraphSet.converters = { 'to_graph': nx.Graph,
-                                    'to_edges': nx.Graph.edges }
+            GraphSet.converters['to_graph'] = nx.Graph
+            GraphSet.converters['to_edges'] = nx.Graph.edges
 
             g = nx.grid_2d_graph(3, 3)
             GraphSet.set_universe(g)
@@ -680,8 +680,8 @@ class TestGraphSet(unittest.TestCase):
         except:
             raise
         finally:
-            GraphSet.converters = { 'to_graph': lambda edges: edges,
-                                    'to_edges': lambda graph: graph }
+            GraphSet.converters['to_graph'] = lambda edges: edges
+            GraphSet.converters['to_edges'] = lambda graph: graph
 
     def test_large(self):
         try:
