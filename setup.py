@@ -25,7 +25,7 @@ for prefix in prefixes:
 
 setup(name='Graphillion',
       version=release.version,
-      description='Fast, lightweight graphset operation library',
+      description='Fast, lightweight library for a huge number of graphs',
       long_description="""\
 Graphillion is a Python library for efficient graphset operations.
 Unlike existing graph tools such as NetworkX, which are designed to

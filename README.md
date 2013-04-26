@@ -1,4 +1,4 @@
-Graphillion - Fast, lightweight graphset operation library
+Graphillion - Fast, lightweight library for a huge number of graphs
 ================================================================================
 
 * [Features](#features "Features")
@@ -15,11 +15,11 @@ Graphillion - Fast, lightweight graphset operation library
 Features
 --------------------------------------------------------------------------------
 
-Graphillion is a Python language software package for search,
-optimization, and study of a set of graphs.
+Graphillion is a Python software package on search, optimization, and
+enumeration for a *graphset*, or a set of graphs.
 
 * Lightweight data structures for handling *x-illions* of graphs
-* Search and optimization on a very large and complex graphset
+* Search and optimization for a very large and complex graphset
 * Efficient implementation extending Python with C/C++
 * Working with existing graph tools like [NetworkX]
 * Open source MIT license
@@ -40,7 +40,7 @@ We provide funny short movies to answer the following questions.
 Overview
 --------------------------------------------------------------------------------
 
-Graphillion is a Python library for efficient *graphset operations*.
+Graphillion is a Python library for efficient *graphset* operations.
 Unlike existing graph tools such as [NetworkX], which are designed to
 manipulate just a single graph at a time, Graphillion handles a large
 *set* of graphs very efficiently.  Surprisingly, trillions of
@@ -257,8 +257,8 @@ and the treasure box.
 ```python
 >>> key = 64
 >>> treasure = 18
->>> paths_to_key = GraphSet.paths(start, key).excluding(treasure)
->>> treasure_paths = paths.including(paths_to_key).including(treasure)
+>>> paths_to_key = GraphSet.paths(start, key).excluding(treasure)  # paths to the key not through the treasure box
+>>> treasure_paths = paths.including(paths_to_key).including(treasure)  # paths to the goal via the key and treasure box
 >>> len(treasure_paths)
 789438891932744
 >>> tl.draw(treasure_paths.choice())  # show one of the paths
@@ -270,7 +270,7 @@ Test if all the treasure paths are a subset of the original paths,
 which connect between the corners.
 
 ```python
->>> treasure_paths < paths  # "<" means subset-of in Graphillion
+>>> treasure_paths < paths  # "<" means "subset-of" in Graphillion
 True
 ```
 
@@ -333,7 +333,7 @@ forests as follows:
 
 ```python
 >>> generators = [1, 9, 73, 81]
->>> forests = GraphSet.forests(roots=generators, is_spanning=True)
+>>> forests = GraphSet.forests(roots=generators, is_spanning=True)  # a forest represents a power flow covering all houses without loop
 >>> len(forests)
 54060425088
 >>> tl.draw(forests.choice())
@@ -352,9 +352,9 @@ select safe flows without the dangerous cases.
 ```python
 >>> too_large_trees = GraphSet()  # empty graphset
 >>> for substation in generators:
-...     too_large_trees |= GraphSet.trees(root=substation).larger(23)
+...     too_large_trees |= GraphSet.trees(root=substation).larger(23)  # unsafe power flows
 ...
->>> safe_forests = forests.excluding(too_large_trees)
+>>> safe_forests = forests.excluding(too_large_trees)  # power flows without the unsafe ones
 >>> len(safe_forests)
 294859080
 >>> tl.draw(safe_forests.choice())
@@ -367,7 +367,7 @@ the current configuration to a safe one using an optimization
 technique.  The current configuration is given by:
 
 ```python
->>> closed_switches = (forests - safe_forests).choice()
+>>> closed_switches = (forests - safe_forests).choice()  # sets of closed switches in unsafe power flows
 >>> tl.draw(closed_switches)
 ```
 
@@ -425,7 +425,7 @@ network, and you'll find no safe flow.
 ```python
 >>> failure = failures.choice()  # a hitting set (a set of critical power lines)
 >>> for line in failure:
-...     safe_forests = safe_forests.excluding(line)
+...     safe_forests = safe_forests.excluding(line)  # remove a line in the hitting set
 ...
 >>> len(safe_forests)
 0
