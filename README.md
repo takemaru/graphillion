@@ -258,7 +258,7 @@ and the treasure box.
 >>> key = 64
 >>> treasure = 18
 >>> paths_to_key = GraphSet.paths(start, key).excluding(treasure)  # paths to the key not through the treasure box
->>> treasure_paths = paths.including(paths_to_key).including(treasure)  # paths to the goal via the key and treasure box
+>>> treasure_paths = paths.including(paths_to_key).including(treasure)  # paths to goal via the key and treasure box
 >>> len(treasure_paths)
 789438891932744
 >>> tl.draw(treasure_paths.choice())  # show one of the paths
