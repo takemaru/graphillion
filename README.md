@@ -31,7 +31,7 @@ enumeration for a *graphset*, or a set of graphs.
 We provide funny short movies to answer the following questions.
 
 * Why Graphillion? Watch [Time with class! Let's count!], which is
-  viewed more than a million times!
+  watched more than a million times!
 
     [![][lets_count-thumbnail]][Time with class! Let's count!]
 
@@ -171,7 +171,7 @@ Tutorial
 
 If you haven't seen our funny movie, [Time with class! Let's count!],
 please watch it before beginning the tutorial.  This movie, which has
-been viewed more than a million times, will convince you of a need for
+been watched more than a million times, will convince you of a need for
 Graphillion.  The summary of this tutorial is also provided as a movie
 (to appear).
 
