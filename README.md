@@ -759,6 +759,7 @@ Future work
 - Nonlinear objective functions in optimization
 - More efficient algorithms for hitting sets and cliques
 - Sync the internal random seed with Python's random
+- Documentation on performance
 - Multithreading
 - Garbage collections
 - Mailing lists
