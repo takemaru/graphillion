@@ -236,12 +236,12 @@ class TestGraphSet(unittest.TestCase):
 
         # called as instance methods
         gs = GraphSet.graphs(no_loop=True)
-        gs.connected_components([1, 3, 5])
-        gs.cliques(4)
-        gs.trees(1)
-        gs.forests([1, 3])
-        gs.cycles()
-        gs.paths(1, 6)
+        _ = gs.connected_components([1, 3, 5])
+        _ = gs.cliques(4)
+        _ = gs.trees(1)
+        _ = gs.forests([1, 3])
+        _ = gs.cycles()
+        _ = gs.paths(1, 6)
 
         # exceptions
         self.assertRaises(KeyError, GraphSet.graphs, vertex_groups=[[7]])
