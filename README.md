@@ -112,6 +112,9 @@ $ sudo easy_install networkx
 $ sudo easy_install matplotlib
 ```
 
+For MacOSX: if installing matplotlib fails, use MacPorts, `sudo port
+install py-matplotlib`.
+
 ### Quick install
 
 Just type:
