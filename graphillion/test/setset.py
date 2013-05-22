@@ -92,6 +92,10 @@ class TestSetset(unittest.TestCase):
         self.assertEqual(repr(ss),
                          "setset([set(['1', '2']), set(['1', '2', '3'])])")
 
+        self.assertRaises(TypeError, setset, {'x': list(s1)})
+        self.assertRaises(TypeError, setset,
+                          {'include': list(s12), 'exclude': list(s23)})
+
         # copy constructor
         ss1 = setset([s0, s12, s13])
         ss2 = ss1.copy()

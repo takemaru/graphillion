@@ -159,6 +159,22 @@ static int setset_parse_set(PyObject* so, set<int>* s) {
   return 0;
 }
 
+static vector<int> intersection(const map<string, vector<int> >& m,
+                                const string& key1, const string& key2) {
+  map<string, vector<int> >::const_iterator in_i = m.find(key1);
+  map<string, vector<int> >::const_iterator ex_i = m.find(key2);
+  vector<int> in_v = in_i != m.end() ? in_i->second : vector<int>();
+  vector<int> ex_v = ex_i != m.end() ? ex_i->second : vector<int>();
+  std::sort(in_v.begin(), in_v.end());
+  std::sort(ex_v.begin(), ex_v.end());
+  vector<int> v(std::max(in_v.size(), ex_v.size()));
+  vector<int>::const_iterator end
+      = std::set_intersection(in_v.begin(), in_v.end(), ex_v.begin(), ex_v.end(),
+                              v.begin());
+  v.resize(end - v.begin());
+  return v;
+}
+
 static int setset_parse_map(PyObject* dict_obj, map<string, vector<int> >* m) {
   assert(m != NULL);
   PyObject* key_obj;
@@ -170,6 +186,10 @@ static int setset_parse_map(PyObject* dict_obj, map<string, vector<int> >* m) {
       return -1;
     }
     string key = PyString_AsString(key_obj);
+    if (key != "include" && key != "exclude") {
+      PyErr_SetString(PyExc_TypeError, "invalid dict key");
+      return -1;
+    }
     PyObject* i = PyObject_GetIter(lo);
     if (i == NULL) return -1;
     vector<int> v;
@@ -185,6 +205,10 @@ static int setset_parse_map(PyObject* dict_obj, map<string, vector<int> >* m) {
     }
     Py_DECREF(i);
     (*m)[key] = v;
+  }
+  if (!intersection(*m, "include", "exclude").empty()) {
+    PyErr_SetString(PyExc_TypeError, "inconsistent constraints");
+    return -1;
   }
   return 0;
 }
