@@ -1591,7 +1591,8 @@ class GraphSet(object):
           A new GraphSet object.
         """
         graph = []
-        for e in GraphSet.universe():
+        for e in setset.universe():
+            assert e[0] in GraphSet._vertices and e[1] in GraphSet._vertices
             graph.append((pickle.dumps(e[0]), pickle.dumps(e[1])))
 
         vg = []
