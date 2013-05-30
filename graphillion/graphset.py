@@ -776,7 +776,7 @@ class GraphSet(object):
         """Adds a given graph or edge to `self`.
 
         If a graph is given, the graph is just added to `self`
-        GraphSet.  If an edge is given, the edge is added to all the
+        GraphSet.  If an edge is given, the edge is grafted to all the
         graphs in `self`.  The `self` will be changed.
 
         Examples:
@@ -1266,7 +1266,7 @@ class GraphSet(object):
 #        return GraphSet(self._ss.non_supersets(other._ss))
 
     def including(self, obj):
-        """Returns a new GraphSet that includes `obj`.
+        """Returns a new GraphSet that includes supergraphs of `obj`.
 
         Returns a new set of graphs that include `obj`, which can be a
         GraphSet, a graph, an edge, or a vertex.  If `obj` is a

@@ -584,21 +584,21 @@ The following methods select graphs from a given GraphSet object (or
 two given GraphSet objects if binary operation).  No new graphs are
 generated during the operation.
 
-| Method                                            | Description                                                                           |
-| :------------------------------------------------ | :------------------------------------------------------------------------------------ |
-| `gs.union(other(s))`, `gs (pipe) other`           | Returns a new GraphSet with graphs from `self` and all others                         |
-| `gs.intersection(other(s))`, `gs & other`         | Returns a new GraphSet with graphs common to `self` and all others                    |
-| `gs.difference(other(s))`, `gs - other`           | Returns a new GraphSet with graphs in `self` that are not in the others               |
-| `gs.symmetric_difference(other(s))`, `gs ^ other` | Returns a new GraphSet with graphs in either `self` or `other` but not both           |
-| `gs.update(other(s))`                             | Updates `self`, adding graphs from all others                                         |
-| `gs.including(obj)`                               | Returns a new GraphSet that includes `obj` (graphset, graph, edge, or vertex)         |
-| `gs.excluding(obj)`                               | Returns a new GraphSet that doesn't include `obj`  (graphset, graph, edge, or vertex) |
-| `gs.included(obj)`                                | Returns a new GraphSet with subgraphs of a graph in `obj` (graphset or graph)         |
-| `gs.larger(size)`                                 | Returns a new GraphSet with graphs that have more than `size` edges                   |
-| `gs.smaller(size)`                                | Returns a new GraphSet with graphs that have less than `size` edges                   |
-| `gs.len(size)`                                    | Returns a new GraphSet with `size` edges                                              |
-| `gs.minimal()`                                    | Returns a new GraphSet of minimal graphs                                              |
-| `gs.maximal()`                                    | Returns a new GraphSet of maximal graphs                                              |
+| Method                                            | Description                                                                                  |
+| :------------------------------------------------ | :------------------------------------------------------------------------------------------- |
+| `gs.union(other(s))`, `gs (pipe) other`           | Returns a new GraphSet with graphs from `self` and all others                                |
+| `gs.intersection(other(s))`, `gs & other`         | Returns a new GraphSet with graphs common to `self` and all others                           |
+| `gs.difference(other(s))`, `gs - other`           | Returns a new GraphSet with graphs in `self` that are not in the others                      |
+| `gs.symmetric_difference(other(s))`, `gs ^ other` | Returns a new GraphSet with graphs in either `self` or `other` but not both                  |
+| `gs.update(other(s))`                             | Updates `self`, adding graphs from all others                                                |
+| `gs.including(obj)`                               | Returns a new GraphSet that includes supergraphs of `obj` (graphset, graph, edge, or vertex) |
+| `gs.excluding(obj)`                               | Returns a new GraphSet that doesn't include `obj`  (graphset, graph, edge, or vertex)        |
+| `gs.included(obj)`                                | Returns a new GraphSet with subgraphs of a graph in `obj` (graphset or graph)                |
+| `gs.larger(size)`                                 | Returns a new GraphSet with graphs that have more than `size` edges                          |
+| `gs.smaller(size)`                                | Returns a new GraphSet with graphs that have less than `size` edges                          |
+| `gs.len(size)`                                    | Returns a new GraphSet with `size` edges                                                     |
+| `gs.minimal()`                                    | Returns a new GraphSet of minimal graphs                                                     |
+| `gs.maximal()`                                    | Returns a new GraphSet of maximal graphs                                                     |
 
 Creation methods specifying graph types also work as selection methods.
 
@@ -620,12 +620,12 @@ generated graphs.
 
 #### Modifying graphs in self
 
-| Method                              | Description                                               |
-| :---------------------------------- | :-------------------------------------------------------- |
-| `gs.add(graph_or_edge)`             | Adds a given graph or edge to `self`                      |
-| `gs.remove(obj)`, `gs.discard(obj)` | Removes a given graph, edge, or vertex from `self`        |
-| `gs.flip(edge)`                     | Flips the state of a given edge over all graphs in `self` |
-| `gs.clear()`                        | Removes all graphs from `self`                            |
+| Method                              | Description                                                              |
+| :---------------------------------- | :----------------------------------------------------------------------- |
+| `gs.add(graph_or_edge)`             | Adds a given graph to `self`, or grafts a given edge to graphs in `self` |
+| `gs.remove(obj)`, `gs.discard(obj)` | Removes a given graph, edge, or vertex from `self`                       |
+| `gs.flip(edge)`                     | Flips the state of a given edge over all graphs in `self`                |
+| `gs.clear()`                        | Removes all graphs from `self`                                           |
 
 #### Generating new graphs
 
