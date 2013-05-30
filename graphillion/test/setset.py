@@ -443,20 +443,19 @@ class TestSetset(unittest.TestCase):
         ss = setset()
         st = ss.dumps()
         self.assertEqual(st, "B\n.\n")
-        ss.loads(st)
+        ss = setset.loads(st)
         self.assertEqual(ss, setset())
 
         ss = setset([s0])
         st = ss.dumps()
         self.assertEqual(st, "T\n.\n")
-        ss.loads(st)
+        ss = setset.loads(st)
         self.assertEqual(ss, setset([s0]))
 
         v = [s0, s1, s12, s123, s1234, s134, s14, s4]
         ss = setset(v)
         st = ss.dumps()
-        ss = setset()
-        ss.loads(st)
+        ss = setset.loads(st)
         self.assertEqual(ss, setset(v))
 
         # skip this test, becasue string is treated as an element
@@ -465,9 +464,8 @@ class TestSetset(unittest.TestCase):
 
         f = tempfile.TemporaryFile()
         ss.dump(f)
-        ss = setset()
         f.seek(0)
-        ss.load(f)
+        ss = setset.load(f)
         self.assertEqual(ss, setset(v))
 
     def test_large(self):

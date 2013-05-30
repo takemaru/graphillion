@@ -765,18 +765,23 @@ static PyObject* setset_load(PySetsetObject* self, PyObject* obj) {
   FILE* fp = PyFile_AsFile(obj);
   PyFileObject* file = reinterpret_cast<PyFileObject*>(obj);
   PyFile_IncUseCount(file);
+  PySetsetObject* ret;
   Py_BEGIN_ALLOW_THREADS;
-  self->ss->load(fp);
+  ret = reinterpret_cast<PySetsetObject*>(
+      PySetset_Type.tp_alloc(&PySetset_Type, 0));
+  ret->ss = new setset(setset::load(fp));
   Py_END_ALLOW_THREADS;
   PyFile_DecUseCount(file);
-  Py_RETURN_NONE;
+  return reinterpret_cast<PyObject*>(ret);
 }
 
 static PyObject* setset_loads(PySetsetObject* self, PyObject* obj) {
   CHECK_OR_ERROR(obj, PyString_Check, "str", NULL);
   stringstream sstr(PyString_AsString(obj));
-  self->ss->load(sstr);
-  Py_RETURN_NONE;
+  PySetsetObject* ret = reinterpret_cast<PySetsetObject*>(
+      PySetset_Type.tp_alloc(&PySetset_Type, 0));
+  ret->ss = new setset(setset::load(sstr));
+  return reinterpret_cast<PyObject*>(ret);
 }
 
 static PyObject* setset_enum(PySetsetObject* self, PyObject* obj) {
@@ -896,8 +901,6 @@ static PyMethodDef setset_methods[] = {
   {"choice", reinterpret_cast<PyCFunction>(setset_choice), METH_NOARGS, ""},
   {"dump", reinterpret_cast<PyCFunction>(setset_dump), METH_O, ""},
   {"dumps", reinterpret_cast<PyCFunction>(setset_dumps), METH_NOARGS, ""},
-  {"load", reinterpret_cast<PyCFunction>(setset_load), METH_O, ""},
-  {"loads", reinterpret_cast<PyCFunction>(setset_loads), METH_O, ""},
   {"_enum", reinterpret_cast<PyCFunction>(setset_enum), METH_O, ""},
   {"_enums", reinterpret_cast<PyCFunction>(setset_enums), METH_NOARGS, ""},
   {NULL}  /* Sentinel */
@@ -1145,6 +1148,8 @@ static PyObject* graphset_graphs(PyObject*, PyObject* args, PyObject* kwds) {
 }
 
 static PyMethodDef module_methods[] = {
+  {"load", reinterpret_cast<PyCFunction>(setset_load), METH_O, ""},
+  {"loads", reinterpret_cast<PyCFunction>(setset_loads), METH_O, ""},
   {"_elem_limit", reinterpret_cast<PyCFunction>(setset_elem_limit), METH_NOARGS, ""},
   {"_num_elems", setset_num_elems, METH_VARARGS, ""},
   {"_graphs", reinterpret_cast<PyCFunction>(graphset_graphs), METH_VARARGS | METH_KEYWORDS, ""},

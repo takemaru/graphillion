@@ -438,16 +438,14 @@ class TestSetset {
 
     sstr.clear(); sstr.str("");
     ss.dump(sstr);
-    ss.clear();
-    ss.load(sstr);
+    ss = setset::load(sstr);
     assert(ss == setset(v));
 
     FILE* fp = fopen("/tmp/graphillion_", "w");
     ss.dump(fp);
     fclose(fp);
-    ss.clear();
     fp = fopen("/tmp/graphillion_", "r");
-    ss.load(fp);
+    ss = setset::load(fp);
     fclose(fp);
     assert(ss == setset(v));
   }

@@ -430,12 +430,12 @@ void setset::dump(FILE* fp) const {
   graphillion::dump(this->zdd_, fp);
 }
 
-void setset::load(istream& in) {
-  this->zdd_ = graphillion::load(in);
+setset setset::load(istream& in) {
+  return setset(graphillion::load(in));
 }
 
-void setset::load(FILE* fp) {
-  this->zdd_ = graphillion::load(fp);
+setset setset::load(FILE* fp) {
+  return setset(graphillion::load(fp));
 }
 
 void setset::_enum(ostream& out,

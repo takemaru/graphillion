@@ -165,8 +165,8 @@ class setset {
 
   void dump(std::ostream& out) const;
   void dump(FILE* fp = stdout) const;
-  void load(std::istream& in);
-  void load(FILE* fp = stdin);
+  static setset load(std::istream& in);
+  static setset load(FILE* fp = stdin);
   void _enum(std::ostream& out,
              const std::pair<const char*, const char*> outer_braces
                = std::make_pair("{", "}"),

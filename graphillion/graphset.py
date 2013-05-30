@@ -1444,7 +1444,8 @@ class GraphSet(object):
         """
         return self._ss.dumps()
 
-    def load(self, fp):
+    @staticmethod
+    def load(fp):
         """Deserialize a file `fp` to `self`.
 
         This method does not deserialize the universe, which should be
@@ -1458,14 +1459,15 @@ class GraphSet(object):
           >>> fp = open('/path/to/universe')
           >>> GraphSet.set_universe(pickle.load(fp))
           >>> fp = open('/path/to/graphset')
-          >>> gs = GraphSet().load(fp)
+          >>> gs = GraphSet.load(fp)
 
         See Also:
           loads(), dump()
         """
-        return self._ss.load(fp)
+        return GraphSet(setset.load(fp))
 
-    def loads(self, s):
+    @staticmethod
+    def loads(s):
         """Deserialize `s` to `self`.
 
         This method does not deserialize the universe, which should be
@@ -1477,12 +1479,12 @@ class GraphSet(object):
         Examples:
           >>> import pickle
           >>> GraphSet.set_universe(pickle.loads(universe_str))
-          >>> gs = Graphset().load(graphset_str)
+          >>> gs = GraphSet.load(graphset_str)
 
         See Also:
           load(), dumps()
         """
-        return self._ss.loads(s)
+        return GraphSet(setset.loads(s))
 
     @staticmethod
     def set_universe(universe, traversal='bfs', source=None):

@@ -158,6 +158,14 @@ class setset(_graphillion.setset):
         return setset._conv_ret(set)
 
     @staticmethod
+    def load(fp):
+        return _graphillion.load(fp)
+
+    @staticmethod
+    def loads(s):
+        return _graphillion.loads(s)
+
+    @staticmethod
     def set_universe(universe):
         if len(universe) != len(set(universe)):
             raise ValueError, 'duplicated elements found'

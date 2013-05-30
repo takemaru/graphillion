@@ -624,20 +624,19 @@ class TestGraphSet(unittest.TestCase):
         gs = GraphSet()
         st = gs.dumps()
         self.assertEqual(st, "B\n.\n")
-        gs.loads(st)
+        gs = GraphSet.loads(st)
         self.assertEqual(gs, GraphSet())
 
         gs = GraphSet([g0])
         st = gs.dumps()
         self.assertEqual(st, "T\n.\n")
-        gs.loads(st)
+        gs = GraphSet.loads(st)
         self.assertEqual(gs, GraphSet([g0]))
 
         v = [g0, g1, g12, g123, g1234, g134, g14, g4]
         gs = GraphSet(v)
         st = gs.dumps()
-        gs = GraphSet()
-        gs.loads(st)
+        gs = GraphSet.loads(st)
         self.assertEqual(gs, GraphSet(v))
 
         # skip this test, becasue string is treated as an element
@@ -646,9 +645,8 @@ class TestGraphSet(unittest.TestCase):
 
         f = tempfile.TemporaryFile()
         gs.dump(f)
-        gs = GraphSet()
         f.seek(0)
-        gs.load(f)
+        gs = GraphSet.load(f)
         self.assertEqual(gs, GraphSet(v))
 
     def test_networkx(self):

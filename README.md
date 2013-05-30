@@ -671,10 +671,10 @@ Graphillion allows you to dump a graphset to a file, and to load it
 from the file.  Dumping and loading operations must be done together
 with pickling the universe; see the library reference in detail.
 
-| Method        | Description                       |
-| :------------ | :-------------------------------- |
-| `gs.dump(fp)` | Serialize `self` to a file `fp`   |
-| `gs.load(fp)` | Deserialize a file `fp` to `self` |
+| Method              | Description                                         |
+| :------------------ | :-------------------------------------------------- |
+| `gs.dump(fp)`       | Serialize `self` to a file `fp`                     |
+| `GraphSet.load(fp)` | Deserialize a file `fp` and return the new GraphSet |
 
 ### Python's set methods
 
