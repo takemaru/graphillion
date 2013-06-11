@@ -70,8 +70,14 @@ analysis.  We will show some practical use cases in the following
 
 Graphillion can be used freely under the MIT license.  It is mainly
 developed by [JST ERATO Minato project].  We would really appreciate
-if you would refer to our paper (to appear) and address our
-contribution on the use of Graphillion in your paper.
+if you would refer to our paper and address our contribution on the
+use of Graphillion in your paper.
+
+> Takeru Inoue, Hiroaki Iwashita, Jun Kawahara, and Shin-ichi Minato:
+  "Graphillion: Software Library Designed for Very Large Sets of Graphs in
+  Python," Hokkaido University, Division of Computer Science, TCS
+  Technical Reports, TCS-TR-A-13-65, June 2013.
+  ([pdf](http://www-alg.ist.hokudai.ac.jp/~thomas/TCSTR/tcstr_13_65/tcstr_13_65.pdf))
 
 Graphillion is still under the development.  We really appreciate any
 pull request and patch if you add some changes that benefit a wide
@@ -609,7 +615,7 @@ Creation methods specifying graph types also work as selection methods.
 | `gs.cliques(k)`                               | Returns a GraphSet of k-cliques                      |
 | `gs.trees(root, is_spanning)`                 | Returns a GraphSet of trees                          |
 | `gs.forests(roots, is_spanning)`              | Returns a GraphSet of forests, sets of trees         |
-| `gs.cycles(is_hamilton, graphset)`            | Returns a GraphSet of cycles                         |
+| `gs.cycles(is_hamilton)`                      | Returns a GraphSet of cycles                         |
 | `gs.paths(terminal1, terminal2, is_hamilton)` | Returns a GraphSet of paths                          |
 
 ### Modification or generation methods
@@ -772,6 +778,11 @@ Future work
 References
 --------------------------------------------------------------------------------
 
+- Takeru Inoue, Hiroaki Iwashita, Jun Kawahara, and Shin-ichi Minato:
+  "Graphillion: Software Library Designed for Very Large Sets of Graphs in
+  Python," Hokkaido University, Division of Computer Science, TCS
+  Technical Reports, TCS-TR-A-13-65, June 2013.
+  ([pdf](http://www-alg.ist.hokudai.ac.jp/~thomas/TCSTR/tcstr_13_65/tcstr_13_65.pdf))
 - Takeru Inoue, Keiji Takano, Takayuki Watanabe, Jun Kawahara, Ryo
   Yoshinaka, Akihiro Kishimoto, Koji Tsuda, Shin-ichi Minato, and
   Yasuhiro Hayashi, "Loss Minimization of Power Distribution Networks
