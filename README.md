@@ -35,7 +35,9 @@ We provide funny short movies to answer the following questions.
 
     [![][lets_count-thumbnail]][Time with class! Let's count!]
 
-* What's Graphillion? (to appear)
+* What's Graphillion?  Watch [Graphillion: Don't count naively].
+
+    [![][dont_count-thumbnail]][Graphillion: Don't count naively]
 
 
 Overview
@@ -181,8 +183,8 @@ Tutorial
 If you haven't seen our funny movie, [Time with class! Let's count!],
 please watch it before beginning the tutorial.  This movie, which has
 been watched more than a million times, will convince you of a need for
-Graphillion.  The summary of this tutorial is also provided as a movie
-(to appear).
+Graphillion.  The summary of this tutorial is also provided as a
+movie, [Graphillion: Don't count naively].
 
 We believe that you enjoyed the movies and understood the necessity
 and features of Graphillion.  Now, let's see Graphillion in more
@@ -799,6 +801,6 @@ References
 [JST ERATO Minato project]: http://www-erato.ist.hokudai.ac.jp/?language=en
 [DNET]: https://github.com/takemaru/dnet#dnet---distribution-network-evaluation-tool
 [NetworkX]: http://networkx.github.io/
-[Time with class! Let's count!]: http://youtu.be/Q4gTV4r0zRs "Time with class! Let's count!"
-[lets_count-thumbnail]: http://i.ytimg.com/vi/Q4gTV4r0zRs/default.jpg
+[Time with class! Let's count!]: http://youtu.be/R3Hp9k876Kk "Time with class! Let's count!"
+[lets_count-thumbnail]: http://i.ytimg.com/vi/R3Hp9k876Kk/default.jpg
 [tutorial]: #tutorial
