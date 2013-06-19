@@ -801,6 +801,8 @@ References
 [JST ERATO Minato project]: http://www-erato.ist.hokudai.ac.jp/?language=en
 [DNET]: https://github.com/takemaru/dnet#dnet---distribution-network-evaluation-tool
 [NetworkX]: http://networkx.github.io/
-[Time with class! Let's count!]: http://youtu.be/R3Hp9k876Kk "Time with class! Let's count!"
-[lets_count-thumbnail]: http://i.ytimg.com/vi/R3Hp9k876Kk/default.jpg
+[Time with class! Let's count!]: http://youtu.be/Q4gTV4r0zRs "Time with class! Let's count!"
+[lets_count-thumbnail]: http://i.ytimg.com/vi/Q4gTV4r0zRs/default.jpg
+[Graphillion: Don't count naively]: http://youtu.be/R3Hp9k876Kk "Graphillion: Don't count naively"
+[dont_count-thumbnail]: http://i.ytimg.com/vi/R3Hp9k876Kk/default.jpg
 [tutorial]: #tutorial
