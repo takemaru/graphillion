@@ -10,12 +10,13 @@ include CMakeLists.txt README.md \
   src/subsetting/dd/DataTable.hpp src/subsetting/dd/DdBuilder.hpp \
   src/subsetting/dd/DdEval.hpp src/subsetting/dd/DdNode.hpp \
   src/subsetting/dd/DdNodeId.hpp src/subsetting/dd/DdNodeTable.hpp \
-  src/subsetting/dd/DdSpec.hpp src/subsetting/dd/ZddStructure.hpp \
-  src/subsetting/eval/ToZBDD.hpp \
+  src/subsetting/dd/DdSpec.hpp src/subsetting/dd/PathCounter.hpp \
+  src/subsetting/dd/ZddStructure.hpp src/subsetting/eval/ToZBDD.hpp \
   src/subsetting/spec/DegreeConstraint.hpp \
   src/subsetting/spec/FrontierBasedSearch.hpp \
   src/subsetting/spec/SapporoZdd.hpp \
-  src/subsetting/spec/SizeConstraint.hpp src/subsetting/util/Graph.hpp \
+  src/subsetting/spec/SizeConstraint.hpp \
+  src/subsetting/util/BigNumber.hpp src/subsetting/util/Graph.hpp \
   src/subsetting/util/IntSubset.hpp src/subsetting/util/MemoryPool.hpp \
   src/subsetting/util/MessageHandler.hpp \
   src/subsetting/util/MyHashTable.hpp src/subsetting/util/MyList.hpp \
