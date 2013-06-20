@@ -29,6 +29,9 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <algorithm>
 #include <sstream>
 
+#include "subsetting/dd/PathCounter.hpp"
+#include "subsetting/spec/SapporoZdd.hpp"
+
 #include "graphillion/zdd.h"
 
 namespace graphillion {
@@ -193,12 +196,12 @@ setset setset::operator^(const setset& ss) const {
 }
 
 setset setset::operator/(const setset& ss) const {
-  assert(ss.zdd_ != bot() || is_term(this->zdd_))
+  assert(ss.zdd_ != bot() || is_term(this->zdd_));
   return setset(this->zdd_ / ss.zdd_);
 }
 
 setset setset::operator%(const setset& ss) const {
-  assert(ss.zdd_ != bot() || is_term(this->zdd_))
+  assert(ss.zdd_ != bot() || is_term(this->zdd_));
   return setset(this->zdd_ % ss.zdd_);
 }
 
@@ -263,9 +266,8 @@ bool setset::empty() const {
 }
 
 string setset::size() const {
-  stringstream ss;
-  ss << algo_c(this->zdd_);
-  return ss.str();
+  SapporoZdd f(this->zdd_, graphillion::max_elem() - graphillion::num_elems());
+  return countPaths(f, true);
 }
 
 setset::iterator setset::begin() const {
