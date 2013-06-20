@@ -299,20 +299,8 @@ zdd_t choose_random(zdd_t f, vector<elem_t>* stack) {
     }
     assert(false);
   }
-#ifdef HAVE_LIBGMPXX
-/* keep precision but too slow
-  stringstream ss;
-  ss << algo_c(hi(f));
-  long double ch = strtold(ss.str().c_str(), NULL);
-  ss.str("");
-  ss << algo_c(lo(f));
-  long double cl = strtold(ss.str().c_str(), NULL);*/
-  long double ch = algo_c(hi(f)).get_d(); // GMP has no get_ld()
-  long double cl = algo_c(lo(f)).get_d();
-#else
-  long double ch = algo_c(hi(f));
-  long double cl = algo_c(lo(f));
-#endif
+  double ch = algo_c(hi(f));
+  double cl = algo_c(lo(f));
   if (rand_xor128() > cl / (ch + cl)) {
     stack->push_back(elem(f));
     return choose_random(hi(f), stack);
@@ -571,8 +559,8 @@ void algo_b(zdd_t f, const vector<double>& w, vector<bool>* x) {
 }
 
 // Algorithm C modified for ZDD, from Knuth vol. 4 fascicle 1 sec. 7.1.4 (p.75).
-intx_t algo_c(zdd_t f) {
-  static map<word_t, intx_t> counts;
+double algo_c(zdd_t f) {
+  static map<word_t, double> counts;
   if (is_term(f))
     return f == top() ? 1 : 0;
   else if (counts.find(id(f)) != counts.end())

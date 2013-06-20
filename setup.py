@@ -5,24 +5,6 @@ import sys
 sys.path.insert(0, 'graphillion')
 import release
 
-prefixes = [os.path.join('/usr'), os.path.join('/usr', 'local'),
-            os.path.join('/usr', 'share'), os.path.join('/opt', 'local'),
-            os.path.join('/sw', 'local')]
-
-include_dirs = ['src']
-link_args = []
-macros = []
-libraries = []
-
-for prefix in prefixes:
-    path = os.path.join(prefix, 'include', 'gmpxx.h')
-    if os.path.isfile(path):
-        include_dirs.extend([os.path.join(prefix, 'include')])
-        link_args.extend(['-L' + os.path.join(prefix, 'lib')])
-        macros.extend([('HAVE_LIBGMP', None), ('HAVE_LIBGMPXX', None)])
-        libraries.extend(['gmp', 'gmpxx'])
-        break
-
 setup(name='Graphillion',
       version=release.version,
       description='Fast, lightweight library for a huge number of graphs',
@@ -65,10 +47,7 @@ trillions of graphs can be processed on a single computer.
                            os.path.join('src', 'SAPPOROBDD', 'bddc.c'),
                            os.path.join('src', 'SAPPOROBDD', 'BDD.cc'),
                            os.path.join('src', 'SAPPOROBDD', 'ZBDD.cc')],
-                  include_dirs=include_dirs,
-                  extra_link_args=link_args,
-                  define_macros=macros,
-                  libraries=libraries,
+                  include_dirs=['src'],
                   ),
         ],
       test_suite='graphillion.test',

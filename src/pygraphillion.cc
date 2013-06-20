@@ -479,11 +479,7 @@ static PyObject* setset_len2(PySetsetObject* self, PyObject* args) {
     for (string::const_iterator c = size.begin(); c != size.end(); ++c)
       buf.push_back(*c);
     buf.push_back('\0');
-#ifdef HAVE_LIBGMPXX
     return PyLong_FromString(buf.data(), NULL, 0);
-#else
-    return PyLong_FromDouble(strtod(buf.data(), NULL));
-#endif
   } else if (PyInt_Check(obj)) {
     int len = PyLong_AsLong(obj);
     RETURN_NEW_SETSET(self, self->ss->size(len));

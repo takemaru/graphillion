@@ -103,12 +103,6 @@ http://www.python.org/
 To build Graphillion, you need gcc version 4.2 or later.
 http://gcc.gnu.org/
 
-#### GMP (The Gnu multiple precision arithmetic library) - optional
-
-With GMP, Graphillion provides arbitrary precision numbers in counting
-the number of graphs in a set; otherwise double precision
-floating-point numbers are used.  http://gmplib.org/
-
 #### NetworkX and Matplotlib - optional for the tutorial
 
 [NetworkX] and Matplotlib are Python modules for creating and drawing

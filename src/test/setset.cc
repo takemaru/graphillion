@@ -455,8 +455,8 @@ class TestSetset {
     setset::num_elems(n);
     map<string, vector<int> > m;
     setset ss = setset(m) - setset(V("{{1}, {1,2}}"));
-    long double radix = static_cast<long double>(2);
-    long double ratio = strtold(ss.size().c_str(), NULL) / (pow(radix, n) - 2);
+    double radix = static_cast<double>(2);
+    double ratio = strtold(ss.size().c_str(), NULL) / (pow(radix, n) - 2);
     assert(0.99999 < ratio && ratio < 1.00001);
 
     int i = 0;

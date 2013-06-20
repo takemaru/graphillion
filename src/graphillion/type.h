@@ -27,10 +27,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include <stdint.h>
 
-#ifdef HAVE_LIBGMPXX
-#include <gmpxx.h>
-#endif
-
 #include "SAPPOROBDD/ZBDD.h"
 
 namespace graphillion {
@@ -38,12 +34,6 @@ namespace graphillion {
 typedef ZBDD zdd_t;
 typedef bddword word_t;
 typedef int32_t elem_t;  // bddvar
-
-#ifdef HAVE_LIBGMPXX
-typedef mpz_class intx_t;
-#else
-typedef long double intx_t;
-#endif
 
 typedef std::string vertex_t;
 typedef std::pair<vertex_t, vertex_t> edge_t;
