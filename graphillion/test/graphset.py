@@ -701,7 +701,7 @@ class TestGraphSet(unittest.TestCase):
             gs = GraphSet({});
             gs -= GraphSet([nx.Graph([(v00, v01)]),
                             nx.Graph([(v00, v01), (v00, v10)])])
-            self.assertAlmostEqual(gs.len() / (2**112 - 2), 1)
+            self.assertEqual(gs.len(), 5192296858534827628530496329220094)
 
             i = 0
             for g in gs:
