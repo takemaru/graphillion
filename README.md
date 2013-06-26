@@ -28,7 +28,7 @@ enumeration for a *graphset*, or a set of graphs.
 * Additional benefits from Python: fast prototyping, easy to teach,
   and multi-platform
 
-We provide funny short movies to answer the following questions.
+We provide fun short movies to answer the following questions.
 
 * Why Graphillion? Watch [Time with class! Let's count!], which is
   watched more than a million times!
@@ -58,7 +58,7 @@ grid, or evaluating the structure of chemical reaction networks.  The
 number of such subgraphs can be trillions even in a graph with just a
 few hundreds of edges, since subgraphs increase exponentially with the
 graph size.  It takes millions of years to examine all subgraphs with
-a naive approach as demonstrated in the funny movie above; Graphillion
+a naive approach as demonstrated in the fun movie above; Graphillion
 is our answer to resolve this issue.
 
 Graphillion allows you to exhaustively but efficiently search a
@@ -174,7 +174,7 @@ further details.
 Tutorial
 --------------------------------------------------------------------------------
 
-If you haven't seen our funny movie, [Time with class! Let's count!],
+If you haven't seen our fun movie, [Time with class! Let's count!],
 please watch it before beginning the tutorial.  This movie, which has
 been watched more than a million times, will convince you of a need for
 Graphillion.  The summary of this tutorial is also provided as a
