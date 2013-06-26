@@ -128,6 +128,9 @@ $ sudo easy_install graphillion
 and an attempt will be made to find and install an appropriate version
 that matches your operating system and Python version.
 
+For FreeBSD: Graphillion can also be installed by [FreeBSD
+Ports](http://www.freshports.org/math/py-graphillion/).
+
 ### Installing from source
 
 You can install from source by downloading a source archive file

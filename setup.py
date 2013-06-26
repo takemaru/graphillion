@@ -21,6 +21,7 @@ trillions of graphs can be processed on a single computer.
         'Intended Audience :: Science/Research',
         'License :: OSI Approved :: MIT License',
         'Operating System :: POSIX :: Linux',
+        'Operating System :: POSIX :: BSD :: FreeBSD',
         'Operating System :: MacOS :: MacOS X',
         'Programming Language :: C',
         'Programming Language :: C++',
