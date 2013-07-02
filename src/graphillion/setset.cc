@@ -27,7 +27,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <cstdlib>
 
 #include <algorithm>
-#include <sstream>
 
 #include "subsetting/dd/PathCounter.hpp"
 #include "subsetting/spec/SapporoZdd.hpp"
@@ -44,7 +43,6 @@ using std::pair;
 using std::set;
 using std::sort;
 using std::string;
-using std::stringstream;
 using std::vector;
 
 // setset::iterator
