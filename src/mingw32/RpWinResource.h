@@ -55,10 +55,18 @@ struct rusage {
     long ru_nswap;           /* swaps */
 };
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 HANDLE rpWinGetCurrentJob(); 
 int getrusage(int intwho, struct rusage *rusage_in);
 int getrlimit(int resource, struct rlimit *rlp);
 int setrlimit(int resource, const struct rlimit *rlp);
 int gettimeofday(struct timeval *tv, void *tz);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
