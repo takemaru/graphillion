@@ -26,6 +26,10 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include "graphillion/type.h"
 
+#ifdef WIN32
+#include "../mingw32/strtok_r.hpp"
+#endif
+
 namespace graphillion {
 
 using std::string;
