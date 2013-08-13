@@ -5,6 +5,21 @@ import sys
 sys.path.insert(0, 'graphillion')
 import release
 
+sources_list = [os.path.join('src', 'pygraphillion.cc'),
+                os.path.join('src', 'graphillion', 'graphset.cc'),
+                os.path.join('src', 'graphillion', 'setset.cc'),
+                os.path.join('src', 'graphillion', 'util.cc'),
+                os.path.join('src', 'graphillion', 'zdd.cc'),
+                os.path.join('src', 'SAPPOROBDD', 'bddc.c'),
+                os.path.join('src', 'SAPPOROBDD', 'BDD.cc'),
+                os.path.join('src', 'SAPPOROBDD', 'ZBDD.cc')]
+
+if sys.platform == 'win32':
+    sources_list.append(os.path.join('src', 'mingw32', 'RpWinResource.c'))
+    libraries_list = ['gdi32', 'kernel32', 'user32', 'Psapi']
+else:
+    libraries_list = []
+
 setup(name='Graphillion',
       version=release.version,
       description='Fast, lightweight library for a huge number of graphs',
@@ -39,15 +54,9 @@ trillions of graphs can be processed on a single computer.
       packages = ['graphillion'],
       ext_modules=[
         Extension('_graphillion', 
-                  sources=[os.path.join('src', 'pygraphillion.cc'),
-                           os.path.join('src', 'graphillion', 'graphset.cc'),
-                           os.path.join('src', 'graphillion', 'setset.cc'),
-                           os.path.join('src', 'graphillion', 'util.cc'),
-                           os.path.join('src', 'graphillion', 'zdd.cc'),
-                           os.path.join('src', 'SAPPOROBDD', 'bddc.c'),
-                           os.path.join('src', 'SAPPOROBDD', 'BDD.cc'),
-                           os.path.join('src', 'SAPPOROBDD', 'ZBDD.cc')],
+                  sources=sources_list,
                   include_dirs=['src'],
+                  libraries=libraries_list
                   ),
         ],
       test_suite='graphillion.test',

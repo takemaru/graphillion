@@ -1,0 +1,43 @@
+
+strtok_r.hpp:
+
+    public domain strtok_r() by Charlie Gordon
+    from comp.lang.c  9/14/2007
+     http://groups.google.com/group/comp.lang.c/msg/2ab1ecbb86646684
+
+    (Declaration that it's public domain):
+     http://groups.google.com/group/comp.lang.c/msg/7c7b39328fefab9c
+
+
+RpWinResource.h RpWinResource.c
+
+    ======================================================================
+              R A P P T U R E - rapid application infrastructure
+    ======================================================================
+
+     Rappture is the Rapid APPlication infrastrucTURE, a toolkit for
+     building scientific applications with a minimum of fuss and bother.
+
+     It was developed by the Network for Computational Nanotechnology
+     (NCN), an NSF-funded project creating cyberinfrastructure in support
+     of a science gateway for nanotechnology simulation.
+
+     See the following web site for an overview and documentation:
+       http://www.rappture.org
+
+    ----------------------------------------------------------------------
+
+     Rappture is a freely available, open source package.  You can
+     do virtually anything you like with it, such as modifying it,
+     redistributing it, and selling it either in whole or in part.
+     But you can't prevent anyone else from doing the same, and you
+     must keep all copyright notices intact, so the ownership and
+     authorship is clear.
+
+     See the file "license.terms" for complete information.
+
+    ----------------------------------------------------------------------
+
+     Developed by Michael McLennan, George Howlett, and Derrick Kearney.
+     Special thanks to Ben Rafferty for Java bindings and the Rappture
+     tester, and Ben Haley for Ruby bindings.

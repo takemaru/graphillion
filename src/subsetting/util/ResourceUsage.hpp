@@ -12,7 +12,11 @@
 #include <iostream>
 #include <sstream>
 #include <sys/time.h>
+#ifdef WIN32
+#include "../../mingw32/RpWinResource.h"
+#else
 #include <sys/resource.h>
+#endif
 
 namespace {
 static double startTime = 0;
@@ -45,7 +49,9 @@ struct ResourceUsage {
         stime = s.ru_stime.tv_sec + s.ru_stime.tv_usec * 1e-6;
         maxrss = s.ru_maxrss;
 
-        if (maxrss == 0) maxrss = readMemoryStatus("VmHWM:");
+#ifndef WIN32
+        if (maxrss == 0) maxrss = readMemoryStatus ("VmHWM:");
+#endif
         return *this;
     }
 
