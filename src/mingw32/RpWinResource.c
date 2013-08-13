@@ -29,6 +29,8 @@
 #include <errno.h>
 #include "RpWinResource.h"
 
+#define _ftime_s _ftime
+
 static HANDLE currentJob = NULL;
 
 void
