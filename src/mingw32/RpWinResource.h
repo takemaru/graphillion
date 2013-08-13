@@ -18,6 +18,8 @@
  *  redistribution of this file, and for a DISCLAIMER OF ALL WARRANTIES.
  * ======================================================================
  */
+#ifndef RpWinResource_h
+#define RpWinResource_h
 
 #include <windows.h>
 
@@ -58,3 +60,5 @@ int getrusage(int intwho, struct rusage *rusage_in);
 int getrlimit(int resource, struct rlimit *rlp);
 int setrlimit(int resource, const struct rlimit *rlp);
 int gettimeofday(struct timeval *tv, void *tz);
+
+#endif

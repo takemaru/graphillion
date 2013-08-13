@@ -9,6 +9,9 @@
  *      http://groups.google.com/group/comp.lang.c/msg/7c7b39328fefab9c
  */
 
+#ifndef strtok_r_hpp
+#define strtok_r_hpp
+
 char* strtok_r (
     char* str,
     const char* delim,
@@ -36,3 +39,5 @@ char* strtok_r (
     *nextp = str;
     return ret;
 }
+
+#endif
