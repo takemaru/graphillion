@@ -957,6 +957,9 @@ PyDoc_STRVAR(setset_doc,
 A setset object stores a set of sets.  A set element must be a\n\
 positive number.");
 
+#ifdef WIN32
+__declspec(dllexport)
+#endif
 PyTypeObject PySetset_Type = {
   PyObject_HEAD_INIT(NULL)
   0,                                  /*ob_size*/
