@@ -135,7 +135,7 @@ Ports](http://www.freshports.org/math/py-graphillion/).
 
 1. Download and install Anaconda from http://www.continuum.io/downloads
 2. Add the following paths to the %PATH% variable
-```bash
+```
 C:\Anaconda;
 C:\Anaconda\Scripts;
 C:\Anaconda\DLLs;
@@ -145,7 +145,7 @@ C:\Anaconda\MinGW\x86_64-w64-mingw32\lib
 3. Download the source (tar.gz or zip file) from
    https://github.com/takemaru/graphillion
 4. Run IPython
-5. Change the current directory to the source directory
+5. Change directory to the source directory
    (it should have the file setup.py)
 6. Run ```run setup.py build``` to build
 7. (optional) Run ```run setup.py test -q``` to execute the tests
