@@ -792,7 +792,6 @@ Future work
 - Garbage collections
 - Mailing lists
 - Coding rules
-- Windows support
 - Deveroper documents
 
 References
