@@ -279,9 +279,10 @@ figure.
 ![Key and treasure box](http://github.com/takemaru/graphillion/blob/master/doc/fig3.png?raw=true)
 
 We consider all paths on which the key is picked up before reaching
-the treasure box.  First, search for the paths to the key not through
-the treasure box, and then select the paths including the key's paths
-and the treasure box.
+the treasure box.  We're not allowed to pass thorugh the same place
+twice.  First, search for the paths to the key not through the
+treasure box, and then select the paths including the key's paths and
+the treasure box.
 
 ```python
 >>> key = 64
