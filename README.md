@@ -103,6 +103,9 @@ http://www.python.org/
 To build Graphillion, you need gcc version 4.2 or later.
 http://gcc.gnu.org/
 
+For MacOSX: use XCode's GCC compiled by Apple, or a memory allocation
+error might occur.
+
 #### NetworkX and Matplotlib - optional for the tutorial
 
 [NetworkX] and Matplotlib are Python modules for creating and drawing
