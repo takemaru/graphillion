@@ -1627,7 +1627,7 @@ class GraphSet(object):
         ne = None
         if num_edges is not None:
             if isinstance(num_edges, (int, long)):
-                ne = (ne, ne + 1, 1)
+                ne = (num_edges, num_edges + 1, 1)
             elif len(num_edges) == 1:
                 ne = (num_edges[0], num_edges[0] + 1, 1)
             else:
