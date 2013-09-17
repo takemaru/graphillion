@@ -801,6 +801,10 @@ Future work
 References
 --------------------------------------------------------------------------------
 
+- Takeru Inoue, "Graphillion: Python module for very large sets of graphs,"
+  PyCon APAC, September 2013.
+
+    [![][pycon-thumbnail]][PyCon]
 - Takeru Inoue, Hiroaki Iwashita, Jun Kawahara, and Shin-ichi Minato:
   "Graphillion: Software Library Designed for Very Large Sets of Graphs in
   Python," Hokkaido University, Division of Computer Science, TCS
@@ -825,4 +829,6 @@ References
 [lets_count-thumbnail]: http://i.ytimg.com/vi/Q4gTV4r0zRs/default.jpg
 [Graphillion: Don't count naively]: http://youtu.be/R3Hp9k876Kk "Graphillion: Don't count naively"
 [dont_count-thumbnail]: http://i.ytimg.com/vi/R3Hp9k876Kk/default.jpg
+[PyCon]: http://youtu.be/DjPyLSNxmqI "PyCon APAC 2013"
+[pycon-thumbnail]: http://i.ytimg.com/vi/DjPyLSNxmqI/3.jpg
 [tutorial]: #tutorial
