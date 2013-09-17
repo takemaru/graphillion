@@ -39,6 +39,10 @@ We provide fun short movies to answer the following questions.
 
     [![][dont_count-thumbnail]][Graphillion: Don't count naively]
 
+We gave a talk at PyCon APAC 2013.
+
+    [![][pycon-thumbnail]][PyCon]
+
 
 Overview
 --------------------------------------------------------------------------------
@@ -825,4 +829,6 @@ References
 [lets_count-thumbnail]: http://i.ytimg.com/vi/Q4gTV4r0zRs/default.jpg
 [Graphillion: Don't count naively]: http://youtu.be/R3Hp9k876Kk "Graphillion: Don't count naively"
 [dont_count-thumbnail]: http://i.ytimg.com/vi/R3Hp9k876Kk/default.jpg
+[PyCon]: http://youtu.be/DjPyLSNxmqI "PyCon APAC 2013"
+[pycon-thumbnail]: http://i.ytimg.com/vi/DjPyLSNxmqI/3.jpg
 [tutorial]: #tutorial
