@@ -812,10 +812,10 @@ References
   ([pdf](http://www-alg.ist.hokudai.ac.jp/~thomas/TCSTR/tcstr_13_65/tcstr_13_65.pdf))
 - Takeru Inoue, Keiji Takano, Takayuki Watanabe, Jun Kawahara, Ryo
   Yoshinaka, Akihiro Kishimoto, Koji Tsuda, Shin-ichi Minato, and
-  Yasuhiro Hayashi, "Loss Minimization of Power Distribution Networks
-  with Guaranteed Error Bound," Hokkaido University, Division of
-  Computer Science, TCS Technical Reports, TCS-TR-A-12-59, 2012.
-  ([pdf](http://www-alg.ist.hokudai.ac.jp/~thomas/TCSTR/tcstr_12_59/tcstr_12_59.pdf))
+  Yasuhiro Hayashi, "Distribution Loss Minimization with Guaranteed
+  Error Bound," IEEE Transactions on Smart Grid, to appear.
+  ([pdf](http://www-alg.ist.hokudai.ac.jp/~thomas/TCSTR/tcstr_12_59/tcstr_12_59.pdf),
+  draft version)
 - Ryo Yoshinaka, Toshiki Saitoh, Jun Kawahara, Koji Tsuruma, Hiroaki
   Iwashita, and Shin-ichi Minato, "Finding All Solutions and Instances
   of Numberlink and Slitherlink by ZDDs," Algorithms 2012, 5(2),
