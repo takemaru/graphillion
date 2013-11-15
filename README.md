@@ -340,6 +340,10 @@ provided by Graphillion.
 5
 ```
 
+As an application of path enumeration, you'll find [Ekillion] very
+interesting, which enumerates all JR train paths in Japan metropolitan
+and suburbs from startpoint to endpoint.
+
 ### Power flows on a distribution network
 
 Graphillion works on any graphs other than square grids, and handles
@@ -821,9 +825,11 @@ References
   of Numberlink and Slitherlink by ZDDs," Algorithms 2012, 5(2),
   pp.176-213, 2012.  ([doi](http://dx.doi.org/10.3390/a5020176))
 - [DNET - Distribution Network Evaluation Tool][DNET]
+- [Ekillion - Enumerating all JR train paths in Japan][Ekillion]
 
 [JST ERATO Minato project]: http://www-erato.ist.hokudai.ac.jp/?language=en
 [DNET]: https://github.com/takemaru/dnet#dnet---distribution-network-evaluation-tool
+[Ekillion]: http://www.nysol.jp/en/home/apps/ekillion
 [NetworkX]: http://networkx.github.io/
 [Time with class! Let's count!]: http://youtu.be/Q4gTV4r0zRs "Time with class! Let's count!"
 [lets_count-thumbnail]: http://i.ytimg.com/vi/Q4gTV4r0zRs/default.jpg
