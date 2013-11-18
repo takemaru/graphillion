@@ -21,6 +21,8 @@ enumeration for a *graphset*, or a set of graphs.
 * Lightweight data structures for handling *x-illions* of graphs
 * Search, optimization, and enumeration for large and complex graph
   sets
+* Used for power network evaluation ([DNET]), railway analysis
+  ([Ekillion]), etc.
 * Efficient implementation extending Python with C/C++
 * Working with existing graph tools like [NetworkX]
 * Open source MIT license
