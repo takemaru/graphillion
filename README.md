@@ -95,6 +95,8 @@ Installing
 
 ### Requirements
 
+Graphillion requires 64-bit machines to handle large numbers.
+
 #### Python
 
 To use Graphillion, you need Python version 2.6 or later.
