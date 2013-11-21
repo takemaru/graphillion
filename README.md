@@ -266,8 +266,10 @@ four hours with the supercomputer in the movie.
 3266598486981642
 ```
 
-It's very quick, isn't it?  Since the `paths` object contains all the
-paths, you can enumerate them one by one.
+It's very quick, isn't it?  (If you get 980466698, check whether your
+machine is 32-bit; Graphillion requires 64-bit machines.)  Since the
+`paths` object contains all the paths, you can enumerate them one by
+one.
 
 ```python
 >>> for path in paths:

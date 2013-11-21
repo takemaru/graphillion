@@ -20,6 +20,7 @@
 from graphillion import GraphSet
 import graphillion.tutorial as tl
 import unittest
+from sys import stderr
 
 class TestTutorial(unittest.TestCase):
 
@@ -37,6 +38,8 @@ class TestTutorial(unittest.TestCase):
             start = 1
             goal = 81
             paths = GraphSet.paths(start, goal)
+            if len(paths) == 980466698:
+                stderr.write("Warning: Graphillion requires 64-bit machines, though your machine might be 32-bit.\n")
             self.assertEqual(len(paths), 3266598486981642)
 
             key = 64
