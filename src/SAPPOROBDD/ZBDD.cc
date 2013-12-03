@@ -32,6 +32,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #define BDD_CPP
 #include "SAPPOROBDD/bddc.h"
 
+using std::cout;
+
 static const char BC_ZBDD_MULT = 20;
 static const char BC_ZBDD_DIV = 21;
 static const char BC_ZBDD_RSTR = 22;
@@ -61,11 +63,11 @@ void ZBDD::Export(FILE *strm) const
 
 void ZBDD::Print() const
 {
-  std::cout << "[ " << GetID();
-  std::cout << " Var:" << Top() << "(" << BDD_LevOfVar(Top()) << ")";
-  std::cout << " Size:" << Size() << " Card:";
-  std::cout << Card() << " Lit:" << Lit() << " Len:" << Len() << " ]\n";
-  std::cout.flush();
+  cout << "[ " << GetID();
+  cout << " Var:" << Top() << "(" << BDD_LevOfVar(Top()) << ")";
+  cout << " Size:" << Size() << " Card:";
+  cout << Card() << " Lit:" << Lit() << " Len:" << Len() << " ]\n";
+  cout.flush();
 }
 
 void ZBDD::PrintPla() const { ZBDDV(*this).PrintPla(); }
@@ -737,11 +739,11 @@ void ZBDDV::Print() const
   int len = this -> Last() + 1;
   for(int i=0; i<len; i++)
   {
-    std::cout << "f" << i << ": ";
+    cout << "f" << i << ": ";
     GetZBDD(i).Print();
   }
-  std::cout << "Size= " << Size() << "\n\n";
-  std::cout.flush();
+  cout << "Size= " << Size() << "\n\n";
+  cout.flush();
 }
 
 void ZBDDV::Export(FILE *strm) const
@@ -762,12 +764,12 @@ static int ZBDDV_PLA(const ZBDDV& fv, int tlev)
   if(fv == ZBDDV()) return 0;
   if(tlev == 0)
   {
-    std::cout << Cube << " ";
+    cout << Cube << " ";
     for(int i=0; i<Len; i++)
-      if(fv.GetZBDD(i) == 0) std::cout << "~";
-      else std::cout << "1";
-    std::cout << "\n";
-    std::cout.flush();
+      if(fv.GetZBDD(i) == 0) cout << "~";
+      else cout << "1";
+    cout << "\n";
+    cout.flush();
     return 0;
   }
   Cube[tlev-1] = '1';
@@ -782,14 +784,14 @@ int ZBDDV::PrintPla() const
   if(*this == ZBDDV(-1)) return 1;
   int tlev = BDD_LevOfVar(Top());
   Len = Last() + 1;
-  std::cout << ".i " << tlev << "\n";
-  std::cout << ".o " << Len << "\n";
+  cout << ".i " << tlev << "\n";
+  cout << ".o " << Len << "\n";
   if(tlev == 0)
   {
     for(int i=0; i<Len; i++)
-    if(GetZBDD(i) == 0) std::cout << "0";
-    else std::cout << "1";
-    std::cout << "\n";
+    if(GetZBDD(i) == 0) cout << "0";
+    else cout << "1";
+    cout << "\n";
   }
   else
   {
@@ -799,8 +801,8 @@ int ZBDDV::PrintPla() const
     delete[] Cube;
     if(err == 1) return 1;
   }
-  std::cout << ".e\n";
-  std::cout.flush();
+  cout << ".e\n";
+  cout.flush();
   return 0;
 }
 

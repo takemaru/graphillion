@@ -29,6 +29,9 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include "SAPPOROBDD/BDD.h"
 
+using std::cout;
+using std::cerr;
+
 static const char BC_Smooth = 60;
 static const char BC_Spread = 61;
 
@@ -67,10 +70,10 @@ void BDD::Export(FILE *strm) const
 
 void BDD::Print() const
 {
-  std::cout << "[ " << GetID();
-  std::cout << " Var:" << Top() << "(" << BDD_LevOfVar(Top()) << ")";
-  std::cout << " Size:" << Size() << " ]\n";
-  std::cout.flush();
+  cout << "[ " << GetID();
+  cout << " Var:" << Top() << "(" << BDD_LevOfVar(Top()) << ")";
+  cout << " Size:" << Size() << " ]\n";
+  cout.flush();
 }
 
 BDD BDD::Swap(const int& v1, const int& v2) const
@@ -165,19 +168,19 @@ BDD BDD_Random(int level, int density)
 
 void BDDerr(const char* msg)
 {
-  std::cerr << "<ERROR> " << msg << " \n";
+  cerr << "<ERROR> " << msg << " \n";
   exit(1);
 }
 
 void BDDerr(const char* msg, bddword key)
 {
-  std::cerr << "<ERROR> " << msg << " (" << key << ")\n";
+  cerr << "<ERROR> " << msg << " (" << key << ")\n";
   exit(1);
 }
 
 void BDDerr(const char* msg, const char* name)
 {
-  std::cerr << "<ERROR> " << msg << " (" << name << ")\n";
+  cerr << "<ERROR> " << msg << " (" << name << ")\n";
   exit(1);
 }
 
@@ -314,11 +317,11 @@ void BDDV::Print() const
 {
   for(int i=0; i<_len; i++)
   {
-    std::cout << "f" << i << ": ";
+    cout << "f" << i << ": ";
     GetBDD(i).Print();
   }
-  std::cout << "Size= " << Size() << "\n\n";
-  std::cout.flush();
+  cout << "Size= " << Size() << "\n\n";
+  cout.flush();
 }
 
 //----- External functions for BDD Vector -------
