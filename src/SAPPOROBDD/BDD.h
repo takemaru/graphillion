@@ -21,10 +21,9 @@ LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 **********************************************************************/
-
 /********************************************
- * BDD+ Manipulator (SAPPORO-1.55) - Header *
- * (C) Shin-ichi MINATO  (Dec. 11, 2012)    *
+ * BDD+ Manipulator (SAPPORO-1.58) - Header *
+ * (C) Shin-ichi MINATO  (Nov. 22, 2013)    *
  ********************************************/
 
 class BDD;
@@ -42,10 +41,12 @@ class BDDV;
 #define BDD_CPP
 #include "SAPPOROBDD/bddc.h"
 
-/*using namespace std;*/
-
 //--------- Definition of "bddword" type --------
-typedef uint64_t bddword;
+#ifdef B_64
+  typedef unsigned long long bddword;
+#else
+  typedef unsigned int bddword;
+#endif
 
 //--------- External data for BDD ---------
 extern const bddword BDD_MaxNode;
@@ -148,13 +149,13 @@ inline int BDD_LevOfVar(int v) { return bddlevofvar(v); }
 inline int BDD_VarOfLev(int lev) { return bddvaroflev(lev); }
 
 inline BDD BDD_ID(bddword bdd)
-  { BDD h; h._bdd = bddcopy(bdd); return h; }
+  { BDD h; h._bdd = bdd; return h; }
 
 inline bddword BDD_CacheInt(unsigned char op, bddword fx, bddword gx)
   { return bddrcache(op, fx, gx); }
 
 inline BDD BDD_CacheBDD(unsigned char op, bddword fx, bddword gx)
-  { return BDD_ID(bddrcache(op, fx, gx)); }
+  { return BDD_ID(bddcopy(bddrcache(op, fx, gx))); }
 
 inline void BDD_CacheEnt(unsigned char op, bddword fx, bddword gx, bddword hx)
   { bddwcache(op, fx, gx, hx); }

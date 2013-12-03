@@ -21,16 +21,15 @@ LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 **********************************************************************/
-
 /*****************************************
-*  BDD Package (SAPPORO-1.55)   - Header *
-*  (C) Shin-ichi MINATO  (Dac. 11, 2012) *
+*  BDD Package (SAPPORO-1.57)   - Header *
+*  (C) Shin-ichi MINATO  (June 14, 2013) *
 ******************************************/
 
 #ifndef bddc_h
 #define bddc_h
 
-#include <stdint.h>
+#include <stdio.h>
 
 #if (defined BDD_CPP)||(! defined B_OLDC)
 #  define B_ARG(a) a       /* ANSI C style */
@@ -43,8 +42,13 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #define B_VAR_MASK       ((1U << B_VAR_WIDTH) - 1U)
 
 /***************** Internal macro for bddp *****************/
-#define B_MSB_POS   39ULL
-#define B_LSB_MASK  1ULL
+#ifdef B_64
+#  define B_MSB_POS   39ULL
+#  define B_LSB_MASK  1ULL
+#else
+#  define B_MSB_POS   31U
+#  define B_LSB_MASK  1U
+#endif
 #define B_MSB_MASK  (B_LSB_MASK << B_MSB_POS)
 #define B_INV_MASK  B_LSB_MASK /* Mask of inverter-flag */
 #define B_CST_MASK  B_MSB_MASK /* Mask of constant-flag */
@@ -56,8 +60,12 @@ extern const int BDD_RecurLimit;
 extern int BDD_RecurCount;
  
 /***************** External typedef *****************/
-typedef uint32_t bddvar;
-typedef uint64_t bddp;
+typedef unsigned int bddvar;
+#ifdef B_64
+  typedef unsigned long long bddp;
+#else
+  typedef unsigned int bddp;
+#endif
 
 /***************** External Macro *****************/
 #define bddvarmax B_VAR_MASK /* Max value of variable index */
@@ -121,7 +129,7 @@ extern bddp   bddsupport B_ARG((bddp f));
 extern bddp   bdduniv B_ARG((bddp f, bddp g));
 extern bddp   bddexist B_ARG((bddp f, bddp g));
 extern bddp   bddcofactor B_ARG((bddp f, bddp g));
-extern bddp   bddimply B_ARG((bddp f, bddp g));
+extern int    bddimply B_ARG((bddp f, bddp g));
 extern bddp   bddrcache B_ARG((unsigned char op, bddp f, bddp g));
 extern void   bddwcache
               B_ARG((unsigned char op, bddp f, bddp g, bddp h));

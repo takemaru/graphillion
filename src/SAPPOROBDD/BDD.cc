@@ -21,17 +21,13 @@ LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 **********************************************************************/
-
  /***************************************
- * BDD+ Manipulator (SAPPORO-1.55)      *
+ * BDD+ Manipulator (SAPPORO-1.58)      *
  * (Basic methods)                      *
- * (C) Shin-ichi MINATO (Dec. 11, 2012) *
+ * (C) Shin-ichi MINATO (Nov. 22, 2013) *
  ****************************************/
 
 #include "SAPPOROBDD/BDD.h"
-
-using std::cout;
-using std::cerr;
 
 static const char BC_Smooth = 60;
 static const char BC_Spread = 61;
@@ -71,10 +67,10 @@ void BDD::Export(FILE *strm) const
 
 void BDD::Print() const
 {
-  cout << "[ " << GetID();
-  cout << " Var:" << Top() << "(" << BDD_LevOfVar(Top()) << ")";
-  cout << " Size:" << Size() << " ]\n";
-  cout.flush();
+  std::cout << "[ " << GetID();
+  std::cout << " Var:" << Top() << "(" << BDD_LevOfVar(Top()) << ")";
+  std::cout << " Size:" << Size() << " ]\n";
+  std::cout.flush();
 }
 
 BDD BDD::Swap(const int& v1, const int& v2) const
@@ -84,8 +80,8 @@ BDD BDD::Swap(const int& v1, const int& v2) const
   BDD y = BDDvar(v2);
   BDD fx0 = At0(v1);
   BDD fx1 = At1(v1);
-  return ( x & ( (~y & fx0.At1(v2)) | (y & fx1.At1(v2)) )) |
-         (~x & ( (~y & fx0.At0(v2)) | (y & fx1.At0(v2)) ));
+  return x & ( ~y & fx0.At1(v2) | y & fx1.At1(v2) ) |
+        ~x & ( ~y & fx0.At0(v2) | y & fx1.At0(v2) );
 }
 
 #define BDD_CACHE_CHK_RETURN(op, fx, gx) \
@@ -169,19 +165,19 @@ BDD BDD_Random(int level, int density)
 
 void BDDerr(const char* msg)
 {
-  cerr << "<ERROR> " << msg << " \n";
+  std::cerr << "<ERROR> " << msg << " \n";
   exit(1);
 }
 
 void BDDerr(const char* msg, bddword key)
 {
-  cerr << "<ERROR> " << msg << " (" << key << ")\n";
+  std::cerr << "<ERROR> " << msg << " (" << key << ")\n";
   exit(1);
 }
 
 void BDDerr(const char* msg, const char* name)
 {
-  cerr << "<ERROR> " << msg << " (" << name << ")\n";
+  std::cerr << "<ERROR> " << msg << " (" << name << ")\n";
   exit(1);
 }
 
@@ -318,11 +314,11 @@ void BDDV::Print() const
 {
   for(int i=0; i<_len; i++)
   {
-    cout << "f" << i << ": ";
+    std::cout << "f" << i << ": ";
     GetBDD(i).Print();
   }
-  cout << "Size= " << Size() << "\n\n";
-  cout.flush();
+  std::cout << "Size= " << Size() << "\n\n";
+  std::cout.flush();
 }
 
 //----- External functions for BDD Vector -------
@@ -369,7 +365,11 @@ BDDV BDDV_Mask2(int index, int len)
 
 #define IMPORTHASH(x) (((x >> 1) ^ (x >> 16)) & (hashsize - 1))
 
-#define B_STRTOI strtoll
+#ifdef B_64
+#  define B_STRTOI strtoll
+#else
+#  define B_STRTOI strtol
+#endif
 
 BDDV BDDV_Import(FILE *strm)
 {
@@ -380,20 +380,20 @@ BDDV BDDV_Import(FILE *strm)
   bddword *hash1;
   BDD *hash2;
 
-  if(fscanf(strm, "%s", s) == EOF) return BDDV(-1);
+  if(fscanf(strm, "%s", &s) == EOF) return BDDV(-1);
   if(strcmp(s, "_i") != 0) return BDDV(-1);
-  if(fscanf(strm, "%s", s) == EOF) return BDDV(-1);
+  if(fscanf(strm, "%s", &s) == EOF) return BDDV(-1);
   int n = strtol(s, NULL, 10);
   while(n > BDD_TopLev()) BDD_NewVar();
 
-  if(fscanf(strm, "%s", s) == EOF) return BDDV(-1);
+  if(fscanf(strm, "%s", &s) == EOF) return BDDV(-1);
   if(strcmp(s, "_o") != 0) return BDDV(-1);
-  if(fscanf(strm, "%s", s) == EOF) return BDDV(-1);
+  if(fscanf(strm, "%s", &s) == EOF) return BDDV(-1);
   int m = strtol(s, NULL, 10);
 
-  if(fscanf(strm, "%s", s) == EOF) return BDDV(-1);
+  if(fscanf(strm, "%s", &s) == EOF) return BDDV(-1);
   if(strcmp(s, "_n") != 0) return BDDV(-1);
-  if(fscanf(strm, "%s", s) == EOF) return BDDV(-1);
+  if(fscanf(strm, "%s", &s) == EOF) return BDDV(-1);
   bddword n_nd = B_STRTOI(s, NULL, 10);
 
   for(hashsize = 1; hashsize < (n_nd<<1); hashsize <<= 1)
@@ -411,14 +411,14 @@ BDDV BDDV_Import(FILE *strm)
   e = 0;
   for(bddword ix=0; ix<n_nd; ix++)
   {
-    if(fscanf(strm, "%s", s) == EOF) { e = 1; break; }
+    if(fscanf(strm, "%s", &s) == EOF) { e = 1; break; }
     bddword nd = B_STRTOI(s, NULL, 10);
     
-    if(fscanf(strm, "%s", s) == EOF) { e = 1; break; }
+    if(fscanf(strm, "%s", &s) == EOF) { e = 1; break; }
     int lev = strtol(s, NULL, 10);
     int var = bddvaroflev(lev);
 
-    if(fscanf(strm, "%s", s) == EOF) { e = 1; break; }
+    if(fscanf(strm, "%s", &s) == EOF) { e = 1; break; }
     if(strcmp(s, "F") == 0) f0 = 0;
     else if(strcmp(s, "T") == 0) f0 = 1;
     else
@@ -436,7 +436,7 @@ BDDV BDDV_Import(FILE *strm)
       f0 = hash2[ixx];
     }
 
-    if(fscanf(strm, "%s", s) == EOF) { e = 1; break; }
+    if(fscanf(strm, "%s", &s) == EOF) { e = 1; break; }
     if(strcmp(s, "F") == 0) f1 = 0;
     else if(strcmp(s, "T") == 0) f1 = 1;
     else
@@ -482,7 +482,7 @@ BDDV BDDV_Import(FILE *strm)
   BDDV v = BDDV();
   for(int i=0; i<m; i++)
   {
-    if(fscanf(strm, "%s", s) == EOF)
+    if(fscanf(strm, "%s", &s) == EOF)
     {
       delete[] hash2;
       delete[] hash1;

@@ -21,10 +21,9 @@ LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 **********************************************************************/
-
 /*********************************************
- * ZBDD+ Manipulator (SAPPORO-1.55) - Header *
- * (C) Shin-ichi MINATO  (Dec. 11, 2012)     *
+ * ZBDD+ Manipulator (SAPPORO-1.58) - Header *
+ * (C) Shin-ichi MINATO  (Nov. 22, 2013)     *
  *********************************************/
 
 class ZBDD;
@@ -144,10 +143,10 @@ extern ZBDD ZBDD_LCM_C(char *, int);
 extern ZBDD ZBDD_LCM_M(char *, int);
 
 inline ZBDD ZBDD_ID(bddword zbdd)
-  { ZBDD h; h._zbdd = bddcopy(zbdd); return h; }
+  { ZBDD h; h._zbdd = zbdd; return h; }
 
 inline ZBDD BDD_CacheZBDD(char op, bddword fx, bddword gx)
-  { return ZBDD_ID(bddrcache(op, fx, gx)); }
+  { return ZBDD_ID(bddcopy(bddrcache(op, fx, gx))); }
 
 inline ZBDD operator&(const ZBDD& f, const ZBDD& g)
   { return ZBDD_ID(bddintersec(f.GetID(), g.GetID())); }

@@ -21,20 +21,16 @@ LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 **********************************************************************/
-
 /****************************************
- * ZBDD+ Manipulator (SAPPORO-1.55)     *
+ * ZBDD+ Manipulator (SAPPORO-1.58)     *
  * (Main part)                          *
- * (C) Shin-ichi MINATO (Dec. 11, 2012) *
+ * (C) Shin-ichi MINATO (Nov. 22, 2013) *
  ****************************************/
 
 #include "SAPPOROBDD/ZBDD.h"
 
 #define BDD_CPP
 #include "SAPPOROBDD/bddc.h"
-
-using std::cout;
-using std::cerr;
 
 static const char BC_ZBDD_MULT = 20;
 static const char BC_ZBDD_DIV = 21;
@@ -65,11 +61,11 @@ void ZBDD::Export(FILE *strm) const
 
 void ZBDD::Print() const
 {
-  cout << "[ " << GetID();
-  cout << " Var:" << Top() << "(" << BDD_LevOfVar(Top()) << ")";
-  cout << " Size:" << Size() << " Card:";
-  cout << Card() << " Lit:" << Lit() << " Len:" << Len() << " ]\n";
-  cout.flush();
+  std::cout << "[ " << GetID();
+  std::cout << " Var:" << Top() << "(" << BDD_LevOfVar(Top()) << ")";
+  std::cout << " Size:" << Size() << " Card:";
+  std::cout << Card() << " Lit:" << Lit() << " Len:" << Len() << " ]\n";
+  std::cout.flush();
 }
 
 void ZBDD::PrintPla() const { ZBDDV(*this).PrintPla(); }
@@ -303,7 +299,7 @@ static ZBDD ZBDD_SymSet(const ZBDD& f0, const ZBDD& f1)
   ZBDD f01 = f0.OnSet0(t);
   ZBDD f10 = f1.OffSet(t);
   ZBDD f11 = f1.OnSet0(t);
-
+  
   ZBDD h;
   if(f11 == 0) h = ZBDD_SymSet(f00, f10) - f01.Support();
   else if(f10 == 0) h = ZBDD_SymSet(f01, f11) - f00.Support();
@@ -385,7 +381,7 @@ static ZBDD ZBDD_CoImplySet(const ZBDD& f0, const ZBDD& f1)
   ZBDD f01 = f0.OnSet0(t);
   ZBDD f10 = f1.OffSet(t);
   ZBDD f11 = f1.OnSet0(t);
-
+  
   ZBDD h;
   if(f11 == 0) h = ZBDD_CoImplySet(f00, f10);
   else if(f10 == 0) h = ZBDD_CoImplySet(f01, f11);
@@ -499,7 +495,7 @@ ZBDD operator/(const ZBDD& f, const ZBDD& p)
   bddword fx = f.GetID();
   bddword px = p.GetID();
   ZBDD_CACHE_CHK_RETURN(BC_ZBDD_DIV, fx, px);
-
+  
   ZBDD q = f.OnSet0(top) / p.OnSet0(top);
   if(q != 0)
   {
@@ -702,7 +698,7 @@ ZBDDV ZBDDV::Mask(int start, int len) const
     BDDerr("ZBDDV::Mask(): Illegal len.", len);
   ZBDDV tmp;
   for(int i=start; i<start+len; i++)
-    tmp += ZBDDV(this -> GetZBDD(i), i);
+  	tmp += ZBDDV(this -> GetZBDD(i), i);
   return tmp;
 }
 
@@ -719,7 +715,7 @@ ZBDD ZBDDV::GetZBDD(int index) const
   while(level > 0)
   {
     if(f == 0) return f;
-    if((index & (1<<(level-1))) != 0) f = f.OnSet0(level);
+    if((index & (1<<level-1)) != 0) f = f.OnSet0(level);
     else f = f.OffSet(level);
     level--;
   }
@@ -730,7 +726,7 @@ bddword ZBDDV::Size() const
 {
   int len = this -> Last() + 1;
   bddword* bddv = new bddword[len];
-  for(int i=0; i<len; i++) bddv[i] = GetZBDD(i).GetID();
+  for(int i=0; i<len; i++) bddv[i] = GetZBDD(i).GetID(); 
   bddword s = bddvsize(bddv, len);
   delete[] bddv;
   return s;
@@ -741,18 +737,18 @@ void ZBDDV::Print() const
   int len = this -> Last() + 1;
   for(int i=0; i<len; i++)
   {
-    cout << "f" << i << ": ";
+    std::cout << "f" << i << ": ";
     GetZBDD(i).Print();
   }
-  cout << "Size= " << Size() << "\n\n";
-  cout.flush();
+  std::cout << "Size= " << Size() << "\n\n";
+  std::cout.flush();
 }
 
 void ZBDDV::Export(FILE *strm) const
 {
   int len = this -> Last() + 1;
   bddword* bddv = new bddword[len];
-  for(int i=0; i<len; i++) bddv[i] = GetZBDD(i).GetID();
+  for(int i=0; i<len; i++) bddv[i] = GetZBDD(i).GetID(); 
   bddexport(strm, bddv, len);
   delete[] bddv;
 }
@@ -766,12 +762,12 @@ static int ZBDDV_PLA(const ZBDDV& fv, int tlev)
   if(fv == ZBDDV()) return 0;
   if(tlev == 0)
   {
-    cout << Cube << " ";
+    std::cout << Cube << " ";
     for(int i=0; i<Len; i++)
-      if(fv.GetZBDD(i) == 0) cout << "~";
-      else cout << "1";
-    cout << "\n";
-    cout.flush();
+      if(fv.GetZBDD(i) == 0) std::cout << "~";
+      else std::cout << "1";
+    std::cout << "\n";
+    std::cout.flush();
     return 0;
   }
   Cube[tlev-1] = '1';
@@ -786,14 +782,14 @@ int ZBDDV::PrintPla() const
   if(*this == ZBDDV(-1)) return 1;
   int tlev = BDD_LevOfVar(Top());
   Len = Last() + 1;
-  cout << ".i " << tlev << "\n";
-  cout << ".o " << Len << "\n";
+  std::cout << ".i " << tlev << "\n";
+  std::cout << ".o " << Len << "\n";
   if(tlev == 0)
   {
     for(int i=0; i<Len; i++)
-    if(GetZBDD(i) == 0) cout << "0";
-    else cout << "1";
-    cout << "\n";
+    if(GetZBDD(i) == 0) std::cout << "0";
+    else std::cout << "1";
+    std::cout << "\n";
   }
   else
   {
@@ -803,8 +799,8 @@ int ZBDDV::PrintPla() const
     delete[] Cube;
     if(err == 1) return 1;
   }
-  cout << ".e\n";
-  cout.flush();
+  std::cout << ".e\n";
+  std::cout.flush();
   return 0;
 }
 
@@ -840,7 +836,11 @@ int operator!=(const ZBDDV& fv1, const ZBDDV& fv2)
 
 #define IMPORTHASH(x) (((x >> 1) ^ (x >> 16)) & (hashsize - 1))
 
-#define B_STRTOI strtoll
+#ifdef B_64
+#  define B_STRTOI strtoll
+#else
+#  define B_STRTOI strtol
+#endif
 
 ZBDDV ZBDDV_Import(FILE *strm)
 {
@@ -851,20 +851,20 @@ ZBDDV ZBDDV_Import(FILE *strm)
   bddword *hash1;
   ZBDD *hash2;
 
-  if(fscanf(strm, "%s", s) == EOF) return ZBDDV(-1);
+  if(fscanf(strm, "%s", &s) == EOF) return ZBDDV(-1);
   if(strcmp(s, "_i") != 0) return ZBDDV(-1);
-  if(fscanf(strm, "%s", s) == EOF) return ZBDDV(-1);
+  if(fscanf(strm, "%s", &s) == EOF) return ZBDDV(-1);
   int n = strtol(s, NULL, 10);
   while(n > BDD_TopLev()) BDD_NewVar();
 
-  if(fscanf(strm, "%s", s) == EOF) return ZBDDV(-1);
+  if(fscanf(strm, "%s", &s) == EOF) return ZBDDV(-1);
   if(strcmp(s, "_o") != 0) return ZBDDV(-1);
-  if(fscanf(strm, "%s", s) == EOF) return ZBDDV(-1);
+  if(fscanf(strm, "%s", &s) == EOF) return ZBDDV(-1);
   int m = strtol(s, NULL, 10);
 
-  if(fscanf(strm, "%s", s) == EOF) return ZBDDV(-1);
+  if(fscanf(strm, "%s", &s) == EOF) return ZBDDV(-1);
   if(strcmp(s, "_n") != 0) return ZBDDV(-1);
-  if(fscanf(strm, "%s", s) == EOF) return ZBDDV(-1);
+  if(fscanf(strm, "%s", &s) == EOF) return ZBDDV(-1);
   bddword n_nd = B_STRTOI(s, NULL, 10);
 
   for(hashsize = 1; hashsize < (n_nd<<1); hashsize <<= 1)
@@ -882,14 +882,14 @@ ZBDDV ZBDDV_Import(FILE *strm)
   e = 0;
   for(bddword ix=0; ix<n_nd; ix++)
   {
-    if(fscanf(strm, "%s", s) == EOF) { e = 1; break; }
+    if(fscanf(strm, "%s", &s) == EOF) { e = 1; break; }
     bddword nd = B_STRTOI(s, NULL, 10);
-
-    if(fscanf(strm, "%s", s) == EOF) { e = 1; break; }
+    
+    if(fscanf(strm, "%s", &s) == EOF) { e = 1; break; }
     int lev = strtol(s, NULL, 10);
     int var = bddvaroflev(lev);
 
-    if(fscanf(strm, "%s", s) == EOF) { e = 1; break; }
+    if(fscanf(strm, "%s", &s) == EOF) { e = 1; break; }
     if(strcmp(s, "F") == 0) f0 = 0;
     else if(strcmp(s, "T") == 0) f0 = 1;
     else
@@ -907,7 +907,7 @@ ZBDDV ZBDDV_Import(FILE *strm)
       f0 = hash2[ixx];
     }
 
-    if(fscanf(strm, "%s", s) == EOF) { e = 1; break; }
+    if(fscanf(strm, "%s", &s) == EOF) { e = 1; break; }
     if(strcmp(s, "F") == 0) f1 = 0;
     else if(strcmp(s, "T") == 0) f1 = 1;
     else
@@ -915,7 +915,7 @@ ZBDDV ZBDDV_Import(FILE *strm)
       bddword nd1 = B_STRTOI(s, NULL, 10);
       if(nd1 & 1) { inv = 1; nd1 ^= 1; }
       else inv = 0;
-
+  
       bddword ixx = IMPORTHASH(nd1);
       while(hash1[ixx] != nd1)
       {
@@ -952,7 +952,7 @@ ZBDDV ZBDDV_Import(FILE *strm)
   ZBDDV v = ZBDDV();
   for(int i=0; i<m; i++)
   {
-    if(fscanf(strm, "%s", s) == EOF)
+    if(fscanf(strm, "%s", &s) == EOF)
     {
       delete[] hash2;
       delete[] hash1;
@@ -965,7 +965,7 @@ ZBDDV ZBDDV_Import(FILE *strm)
     {
       if(nd & 1) { inv = 1; nd ^= 1; }
       else inv = 0;
-
+  
       bddword ixx = IMPORTHASH(nd);
       while(hash1[ixx] != nd)
       {
@@ -1004,12 +1004,12 @@ ZBDD ZBDD::ZLev(int lev, int last) const
       int n = ZLevNum(flev);
       if(flev >= 66)
       {
-        if(n < lev || ((flev & 3) < 3 && ZLevNum((flev - 3)) >= lev))
+        if(n < lev || ((flev & 3) < 3 && ZLevNum(flev - 3) >= lev))
 	  n = flev - 1;
       }
       else if(flev >= 18)
       {
-        if(n < lev || ((flev & 1) < 1 && ZLevNum((flev - 1)) >= lev))
+        if(n < lev || ((flev & 1) < 1 && ZLevNum(flev - 1) >= lev))
 	  n = flev - 1;
       }
       else if(n < lev) n = flev - 1;
