@@ -823,9 +823,9 @@ References
 - Takeru Inoue, Keiji Takano, Takayuki Watanabe, Jun Kawahara, Ryo
   Yoshinaka, Akihiro Kishimoto, Koji Tsuda, Shin-ichi Minato, and
   Yasuhiro Hayashi, "Distribution Loss Minimization with Guaranteed
-  Error Bound," IEEE Transactions on Smart Grid, to appear.
-  ([pdf](http://www-alg.ist.hokudai.ac.jp/~thomas/TCSTR/tcstr_12_59/tcstr_12_59.pdf),
-  draft version)
+  Error Bound," IEEE Transactions on Smart Grid, vol.5, issue.1,
+  pp.102-111, January 2014.
+  ([pdf](http://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=6693788))
 - Ryo Yoshinaka, Toshiki Saitoh, Jun Kawahara, Koji Tsuruma, Hiroaki
   Iwashita, and Shin-ichi Minato, "Finding All Solutions and Instances
   of Numberlink and Slitherlink by ZDDs," Algorithms 2012, 5(2),
