@@ -815,6 +815,12 @@ References
   PyCon APAC, September 2013.
 
     [![][pycon-thumbnail]][PyCon]
+- Takeru Inoue, Norihito Yasuda, Shunsuke Kawano, Yuji Takenobu,
+  Shin-ichi Minato, and Yasuhiro Hayashi, "Verifying Distribution
+  Networks for Secure Restoration by Enumerating All Critical Failures,"
+  Hokkaido University, Division of Computer Science, TCS Technical
+  Reports, TCS-TR-A-14-70, January 2014.
+  ([pdf](http://www-alg.ist.hokudai.ac.jp/~thomas/TCSTR/tcstr_14_70/tcstr_14_70.pdf))
 - Takeru Inoue, Hiroaki Iwashita, Jun Kawahara, and Shin-ichi Minato:
   "Graphillion: Software Library Designed for Very Large Sets of Graphs in
   Python," Hokkaido University, Division of Computer Science, TCS
