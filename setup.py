@@ -59,6 +59,7 @@ trillions of graphs can be processed on a single computer.
                   include_dirs=['src'],
                   libraries=libraries_list,
                   define_macros=[('B_64', None)],
+                  extra_link_args=["-static" if sys.platform == 'win32' else '']
                   ),
         ],
       test_suite='graphillion.test',
