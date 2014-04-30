@@ -141,15 +141,11 @@ Ports](http://www.freshports.org/math/py-graphillion/).
 ### Installing on Windows with Anaconda
 
 1. Download and install Anaconda from http://www.continuum.io/downloads
-2. Add the following paths to the %PATH% variable
+2. Add the following paths to the %PATH% variable (Your Anaconda paths may be different):
 ```
-C:\Anaconda;
-C:\Anaconda\Scripts;
-C:\Anaconda\DLLs;
-C:\Anaconda\MinGW\bin;
-C:\Anaconda\MinGW\x86_64-w64-mingw32\lib
+set PATH=%PATH%;C:\Anaconda;C:\Anaconda\Scripts;C:\Anaconda\DLLs;C:\Anaconda\MinGW\bin;C:\Anaconda\MinGW\x86_64-w64-mingw32\lib
 ```
-3. Download the source (tar.gz or zip file) from
+3. Download the source (tar.gz or zip file) from Github ((Do not use the Pypi tarball):
    https://github.com/takemaru/graphillion
 4. Run IPython
 5. Change directory to the source directory
@@ -157,6 +153,11 @@ C:\Anaconda\MinGW\x86_64-w64-mingw32\lib
 6. Run ```run setup.py build``` to build
 7. (optional) Run ```run setup.py test -q``` to execute the tests
 8. Run ```run setup.py install``` to install
+
+If you have the wheel package installed you can create a redistributable wheel with:
+```run setup.py bdist_wheel```
+or an egg with:
+```run setup.py bdist_egg```
 
 ### Installing from source
 
