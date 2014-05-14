@@ -145,7 +145,7 @@ Ports](http://www.freshports.org/math/py-graphillion/).
 ```
 set PATH=%PATH%;C:\Anaconda;C:\Anaconda\Scripts;C:\Anaconda\DLLs;C:\Anaconda\MinGW\bin;C:\Anaconda\MinGW\x86_64-w64-mingw32\lib
 ```
-3. Download the source (tar.gz or zip file) from Github ((Do not use the Pypi tarball):
+3. Download the source (tar.gz or zip file) from Github (Do not use the Pypi tarball):
    https://github.com/takemaru/graphillion
 4. Run IPython
 5. Change directory to the source directory
