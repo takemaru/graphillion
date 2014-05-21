@@ -95,19 +95,20 @@ Installing
 
 ### Requirements
 
-Graphillion requires 64-bit machines to handle large numbers.
+Graphillion requires 64-bit machines to efficiently handle large numbers.
 
 #### Python
 
-To use Graphillion, you need Python version 2.6 or later.
+To build Graphillion, you need Python version 2.6 or later, with
+development environment (Python.h is required).
 http://www.python.org/
 
-#### GCC (The Gnu Compiler Collection)
+#### GCC (The Gnu Compiler Collection) or Clang
 
 To build Graphillion, you need gcc version 4.2 or later.
 http://gcc.gnu.org/
 
-For MacOSX: use XCode's GCC compiled by Apple, or a memory allocation
+For MacOSX: use Apple official Clang included in XCode, or a memory allocation
 error might occur.
 
 #### NetworkX and Matplotlib - optional for the tutorial
@@ -123,6 +124,7 @@ $ sudo easy_install matplotlib
 
 For MacOSX: if installing matplotlib fails, use MacPorts, `sudo port
 install py-matplotlib`.
+For Ubuntu: if it fails, use APT, `sudo apt-get install python-matplotlib`.
 
 ### Quick install
 
