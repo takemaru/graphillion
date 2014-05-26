@@ -17,8 +17,10 @@ sources_list = [os.path.join('src', 'pygraphillion.cc'),
 if sys.platform == 'win32':
     sources_list.append(os.path.join('src', 'mingw32', 'RpWinResource.c'))
     libraries_list = ['gdi32', 'kernel32', 'user32', 'Psapi']
+    extra_link_args_list=['-static']
 else:
     libraries_list = []
+    extra_link_args_list=[]
 
 setup(name='Graphillion',
       version=release.version,
@@ -59,7 +61,7 @@ trillions of graphs can be processed on a single computer.
                   include_dirs=['src'],
                   libraries=libraries_list,
                   define_macros=[('B_64', None)],
-                  extra_link_args=["-static" if sys.platform == 'win32' else '']
+                  extra_link_args=extra_link_args_list,
                   ),
         ],
       test_suite='graphillion.test',
