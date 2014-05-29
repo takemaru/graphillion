@@ -608,7 +608,8 @@ GraphSet([[(1, 2), (2, 3), (3, 6)], [(1, 2), (2, 5), (5, 6)], [(1, 4), (4, 5 ...
 
 If these methods are called as object methods, like `gs.paths(1, 6)`,
 graphs are selected only from the GraphSet object.  Please see the
-library reference for more detail.
+library reference for more detail.  The internal implementation of
+`graphs()` is independently available as [TdZdd].
 
 Manipulating graphsets
 --------------------------------------------------------------------------------
@@ -841,6 +842,8 @@ References
   pp.176-213, 2012.  ([doi](http://dx.doi.org/10.3390/a5020176))
 - [DNET - Distribution Network Evaluation Tool][DNET]
 - [Ekillion - Enumerating all JR train paths in Japan][Ekillion]
+- [GGCount - A C++ program for fast computation of the number of paths in a grid graph][GGCount]
+- [TdZdd - A top-down/breadth-first decision diagram manipulation framework][TdZdd]
 
 [JST ERATO Minato project]: http://www-erato.ist.hokudai.ac.jp/?language=en
 [DNET]: https://github.com/takemaru/dnet#dnet---distribution-network-evaluation-tool
@@ -853,3 +856,5 @@ References
 [PyCon]: http://youtu.be/DjPyLSNxmqI "PyCon APAC 2013"
 [pycon-thumbnail]: http://i.ytimg.com/vi/DjPyLSNxmqI/3.jpg
 [tutorial]: #tutorial
+[GGCount]: https://github.com/kunisura/GGCount
+[TdZdd]: https://github.com/kunisura/TdZdd
