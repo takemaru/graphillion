@@ -828,8 +828,7 @@ References
 - Jun Kawahara, Takeru Inoue, Hiroaki Iwashita and Shin-ichi Minato,
   "Frontier-based Search for Enumerating All Constrained Subgraphs
   with Compressed Representation," Hokkaido University, Division of
-  Computer Science, TCS Technical Reports, TCS-TR-A-14-76, September
-  2014. ([pdf](http://www-alg.ist.hokudai.ac.jp/~thomas/TCSTR/tcstr_14_76/tcstr_14_76.pdf))
+  Computer Science, TCS Technical Reports, TCS-TR-A-14-76, September 2014. ([pdf](http://www-alg.ist.hokudai.ac.jp/~thomas/TCSTR/tcstr_14_76/tcstr_14_76.pdf))
 - Takeru Inoue, Keiji Takano, Takayuki Watanabe, Jun Kawahara, Ryo
   Yoshinaka, Akihiro Kishimoto, Koji Tsuda, Shin-ichi Minato, and
   Yasuhiro Hayashi, "Distribution Loss Minimization with Guaranteed
@@ -838,8 +837,7 @@ References
   ([pdf](http://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=6693788))
 - Hiroaki Iwashita and Shin-ichi Minato, "Efficient Top-Down ZDD
   Construction Techniques Using Recursive Specifications," TCS
-  Technical Reports, TCS-TR-A-13-69, December
-  2013. ([pdf](http://www-alg.ist.hokudai.ac.jp/~thomas/TCSTR/tcstr_13_69/tcstr_13_69.pdf))
+  Technical Reports, TCS-TR-A-13-69, December 2013. ([pdf](http://www-alg.ist.hokudai.ac.jp/~thomas/TCSTR/tcstr_13_69/tcstr_13_69.pdf))
 - Takeru Inoue, "Graphillion: Python module for very large sets of graphs,"
   PyCon APAC, September 2013.
 
