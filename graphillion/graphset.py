@@ -615,7 +615,7 @@ class GraphSet(object):
         if size is None:
             return self._ss.len()
         else:
-            return GraphSet(self._ss.len(size))
+            return self.graph_size(size)
 
     def __iter__(self):
         """Iterates over graphs.
@@ -1061,7 +1061,7 @@ class GraphSet(object):
           A new GraphSet object.
 
         See Also:
-          larger(), len()
+          larger(), graph_size()
         """
         return GraphSet(self._ss.smaller(size))
 
@@ -1085,9 +1085,35 @@ class GraphSet(object):
           A new GraphSet object.
 
         See Also:
-          smaller(), len()
+          smaller(), graph_size()
         """
         return GraphSet(self._ss.larger(size))
+
+    def graph_size(self, size):
+        """Returns a new GraphSet with `size` edges.
+
+        This method returns a new GraphSet with graphs that have
+        `size` edges.
+
+        Examples:
+          >>> graph1 = [(1, 2)]
+          >>> graph2 = [(1, 2), (1, 4)]
+          >>> graph3 = [(1, 2), (1, 4), (2, 3)]
+          >>> gs = GraphSet([graph1, graph2, graph3])
+          >>> gs.graph_size(2)
+          GraphSet([[(1, 2), (1, 4)]])
+
+        Args:
+          size: The number of edges in a graph.
+
+        Returns:
+          A new GraphSet object.
+
+        See Also:
+          smaller(), larger()
+
+        """
+        return GraphSet(self._ss.set_size(size))
 
     def complement(self):
         """Returns a new GraphSet with complement graphs of `self`.

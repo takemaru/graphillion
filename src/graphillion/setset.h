@@ -152,7 +152,7 @@ class setset {
   setset hitting() const;
   setset smaller(size_t set_size) const;
   setset larger(size_t set_size) const;
-  setset size(size_t set_size) const;
+  setset set_size(size_t set_size) const;
 
   setset join(const setset& ss) const;
   setset meet(const setset& ss) const;

@@ -482,7 +482,7 @@ static PyObject* setset_len2(PySetsetObject* self, PyObject* args) {
     return PyLong_FromString(buf.data(), NULL, 0);
   } else if (PyInt_Check(obj)) {
     int len = PyLong_AsLong(obj);
-    RETURN_NEW_SETSET(self, self->ss->size(len));
+    RETURN_NEW_SETSET(self, self->ss->set_size(len));
   } else {
     PyErr_SetString(PyExc_TypeError, "not int");
     return NULL;
@@ -683,6 +683,16 @@ static PyObject* setset_larger(PySetsetObject* self, PyObject* io) {
     return NULL;
   }
   RETURN_NEW_SETSET(self, self->ss->larger(set_size));
+}
+
+static PyObject* setset_set_size(PySetsetObject* self, PyObject* io) {
+  CHECK_OR_ERROR(io, PyInt_Check, "int", NULL);
+  int set_size = PyLong_AsLong(io);
+  if (set_size < 0) {
+    PyErr_SetString(PyExc_ValueError, "not unsigned int");
+    return NULL;
+  }
+  RETURN_NEW_SETSET(self, self->ss->set_size(set_size));
 }
 
 static PyObject* setset_join(PySetsetObject* self, PyObject* other) {
@@ -888,6 +898,7 @@ static PyMethodDef setset_methods[] = {
   {"hitting", reinterpret_cast<PyCFunction>(setset_hitting), METH_NOARGS, ""},
   {"smaller", reinterpret_cast<PyCFunction>(setset_smaller), METH_O, ""},
   {"larger", reinterpret_cast<PyCFunction>(setset_larger), METH_O, ""},
+  {"set_size", reinterpret_cast<PyCFunction>(setset_set_size), METH_O, ""},
   {"flip", reinterpret_cast<PyCFunction>(setset_flip), METH_VARARGS, ""},
   {"join", reinterpret_cast<PyCFunction>(setset_join), METH_O, ""},
   {"meet", reinterpret_cast<PyCFunction>(setset_meet), METH_O, ""},

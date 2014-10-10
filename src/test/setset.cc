@@ -178,7 +178,7 @@ class TestSetset {
 
     assert(ss.smaller(3).zdd_ == s0 + s1 + s12 + s14 + s4);
     assert(ss.larger(3).zdd_ == s1234);
-    assert(ss.size(3).zdd_ == s123 + s134);
+    assert(ss.set_size(3).zdd_ == s123 + s134);
 
     ss = setset(V("{{1,2}, {1,2,3}, {2,3,4}}"));
     assert(ss.minimal().zdd_ == s12 + s234);
