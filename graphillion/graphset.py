@@ -1617,10 +1617,12 @@ class GraphSet(object):
           linear_constraints: Optional.  A list of linear constraints.
             A linear constraint consists of weighted edges and
             lower/upper bounds.  An edge weight is a positive or
-            negative number, which defaults to 1.  For instance,
-            `linear_constraints=[([(1, 2, 0.6), (2, 3), (3, 6, 1.2)],
-            (1.5, 2.0)), ...]`, feasible graph weights are between 1.5
-            and 2.0, e.g., `[(1, 2), (2, 3)]` or `[(1, 2), (3, 6)]`.
+            negative number, which defaults to 1.  Weights of the edges
+            that are not included in the constraint are zeros.  For
+            instance, `linear_constraints=[([(1, 2, 0.6), (2, 5),
+            (3, 6, 1.2)], (1.5, 2.0))]`, feasible graph weights are
+            between 1.5 and 2.0, e.g., `[(1, 2), (2, 3), (3, 6)]` or
+            `[(1, 2), (2, 5), (5, 6)]`.
             See graphillion/test/graphset.py in detail.
 
         Returns:
