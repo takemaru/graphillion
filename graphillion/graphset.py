@@ -1575,10 +1575,9 @@ class GraphSet(object):
             else:
                 edges.append(e)
         return GraphSet.converters['to_graph'](edges)
-
     @staticmethod
     def graphs(vertex_groups=None, degree_constraints=None, num_edges=None,
-               no_loop=False, graphset=None):
+               no_loop=False, graphset=None, linear_constraints=None):
         """Returns a GraphSet with graphs under given constraints.
 
         Examples: a set of paths from vertex 1 to vertex 6
@@ -1615,8 +1614,18 @@ class GraphSet(object):
           graphset: Optional.  A GraphSet object.  Graphs to be stored
             are selected from this object.
 
+          linear_constraints: Optional.  A list of linear constraints.
+            A linear constraint consists of weighted edges and
+            lower/upper bounds.  An edge weight is a positive or
+            negative number, which defaults to 1.  For instance,
+            `linear_constraints=[([(1, 2, 0.6), (2, 3), (3, 6, 1.2)],
+            (1.5, 2.0)), ...]`, feasible graph weights are between 1.5
+            and 2.0, e.g., `[(1, 2), (2, 3)]` or `[(1, 2), (3, 6)]`.
+            See graphillion/test/graphset.py in detail.
+
         Returns:
           A new GraphSet object.
+
         """
         graph = []
         for e in setset.universe():
@@ -1662,10 +1671,25 @@ class GraphSet(object):
 
         ss = None if graphset is None else graphset._ss
 
+        lc = None
+        if linear_constraints is not None:
+            lc = []
+            for c in linear_constraints:
+                expr = []
+                for we in c[0]:
+                    u = pickle.dumps(we[0])
+                    v = pickle.dumps(we[1])
+                    w = float(we[2]) if len(we) >= 3 else 1.0
+                    expr.append((u, v, w))
+                min = float(c[1][0])
+                max = float(c[1][1])
+                lc.append((expr, (min, max)))
+
         ss = _graphillion._graphs(graph=graph, vertex_groups=vg,
                                   degree_constraints=dc, num_edges=ne,
                                   num_comps=nc, no_loop=no_loop,
-                                  search_space=ss)
+                                  search_space=ss,
+                                  linear_constraints=lc)
         return GraphSet(ss)
 
     @staticmethod
@@ -1823,6 +1847,20 @@ class GraphSet(object):
         return GraphSet.graphs(vertex_groups=[[terminal1, terminal2]],
                                degree_constraints=dc,
                                no_loop=True, graphset=graphset)
+
+    @staticmethod
+    def show_messages(flag=True):
+        """Enables/disables status messages.
+
+        Args:
+          flag: Optional.  True or False.  If True, status messages are
+          enabled.  If False, they are disabled (initial setting).
+
+        Returns:
+          The setting before the method call.  True (enabled) or
+          False (disabled).
+        """
+        return _graphillion._show_messages(flag)
 
     @staticmethod
     def _traverse(edges, traversal, source):

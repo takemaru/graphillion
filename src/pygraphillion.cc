@@ -41,6 +41,10 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using graphillion::setset;
 using graphillion::Range;
+using graphillion::vertex_t;
+using graphillion::edge_t;
+using graphillion::weighted_edge_t;
+using graphillion::linear_constraint_t;
 using std::map;
 using std::pair;
 using std::set;
@@ -1036,17 +1040,19 @@ static PyObject* graphset_graphs(PyObject*, PyObject* args, PyObject* kwds) {
   static char s5[] = "num_comps";
   static char s6[] = "no_loop";
   static char s7[] = "search_space";
-  static char* kwlist[8] = {s1, s2, s3, s4, s5, s6, s7, NULL};
+  static char s8[] = "linear_constraints";
+  static char* kwlist[9] = {s1, s2, s3, s4, s5, s6, s7, s8, NULL};
   PyObject* graph_obj = NULL;
   PyObject* vertex_groups_obj = NULL;
   PyObject* degree_constraints_obj = NULL;
   PyObject* num_edges_obj = NULL;
   int num_comps = -1, no_loop = 0;
   PyObject* search_space_obj = NULL;
-  if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOiiO", kwlist, &graph_obj,
+  PyObject* linear_constraints_obj = NULL;
+  if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOiiOO", kwlist, &graph_obj,
                                    &vertex_groups_obj, &degree_constraints_obj,
                                    &num_edges_obj, &num_comps, &no_loop,
-                                   &search_space_obj))
+                                   &search_space_obj, &linear_constraints_obj))
     return NULL;
 
   vector<pair<string, string> > graph;
@@ -1078,9 +1084,10 @@ static PyObject* graphset_graphs(PyObject*, PyObject* args, PyObject* kwds) {
     graph.push_back(make_pair(e[0], e[1]));
   }
 
+  vector<vector<string> > vertex_groups_entity;
   vector<vector<string> >* vertex_groups = NULL;
   if (vertex_groups_obj != NULL && vertex_groups_obj != Py_None) {
-    vertex_groups = new vector<vector<string> >();
+    vertex_groups = &vertex_groups_entity;
     PyObject* i = PyObject_GetIter(vertex_groups_obj);
     if (i == NULL) return NULL;
     PyObject* uo;
@@ -1101,9 +1108,10 @@ static PyObject* graphset_graphs(PyObject*, PyObject* args, PyObject* kwds) {
     }
   }
 
+  map<string, Range> degree_constraints_entity;
   map<string, Range>* degree_constraints = NULL;
   if (degree_constraints_obj != NULL && degree_constraints_obj != Py_None) {
-    degree_constraints = new map<string, Range>();
+    degree_constraints = &degree_constraints_entity;
     PyObject* vo;
     PyObject* lo;
     Py_ssize_t pos = 0;
@@ -1129,8 +1137,10 @@ static PyObject* graphset_graphs(PyObject*, PyObject* args, PyObject* kwds) {
     }
   }
 
+  Range num_edges_entity;
   Range* num_edges = NULL;
   if (num_edges_obj != NULL && num_edges_obj != Py_None) {
+    num_edges = &num_edges_entity;
     vector<int> r;
     PyObject* i = PyObject_GetIter(num_edges_obj);
     PyObject* io;
@@ -1142,20 +1152,67 @@ static PyObject* graphset_graphs(PyObject*, PyObject* args, PyObject* kwds) {
       }
       r.push_back(PyInt_AsLong(io));
     }
-    num_edges = new Range(r[0], r[1], r[2]);
+    *num_edges = Range(r[0], r[1], r[2]);
   }
 
   setset* search_space = NULL;
   if (search_space_obj != NULL && search_space_obj != Py_None)
     search_space = reinterpret_cast<PySetsetObject*>(search_space_obj)->ss;
 
+  vector<linear_constraint_t> linear_constraints_entity;
+  vector<linear_constraint_t>* linear_constraints = NULL;
+  if (linear_constraints_obj != NULL && linear_constraints_obj != Py_None) {
+    linear_constraints = &linear_constraints_entity;
+    PyObject* i = PyObject_GetIter(linear_constraints_obj);
+    if (i == NULL) return NULL;
+    PyObject* co;
+    while ((co = PyIter_Next(i))) {
+      linear_constraints->push_back(linear_constraint_t());
+      linear_constraint_t& c = linear_constraints->back();
+      vector<weighted_edge_t>& expr = c.first;
+      pair<double,double>& range = c.second;
+      PyObject* lo = PySequence_GetItem(co, 0);
+      if (lo == NULL) return NULL;
+      PyObject* j = PyObject_GetIter(lo);
+      if (j == NULL) return NULL;
+      PyObject* eo;
+      while ((eo = PyIter_Next(j))) {
+        PyObject* uo = PySequence_GetItem(eo, 0);
+        if (uo == NULL || !PyString_Check(uo)) return NULL;
+        string u = PyString_AsString(uo);
+        PyObject* vo = PySequence_GetItem(eo, 1);
+        if (vo == NULL || !PyString_Check(vo)) return NULL;
+        string v = PyString_AsString(vo);
+        PyObject* wo = PySequence_GetItem(eo, 2);
+        if (wo == NULL || !PyFloat_Check(wo)) return NULL;
+        double w = PyFloat_AsDouble(wo);
+        expr.push_back(make_pair(make_pair(u, v), w));
+      }
+      PyObject* ro = PySequence_GetItem(co, 1);
+      if (ro == NULL) return NULL;
+      PyObject* r0o = PySequence_GetItem(ro, 0);
+      if (r0o == NULL || !PyFloat_Check(r0o)) return NULL;
+      range.first = PyFloat_AsDouble(r0o);
+      PyObject* r1o = PySequence_GetItem(ro, 1);
+      if (r1o == NULL || !PyFloat_Check(r1o)) return NULL;
+      range.second = PyFloat_AsDouble(r1o);
+    }
+  }
+
   setset ss = SearchGraphs(graph, vertex_groups, degree_constraints, num_edges,
-                           num_comps, no_loop, search_space);
+                           num_comps, no_loop, search_space,
+                           linear_constraints);
 
   PySetsetObject* ret = reinterpret_cast<PySetsetObject*>
       (PySetset_Type.tp_alloc(&PySetset_Type, 0));
   ret->ss = new setset(ss);
   return reinterpret_cast<PyObject*>(ret);
+}
+
+static PyObject* graphset_show_messages(PySetsetObject* self, PyObject* obj) {
+  int ret = graphillion::ShowMessages(PyObject_IsTrue(obj));
+  if (ret) Py_RETURN_TRUE;
+  else Py_RETURN_FALSE;
 }
 
 static PyMethodDef module_methods[] = {
@@ -1164,6 +1221,7 @@ static PyMethodDef module_methods[] = {
   {"_elem_limit", reinterpret_cast<PyCFunction>(setset_elem_limit), METH_NOARGS, ""},
   {"_num_elems", setset_num_elems, METH_VARARGS, ""},
   {"_graphs", reinterpret_cast<PyCFunction>(graphset_graphs), METH_VARARGS | METH_KEYWORDS, ""},
+  {"_show_messages", reinterpret_cast<PyCFunction>(graphset_show_messages), METH_O, ""},
   {NULL}  /* Sentinel */
 };
 

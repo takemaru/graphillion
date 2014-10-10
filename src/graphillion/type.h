@@ -37,6 +37,8 @@ typedef int32_t elem_t;  // bddvar
 
 typedef std::string vertex_t;
 typedef std::pair<vertex_t, vertex_t> edge_t;
+typedef std::pair<edge_t,double> weighted_edge_t;
+typedef std::pair<std::vector<weighted_edge_t>,std::pair<double,double> > linear_constraint_t;
 
 }  // namespace graphillion
 

@@ -91,7 +91,6 @@ public:
             mh.end(0);
             return (n == 0) ? "0" : "1";
         }
-        mh << "\n";
 
         uint64_t totalStorage[n / 63 + 1];
         BigNumber total(totalStorage);
@@ -114,6 +113,7 @@ public:
         spec.destruct(state(ptmp));
         number(p0).store(1);
 
+        mh.setSteps(n);
         for (int i = n; i > 0; --i) {
             MyList<Word>& vnodes = vnodeTable[i];
             size_t m = vnodes.size();
@@ -188,7 +188,7 @@ public:
             nextUniq.clear();
             pools[i].clear();
             spec.destructLevel(i);
-            mh << ".";
+            mh.step();
         }
 
         mh.end(maxWidth);
@@ -207,7 +207,6 @@ public:
             mh.end(0);
             return (n == 0) ? "0" : "1";
         }
-        mh << "\n";
 
         uint64_t totalStorage[n / 63 + 1];
         BigNumber total(totalStorage);
@@ -224,6 +223,7 @@ public:
         spec.destruct(state(ptmp));
         number(p0).store(1);
 
+        mh.setSteps(n);
         for (int i = n; i > 0; --i) {
             MyList<Word>& vnodes = vnodeTable[i];
             size_t m = 0;
@@ -292,7 +292,7 @@ public:
             nextVnodes.pop_front();
             pools[i].clear();
             spec.destructLevel(i);
-            mh << ".";
+            mh.step();
         }
 
         mh.end(maxWidth);

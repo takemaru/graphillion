@@ -12,8 +12,11 @@ include CMakeLists.txt README.md \
   src/subsetting/dd/DdNodeId.hpp src/subsetting/dd/DdNodeTable.hpp \
   src/subsetting/dd/DdSpec.hpp src/subsetting/dd/PathCounter.hpp \
   src/subsetting/dd/ZddStructure.hpp src/subsetting/eval/ToZBDD.hpp \
+  src/subsetting/spec/BinaryOperation.hpp \
   src/subsetting/spec/DegreeConstraint.hpp \
   src/subsetting/spec/FrontierBasedSearch.hpp \
+  src/subsetting/spec/LinearConstraints.hpp \
+  src/subsetting/spec/Lookahead.hpp \
   src/subsetting/spec/SapporoZdd.hpp \
   src/subsetting/spec/SizeConstraint.hpp \
   src/subsetting/util/BigNumber.hpp src/subsetting/util/Graph.hpp \

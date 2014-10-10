@@ -53,7 +53,10 @@ setset SearchGraphs(
     const Range* num_edges = NULL,
     int num_comps = -1,  // not including vertex_groups
     bool no_loop = false,
-    const setset* search_space = NULL);
+    const setset* search_space = NULL,
+    const std::vector<linear_constraint_t>* linear_constraints = NULL);
+
+bool ShowMessages(bool flag = true);
 
 }  // namespace graphillion
 

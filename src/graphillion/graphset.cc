@@ -31,8 +31,10 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include "subsetting/dd/ZddStructure.hpp"
 #include "subsetting/eval/ToZBDD.hpp"
+#include "subsetting/spec/BinaryOperation.hpp"
 #include "subsetting/spec/DegreeConstraint.hpp"
 #include "subsetting/spec/FrontierBasedSearch.hpp"
+#include "subsetting/spec/LinearConstraints.hpp"
 #include "subsetting/spec/SapporoZdd.hpp"
 #include "subsetting/spec/SizeConstraint.hpp"
 #include "subsetting/util/Graph.hpp"
@@ -42,6 +44,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 namespace graphillion {
 
 using std::map;
+using std::pair;
 using std::set;
 using std::vector;
 
@@ -75,7 +78,8 @@ setset SearchGraphs(
     const Range* num_edges,
     int num_comps,
     bool no_loop,
-    const setset* search_space) {
+    const setset* search_space,
+    const vector<linear_constraint_t>* linear_constraints) {
   assert(static_cast<size_t>(setset::num_elems()) == graph.size());
 
   Graph g;
@@ -84,12 +88,12 @@ setset SearchGraphs(
   g.update();
   assert(static_cast<size_t>(g.edgeSize()) == graph.size());
 
-  ZddStructure* dd = NULL;
+  ZddStructure dd;
   if (search_space != NULL) {
     SapporoZdd f(search_space->zdd_, setset::max_elem() - setset::num_elems());
-    dd = new ZddStructure(f);
+    dd = ZddStructure(f);
   } else {
-    dd = new ZddStructure(g.edgeSize());
+    dd = ZddStructure(g.edgeSize());
   }
 
   if (vertex_groups != NULL) {
@@ -101,25 +105,59 @@ setset SearchGraphs(
     g.update();
   }
 
+  DegreeConstraint dc(g);
   if (degree_constraints != NULL) {
-    DegreeConstraint dc(g);
     for (map<vertex_t, Range>::const_iterator i = degree_constraints->begin();
          i != degree_constraints->end(); ++i)
       dc.setConstraint(i->first, &i->second);
-    dd->subset(dc);
   }
 
   if (num_edges != NULL) {
     SizeConstraint sc(g.edgeSize(), num_edges);
-    dd->subset(sc);
+    dd.subset(sc);
   }
 
   FrontierBasedSearch fbs(g, num_comps, no_loop);
-  dd->subset(fbs);
 
-  zdd_t f = dd->evaluate(ToZBDD(setset::max_elem() - setset::num_elems()));
-  delete dd;
+  if (linear_constraints != NULL) {
+    LinearConstraints<double> lc(g.edgeSize());
+    for (typeof(linear_constraints->begin()) i = linear_constraints->begin();
+         i != linear_constraints->end(); ++i) {
+      map<int,double> expr;
+      for (typeof(i->first.begin()) j = i->first.begin();
+           j != i->first.end(); ++j) {
+        int level = g.edgeSize() - g.getEdge(j->first);
+        expr[level] = j->second;
+      }
+      lc.addConstraint(expr, i->second.first, i->second.second);
+    }
+    lc.update();
+    ZddIntersection<typeof(lc),typeof(fbs)> zi(lc, fbs);
+
+    if (degree_constraints != NULL) {
+        ZddIntersection<typeof(dc),typeof(zi)> zii(dc, zi);
+        dd.subset(zii);
+    }
+    else {
+        dd.subset(zi);
+    }
+  }
+  else {
+      if (degree_constraints != NULL) {
+          ZddIntersection<typeof(dc),typeof(fbs)> zi(dc, fbs);
+          dd.subset(zi);
+      }
+      else {
+          dd.subset(fbs);
+      }
+  }
+
+  zdd_t f = dd.evaluate(ToZBDD(setset::max_elem() - setset::num_elems()));
   return setset(f);
+}
+
+bool ShowMessages(bool flag) {
+  return MessageHandler::showMessages(flag);
 }
 
 }  // namespace graphillion

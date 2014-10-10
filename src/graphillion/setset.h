@@ -201,7 +201,8 @@ class setset {
       const Range* num_edges,
       int num_comps,
       bool no_loop,
-      const setset* search_space);
+      const setset* search_space,
+      const std::vector<linear_constraint_t>* linear_constraints);
 };
 
 }  // namespace graphillion

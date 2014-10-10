@@ -109,10 +109,10 @@ private:
         zc.initialize(root);
 
         if (root.row > 0) {
-            mh << "\n";
+            mh.setSteps(root.row);
             for (int i = root.row; i > 0; --i) {
-                mh << ".";
                 zc.construct(i);
+                mh.step();
             }
         }
         else {
@@ -136,14 +136,13 @@ private:
 
         if (root.row > 0) {
 #ifdef _OPENMPXXX
-            mh << " (#thread = " << zs.numThreads() << ")\n";
-#else
-            mh << "\n";
+            mh << " (#thread = " << zs.numThreads() << ")";
 #endif
+            mh.setSteps(root.row);
             for (int i = root.row; i > 0; --i) {
-                mh << ".";
                 zs.subset(i);
                 nodeTable.derefLevel(i);
+                mh.step();
             }
         }
         else {
@@ -162,7 +161,6 @@ public:
         DdNodeTable& table = nodeTable.privateEntity();
         MessageHandler mh;
         mh.begin("reduction") << " ";
-        int dots = 0;
 
         int const n = table.numRows() - 1;
         DdNodeTableHandler tmpTableHandler(n + 1);
@@ -196,11 +194,8 @@ public:
 
         table.initRow(0, 2);
 
+        mh.setSteps(n);
         for (int i = 1; i <= n; ++i) {
-            for (; n * dots < 10 * i; ++dots) {
-                mh << ".";
-            }
-
             size_t const m = table.rowSize(i);
             DdNode* const tt = table[i];
 
@@ -294,6 +289,7 @@ public:
                     }
                 }
             }
+            mh.step();
         }
 
         nodeTable = tmpTableHandler;
