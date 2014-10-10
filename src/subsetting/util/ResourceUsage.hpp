@@ -82,33 +82,26 @@ struct ResourceUsage {
     }
 
     std::string elapsedTime() const {
-        std::stringstream ss;
-        ss << std::fixed << std::setprecision(2) << etime << "s";
-        return ss.str();
+        char ss[256];
+        sprintf(ss, "%.2fs", etime);
+        return ss;
     }
 
     std::string userTime() const {
-        std::stringstream ss;
-        ss << std::fixed << std::setprecision(2) << utime << "s";
-        return ss.str();
+        char ss[256];
+        sprintf(ss, "%.2fs", utime);
+        return ss;
     }
 
     std::string memory() const {
-        std::stringstream ss;
-        ss << std::fixed << std::setprecision(0) << maxrss / 1024.0 << "MB";
-        return ss.str();
+        char ss[256];
+        sprintf(ss, "%.0fMB", maxrss / 1024.0);
+        return ss;
     }
 
     friend std::ostream& operator<<(std::ostream& os, ResourceUsage const& u) {
-        std::ios_base::fmtflags backup = os.flags(std::ios::fixed);
-        os.setf(std::ios::fixed);
-
-        os << std::setprecision(2) << u.etime << "s elapsed, ";
-        os << std::setprecision(2) << u.utime << "s user, ";
-        os << std::setprecision(0) << u.maxrss / 1024.0 << "MB";
-
-        os.flags(backup);
-        return os;
+        return os << u.elapsedTime() << " elapsed, "
+                << u.userTime() << " user, " << u.memory();
     }
 
 private:
