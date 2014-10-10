@@ -1875,14 +1875,13 @@ class GraphSet(object):
             else:
                 neighbors[v].add(u)
         assert source in neighbors
+        vertices = set(neighbors.keys())
 
         sorted_edges = []
         queue_or_stack = []
         visited_vertices = set()
         u = source
         while True:
-            if u in visited_vertices:
-                continue
             visited_vertices.add(u)
             for v in sorted(neighbors[u]):
                 if v in visited_vertices:
@@ -1891,11 +1890,15 @@ class GraphSet(object):
             new_vertices = neighbors[u] - visited_vertices - set(queue_or_stack)
             queue_or_stack.extend(new_vertices)
             if not queue_or_stack:
-                break
+                if visited_vertices == vertices:
+                    break
+                else:
+                    queue_or_stack.append(min(vertices - visited_vertices))
             if traversal == 'bfs':
                 u, queue_or_stack = queue_or_stack[0], queue_or_stack[1:]
             else:
                 queue_or_stack, u = queue_or_stack[:-1], queue_or_stack[-1]
+            assert u not in visited_vertices
         assert set(edges) == set(sorted_edges)
         return sorted_edges
 

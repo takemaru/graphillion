@@ -68,6 +68,9 @@ class TestGraphSet(unittest.TestCase):
 
         self.assertRaises(KeyError, GraphSet.set_universe, [(1,2), (2,1)])
 
+        GraphSet.set_universe([(1,2), (3,4)])  # disconnected graph
+        self.assertEqual(GraphSet.universe(), [(1,2), (3,4)])
+
     def test_constructors(self):
         gs = GraphSet()
         self.assertTrue(isinstance(gs, GraphSet))
