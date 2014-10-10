@@ -639,7 +639,7 @@ generated during the operation.
 | `gs.included(obj)`                                | Returns a new GraphSet with subgraphs of a graph in `obj` (graphset or graph)                |
 | `gs.larger(size)`                                 | Returns a new GraphSet with graphs that have more than `size` edges                          |
 | `gs.smaller(size)`                                | Returns a new GraphSet with graphs that have less than `size` edges                          |
-| `gs.len(size)`                                    | Returns a new GraphSet with `size` edges                                                     |
+| `gs.graph_size(size)`                             | Returns a new GraphSet with `size` edges                                                     |
 | `gs.minimal()`                                    | Returns a new GraphSet of minimal graphs                                                     |
 | `gs.maximal()`                                    | Returns a new GraphSet of maximal graphs                                                     |
 
