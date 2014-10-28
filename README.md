@@ -80,8 +80,7 @@ use of Graphillion in your paper.
 > Takeru Inoue, Hiroaki Iwashita, Jun Kawahara, and Shin-ichi Minato:
   "Graphillion: Software Library Designed for Very Large Sets of
   Labeled Graphs," International Journal on Software Tools for
-  Technology Transfer, Springer. (to appear; 
-  [draft](http://www-alg.ist.hokudai.ac.jp/~thomas/TCSTR/tcstr_13_65/tcstr_13_65.pdf))
+  Technology Transfer, Springer, October 2014. ([pdf](http://dx.doi.org/10.1007/s10009-014-0352-z))
 
 Graphillion is still under the development.  We really appreciate any
 pull request and patch if you add some changes that benefit a wide
@@ -818,13 +817,11 @@ References
 - Takeru Inoue, Hiroaki Iwashita, Jun Kawahara, and Shin-ichi Minato:
   "Graphillion: Software Library Designed for Very Large Sets of
   Labeled Graphs," International Journal on Software Tools for
-  Technology Transfer, Springer. (to appear; 
-  [draft](http://www-alg.ist.hokudai.ac.jp/~thomas/TCSTR/tcstr_13_65/tcstr_13_65.pdf))
+  Technology Transfer, Springer, October 2014. ([pdf](http://dx.doi.org/10.1007/s10009-014-0352-z))
 - Takeru Inoue, Norihito Yasuda, Shunsuke Kawano, Yuji Takenobu,
   Shin-ichi Minato, and Yasuhiro Hayashi, "Distribution Network
   Verification for Secure Restoration by Enumerating All Critical
-  Failures," IEEE Transactions on Smart Grid. (to appear;
-  [draft](http://www-alg.ist.hokudai.ac.jp/~thomas/TCSTR/tcstr_14_70/tcstr_14_70.pdf))
+  Failures," IEEE Transactions on Smart Grid, October 2014. ([pdf](http://dx.doi.org/10.1109/TSG.2014.2359114))
 - Jun Kawahara, Takeru Inoue, Hiroaki Iwashita and Shin-ichi Minato,
   "Frontier-based Search for Enumerating All Constrained Subgraphs
   with Compressed Representation," Hokkaido University, Division of
