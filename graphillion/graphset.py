@@ -586,7 +586,8 @@ class GraphSet(object):
 
         If no argument is given, this method returns the number of
         graphs in `self`.  Otherwise, this method returns a new
-        GraphSet with graphs that have `size` edges.
+        GraphSet with graphs that have `size` edges; this usage of
+        `len(size)` is obsoleted, and use `graph_size(size)` instead.
 
         This method never raises OverflowError unlike built-in len(gs).
 
@@ -600,7 +601,7 @@ class GraphSet(object):
           >>> graph2 = [(1, 2), (1, 4)]
           >>> graph3 = [(1, 2), (1, 4), (2, 3)]
           >>> gs = GraphSet([graph1, graph2, graph3])
-          >>> gs.same_len(2)
+          >>> gs.len(2)
           GraphSet([[(1, 2), (1, 4)]])
 
         Args:
@@ -610,7 +611,8 @@ class GraphSet(object):
           The number of graphs, or a new GraphSet object.
 
         See Also:
-          __len__(), smaller(), larger()
+          __len__(), smaller(), larger(), graph_size()
+
         """
         if size is None:
             return self._ss.len()
