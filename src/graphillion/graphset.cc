@@ -110,6 +110,7 @@ setset SearchGraphs(
     for (map<vertex_t, Range>::const_iterator i = degree_constraints->begin();
          i != degree_constraints->end(); ++i)
       dc.setConstraint(i->first, &i->second);
+    dd.subset(dc);
   }
 
   if (num_edges != NULL) {
@@ -121,35 +122,24 @@ setset SearchGraphs(
 
   if (linear_constraints != NULL) {
     LinearConstraints<double> lc(g.edgeSize());
-    for (typeof(linear_constraints->begin()) i = linear_constraints->begin();
+    for (vector<linear_constraint_t>::const_iterator
+         i = linear_constraints->begin();
          i != linear_constraints->end(); ++i) {
       map<int,double> expr;
-      for (typeof(i->first.begin()) j = i->first.begin();
-           j != i->first.end(); ++j) {
+      for (std::vector<weighted_edge_t>::const_iterator
+           j = i->first.begin(); j != i->first.end(); ++j) {
         int level = g.edgeSize() - g.getEdge(j->first);
         expr[level] = j->second;
       }
       lc.addConstraint(expr, i->second.first, i->second.second);
     }
     lc.update();
-    ZddIntersection<typeof(lc),typeof(fbs)> zi(lc, fbs);
+    ZddIntersection<LinearConstraints<double>,FrontierBasedSearch> zi(lc, fbs);
 
-    if (degree_constraints != NULL) {
-        ZddIntersection<typeof(dc),typeof(zi)> zii(dc, zi);
-        dd.subset(zii);
-    }
-    else {
-        dd.subset(zi);
-    }
+    dd.subset(zi);
   }
   else {
-      if (degree_constraints != NULL) {
-          ZddIntersection<typeof(dc),typeof(fbs)> zi(dc, fbs);
-          dd.subset(zi);
-      }
-      else {
-          dd.subset(fbs);
-      }
+    dd.subset(fbs);
   }
 
   zdd_t f = dd.evaluate(ToZBDD(setset::max_elem() - setset::num_elems()));

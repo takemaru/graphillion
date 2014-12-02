@@ -24,9 +24,18 @@ class LinearConstraints: public PodArrayDdSpec<LinearConstraints<T>,T> {
         T upperBound;
         bool finalChoice;
 
-        CheckItem(int i, T const& w, T const& min, T const& max, T const& lb,
-                T const& ub, bool fc) :
-                index(i), weight(w), addMin(min), addMax(max), lowerBound(lb),
+        CheckItem(int i,
+                  T const& w,
+                  T const& min,
+                  T const& max,
+                  T const& lb,
+                  T const& ub,
+                  bool fc) :
+                index(i),
+                weight(w),
+                addMin(min),
+                addMax(max),
+                lowerBound(lb),
                 upperBound(ub),
                 finalChoice(fc) {
         }
@@ -42,7 +51,10 @@ class LinearConstraints: public PodArrayDdSpec<LinearConstraints<T>,T> {
 
 public:
     LinearConstraints(int n) :
-            n(n), checklists(n + 1), arraySize(0), constraintId(0),
+            n(n),
+            checklists(n + 1),
+            arraySize(0),
+            constraintId(0),
             isFalse(false) {
         assert(n >= 1);
     }
@@ -51,7 +63,8 @@ public:
         if (isFalse) return;
         T min = 0;
         T max = 0;
-        for (typeof(expr.begin()) t = expr.begin(); t != expr.end(); ++t) {
+        for (typename std::map<int,T>::const_iterator t = expr.begin();
+                t != expr.end(); ++t) {
             T const& w = t->second;
             if (w > 0) max += w;
             else if (w < 0) min += w;
@@ -66,7 +79,8 @@ public:
         min = 0;
         max = 0;
         bool fc = true;
-        for (typeof(expr.begin()) t = expr.begin(); t != expr.end(); ++t) {
+        for (typename std::map<int,T>::const_iterator t = expr.begin();
+                t != expr.end(); ++t) {
             Checklist& list = checklists[t->first];
             T const& w = t->second;
             list.push_back(CheckItem(constraintId, w, min, max, lb, ub, fc));
@@ -87,7 +101,8 @@ public:
         for (int i = n; i >= 1; --i) {
             Checklist& list = checklists[i];
 
-            for (typeof(list.begin()) t = list.begin(); t != list.end(); ++t) {
+            for (typename Checklist::iterator t = list.begin(); t != list.end();
+                    ++t) {
                 int id = t->index;
 
                 if (indexMap[id] < 0) {
@@ -103,7 +118,8 @@ public:
                 t->index = indexMap[id];
             }
 
-            for (typeof(list.begin()) t = list.begin(); t != list.end(); ++t) {
+            for (typename Checklist::iterator t = list.begin(); t != list.end();
+                    ++t) {
                 if (t->finalChoice) {
                     freeIndex.push_back(t->index);
                 }
@@ -126,14 +142,15 @@ public:
     int getChild(T* value, int level, bool take) const {
         Checklist const& list = checklists[level];
 
-        for (typeof(list.begin()) t = list.begin(); t != list.end(); ++t) {
+        for (typename Checklist::const_iterator t = list.begin();
+                t != list.end(); ++t) {
             T& v = value[t->index];
             if (take) v += t->weight;
-            if (v + t->addMax < t->lowerBound
-                    || t->upperBound < v + t->addMin) return 0;
+            if (v + t->addMax < t->lowerBound || t->upperBound < v + t->addMin)
+                return 0;
             if (t->lowerBound <= v + t->addMin
-                    && v + t->addMax <= t->upperBound) // state compression
-                v = t->lowerBound - t->addMin;
+                && v + t->addMax <= t->upperBound) // state compression
+            v = t->lowerBound - t->addMin;
             if (t->finalChoice) v = 0;
         }
 
