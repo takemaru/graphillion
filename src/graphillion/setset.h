@@ -163,6 +163,8 @@ class setset {
   setset non_supersets(const setset& ss) const;
   setset non_supersets(elem_t e) const;
 
+  double probability(const std::vector<double>& probabilities) const;
+
   void dump(std::ostream& out) const;
   void dump(FILE* fp = stdout) const;
   static setset load(std::istream& in);

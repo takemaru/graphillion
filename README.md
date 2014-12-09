@@ -682,13 +682,14 @@ generated graphs.
 The following methods provide comparison or evaluation for GraphSet
 objects.
 
-| Method                 | Description                                                                      |
-| :--------------------- | :------------------------------------------------------------------------------- |
-| `gs.isdisjoint(other)` | Returns True if `self` has no graphs in common with `other`                      |
-| `gs.issubset(other)`   | Tests if every graph in `self` is in `other`                                     |
-| `gs.issuperset(other)` | Tests if every graph in `other` is in `self`                                     |
-| `obj in gs`            | Returns True if `obj` (graph, edge, or vertex) is in the `self`, False otherwise |
-| `len(gs)`, `gs.len()`  | Returns the number of graphs in `self`                                           |
+| Method                          | Description                                                                      |
+| :------------------------------ | :------------------------------------------------------------------------------- |
+| `gs.isdisjoint(other)`          | Returns True if `self` has no graphs in common with `other`                      |
+| `gs.issubset(other)`            | Tests if every graph in `self` is in `other`                                     |
+| `gs.issuperset(other)`          | Tests if every graph in `other` is in `self`                                     |
+| `obj in gs`                     | Returns True if `obj` (graph, edge, or vertex) is in the `self`, False otherwise |
+| `len(gs)`, `gs.len()`           | Returns the number of graphs in `self`                                           |
+| `gs.probability(probabilities)` | Returns the probability of `self` with given `probabilities`.                    |
 
 ### Iterators
 

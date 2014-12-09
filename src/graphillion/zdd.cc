@@ -569,6 +569,28 @@ double algo_c(zdd_t f) {
     return counts[id(f)] = algo_c(hi(f)) + algo_c(lo(f));
 }
 
+static double skip_probability(elem_t e, zdd_t f, const vector<double>& probabilities) {
+  double p = 1;
+  for (int i = e; i < (is_term(f) ? num_elems() + 1 : elem(f)); ++i)
+    p *= 1 - probabilities[i];
+  return p;
+}
+
+double probability(elem_t e, zdd_t f, const vector<double>& probabilities,
+                   map<word_t, double>& cache) {
+  zdd_t l = lo(f);
+  zdd_t h = hi(f);
+  if (cache.find(id(l)) == cache.end())
+    cache[id(l)] = probability(elem(l), l, probabilities, cache);
+  if (cache.find(id(h)) == cache.end())
+    cache[id(h)] = probability(elem(h), h, probabilities, cache);
+  double pl = (1 - probabilities[elem(f)]) *
+      skip_probability(elem(f) + 1, l, probabilities) * cache.at(id(l));
+  double ph = probabilities[elem(f)] *
+      skip_probability(elem(f) + 1, h, probabilities) * cache.at(id(h));
+  return skip_probability(e, f, probabilities) * (pl + ph);
+}
+
 // Algorithm ZUNIQ from Knuth vol. 4 fascicle 1 sec. 7.1.4.
 zdd_t zuniq(elem_t v, zdd_t l, zdd_t h) {
   return l + single(v) * h;

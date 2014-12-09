@@ -677,6 +677,30 @@ class TestGraphSet(unittest.TestCase):
         gs.flip(e1)
         self.assertEqual(gs, GraphSet([g0, g1, g14, g2, g23, g234, g34, g4]))
 
+    def test_probability(self):
+        p = {e1: .9, e2: .8, e3: .7, e4: .6}
+
+        gs = GraphSet()
+        self.assertEqual(gs.probability(p), 0)
+
+        gs = GraphSet([g0])
+        self.assertAlmostEqual(gs.probability(p), .0024)
+
+        gs = GraphSet([g1])
+        self.assertAlmostEqual(gs.probability(p), .0216)
+
+        gs = GraphSet([g2])
+        self.assertAlmostEqual(gs.probability(p), .0096)
+
+        gs = GraphSet([g12, g13])
+        self.assertAlmostEqual(gs.probability(p), .1368)
+
+        gs = GraphSet([g1234])
+        self.assertAlmostEqual(gs.probability(p), .3024)
+
+        gs = GraphSet([g0, g1, g2, g12, g13, g1234])
+        self.assertAlmostEqual(gs.probability(p), .4728)
+
     def test_io(self):
         gs = GraphSet()
         st = gs.dumps()

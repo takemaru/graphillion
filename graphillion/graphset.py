@@ -1435,6 +1435,31 @@ class GraphSet(object):
         """
         return GraphSet._conv_ret(self._ss.choice())
 
+    def probability(self, probabilities):
+        """Returns the probability of `self` with edge `probabilities`.
+
+        This method calculates the probability of occurrence of any
+        graph in `self` given `probabilities` of each edge.
+
+        Examples:
+          >>> graph1 = [(1, 2), (1, 4)]
+          >>> graph2 = [(2, 3)]
+          >>> gs = GraphSet([graph1, graph2])
+          >>> probabilities = {(1, 2): .9, (1, 4): .8, (2, 3): .7}
+          >>> gs.probability(probabilities)
+          0.23
+
+        Args:
+          probabilities: A dictionary of probabilities of each edge.
+
+        Returns:
+          Probability.
+
+        Raises:
+          KeyError: If a given edge is not found in the universe.
+        """
+        return self._ss.probability(probabilities)
+
     def dump(self, fp):
         """Serialize `self` to a file `fp`.
 

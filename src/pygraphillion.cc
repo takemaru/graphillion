@@ -753,6 +753,33 @@ static PyObject* setset_choice(PySetsetObject* self) {
   return setset_build_set(s);
 }
 
+static PyObject* setset_probability(PySetsetObject* self,
+                                    PyObject* probabilities) {
+  PyObject* i = PyObject_GetIter(probabilities);
+  if (i == NULL) return NULL;
+  PyObject* eo;
+  vector<double> p;
+  while ((eo = PyIter_Next(i))) {
+    if (PyFloat_Check(eo)) {
+      p.push_back(PyFloat_AsDouble(eo));
+    }
+    else if (PyLong_Check(eo)) {
+      p.push_back(static_cast<double>(PyLong_AsLong(eo)));
+    }
+    else if (PyInt_Check(eo)) {
+      p.push_back(static_cast<double>(PyInt_AsLong(eo)));
+    }
+    else {
+      PyErr_SetString(PyExc_TypeError, "not a number");
+      Py_DECREF(eo);
+      return NULL;
+    }
+    Py_DECREF(eo);
+  }
+  Py_DECREF(i);
+  return PyFloat_FromDouble(self->ss->probability(p));
+}
+
 static PyObject* setset_dump(PySetsetObject* self, PyObject* obj) {
   CHECK_OR_ERROR(obj, PyFile_Check, "file", NULL);
   FILE* fp = PyFile_AsFile(obj);
@@ -911,6 +938,7 @@ static PyMethodDef setset_methods[] = {
   {"non_subsets", reinterpret_cast<PyCFunction>(setset_non_subsets), METH_O, ""},
   {"non_supersets", reinterpret_cast<PyCFunction>(setset_non_supersets), METH_O, ""},
   {"choice", reinterpret_cast<PyCFunction>(setset_choice), METH_NOARGS, ""},
+  {"probability", reinterpret_cast<PyCFunction>(setset_probability), METH_O, ""},
   {"dump", reinterpret_cast<PyCFunction>(setset_dump), METH_O, ""},
   {"dumps", reinterpret_cast<PyCFunction>(setset_dumps), METH_NOARGS, ""},
   {"_enum", reinterpret_cast<PyCFunction>(setset_enum), METH_O, ""},

@@ -157,6 +157,14 @@ class setset(_graphillion.setset):
         set = _graphillion.setset.choice(self)
         return setset._conv_ret(set)
 
+    def probability(self, probabilities):
+        ps = [-1] * (_graphillion._num_elems() + 1)
+        for e, p in probabilities. iteritems():
+            i = setset._obj2int[e]
+            ps[i] = p
+        assert len([p for p in ps[1:] if p < 0 or 1 < p]) == 0
+        return _graphillion.setset.probability(self, ps)
+
     @staticmethod
     def load(fp):
         return _graphillion.load(fp)

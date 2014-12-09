@@ -26,6 +26,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #define GRAPHILLION_ZDD_H_
 
 #include <iostream>
+#include <map>
 #include <set>
 #include <utility>
 #include <vector>
@@ -91,6 +92,8 @@ void _enum(zdd_t f, FILE* fp, std::vector<elem_t>* stack, bool* first,
            const std::pair<const char*, const char*>& inner_braces);
 void algo_b(zdd_t f, const std::vector<double>& w, std::vector<bool>* x);
 double algo_c(zdd_t f);
+double probability(elem_t e, zdd_t f, const std::vector<double>& probabilities,
+                   std::map<word_t, double>& cache);
 zdd_t zuniq(elem_t v, zdd_t l, zdd_t h);
 double rand_xor128();
 void sort_zdd(zdd_t f, std::vector<std::vector<zdd_t> >* stacks,

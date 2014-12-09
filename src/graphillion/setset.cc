@@ -422,6 +422,23 @@ setset setset::non_supersets(elem_t e) const {
   return setset(this->zdd_ % setset(s).zdd_);
 }
 
+double setset::probability(const vector<double>& probabilities) const {
+  assert(probabilities.size() == num_elems() + 1);
+  if (this->zdd_ == bot()) {  // this->empty()
+    return 0;
+  } else if (this->zdd_ == top()) {
+    double p = 1;
+    for (int e = 1; e <= num_elems(); ++e)
+      p *= 1 - probabilities[e];
+    return p;
+  } else {
+    map<word_t, double> cache;
+    cache[graphillion::id(bot())] = 0;
+    cache[graphillion::id(top())] = 1;
+    return graphillion::probability(1, this->zdd_, probabilities, cache);
+  }
+}
+
 void setset::dump(ostream& out) const {
   graphillion::dump(this->zdd_, out);
 }

@@ -441,6 +441,30 @@ class TestSetset(unittest.TestCase):
         ss.flip()
         self.assertEqual(ss, setset([s0, s123, s1234, s2, s23, s234, s34, s4]))
 
+    def test_probability(self):
+        p = {'1': .9, '2': .8, '3': .7, '4': .6}
+
+        ss = setset()
+        self.assertEqual(ss.probability(p), 0)
+
+        ss = setset([s0])
+        self.assertAlmostEqual(ss.probability(p), .0024)
+
+        ss = setset([s1])
+        self.assertAlmostEqual(ss.probability(p), .0216)
+
+        ss = setset([s2])
+        self.assertAlmostEqual(ss.probability(p), .0096)
+
+        ss = setset([s12, s13])
+        self.assertAlmostEqual(ss.probability(p), .1368)
+
+        ss = setset([s1234])
+        self.assertAlmostEqual(ss.probability(p), .3024)
+
+        ss = setset([s0, s1, s2, s12, s13, s1234])
+        self.assertAlmostEqual(ss.probability(p), .4728)
+
     def test_io(self):
         ss = setset()
         st = ss.dumps()

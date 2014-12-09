@@ -89,6 +89,8 @@ vector<set<int> > V(const string& str) {
   return v;
 }
 
+#define assert_almost_equal(a, b) assert(b - 1e-6 < a && a < b + 1e-6)
+
 class TestSetset {
  public:
   void run() {
@@ -101,6 +103,7 @@ class TestSetset {
     this->iterators();
     this->lookup();
     this->modifiers();
+    this->probability();
     this->io();
     this->large();
   }
@@ -392,6 +395,36 @@ class TestSetset {
     ss = setset(u);
     ss.flip();
     assert(ss.zdd_ == s0 + s123 + s1234 + s2 + s23 + s234 + s34 + s4);
+  }
+
+  void probability() {
+    vector<double> p;
+    p.push_back(0);  // 1-offset
+    p.push_back(.9);
+    p.push_back(.8);
+    p.push_back(.7);
+    p.push_back(.6);
+
+    setset ss = setset();
+    assert(ss.probability(p) == 0);
+
+    ss = setset(V("{{}}"));
+    assert_almost_equal(ss.probability(p), .0024);
+
+    ss = setset(V("{{1}}"));
+    assert_almost_equal(ss.probability(p), .0216);
+
+    ss = setset(V("{{2}}"));
+    assert_almost_equal(ss.probability(p), .0096);
+
+    ss = setset(V("{{1,2}, {1,3}}"));
+    assert_almost_equal(ss.probability(p), .1368);
+
+    ss = setset(V("{{1,2,3,4}}"));
+    assert_almost_equal(ss.probability(p), .3024);
+
+    ss = setset(V("{{}, {1}, {2}, {1,2}, {1,3}, {1,2,3,4}}"));
+    assert_almost_equal(ss.probability(p), .4728);
   }
 
   void io() {
