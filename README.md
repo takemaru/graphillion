@@ -1,6 +1,9 @@
 Graphillion - Fast, lightweight library for a huge number of graphs
 ================================================================================
 
+[Japanese page](http://github.com/takemaru/graphillion/wiki)
+
+* [News](#news "News")
 * [Features](#features "Features")
 * [Overview](#overview "Overview")
 * [Installing](#installing "Installing")
@@ -9,8 +12,15 @@ Graphillion - Fast, lightweight library for a huge number of graphs
 * [Manipulating graphsets](#manipulating-graphsets "Manipulating graphsets")
 * [Working with NetworkX](#working-with-networkx "Working with NetworkX")
 * [Library reference](#library-reference "Library reference")
+* [Example codes](http://github.com/takemaru/graphillion/wiki/Example-codes)
 * [Future work](#future-work "Future work")
 * [References](#references "References")
+
+News
+--------------------------------------------------------------------------------
+
+Graphillion [book] is published in April 2015 (sorry, written in
+Japanese).
 
 Features
 --------------------------------------------------------------------------------
@@ -797,6 +807,11 @@ Or in HTML:
 $ pydoc -w graphillion.GraphSet
 ```
 
+Example codes
+--------------------------------------------------------------------------------
+
+Example codes are found [here](http://github.com/takemaru/graphillion/wiki/Example-codes).
+
 Future work
 --------------------------------------------------------------------------------
 
@@ -862,3 +877,4 @@ References
 [tutorial]: #tutorial
 [GGCount]: https://github.com/kunisura/GGCount
 [TdZdd]: https://github.com/kunisura/TdZdd
+[book]: http://www.amazon.co.jp/dp/4627852614
