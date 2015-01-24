@@ -638,11 +638,11 @@ generated during the operation.
 
 | Method                                            | Description                                                                                  |
 | :------------------------------------------------ | :------------------------------------------------------------------------------------------- |
-| `gs.union(other(s))`, `gs (pipe) other`           | Returns a new GraphSet with graphs from `self` and all others                                |
-| `gs.intersection(other(s))`, `gs & other`         | Returns a new GraphSet with graphs common to `self` and all others                           |
-| `gs.difference(other(s))`, `gs - other`           | Returns a new GraphSet with graphs in `self` that are not in the others                      |
-| `gs.symmetric_difference(other(s))`, `gs ^ other` | Returns a new GraphSet with graphs in either `self` or `other` but not both                  |
-| `gs.update(other(s))`                             | Updates `self`, adding graphs from all others                                                |
+| `gs.union(other(s))`, `gs (pipe) other`           | Returns a new GraphSet with graphs from `gs` and all others                                |
+| `gs.intersection(other(s))`, `gs & other`         | Returns a new GraphSet with graphs common to `gs` and all others                           |
+| `gs.difference(other(s))`, `gs - other`           | Returns a new GraphSet with graphs in `gs` that are not in the others                      |
+| `gs.symmetric_difference(other(s))`, `gs ^ other` | Returns a new GraphSet with graphs in either `gs` or `other` but not both                  |
+| `gs.update(other(s))`                             | Updates `gs`, adding graphs from all others                                                |
 | `gs.including(obj)`                               | Returns a new GraphSet that includes supergraphs of `obj` (graphset, graph, edge, or vertex) |
 | `gs.excluding(obj)`                               | Returns a new GraphSet that doesn't include `obj`  (graphset, graph, edge, or vertex)        |
 | `gs.included(obj)`                                | Returns a new GraphSet with subgraphs of a graph in `obj` (graphset or graph)                |
@@ -667,24 +667,24 @@ Creation methods specifying graph types also work as selection methods.
 ### Modification or generation methods
 
 The following methods generate new graphs.  Some methods modify graphs
-stored in `self`, while others return a GraphSet with the newly
+stored in `gs` (`self`), while others return a GraphSet with the newly
 generated graphs.
 
-#### Modifying graphs in self
+#### Modifying graphs in gs (self)
 
 | Method                              | Description                                                              |
 | :---------------------------------- | :----------------------------------------------------------------------- |
-| `gs.add(graph_or_edge)`             | Adds a given graph to `self`, or grafts a given edge to graphs in `self` |
-| `gs.remove(obj)`, `gs.discard(obj)` | Removes a given graph, edge, or vertex from `self`                       |
-| `gs.flip(edge)`                     | Flips the state of a given edge over all graphs in `self`                |
-| `gs.clear()`                        | Removes all graphs from `self`                                           |
+| `gs.add(graph_or_edge)`             | Adds a given graph to `gs`, or grafts a given edge to graphs in `gs` |
+| `gs.remove(obj)`, `gs.discard(obj)` | Removes a given graph, edge, or vertex from `gs`                       |
+| `gs.flip(edge)`                     | Flips the state of a given edge over all graphs in `gs`                |
+| `gs.clear()`                        | Removes all graphs from `gs`                                           |
 
 #### Generating new graphs
 
 | Method            | Description                                             |
 | :---------------- | :------------------------------------------------------ |
-| `~gs`             | Returns a new GraphSet with graphs not stored in `self` |
-| `gs.complement()` | Returns a new GraphSet with complement graphs of `self` |
+| `~gs`             | Returns a new GraphSet with graphs not stored in `gs` |
+| `gs.complement()` | Returns a new GraphSet with complement graphs of `gs` |
 | `gs.blocking()`   | Returns a new GraphSet of all blocking (hitting) sets   |
 
 ### Comparison and evaluation methods
@@ -694,12 +694,12 @@ objects.
 
 | Method                          | Description                                                                      |
 | :------------------------------ | :------------------------------------------------------------------------------- |
-| `gs.isdisjoint(other)`          | Returns True if `self` has no graphs in common with `other`                      |
-| `gs.issubset(other)`            | Tests if every graph in `self` is in `other`                                     |
-| `gs.issuperset(other)`          | Tests if every graph in `other` is in `self`                                     |
-| `obj in gs`                     | Returns True if `obj` (graph, edge, or vertex) is in the `self`, False otherwise |
-| `len(gs)`, `gs.len()`           | Returns the number of graphs in `self`                                           |
-| `gs.probability(probabilities)` | Returns the probability of `self` with given `probabilities`.                    |
+| `gs.isdisjoint(other)`          | Returns True if `gs` has no graphs in common with `other`                      |
+| `gs.issubset(other)`            | Tests if every graph in `gs` is in `other`                                     |
+| `gs.issuperset(other)`          | Tests if every graph in `other` is in `gs`                                     |
+| `obj in gs`                     | Returns True if `obj` (graph, edge, or vertex) is in the `gs`, False otherwise |
+| `len(gs)`, `gs.len()`           | Returns the number of graphs in `gs`                                           |
+| `gs.probability(probabilities)` | Returns the probability of `gs` with given `probabilities`.                    |
 
 ### Iterators
 
@@ -715,8 +715,8 @@ in the GraphSet object, though they aren't iterators.
 | `gs.rand_iter()` | Iterates over graphs uniformly randomly                 |
 | `gs.min_iter()`  | Iterates over graphs in the ascending order of weights  |
 | `gs.max_iter()`  | Iterates over graphs in the descending order of weights |
-| `gs.pop()`       | Removes and returns an arbitrary graph from `self`      |
-| `gs.choice()`    | Returns an arbitrary graph from `self`                  |
+| `gs.pop()`       | Removes and returns an arbitrary graph from `gs`      |
+| `gs.choice()`    | Returns an arbitrary graph from `gs`                  |
 
 ### Dumping and loading methods
 
@@ -726,7 +726,7 @@ with pickling the universe; see the library reference in detail.
 
 | Method              | Description                                         |
 | :------------------ | :-------------------------------------------------- |
-| `gs.dump(fp)`       | Serialize `self` to a file `fp`                     |
+| `gs.dump(fp)`       | Serialize `gs` to a file `fp`                     |
 | `GraphSet.load(fp)` | Deserialize a file `fp` and return the new GraphSet |
 
 ### Python's set methods
