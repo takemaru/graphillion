@@ -265,7 +265,7 @@ definition in the movie).
 >>> tl.draw(universe)  # show a pop-up window of our universe
 ```
 
-![A grid graph](http://github.com/takemaru/graphillion/blob/master/doc/fig1.png?raw=true)
+![A grid graph](https://github.com/takemaru/graphillion/blob/master/doc/fig1.png?raw=true)
 
 We find all the simple paths between the opposing corners; it took
 four hours with the supercomputer in the movie.
@@ -290,14 +290,14 @@ one.
 >>> tl.draw(paths.choice())  # show one of the paths
 ```
 
-![A path from start to goal](http://github.com/takemaru/graphillion/blob/master/doc/fig2.png?raw=true)
+![A path from start to goal](https://github.com/takemaru/graphillion/blob/master/doc/fig2.png?raw=true)
 
 Next, in order to demonstrate the filtering or search capability of
 Graphillion, we choose paths with given conditions.  Let's assume that
 a treasure box and its key are placed on the grid as shown in the
 figure.
 
-![Key and treasure box](http://github.com/takemaru/graphillion/blob/master/doc/fig3.png?raw=true)
+![Key and treasure box](https://github.com/takemaru/graphillion/blob/master/doc/fig3.png?raw=true)
 
 We consider all paths on which the key is picked up before reaching
 the treasure box.  We're not allowed to pass thorugh the same place
@@ -315,7 +315,7 @@ the treasure box.
 >>> tl.draw(treasure_paths.choice())  # show one of the paths
 ```
 
-![A path on which the box is opened](http://github.com/takemaru/graphillion/blob/master/doc/fig4.png?raw=true)
+![A path on which the box is opened](https://github.com/takemaru/graphillion/blob/master/doc/fig4.png?raw=true)
 
 Test if all the treasure paths are a subset of the original paths,
 which connect between the corners.
@@ -341,7 +341,7 @@ as follows:
 >>> tl.hist(data)
 ```
 
-![Histogram of turn counts](http://github.com/takemaru/graphillion/blob/master/doc/fig5.png?raw=true)
+![Histogram of turn counts](https://github.com/takemaru/graphillion/blob/master/doc/fig5.png?raw=true)
 
 The histogram shows that we make a turn at a corner usually 30-50
 times through a single path.  Without Graphillion, it would be very
@@ -376,7 +376,7 @@ power is provided from the four generators at corners.
 >>> tl.draw(universe)
 ```
 
-![A power distribution network](http://github.com/takemaru/graphillion/blob/master/doc/fig6.png?raw=true)
+![A power distribution network](https://github.com/takemaru/graphillion/blob/master/doc/fig6.png?raw=true)
 
 The power flow is determined by configuring switches, which are placed
 on each line.  If a switch is closed (an edge exists on a graph), the
@@ -394,7 +394,7 @@ forests as follows:
 >>> tl.draw(forests.choice())
 ```
 
-![An unsafe power flow](http://github.com/takemaru/graphillion/blob/master/doc/fig7.png?raw=true)
+![An unsafe power flow](https://github.com/takemaru/graphillion/blob/master/doc/fig7.png?raw=true)
 
 The amount of power transmitted from a single generator should be
 strictly restricted, so as not to exceed the capacity.  The forest
@@ -415,7 +415,7 @@ select safe flows without the dangerous cases.
 >>> tl.draw(safe_forests.choice())
 ```
 
-![A safe power flow](http://github.com/takemaru/graphillion/blob/master/doc/fig8.png?raw=true)
+![A safe power flow](https://github.com/takemaru/graphillion/blob/master/doc/fig8.png?raw=true)
 
 Since we found all the safe flows, we try to change the network from
 the current configuration to a safe one using an optimization
@@ -426,7 +426,7 @@ technique.  The current configuration is given by:
 >>> tl.draw(closed_switches)
 ```
 
-![Current unsafe configuration](http://github.com/takemaru/graphillion/blob/master/doc/fig9.png?raw=true)
+![Current unsafe configuration](https://github.com/takemaru/graphillion/blob/master/doc/fig9.png?raw=true)
 
 New configuration must be one of the safe flows, and must be realized
 with least switch operations.  We put a *score* (edge weight) on a new
@@ -459,7 +459,7 @@ required from the terrible unsafe configuration to a safe one.
 ...
 ```
 
-![Similar but safe configuration](http://github.com/takemaru/graphillion/blob/master/doc/fig10.png?raw=true)
+![Similar but safe configuration](https://github.com/takemaru/graphillion/blob/master/doc/fig10.png?raw=true)
 
 Finally, we investigate serious failures that prevent the safe power
 delivery.  We search for minimal blocking sets, or minimal hitting
