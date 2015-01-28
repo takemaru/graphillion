@@ -1043,6 +1043,8 @@ class GraphSet(object):
         """
         return GraphSet(self._ss.hitting())
 
+    hitting = blocking
+
     def smaller(self, size):
         """Returns a new GraphSet with graphs that have less than `size` edges.
 

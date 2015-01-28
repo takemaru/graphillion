@@ -686,6 +686,7 @@ generated graphs.
 | `~gs`             | Returns a new GraphSet with graphs not stored in `gs` |
 | `gs.complement()` | Returns a new GraphSet with complement graphs of `gs` |
 | `gs.blocking()`   | Returns a new GraphSet of all blocking (hitting) sets   |
+| `gs.hitting()`    | Same as `gs.blocking()` |
 
 ### Comparison and evaluation methods
 
