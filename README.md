@@ -19,8 +19,10 @@ Graphillion - Fast, lightweight library for a huge number of graphs
 News
 --------------------------------------------------------------------------------
 
-Graphillion [book] is published in April 2015 (sorry, written in
-Japanese).
+- Graphillion [book] is published in April 2015 (sorry, written in
+  Japanese).
+- Graphillion was used in the lecture by Prof. Jun Kawahara at Nara
+  Institute of Science and Technology in January and February 2015.
 
 Features
 --------------------------------------------------------------------------------
@@ -831,6 +833,12 @@ Future work
 References
 --------------------------------------------------------------------------------
 
+- JST ERATO Minato Discrete Structure Manipulation System Project,
+  "High-Speed Graph Enumeration Algorithms," Morikita Publishing, April
+  2015. ([amazon](http://www.amazon.co.jp/dp/4627852614), in Japanese)
+- Jun Kawahara, "graphillion: Python library handling a huge number of
+  subgraphs," Python Seminer, December
+  2014. ([pdf](http://www.logopt.com/download/graph.pdf), in Japanese)
 - Takeru Inoue, Hiroaki Iwashita, Jun Kawahara, and Shin-ichi Minato:
   "Graphillion: Software Library Designed for Very Large Sets of
   Labeled Graphs," International Journal on Software Tools for
@@ -843,6 +851,8 @@ References
   "Frontier-based Search for Enumerating All Constrained Subgraphs
   with Compressed Representation," Hokkaido University, Division of
   Computer Science, TCS Technical Reports, TCS-TR-A-14-76, September 2014. ([pdf](http://www-alg.ist.hokudai.ac.jp/~thomas/TCSTR/tcstr_14_76/tcstr_14_76.pdf))
+- Takeru Inoue, "Graphillion updates," JST ERATO Minato project
+  seminar, February 2014.  ([pdf](http://www-erato.ist.hokudai.ac.jp/docs/seminar/20140226-erato-pub.pdf))
 - Takeru Inoue, Keiji Takano, Takayuki Watanabe, Jun Kawahara, Ryo
   Yoshinaka, Akihiro Kishimoto, Koji Tsuda, Shin-ichi Minato, and
   Yasuhiro Hayashi, "Distribution Loss Minimization with Guaranteed
@@ -856,6 +866,11 @@ References
   PyCon APAC, September 2013.
 
     [![][pycon-thumbnail]][PyCon]
+- Takeru Inoue, "[Invited Talk] Graphillion: Software Library for Very
+  Large Sets of Graphs," Technical Report of IEICE, vol.113, no.140,
+  IN2013-43, pp.43-47, July
+  2013. ([pdf](https://sites.google.com/site/takeruinoue/home/publications/inoue13graphillion-ja.pdf?attredirects=0),
+  in Japanese)
 - Ryo Yoshinaka, Toshiki Saitoh, Jun Kawahara, Koji Tsuruma, Hiroaki
   Iwashita, and Shin-ichi Minato, "Finding All Solutions and Instances
   of Numberlink and Slitherlink by ZDDs," Algorithms 2012, 5(2),
