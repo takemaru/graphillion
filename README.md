@@ -153,7 +153,10 @@ Ports](http://www.freshports.org/math/py-graphillion/).
 
 ### Installing on Windows with Anaconda
 
-1. Download and install Anaconda from http://www.continuum.io/downloads
+1. Download and install Anaconda (fetch
+Anaconda-2.1.0-Windows-x86_64.exe from
+http://repo.continuum.io/archive/, since the later versions are not
+tested)
 2. Add the following paths to the %PATH% variable (Your Anaconda paths may be different):
 ```
 set PATH=%PATH%;C:\Anaconda;C:\Anaconda\Scripts;C:\Anaconda\DLLs;C:\Anaconda\MinGW\bin;C:\Anaconda\MinGW\x86_64-w64-mingw32\lib
