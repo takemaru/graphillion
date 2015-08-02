@@ -881,6 +881,7 @@ References
 - [Ekillion - Enumerating all JR train paths in Japan][Ekillion]
 - [GGCount - A C++ program for fast computation of the number of paths in a grid graph][GGCount]
 - [TdZdd - A top-down/breadth-first decision diagram manipulation framework][TdZdd]
+- [Graphillion for Windows](https://github.com/junkawahara/graphillion_for_windows)
 
 [JST ERATO Minato project]: http://www-erato.ist.hokudai.ac.jp/?language=en
 [DNET]: https://github.com/takemaru/dnet#dnet---distribution-network-evaluation-tool
