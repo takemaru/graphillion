@@ -797,6 +797,14 @@ class TestGraphSet(unittest.TestCase):
             GraphSet.converters['to_graph'] = lambda edges: edges
             GraphSet.converters['to_edges'] = lambda graph: graph
 
+    def test_misc(self):
+        self.assertEqual(GraphSet.vertices([(4, 5), (3, 6), (2, 5)]), [2, 3, 4, 5, 6])
+
+        self.assertEqual(GraphSet.make_path([(4, 5), (3, 6), (2, 5), (2, 3), (1, 4)]), [1, 4, 5, 2, 3, 6])
+        self.assertRaises(AssertionError, GraphSet.make_path, [])
+        self.assertRaises(AssertionError, GraphSet.make_path, [(1, 2), (1, 3), (1, 4)])  # star (more than three ends)
+        self.assertRaises(AssertionError, GraphSet.make_path, [(1, 2), (2, 3), (2, 4), (3, 4), (4, 5)])  # loop
+        self.assertRaises(AssertionError, GraphSet.make_path, [(1, 2), (2, 3), (3, 4), (4, 2), (2, 5)])  # walk
 
 if __name__ == '__main__':
     unittest.main()

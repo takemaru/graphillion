@@ -21,6 +21,7 @@
 """
 
 from functools import partial
+from itertools import chain
 import _graphillion
 from graphillion import setset
 import pickle
@@ -1892,6 +1893,54 @@ class GraphSet(object):
           False (disabled).
         """
         return _graphillion._show_messages(flag)
+
+    @staticmethod
+    def vertices(graph):
+        """Returns vertices of `graph`.
+
+        Example:
+          >>> GraphSet.vertices([(4, 5), (3, 6), (2, 5)])
+          [2, 3, 4, 5, 6]
+
+        Args:
+          graph: A list of edges.
+
+        Returns:
+          A sorted list of vertices included in `graph`.
+        """
+        return sorted(set(chain.from_iterable(graph)))
+
+    @staticmethod
+    def make_path(graph):
+        """Arranges verticies of `graph` as a path.
+
+        Example:
+          >>> GraphSet.make_path([(4, 5), (3, 6), (2, 5), (2, 3), (1, 4)])
+          [1, 4, 5, 2, 3, 6]
+
+        Args:
+          graph: A list of edges that is supposed to be a path.
+
+        Returns:
+          A list of vertices that represents a path.
+
+        Raises:
+          AssertionError: If `graph` is not a path.
+        """
+        V = list(chain.from_iterable(graph))
+        ends = sorted([_ for _ in set(V) if V.count(_) == 1])
+        assert len(ends) == 2, "not a path, it has %d end(s)" % len(ends)
+        v = ends[0]
+        P = [v]
+        while (v <> ends[1]):
+            assert v in chain.from_iterable(graph), 'not a path, it has loops'
+            e = [_ for _ in graph if _[0] == v or _[1] == v][0]
+            v = e[0] if e[1] == v else e[1]
+            graph.remove(e)
+            P.append(v)
+        assert len(graph) == 0, 'not a path, it has loops'
+        assert len(P) == len(set(P)), 'not a path, it is a walk'
+        return P
 
     @staticmethod
     def _traverse(edges, traversal, source):
