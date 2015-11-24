@@ -290,7 +290,7 @@ one.
 
 ```python
 >>> for path in paths:
-...     GraphSet.make_path(path)
+...     path
 ... # stop by Ctrl-C because it'll take years
 >>> tl.draw(paths.choice())  # show one of the paths
 ```
