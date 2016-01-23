@@ -138,8 +138,7 @@ class GraphSet(object):
         methods = ['graphs', 'connected_components', 'cliques', 'trees',
                    'forests', 'cycles', 'paths']
         for method in methods:
-            expr = 'self.%s = partial(GraphSet.%s, graphset=self)'
-            exec expr % (method, method)
+            setattr(self, method, partial(getattr(GraphSet, method), graphset=self))
 
     def copy(self):
         """Returns a new GraphSet with a shallow copy of `self`.
