@@ -21,6 +21,7 @@
 """
 
 from functools import partial  # NOQA
+from builtins import range
 from future.utils import viewitems
 import _graphillion
 from graphillion import setset
@@ -1612,7 +1613,7 @@ class GraphSet(object):
         Examples: a set of paths from vertex 1 to vertex 6
           >>> start = 1
           >>> end = 6
-          >>> zero_or_two = xrange(0, 3, 2)
+          >>> zero_or_two = range(0, 3, 2)
           >>> degree_constraints = {start: 1, end: 1,
           ...                       2: zero_or_two, 3: zero_or_two,
           ...                       4: zero_or_two, 5: zero_or_two}
@@ -1763,8 +1764,8 @@ class GraphSet(object):
         """
         dc = {}
         for v in GraphSet._vertices:
-            dc[v] = xrange(0, k, k - 1)
-        ne = range(k * (k - 1) / 2, k * (k - 1) / 2 + 1)
+            dc[v] = range(0, k, k - 1)
+        ne = range(k * (k - 1) // 2, k * (k - 1) // 2 + 1)
         return GraphSet.graphs(vertex_groups=[[]], degree_constraints=dc,
                                num_edges=ne, graphset=graphset)
 
@@ -1793,7 +1794,7 @@ class GraphSet(object):
         if is_spanning:
             dc = {}
             for v in GraphSet._vertices:
-                dc[v] = xrange(1, len(GraphSet._vertices))
+                dc[v] = range(1, len(GraphSet._vertices))
         return GraphSet.graphs(vertex_groups=vg, degree_constraints=dc,
                                no_loop=True, graphset=graphset)
 
@@ -1824,7 +1825,7 @@ class GraphSet(object):
             dc = {}
             for v in GraphSet._vertices:
                 if v not in roots:
-                    dc[v] = xrange(1, len(GraphSet._vertices))
+                    dc[v] = range(1, len(GraphSet._vertices))
         return GraphSet.graphs(vertex_groups=vg, degree_constraints=dc,
                                no_loop=True, graphset=graphset)
 
@@ -1848,7 +1849,7 @@ class GraphSet(object):
         """
         dc = {}
         for v in GraphSet._vertices:
-            dc[v] = 2 if is_hamilton else xrange(0, 3, 2)
+            dc[v] = 2 if is_hamilton else range(0, 3, 2)
         return GraphSet.graphs(vertex_groups=[[]], degree_constraints=dc,
                                graphset=graphset)
 
@@ -1874,7 +1875,7 @@ class GraphSet(object):
             if v in (terminal1, terminal2):
                 dc[v] = 1
             else:
-                dc[v] = 2 if is_hamilton else xrange(0, 3, 2)
+                dc[v] = 2 if is_hamilton else range(0, 3, 2)
         return GraphSet.graphs(vertex_groups=[[terminal1, terminal2]],
                                degree_constraints=dc,
                                no_loop=True, graphset=graphset)

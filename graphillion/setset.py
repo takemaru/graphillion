@@ -20,6 +20,7 @@
 """Module for a set of sets.
 """
 
+from builtins import range
 from future.utils import viewitems
 import _graphillion
 
@@ -195,7 +196,7 @@ class setset(_graphillion.setset):
         assert len(setset._int2obj) == _graphillion._num_elems() + 1
         for e, i in viewitems(setset._obj2int):
             assert e == setset._int2obj[i]
-        for i in xrange(1, len(setset._int2obj)):
+        for i in range(1, len(setset._int2obj)):
             e = setset._int2obj[i]
             assert i == setset._obj2int[e]
 
