@@ -23,6 +23,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 **********************************************************************/
 
 #include <Python.h>
+#include "pollyfill.h"
+
 #include "structmember.h"
 
 #include "pygraphillion.h"
@@ -66,7 +68,7 @@ using std::vector;
 #define RETURN_NEW_SETSET(self, expr)                         \
   do {                                                        \
     PySetsetObject* _ret = reinterpret_cast<PySetsetObject*>( \
-        (self)->ob_type->tp_alloc((self)->ob_type, 0));       \
+        Py_TYPE(self)->tp_alloc(Py_TYPE(self), 0));           \
     _ret->ss = new setset(expr);                              \
     return reinterpret_cast<PyObject*>(_ret);                 \
   } while (0);
@@ -76,7 +78,7 @@ using std::vector;
   do {                                                                  \
     PySetsetObject* (_other) = reinterpret_cast<PySetsetObject*>(other); \
     PySetsetObject* _ret = reinterpret_cast<PySetsetObject*>(           \
-        (self)->ob_type->tp_alloc((self)->ob_type, 0));                 \
+        Py_TYPE(self)->tp_alloc(Py_TYPE(self), 0));                     \
     if (_ret == NULL) return NULL;                                      \
     _ret->ss = new setset(expr);                                        \
     return reinterpret_cast<PyObject*>(_ret);                           \
@@ -186,7 +188,7 @@ static int setset_parse_map(PyObject* dict_obj, map<string, vector<int> >* m) {
   PyObject* lo;
   Py_ssize_t pos = 0;
   while (PyDict_Next(dict_obj, &pos, &key_obj, &lo)) {
-    if (!PyString_Check(key_obj)) {
+    if (!PyStr_Check(key_obj)) {
       PyErr_SetString(PyExc_TypeError, "invalid argument");
       return -1;
     }
@@ -341,7 +343,7 @@ static int setset_init(PySetsetObject* self, PyObject* args, PyObject* kwds) {
 
 static void setset_dealloc(PySetsetObject* self) {
   delete self->ss;
-  self->ob_type->tp_free(reinterpret_cast<PyObject*>(self));
+  Py_TYPE(self)->tp_free(reinterpret_cast<PyObject*>(self));
 }
 
 static PyObject* setset_copy(PySetsetObject* self) {
@@ -795,7 +797,7 @@ static PyObject* setset_dump(PySetsetObject* self, PyObject* obj) {
 static PyObject* setset_dumps(PySetsetObject* self) {
   stringstream sstr;
   self->ss->dump(sstr);
-  return PyString_FromString(sstr.str().c_str());
+  return PyStr_FromString(sstr.str().c_str());
 }
 
 static PyObject* setset_load(PySetsetObject* self, PyObject* obj) {
@@ -814,8 +816,8 @@ static PyObject* setset_load(PySetsetObject* self, PyObject* obj) {
 }
 
 static PyObject* setset_loads(PySetsetObject* self, PyObject* obj) {
-  CHECK_OR_ERROR(obj, PyString_Check, "str", NULL);
-  stringstream sstr(PyString_AsString(obj));
+  CHECK_OR_ERROR(obj, PyStr_Check, "str", NULL);
+  stringstream sstr(PyStr_AsString(obj));
   PySetsetObject* ret = reinterpret_cast<PySetsetObject*>(
       PySetset_Type.tp_alloc(&PySetset_Type, 0));
   ret->ss = new setset(setset::load(sstr));
@@ -828,7 +830,7 @@ static PyObject* setset_enum(PySetsetObject* self, PyObject* obj) {
   PyFileObject* file = reinterpret_cast<PyFileObject*>(obj);
   PyFile_IncUseCount(file);
   Py_BEGIN_ALLOW_THREADS;
-  string name = self->ob_type->tp_name;
+  string name = Py_TYPE(self)->tp_name;
   self->ss->_enum(fp, std::make_pair((name + "([").c_str(), "])"),
                   std::make_pair("set([", "])"));
   Py_END_ALLOW_THREADS;
@@ -838,14 +840,14 @@ static PyObject* setset_enum(PySetsetObject* self, PyObject* obj) {
 
 static PyObject* setset_enums(PySetsetObject* self) {
   stringstream sstr;
-  string name = self->ob_type->tp_name;
+  string name = Py_TYPE(self)->tp_name;
   self->ss->_enum(sstr, std::make_pair((name + "([").c_str(), "])"),
                   std::make_pair("set([", "])"));
-  return PyString_FromString(sstr.str().c_str());
+  return PyStr_FromString(sstr.str().c_str());
 }
 
 static PyObject* setset_repr(PySetsetObject* self) {
-  return PyString_FromFormat("<%s object of %p>", self->ob_type->tp_name,
+  return PyStr_FromFormat("<%s object of %p>", Py_TYPE(self)->tp_name,
                              reinterpret_cast<void*>(self->ss->id()));
 }
 /*
@@ -1097,11 +1099,11 @@ static PyObject* graphset_graphs(PyObject*, PyObject* args, PyObject* kwds) {
     vector<string> e;
     PyObject* vo;
     while ((vo = PyIter_Next(j))) {
-      if (!PyString_Check(vo)) {
+      if (!PyStr_Check(vo)) {
         PyErr_SetString(PyExc_TypeError, "invalid graph");
         return NULL;
       }
-      string v = PyString_AsString(vo);
+      string v = PyStr_AsString(vo);
       if (v.find(',') != string::npos) {
         PyErr_SetString(PyExc_TypeError, "invalid vertex in the graph");
         return NULL;
@@ -1125,11 +1127,11 @@ static PyObject* graphset_graphs(PyObject*, PyObject* args, PyObject* kwds) {
       vector<string> v;
       PyObject* vo;
       while ((vo = PyIter_Next(j))) {
-        if (!PyString_Check(vo)) {
+        if (!PyStr_Check(vo)) {
           PyErr_SetString(PyExc_TypeError, "invalid vertex groups");
           return NULL;
         }
-        string vertex = PyString_AsString(vo);
+        string vertex = PyStr_AsString(vo);
         v.push_back(vertex);
       }
       vertex_groups->push_back(v);
@@ -1144,11 +1146,11 @@ static PyObject* graphset_graphs(PyObject*, PyObject* args, PyObject* kwds) {
     PyObject* lo;
     Py_ssize_t pos = 0;
     while (PyDict_Next(degree_constraints_obj, &pos, &vo, &lo)) {
-      if (!PyString_Check(vo)) {
+      if (!PyStr_Check(vo)) {
         PyErr_SetString(PyExc_TypeError, "invalid vertex in degree constraints");
         return NULL;
       }
-      string vertex = PyString_AsString(vo);
+      string vertex = PyStr_AsString(vo);
       PyObject* i = PyObject_GetIter(lo);
       if (i == NULL) return NULL;
       vector<int> r;
@@ -1206,11 +1208,11 @@ static PyObject* graphset_graphs(PyObject*, PyObject* args, PyObject* kwds) {
       PyObject* eo;
       while ((eo = PyIter_Next(j))) {
         PyObject* uo = PySequence_GetItem(eo, 0);
-        if (uo == NULL || !PyString_Check(uo)) return NULL;
-        string u = PyString_AsString(uo);
+        if (uo == NULL || !PyStr_Check(uo)) return NULL;
+        string u = PyStr_AsString(uo);
         PyObject* vo = PySequence_GetItem(eo, 1);
-        if (vo == NULL || !PyString_Check(vo)) return NULL;
-        string v = PyString_AsString(vo);
+        if (vo == NULL || !PyStr_Check(vo)) return NULL;
+        string v = PyStr_AsString(vo);
         PyObject* wo = PySequence_GetItem(eo, 2);
         if (wo == NULL || !PyFloat_Check(wo)) return NULL;
         double w = PyFloat_AsDouble(wo);
