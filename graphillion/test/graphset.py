@@ -574,7 +574,7 @@ class TestGraphSet(unittest.TestCase):
         self.assertEqual(gs1, gs2)
 
         gen = gs1.rand_iter()
-        self.assertTrue(isinstance(gen.next(), list))
+        self.assertTrue(isinstance(next(gen), list))
 
         gs = GraphSet([g0, g1, g12, g123, g1234, g134, g14, g4])
         r = []

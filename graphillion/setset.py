@@ -122,12 +122,12 @@ class setset(_graphillion.setset):
     def __iter__(self):
         i = _graphillion.setset.iter(self)
         while (True):
-            yield setset._conv_ret(i.next())
+            yield setset._conv_ret(next(i))
 
     def rand_iter(self):
         i = _graphillion.setset.rand_iter(self)
         while (True):
-            yield setset._conv_ret(i.next())
+            yield setset._conv_ret(next(i))
 
     def min_iter(self, weights=None, default=1):
         return self._optimize(weights, default, _graphillion.setset.min_iter)
@@ -143,7 +143,7 @@ class setset(_graphillion.setset):
                 ws[i] = w
         i = generator(self, ws)
         while (True):
-            yield setset._conv_ret(i.next())
+            yield setset._conv_ret(next(i))
 
     def supersets(self, obj):
         if (not isinstance(obj, setset)):

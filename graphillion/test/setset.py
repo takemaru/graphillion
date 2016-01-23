@@ -354,7 +354,7 @@ class TestSetset(unittest.TestCase):
         self.assertEqual(ss1, ss2)
 
         gen = ss1.rand_iter()
-        self.assertTrue(isinstance(gen.next(), set))
+        self.assertTrue(isinstance(next(gen), set))
 
         ss = setset([s0, s1, s12, s123, s1234, s134, s14, s4])
         r = []
