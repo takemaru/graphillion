@@ -488,11 +488,11 @@ class TestSetset(unittest.TestCase):
 #        ss = setset(st)
 #        self.assertEqual(ss, setset(v))
 
-        f = tempfile.TemporaryFile()
-        ss.dump(f)
-        f.seek(0)
-        ss = setset.load(f)
-        self.assertEqual(ss, setset(v))
+        with tempfile.TemporaryFile() as f:
+            ss.dump(f)
+            f.seek(0)
+            ss = setset.load(f)
+            self.assertEqual(ss, setset(v))
 
     def test_large(self):
         n = 1000

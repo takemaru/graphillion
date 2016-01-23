@@ -724,11 +724,11 @@ class TestGraphSet(unittest.TestCase):
 #        gs = GraphSet(st)
 #        self.assertEqual(gs, GraphSet(v))
 
-        f = tempfile.TemporaryFile()
-        gs.dump(f)
-        f.seek(0)
-        gs = GraphSet.load(f)
-        self.assertEqual(gs, GraphSet(v))
+        with tempfile.TemporaryFile() as f:
+            gs.dump(f)
+            f.seek(0)
+            gs = GraphSet.load(f)
+            self.assertEqual(gs, GraphSet(v))
 
     def test_networkx(self):
         try:
