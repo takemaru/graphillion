@@ -1258,15 +1258,29 @@ static PyMethodDef module_methods[] = {
 PyDoc_STRVAR(graphillion_doc,
 "Hidden module to implement graphillion classes.");
 
-#ifndef PyMODINIT_FUNC  /* declarations for DLL import/export */
-#define PyMODINIT_FUNC void
+#if IS_PY3
+static struct PyModuleDef moduledef = {
+    PyModuleDef_HEAD_INIT,
+    "_graphillion",      /* m_name */
+    graphillion_doc,     /* m_doc */
+    -1,                  /* m_size */
+    module_methods,      /* m_methods */
+    NULL,                /* m_reload */
+    NULL,                /* m_traverse */
+    NULL,                /* m_clear */
+    NULL,                /* m_free */
+};
 #endif
-PyMODINIT_FUNC init_graphillion(void) {
+MODULE_INIT_FUNC(_graphillion) {
   PyObject* m;
-  if (PyType_Ready(&PySetset_Type) < 0) return;
-  if (PyType_Ready(&PySetsetIter_Type) < 0) return;
+  if (PyType_Ready(&PySetset_Type) < 0) return NULL;
+  if (PyType_Ready(&PySetsetIter_Type) < 0) return NULL;
+#if IS_PY3
+  m = PyModule_Create(&moduledef);
+#else
   m = Py_InitModule3("_graphillion", module_methods, graphillion_doc);
-  if (m == NULL) return;
+#endif
+  if (m == NULL) return NULL;
   Py_INCREF(&PySetset_Type);
   Py_INCREF(&PySetsetIter_Type);
   PyModule_AddObject(m, "setset", reinterpret_cast<PyObject*>(&PySetset_Type));
