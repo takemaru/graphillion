@@ -21,7 +21,7 @@
 """
 
 from functools import partial  # NOQA
-from builtins import range
+from builtins import range, int
 from future.utils import viewitems
 import _graphillion
 from graphillion import setset
@@ -1684,7 +1684,7 @@ class GraphSet(object):
             for v, r in viewitems(degree_constraints):
                 if v not in GraphSet._vertices:
                     raise KeyError(v)
-                if isinstance(r, (int, long)):
+                if isinstance(r, int):
                     dc[pickle.dumps(v)] = (r, r + 1, 1)
                 elif len(r) == 1:
                     dc[pickle.dumps(v)] = (r[0], r[0] + 1, 1)
@@ -1693,7 +1693,7 @@ class GraphSet(object):
 
         ne = None
         if num_edges is not None:
-            if isinstance(num_edges, (int, long)):
+            if isinstance(num_edges, int):
                 ne = (num_edges, num_edges + 1, 1)
             elif len(num_edges) == 1:
                 ne = (num_edges[0], num_edges[0] + 1, 1)
