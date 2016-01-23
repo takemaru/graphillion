@@ -4,10 +4,4 @@
 #include "py3c.h"
 #include "py3c/tpflags.h"
 
-#ifdef IS_PY3
-
-#define PyString_AsString PyUnicode_AsUTF8
-
-#endif
-
 #endif
