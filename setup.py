@@ -55,6 +55,7 @@ trillions of graphs can be processed on a single computer.
       url='http://graphillion.org/',
       license=release.license,
       packages = ['graphillion'],
+      install_requires=['future'],
       ext_modules=[
         Extension('_graphillion', 
                   sources=sources_list,

@@ -20,6 +20,7 @@
 """Module for a set of sets.
 """
 
+from future.utils import viewitems
 import _graphillion
 
 
@@ -61,7 +62,7 @@ class setset(_graphillion.setset):
             obj = l
         elif isinstance(obj, dict):  # constraints
             d = {}
-            for k, l in obj.iteritems():
+            for k, l in viewitems(obj):
                 d[k] = [setset._conv_elem(e) for e in l]
             obj = d
         _graphillion.setset.__init__(self, obj)
@@ -136,7 +137,7 @@ class setset(_graphillion.setset):
     def _optimize(self, weights, default, generator):
         ws = [default] * (_graphillion._num_elems() + 1)
         if weights:
-            for e, w in weights.iteritems():
+            for e, w in viewitems(weights):
                 i = setset._obj2int[e]
                 ws[i] = w
         i = generator(self, ws)
@@ -159,7 +160,7 @@ class setset(_graphillion.setset):
 
     def probability(self, probabilities):
         ps = [-1] * (_graphillion._num_elems() + 1)
-        for e, p in probabilities. iteritems():
+        for e, p in viewitems(probabilities):
             i = setset._obj2int[e]
             ps[i] = p
         assert len([p for p in ps[1:] if p < 0 or 1 < p]) == 0
@@ -192,7 +193,7 @@ class setset(_graphillion.setset):
     @staticmethod
     def _check_universe():
         assert len(setset._int2obj) == _graphillion._num_elems() + 1
-        for e, i in setset._obj2int.iteritems():
+        for e, i in viewitems(setset._obj2int):
             assert e == setset._int2obj[i]
         for i in xrange(1, len(setset._int2obj)):
             e = setset._int2obj[i]

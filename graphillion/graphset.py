@@ -20,10 +20,12 @@
 """Module for a set of graphs.
 """
 
-from functools import partial
+from functools import partial  # NOQA
+from future.utils import viewitems
 import _graphillion
 from graphillion import setset
 import pickle
+
 
 class GraphSet(object):
     """Represents and manipulates a set of graphs.
@@ -128,7 +130,7 @@ class GraphSet(object):
                 obj = l
             elif isinstance(obj, dict):  # constraints
                 d = {}
-                for k, l in obj.iteritems():
+                for k, l in viewitems(obj):
                     d[k] = [GraphSet._conv_edge(e) for e in l]
                 obj = d
             self._ss = setset(obj)
@@ -1678,7 +1680,7 @@ class GraphSet(object):
         dc = None
         if degree_constraints is not None:
             dc = {}
-            for v, r in degree_constraints.iteritems():
+            for v, r in viewitems(degree_constraints):
                 if v not in GraphSet._vertices:
                     raise KeyError, v
                 if isinstance(r, (int, long)):
