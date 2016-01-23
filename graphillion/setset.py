@@ -177,7 +177,7 @@ class setset(_graphillion.setset):
     @staticmethod
     def set_universe(universe):
         if len(universe) != len(set(universe)):
-            raise ValueError, 'duplicated elements found'
+            raise ValueError('duplicated elements found')
         _graphillion._num_elems(0)
         setset._obj2int = {}
         setset._int2obj = [None]
@@ -204,7 +204,7 @@ class setset(_graphillion.setset):
         assert elem not in setset._obj2int
         if len(setset._obj2int) >= _graphillion._elem_limit():
             m = 'not more than %d elements used' % _graphillion._elem_limit()
-            raise RuntimeError, m
+            raise RuntimeError(m)
         i = len(setset._int2obj)
         _graphillion.setset([set([i])])
         setset._obj2int[elem] = i
@@ -233,7 +233,7 @@ class setset(_graphillion.setset):
             for e in obj:
                 ret.add(setset._int2obj[e])
             return ret
-        raise TypeError, obj
+        raise TypeError(obj)
 
     _obj2int = {}
     _int2obj = [None]

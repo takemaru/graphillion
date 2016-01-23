@@ -774,7 +774,7 @@ class GraphSet(object):
             return obj in self._ss
         elif type == 'vertex':
             return len([e for e in obj if e in self._ss]) > 0
-        raise TypeError, obj
+        raise TypeError(obj)
 
     def add(self, graph_or_edge):
         """Adds a given graph or edge to `self`.
@@ -810,7 +810,7 @@ class GraphSet(object):
         if type == 'graph' or type == 'edge':
             self._ss.add(obj)
         else:
-            raise TypeError, graph_or_edge
+            raise TypeError(graph_or_edge)
 
     def remove(self, obj):
         """Removes a given graph, edge, or vertex from `self`.
@@ -849,7 +849,7 @@ class GraphSet(object):
             for edge in obj:
                 self.remove(edge)
         else:
-            raise TypeError, obj
+            raise TypeError(obj)
         return None
 
     def discard(self, obj):
@@ -889,7 +889,7 @@ class GraphSet(object):
             for edge in obj:
                 self.discard(edge)
         else:
-            raise TypeError, obj
+            raise TypeError(obj)
         return None
 
     def pop(self):
@@ -961,7 +961,7 @@ class GraphSet(object):
         if type == 'edge':
             self._ss.flip(edge)
         else:
-            raise TypeError, edge
+            raise TypeError(edge)
 
     def minimal(self):
         """Returns a new GraphSet of minimal graphs.
@@ -1412,7 +1412,7 @@ class GraphSet(object):
         elif type == 'graph':
             return self.included(GraphSet([obj]))
         else:
-            raise TypeError, obj
+            raise TypeError(obj)
 
     def choice(self):
         """Returns an arbitrary graph from `self`.
@@ -1568,7 +1568,7 @@ class GraphSet(object):
         universe = GraphSet.converters['to_edges'](universe)
         for e in universe:
             if e[:2] in edges or (e[1], e[0]) in edges:
-                raise KeyError, e
+                raise KeyError(e)
             edges.append(e[:2])
             if len(e) > 2:
                 GraphSet._weights[e[:2]] = e[2]
@@ -1672,7 +1672,7 @@ class GraphSet(object):
                 else:
                     for v in vs:
                         if v not in GraphSet._vertices:
-                            raise KeyError, v
+                            raise KeyError(v)
                     vg.append([pickle.dumps(v) for v in vs])
         if not vg and nc == 0:
             nc = -1
@@ -1682,7 +1682,7 @@ class GraphSet(object):
             dc = {}
             for v, r in viewitems(degree_constraints):
                 if v not in GraphSet._vertices:
-                    raise KeyError, v
+                    raise KeyError(v)
                 if isinstance(r, (int, long)):
                     dc[pickle.dumps(v)] = (r, r + 1, 1)
                 elif len(r) == 1:
@@ -1947,7 +1947,7 @@ class GraphSet(object):
             edges = GraphSet.converters['to_edges'](obj)
             return 'graph', set([GraphSet._conv_edge(e) for e in edges])
         except TypeError:  # if fail to convert obj into edge list
-            raise KeyError, obj
+            raise KeyError(obj)
 
     @staticmethod
     def _conv_graph(obj):
@@ -1956,20 +1956,20 @@ class GraphSet(object):
     @staticmethod
     def _conv_edge(edge):
         if not isinstance(edge, tuple) or len(edge) < 2:
-            raise KeyError, edge
+            raise KeyError(edge)
         if len(edge) > 2:
             edge = edge[:2]
         if edge in setset._obj2int:
             return edge
         elif (edge[1], edge[0]) in setset._obj2int:
             return (edge[1], edge[0])
-        raise KeyError, edge
+        raise KeyError(edge)
 
     @staticmethod
     def _conv_ret(obj):
         if isinstance(obj, (set, frozenset)):  # a graph
             return GraphSet.converters['to_graph'](sorted(list(obj)))
-        raise TypeError, obj
+        raise TypeError(obj)
 
     converters = { 'to_graph': lambda edges: edges,
                    'to_edges': lambda graph: graph }
