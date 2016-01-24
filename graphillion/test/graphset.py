@@ -17,6 +17,7 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+from builtins import range
 from graphillion import GraphSet
 import tempfile
 import unittest
@@ -573,7 +574,7 @@ class TestGraphSet(unittest.TestCase):
         self.assertEqual(gs1, gs2)
 
         gen = gs1.rand_iter()
-        self.assertTrue(isinstance(gen.next(), list))
+        self.assertTrue(isinstance(next(gen), list))
 
         gs = GraphSet([g0, g1, g12, g123, g1234, g134, g14, g4])
         r = []
@@ -724,11 +725,11 @@ class TestGraphSet(unittest.TestCase):
 #        gs = GraphSet(st)
 #        self.assertEqual(gs, GraphSet(v))
 
-        f = tempfile.TemporaryFile()
-        gs.dump(f)
-        f.seek(0)
-        gs = GraphSet.load(f)
-        self.assertEqual(gs, GraphSet(v))
+        with tempfile.TemporaryFile() as f:
+            gs.dump(f)
+            f.seek(0)
+            gs = GraphSet.load(f)
+            self.assertEqual(gs, GraphSet(v))
 
     def test_networkx(self):
         try:

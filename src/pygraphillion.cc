@@ -23,6 +23,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 **********************************************************************/
 
 #include <Python.h>
+#include "pollyfill.h"
+
 #include "structmember.h"
 
 #include "pygraphillion.h"
@@ -66,7 +68,7 @@ using std::vector;
 #define RETURN_NEW_SETSET(self, expr)                         \
   do {                                                        \
     PySetsetObject* _ret = reinterpret_cast<PySetsetObject*>( \
-        (self)->ob_type->tp_alloc((self)->ob_type, 0));       \
+        Py_TYPE(self)->tp_alloc(Py_TYPE(self), 0));           \
     _ret->ss = new setset(expr);                              \
     return reinterpret_cast<PyObject*>(_ret);                 \
   } while (0);
@@ -76,7 +78,7 @@ using std::vector;
   do {                                                                  \
     PySetsetObject* (_other) = reinterpret_cast<PySetsetObject*>(other); \
     PySetsetObject* _ret = reinterpret_cast<PySetsetObject*>(           \
-        (self)->ob_type->tp_alloc((self)->ob_type, 0));                 \
+        Py_TYPE(self)->tp_alloc(Py_TYPE(self), 0));                     \
     if (_ret == NULL) return NULL;                                      \
     _ret->ss = new setset(expr);                                        \
     return reinterpret_cast<PyObject*>(_ret);                           \
@@ -126,6 +128,16 @@ using std::vector;
     }                                                                  \
     Py_RETURN_NONE;                                                    \
   } while (0);
+
+#if IS_PY3 == 1
+
+#define PyString_AsString PyUnicode_AsUTF8
+
+int PyFile_Check(PyObject *obj) {
+  return PyObject_AsFileDescriptor(obj);
+}
+
+#endif
 
 static PyObject* setset_build_set(const set<int>& s) {
   PyObject* so = PySet_New(NULL);
@@ -186,7 +198,7 @@ static int setset_parse_map(PyObject* dict_obj, map<string, vector<int> >* m) {
   PyObject* lo;
   Py_ssize_t pos = 0;
   while (PyDict_Next(dict_obj, &pos, &key_obj, &lo)) {
-    if (!PyString_Check(key_obj)) {
+    if (!PyStr_Check(key_obj)) {
       PyErr_SetString(PyExc_TypeError, "invalid argument");
       return -1;
     }
@@ -259,7 +271,7 @@ static PyTypeObject PySetsetIter_Type = {
   0,                                          /* tp_print */
   0,                                          /* tp_getattr */
   0,                                          /* tp_setattr */
-  0,                                          /* tp_compare */
+  0,                                          /* tp_compare or *tp_reserved */
   0,                                          /* tp_repr */
   0,                                          /* tp_as_number */
   0,                                          /* tp_as_sequence */
@@ -288,7 +300,18 @@ static PyTypeObject PySetsetIter_Type = {
   0,                                          /* tp_dictoffset */
   0,                                          /* tp_init */
   PyType_GenericAlloc,                        /* tp_alloc */
-  setsetiter_new                              /* tp_new */
+  setsetiter_new,                             /* tp_new */
+#if IS_PY3 == 1
+  0, /* tp_free */
+  0, /* tp_is_gc */
+  0, /* *tp_bases */
+  0, /* *tp_mro */
+  0, /* *tp_cache */
+  0, /* *tp_subclasses */
+  0, /* *tp_weaklist */
+  0, /* tp_version_tag */
+  0, /* tp_finalize */
+#endif
 };
 
 // setset
@@ -341,7 +364,7 @@ static int setset_init(PySetsetObject* self, PyObject* args, PyObject* kwds) {
 
 static void setset_dealloc(PySetsetObject* self) {
   delete self->ss;
-  self->ob_type->tp_free(reinterpret_cast<PyObject*>(self));
+  Py_TYPE(self)->tp_free(reinterpret_cast<PyObject*>(self));
 }
 
 static PyObject* setset_copy(PySetsetObject* self) {
@@ -782,40 +805,56 @@ static PyObject* setset_probability(PySetsetObject* self,
 
 static PyObject* setset_dump(PySetsetObject* self, PyObject* obj) {
   CHECK_OR_ERROR(obj, PyFile_Check, "file", NULL);
+#if IS_PY3 == 1
+  int fd = PyObject_AsFileDescriptor(obj);
+  FILE* fp = fdopen(fd, "w");
+#else
   FILE* fp = PyFile_AsFile(obj);
   PyFileObject* file = reinterpret_cast<PyFileObject*>(obj);
   PyFile_IncUseCount(file);
+#endif
   Py_BEGIN_ALLOW_THREADS;
   self->ss->dump(fp);
   Py_END_ALLOW_THREADS;
+#if IS_PY3 == 1
+  fflush(fp);
+#else
   PyFile_DecUseCount(file);
+#endif
   Py_RETURN_NONE;
 }
 
 static PyObject* setset_dumps(PySetsetObject* self) {
   stringstream sstr;
   self->ss->dump(sstr);
-  return PyString_FromString(sstr.str().c_str());
+  return PyStr_FromString(sstr.str().c_str());
 }
 
 static PyObject* setset_load(PySetsetObject* self, PyObject* obj) {
   CHECK_OR_ERROR(obj, PyFile_Check, "file", NULL);
+#if IS_PY3 == 1
+  int fd = PyObject_AsFileDescriptor(obj);
+  FILE* fp = fdopen(fd, "r");
+#else
   FILE* fp = PyFile_AsFile(obj);
   PyFileObject* file = reinterpret_cast<PyFileObject*>(obj);
   PyFile_IncUseCount(file);
+#endif
   PySetsetObject* ret;
   Py_BEGIN_ALLOW_THREADS;
   ret = reinterpret_cast<PySetsetObject*>(
       PySetset_Type.tp_alloc(&PySetset_Type, 0));
   ret->ss = new setset(setset::load(fp));
   Py_END_ALLOW_THREADS;
+#if IS_PY3 == 0
   PyFile_DecUseCount(file);
+#endif
   return reinterpret_cast<PyObject*>(ret);
 }
 
 static PyObject* setset_loads(PySetsetObject* self, PyObject* obj) {
-  CHECK_OR_ERROR(obj, PyString_Check, "str", NULL);
-  stringstream sstr(PyString_AsString(obj));
+  CHECK_OR_ERROR(obj, PyStr_Check, "str", NULL);
+  stringstream sstr(PyStr_AsString(obj));
   PySetsetObject* ret = reinterpret_cast<PySetsetObject*>(
       PySetset_Type.tp_alloc(&PySetset_Type, 0));
   ret->ss = new setset(setset::load(sstr));
@@ -824,28 +863,35 @@ static PyObject* setset_loads(PySetsetObject* self, PyObject* obj) {
 
 static PyObject* setset_enum(PySetsetObject* self, PyObject* obj) {
   CHECK_OR_ERROR(obj, PyFile_Check, "file", NULL);
+#if IS_PY3 == 1
+  int fd = PyObject_AsFileDescriptor(obj);
+  FILE* fp = fdopen(fd, "r");
+#else
   FILE* fp = PyFile_AsFile(obj);
   PyFileObject* file = reinterpret_cast<PyFileObject*>(obj);
   PyFile_IncUseCount(file);
+#endif
   Py_BEGIN_ALLOW_THREADS;
-  string name = self->ob_type->tp_name;
+  string name = Py_TYPE(self)->tp_name;
   self->ss->_enum(fp, std::make_pair((name + "([").c_str(), "])"),
                   std::make_pair("set([", "])"));
   Py_END_ALLOW_THREADS;
+#if IS_PY3 == 0
   PyFile_DecUseCount(file);
+#endif
   Py_RETURN_NONE;
 }
 
 static PyObject* setset_enums(PySetsetObject* self) {
   stringstream sstr;
-  string name = self->ob_type->tp_name;
+  string name = Py_TYPE(self)->tp_name;
   self->ss->_enum(sstr, std::make_pair((name + "([").c_str(), "])"),
                   std::make_pair("set([", "])"));
-  return PyString_FromString(sstr.str().c_str());
+  return PyStr_FromString(sstr.str().c_str());
 }
 
 static PyObject* setset_repr(PySetsetObject* self) {
-  return PyString_FromFormat("<%s object of %p>", self->ob_type->tp_name,
+  return PyStr_FromFormat("<%s object of %p>", Py_TYPE(self)->tp_name,
                              reinterpret_cast<void*>(self->ss->id()));
 }
 /*
@@ -854,10 +900,12 @@ static long setset_hash(PyObject* self) {
   return sso->ss->id();
 }
 */
+#if IS_PY3 == 0
 static int setset_nocmp(PyObject* self, PyObject* other) {
   PyErr_SetString(PyExc_TypeError, "cannot compare using cmp()");
   return -1;
 }
+#endif
 
 static PyObject* setset_richcompare(PySetsetObject* self, PyObject* obj, int op) {
   PySetsetObject* sso;
@@ -950,30 +998,38 @@ static PyNumberMethods setset_as_number = {
   0,                                  /*nb_add*/
   reinterpret_cast<binaryfunc>(setset_difference), /*nb_subtract*/
   0,                                  /*nb_multiply*/
+#if IS_PY3 == 0
   reinterpret_cast<binaryfunc>(setset_quotient), /*nb_divide*/
+#endif
   reinterpret_cast<binaryfunc>(setset_remainder), /*nb_remainder*/
   0,                                  /*nb_divmod*/
   0,                                  /*nb_power*/
   0,                                  /*nb_negative*/
   0,                                  /*nb_positive*/
   0,                                  /*nb_absolute*/
-  reinterpret_cast<inquiry>(setset_nonzero), /*nb_nonzero*/
+  reinterpret_cast<inquiry>(setset_nonzero), /*nb_nonzero or nb_bool*/
   reinterpret_cast<unaryfunc>(setset_invert), /*nb_invert*/
   0,                                  /*nb_lshift*/
   0,                                  /*nb_rshift*/
   reinterpret_cast<binaryfunc>(setset_intersection), /*nb_and*/
   reinterpret_cast<binaryfunc>(setset_symmetric_difference), /*nb_xor*/
   reinterpret_cast<binaryfunc>(setset_union), /*nb_or*/
+#if IS_PY3 == 0
   0/*reinterpret_cast<coercion>(Py_TPFLAGS_CHECKTYPES)*/, /*nb_coerce*/
+#endif
   0,                                  /*nb_int*/
-  0,                                  /*nb_long*/
+  0,                                  /*nb_long or *nb_reserved*/
   0,                                  /*nb_float*/
+#if IS_PY3 == 0
   0,                                  /*nb_oct*/
   0,                                  /*nb_hex*/
+#endif
   0,                                  /*nb_inplace_add*/
   reinterpret_cast<binaryfunc>(setset_difference_update), /*nb_inplace_subtract*/
   0,                                  /*nb_inplace_multiply*/
+#if IS_PY3 == 0
   reinterpret_cast<binaryfunc>(setset_quotient_update), /*nb_inplace_divide*/
+#endif
   reinterpret_cast<binaryfunc>(setset_remainder_update), /*nb_inplace_remainder*/
   0,                                  /*nb_inplace_power*/
   0,                                  /*nb_inplace_lshift*/
@@ -981,6 +1037,16 @@ static PyNumberMethods setset_as_number = {
   reinterpret_cast<binaryfunc>(setset_intersection_update), /*nb_inplace_and*/
   reinterpret_cast<binaryfunc>(setset_symmetric_difference_update), /*nb_inplace_xor*/
   reinterpret_cast<binaryfunc>(setset_update), /*nb_inplace_or*/
+#if IS_PY3 == 1
+  0, /*nb_floor_divide*/
+  reinterpret_cast<binaryfunc>(setset_quotient), /*nb_true_divide*/
+  0, /*nb_inplace_floor_divide*/
+  reinterpret_cast<binaryfunc>(setset_quotient_update), /*nb_inplace_true_divide*/
+  0 /*nb_index*/
+// for 3.5?
+//  0, /*nb_matrix_multiply*/
+//  0 /*nb_inplace_matrix_multiply*/
+#endif
 };
 
 static PySequenceMethods setset_as_sequence = {
@@ -1004,8 +1070,7 @@ positive number.");
 __declspec(dllexport)
 #endif
 PyTypeObject PySetset_Type = {
-  PyObject_HEAD_INIT(NULL)
-  0,                                  /*ob_size*/
+  PyVarObject_HEAD_INIT(NULL, 0)
   "_graphillion.setset",              /*tp_name*/
   sizeof(PySetsetObject),             /*tp_basicsize*/
   0,                                  /*tp_itemsize*/
@@ -1013,7 +1078,11 @@ PyTypeObject PySetset_Type = {
   0,                                  /*tp_print*/
   0,                                  /*tp_getattr*/
   0,                                  /*tp_setattr*/
+#if IS_PY3 == 1
+  0,                                  /*tp_reserved at 3.4*/
+#else
   setset_nocmp,                       /*tp_compare*/
+#endif
   reinterpret_cast<reprfunc>(setset_repr), /*tp_repr*/
   &setset_as_number,                  /*tp_as_number*/
   &setset_as_sequence,                /*tp_as_sequence*/
@@ -1043,6 +1112,17 @@ PyTypeObject PySetset_Type = {
   reinterpret_cast<initproc>(setset_init), /* tp_init */
   PyType_GenericAlloc,                /* tp_alloc */
   setset_new,                         /* tp_new */
+#ifdef IS_PY3
+  0, /* tp_free */
+  0, /* tp_is_gc */
+  0, /* *tp_bases */
+  0, /* *tp_mro */
+  0, /* *tp_cache */
+  0, /* *tp_subclasses */
+  0, /* *tp_weaklist */
+  0, /* tp_version_tag */
+  0, /* tp_finalize */
+#endif
 };
 
 static PyObject* setset_elem_limit(PyObject*) {
@@ -1097,11 +1177,11 @@ static PyObject* graphset_graphs(PyObject*, PyObject* args, PyObject* kwds) {
     vector<string> e;
     PyObject* vo;
     while ((vo = PyIter_Next(j))) {
-      if (!PyString_Check(vo)) {
+      if (!PyBytes_Check(vo)) {
         PyErr_SetString(PyExc_TypeError, "invalid graph");
         return NULL;
       }
-      string v = PyString_AsString(vo);
+      string v = PyBytes_AsString(vo);
       if (v.find(',') != string::npos) {
         PyErr_SetString(PyExc_TypeError, "invalid vertex in the graph");
         return NULL;
@@ -1125,11 +1205,11 @@ static PyObject* graphset_graphs(PyObject*, PyObject* args, PyObject* kwds) {
       vector<string> v;
       PyObject* vo;
       while ((vo = PyIter_Next(j))) {
-        if (!PyString_Check(vo)) {
+        if (!PyBytes_Check(vo)) {
           PyErr_SetString(PyExc_TypeError, "invalid vertex groups");
           return NULL;
         }
-        string vertex = PyString_AsString(vo);
+        string vertex = PyBytes_AsString(vo);
         v.push_back(vertex);
       }
       vertex_groups->push_back(v);
@@ -1144,11 +1224,11 @@ static PyObject* graphset_graphs(PyObject*, PyObject* args, PyObject* kwds) {
     PyObject* lo;
     Py_ssize_t pos = 0;
     while (PyDict_Next(degree_constraints_obj, &pos, &vo, &lo)) {
-      if (!PyString_Check(vo)) {
+      if (!PyBytes_Check(vo)) {
         PyErr_SetString(PyExc_TypeError, "invalid vertex in degree constraints");
         return NULL;
       }
-      string vertex = PyString_AsString(vo);
+      string vertex = PyBytes_AsString(vo);
       PyObject* i = PyObject_GetIter(lo);
       if (i == NULL) return NULL;
       vector<int> r;
@@ -1206,11 +1286,11 @@ static PyObject* graphset_graphs(PyObject*, PyObject* args, PyObject* kwds) {
       PyObject* eo;
       while ((eo = PyIter_Next(j))) {
         PyObject* uo = PySequence_GetItem(eo, 0);
-        if (uo == NULL || !PyString_Check(uo)) return NULL;
-        string u = PyString_AsString(uo);
+        if (uo == NULL || !PyBytes_Check(uo)) return NULL;
+        string u = PyBytes_AsString(uo);
         PyObject* vo = PySequence_GetItem(eo, 1);
-        if (vo == NULL || !PyString_Check(vo)) return NULL;
-        string v = PyString_AsString(vo);
+        if (vo == NULL || !PyBytes_Check(vo)) return NULL;
+        string v = PyBytes_AsString(vo);
         PyObject* wo = PySequence_GetItem(eo, 2);
         if (wo == NULL || !PyFloat_Check(wo)) return NULL;
         double w = PyFloat_AsDouble(wo);
@@ -1256,18 +1336,33 @@ static PyMethodDef module_methods[] = {
 PyDoc_STRVAR(graphillion_doc,
 "Hidden module to implement graphillion classes.");
 
-#ifndef PyMODINIT_FUNC  /* declarations for DLL import/export */
-#define PyMODINIT_FUNC void
+#if IS_PY3 == 1
+static struct PyModuleDef moduledef = {
+    PyModuleDef_HEAD_INIT,
+    "_graphillion",      /* m_name */
+    graphillion_doc,     /* m_doc */
+    -1,                  /* m_size */
+    module_methods,      /* m_methods */
+    NULL,                /* m_reload */
+    NULL,                /* m_traverse */
+    NULL,                /* m_clear */
+    NULL,                /* m_free */
+};
 #endif
-PyMODINIT_FUNC init_graphillion(void) {
+MODULE_INIT_FUNC(_graphillion) {
   PyObject* m;
-  if (PyType_Ready(&PySetset_Type) < 0) return;
-  if (PyType_Ready(&PySetsetIter_Type) < 0) return;
+  if (PyType_Ready(&PySetset_Type) < 0) return NULL;
+  if (PyType_Ready(&PySetsetIter_Type) < 0) return NULL;
+#if IS_PY3 == 1
+  m = PyModule_Create(&moduledef);
+#else
   m = Py_InitModule3("_graphillion", module_methods, graphillion_doc);
-  if (m == NULL) return;
+#endif
+  if (m == NULL) return NULL;
   Py_INCREF(&PySetset_Type);
   Py_INCREF(&PySetsetIter_Type);
   PyModule_AddObject(m, "setset", reinterpret_cast<PyObject*>(&PySetset_Type));
   PyModule_AddObject(m, "setset_iterator",
                      reinterpret_cast<PyObject*>(&PySetsetIter_Type));
+  return m;
 }
