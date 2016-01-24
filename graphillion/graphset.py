@@ -20,7 +20,7 @@
 """Module for a set of graphs.
 """
 
-from functools import partial  # NOQA
+from functools import partial
 from builtins import range, int
 from future.utils import viewitems
 import _graphillion
@@ -1661,7 +1661,7 @@ class GraphSet(object):
         graph = []
         for e in setset.universe():
             assert e[0] in GraphSet._vertices and e[1] in GraphSet._vertices
-            graph.append((pickle.dumps(e[0]), pickle.dumps(e[1])))
+            graph.append((pickle.dumps(e[0], protocol=0), pickle.dumps(e[1], protocol=0)))
 
         vg = []
         nc = 0
@@ -1673,7 +1673,7 @@ class GraphSet(object):
                     for v in vs:
                         if v not in GraphSet._vertices:
                             raise KeyError(v)
-                    vg.append([pickle.dumps(v) for v in vs])
+                    vg.append([pickle.dumps(v, protocol=0) for v in vs])
         if not vg and nc == 0:
             nc = -1
 
@@ -1684,11 +1684,11 @@ class GraphSet(object):
                 if v not in GraphSet._vertices:
                     raise KeyError(v)
                 if isinstance(r, int):
-                    dc[pickle.dumps(v)] = (r, r + 1, 1)
+                    dc[pickle.dumps(v, protocol=0)] = (r, r + 1, 1)
                 elif len(r) == 1:
-                    dc[pickle.dumps(v)] = (r[0], r[0] + 1, 1)
+                    dc[pickle.dumps(v, protocol=0)] = (r[0], r[0] + 1, 1)
                 else:
-                    dc[pickle.dumps(v)] = (r[0], r[-1] + 1, r[1] - r[0])
+                    dc[pickle.dumps(v, protocol=0)] = (r[0], r[-1] + 1, r[1] - r[0])
 
         ne = None
         if num_edges is not None:
@@ -1708,8 +1708,8 @@ class GraphSet(object):
             for c in linear_constraints:
                 expr = []
                 for we in c[0]:
-                    u = pickle.dumps(we[0])
-                    v = pickle.dumps(we[1])
+                    u = pickle.dumps(we[0], protocol=0)
+                    v = pickle.dumps(we[1], protocol=0)
                     w = float(we[2]) if len(we) >= 3 else 1.0
                     expr.append((u, v, w))
                 min = float(c[1][0])
