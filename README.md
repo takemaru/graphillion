@@ -92,7 +92,7 @@ use of Graphillion in your paper.
 > Takeru Inoue, Hiroaki Iwashita, Jun Kawahara, and Shin-ichi Minato:
   "Graphillion: Software Library Designed for Very Large Sets of
   Labeled Graphs," International Journal on Software Tools for
-  Technology Transfer, Springer, October 2014. ([pdf](http://dx.doi.org/10.1007/s10009-014-0352-z))
+  Technology Transfer, Springer, vol.18, issue 1, pp.57-66, February 2016. ([pdf](http://dx.doi.org/10.1007/s10009-014-0352-z))
 
 Graphillion is still under the development.  We really appreciate any
 pull request and patch if you add some changes that benefit a wide
@@ -845,7 +845,7 @@ References
 - Takeru Inoue, Hiroaki Iwashita, Jun Kawahara, and Shin-ichi Minato:
   "Graphillion: Software Library Designed for Very Large Sets of
   Labeled Graphs," International Journal on Software Tools for
-  Technology Transfer, Springer, October 2014. ([pdf](http://dx.doi.org/10.1007/s10009-014-0352-z))
+  Technology Transfer, Springer, vol.18, issue 1, pp.57-66, February 2016. ([pdf](http://dx.doi.org/10.1007/s10009-014-0352-z))
 - Takeru Inoue, Norihito Yasuda, Shunsuke Kawano, Yuji Takenobu,
   Shin-ichi Minato, and Yasuhiro Hayashi, "Distribution Network
   Verification for Secure Restoration by Enumerating All Critical
