@@ -21,9 +21,12 @@
 """
 
 from functools import partial
+from builtins import range, int
+from future.utils import viewitems
 import _graphillion
 from graphillion import setset
 import pickle
+
 
 class GraphSet(object):
     """Represents and manipulates a set of graphs.
@@ -128,15 +131,14 @@ class GraphSet(object):
                 obj = l
             elif isinstance(obj, dict):  # constraints
                 d = {}
-                for k, l in obj.iteritems():
+                for k, l in viewitems(obj):
                     d[k] = [GraphSet._conv_edge(e) for e in l]
                 obj = d
             self._ss = setset(obj)
         methods = ['graphs', 'connected_components', 'cliques', 'trees',
                    'forests', 'cycles', 'paths']
         for method in methods:
-            expr = 'self.%s = partial(GraphSet.%s, graphset=self)'
-            exec expr % (method, method)
+            setattr(self, method, partial(getattr(GraphSet, method), graphset=self))
 
     def copy(self):
         """Returns a new GraphSet with a shallow copy of `self`.
@@ -772,7 +774,7 @@ class GraphSet(object):
             return obj in self._ss
         elif type == 'vertex':
             return len([e for e in obj if e in self._ss]) > 0
-        raise TypeError, obj
+        raise TypeError(obj)
 
     def add(self, graph_or_edge):
         """Adds a given graph or edge to `self`.
@@ -808,7 +810,7 @@ class GraphSet(object):
         if type == 'graph' or type == 'edge':
             self._ss.add(obj)
         else:
-            raise TypeError, graph_or_edge
+            raise TypeError(graph_or_edge)
 
     def remove(self, obj):
         """Removes a given graph, edge, or vertex from `self`.
@@ -847,7 +849,7 @@ class GraphSet(object):
             for edge in obj:
                 self.remove(edge)
         else:
-            raise TypeError, obj
+            raise TypeError(obj)
         return None
 
     def discard(self, obj):
@@ -887,7 +889,7 @@ class GraphSet(object):
             for edge in obj:
                 self.discard(edge)
         else:
-            raise TypeError, obj
+            raise TypeError(obj)
         return None
 
     def pop(self):
@@ -959,7 +961,7 @@ class GraphSet(object):
         if type == 'edge':
             self._ss.flip(edge)
         else:
-            raise TypeError, edge
+            raise TypeError(edge)
 
     def minimal(self):
         """Returns a new GraphSet of minimal graphs.
@@ -1410,7 +1412,7 @@ class GraphSet(object):
         elif type == 'graph':
             return self.included(GraphSet([obj]))
         else:
-            raise TypeError, obj
+            raise TypeError(obj)
 
     def choice(self):
         """Returns an arbitrary graph from `self`.
@@ -1566,7 +1568,7 @@ class GraphSet(object):
         universe = GraphSet.converters['to_edges'](universe)
         for e in universe:
             if e[:2] in edges or (e[1], e[0]) in edges:
-                raise KeyError, e
+                raise KeyError(e)
             edges.append(e[:2])
             if len(e) > 2:
                 GraphSet._weights[e[:2]] = e[2]
@@ -1610,7 +1612,7 @@ class GraphSet(object):
         Examples: a set of paths from vertex 1 to vertex 6
           >>> start = 1
           >>> end = 6
-          >>> zero_or_two = xrange(0, 3, 2)
+          >>> zero_or_two = range(0, 3, 2)
           >>> degree_constraints = {start: 1, end: 1,
           ...                       2: zero_or_two, 3: zero_or_two,
           ...                       4: zero_or_two, 5: zero_or_two}
@@ -1659,7 +1661,7 @@ class GraphSet(object):
         graph = []
         for e in setset.universe():
             assert e[0] in GraphSet._vertices and e[1] in GraphSet._vertices
-            graph.append((pickle.dumps(e[0]), pickle.dumps(e[1])))
+            graph.append((pickle.dumps(e[0], protocol=0), pickle.dumps(e[1], protocol=0)))
 
         vg = []
         nc = 0
@@ -1670,27 +1672,27 @@ class GraphSet(object):
                 else:
                     for v in vs:
                         if v not in GraphSet._vertices:
-                            raise KeyError, v
-                    vg.append([pickle.dumps(v) for v in vs])
+                            raise KeyError(v)
+                    vg.append([pickle.dumps(v, protocol=0) for v in vs])
         if not vg and nc == 0:
             nc = -1
 
         dc = None
         if degree_constraints is not None:
             dc = {}
-            for v, r in degree_constraints.iteritems():
+            for v, r in viewitems(degree_constraints):
                 if v not in GraphSet._vertices:
-                    raise KeyError, v
-                if isinstance(r, (int, long)):
-                    dc[pickle.dumps(v)] = (r, r + 1, 1)
+                    raise KeyError(v)
+                if isinstance(r, int):
+                    dc[pickle.dumps(v, protocol=0)] = (r, r + 1, 1)
                 elif len(r) == 1:
-                    dc[pickle.dumps(v)] = (r[0], r[0] + 1, 1)
+                    dc[pickle.dumps(v, protocol=0)] = (r[0], r[0] + 1, 1)
                 else:
-                    dc[pickle.dumps(v)] = (r[0], r[-1] + 1, r[1] - r[0])
+                    dc[pickle.dumps(v, protocol=0)] = (r[0], r[-1] + 1, r[1] - r[0])
 
         ne = None
         if num_edges is not None:
-            if isinstance(num_edges, (int, long)):
+            if isinstance(num_edges, int):
                 ne = (num_edges, num_edges + 1, 1)
             elif len(num_edges) == 1:
                 ne = (num_edges[0], num_edges[0] + 1, 1)
@@ -1706,8 +1708,8 @@ class GraphSet(object):
             for c in linear_constraints:
                 expr = []
                 for we in c[0]:
-                    u = pickle.dumps(we[0])
-                    v = pickle.dumps(we[1])
+                    u = pickle.dumps(we[0], protocol=0)
+                    v = pickle.dumps(we[1], protocol=0)
                     w = float(we[2]) if len(we) >= 3 else 1.0
                     expr.append((u, v, w))
                 min = float(c[1][0])
@@ -1761,8 +1763,8 @@ class GraphSet(object):
         """
         dc = {}
         for v in GraphSet._vertices:
-            dc[v] = xrange(0, k, k - 1)
-        ne = range(k * (k - 1) / 2, k * (k - 1) / 2 + 1)
+            dc[v] = range(0, k, k - 1)
+        ne = range(k * (k - 1) // 2, k * (k - 1) // 2 + 1)
         return GraphSet.graphs(vertex_groups=[[]], degree_constraints=dc,
                                num_edges=ne, graphset=graphset)
 
@@ -1791,7 +1793,7 @@ class GraphSet(object):
         if is_spanning:
             dc = {}
             for v in GraphSet._vertices:
-                dc[v] = xrange(1, len(GraphSet._vertices))
+                dc[v] = range(1, len(GraphSet._vertices))
         return GraphSet.graphs(vertex_groups=vg, degree_constraints=dc,
                                no_loop=True, graphset=graphset)
 
@@ -1822,7 +1824,7 @@ class GraphSet(object):
             dc = {}
             for v in GraphSet._vertices:
                 if v not in roots:
-                    dc[v] = xrange(1, len(GraphSet._vertices))
+                    dc[v] = range(1, len(GraphSet._vertices))
         return GraphSet.graphs(vertex_groups=vg, degree_constraints=dc,
                                no_loop=True, graphset=graphset)
 
@@ -1846,7 +1848,7 @@ class GraphSet(object):
         """
         dc = {}
         for v in GraphSet._vertices:
-            dc[v] = 2 if is_hamilton else xrange(0, 3, 2)
+            dc[v] = 2 if is_hamilton else range(0, 3, 2)
         return GraphSet.graphs(vertex_groups=[[]], degree_constraints=dc,
                                graphset=graphset)
 
@@ -1872,7 +1874,7 @@ class GraphSet(object):
             if v in (terminal1, terminal2):
                 dc[v] = 1
             else:
-                dc[v] = 2 if is_hamilton else xrange(0, 3, 2)
+                dc[v] = 2 if is_hamilton else range(0, 3, 2)
         return GraphSet.graphs(vertex_groups=[[terminal1, terminal2]],
                                degree_constraints=dc,
                                no_loop=True, graphset=graphset)
@@ -1945,7 +1947,7 @@ class GraphSet(object):
             edges = GraphSet.converters['to_edges'](obj)
             return 'graph', set([GraphSet._conv_edge(e) for e in edges])
         except TypeError:  # if fail to convert obj into edge list
-            raise KeyError, obj
+            raise KeyError(obj)
 
     @staticmethod
     def _conv_graph(obj):
@@ -1954,20 +1956,20 @@ class GraphSet(object):
     @staticmethod
     def _conv_edge(edge):
         if not isinstance(edge, tuple) or len(edge) < 2:
-            raise KeyError, edge
+            raise KeyError(edge)
         if len(edge) > 2:
             edge = edge[:2]
         if edge in setset._obj2int:
             return edge
         elif (edge[1], edge[0]) in setset._obj2int:
             return (edge[1], edge[0])
-        raise KeyError, edge
+        raise KeyError(edge)
 
     @staticmethod
     def _conv_ret(obj):
         if isinstance(obj, (set, frozenset)):  # a graph
             return GraphSet.converters['to_graph'](sorted(list(obj)))
-        raise TypeError, obj
+        raise TypeError(obj)
 
     converters = { 'to_graph': lambda edges: edges,
                    'to_edges': lambda graph: graph }

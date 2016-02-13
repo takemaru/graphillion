@@ -1,29 +1,6 @@
 include CMakeLists.txt README.md \
   cmake/Modules/FindGMP.cmake \
   doc/fig1.png doc/fig10.png doc/fig2.png doc/fig3.png doc/fig4.png \
-  doc/fig5.png doc/fig6.png doc/fig7.png doc/fig8.png doc/fig9.png \
-  graphillion/test/__init__.py graphillion/test/graphset.py \
-  graphillion/test/setset.py graphillion/test/tutorial.py \
-  src/CMakeLists.txt src/pygraphillion.h src/SAPPOROBDD/BDD.h \
-  src/SAPPOROBDD/ZBDD.h src/SAPPOROBDD/bddc.h src/graphillion/setset.h \
-  src/graphillion/type.h src/graphillion/util.h src/graphillion/zdd.h \
-  src/subsetting/dd/DataTable.hpp src/subsetting/dd/DdBuilder.hpp \
-  src/subsetting/dd/DdEval.hpp src/subsetting/dd/DdNode.hpp \
-  src/subsetting/dd/DdNodeId.hpp src/subsetting/dd/DdNodeTable.hpp \
-  src/subsetting/dd/DdSpec.hpp src/subsetting/dd/PathCounter.hpp \
-  src/subsetting/dd/ZddStructure.hpp src/subsetting/eval/ToZBDD.hpp \
-  src/subsetting/spec/BinaryOperation.hpp \
-  src/subsetting/spec/DegreeConstraint.hpp \
-  src/subsetting/spec/FrontierBasedSearch.hpp \
-  src/subsetting/spec/LinearConstraints.hpp \
-  src/subsetting/spec/Lookahead.hpp \
-  src/subsetting/spec/SapporoZdd.hpp \
-  src/subsetting/spec/SizeConstraint.hpp \
-  src/subsetting/util/BigNumber.hpp src/subsetting/util/Graph.hpp \
-  src/subsetting/util/IntSubset.hpp src/subsetting/util/MemoryPool.hpp \
-  src/subsetting/util/MessageHandler.hpp \
-  src/subsetting/util/MyHashTable.hpp src/subsetting/util/MyList.hpp \
-  src/subsetting/util/MyVector.hpp \
-  src/subsetting/util/ResourceUsage.hpp \
-  src/subsetting/util/demangle.hpp \
-  src/test/graphset.cc src/test/setset.cc 
+  doc/fig5.png doc/fig6.png doc/fig7.png doc/fig8.png doc/fig9.png
+graft graphillion/test
+graft src
