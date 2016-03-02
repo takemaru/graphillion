@@ -114,6 +114,9 @@ To build Graphillion, you need Python version 2.6 or later, with
 development environment (Python.h is required).
 http://www.python.org/
 
+For Python 3, please see
+[#13](https://github.com/takemaru/graphillion/issues/13).
+
 #### GCC (The Gnu Compiler Collection) or Clang
 
 To build Graphillion, you need gcc version 4.2 or later.
