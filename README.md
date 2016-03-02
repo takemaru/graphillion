@@ -19,6 +19,8 @@ Graphillion - Fast, lightweight library for a huge number of graphs
 News
 --------------------------------------------------------------------------------
 
+- Graphillion experimentally supports Python 3; please see
+  [#13](https://github.com/takemaru/graphillion/issues/13).
 - Graphillion [book] is published in April 2015 (sorry, written in
   Japanese).
 - Graphillion was used in the lecture by Prof. Jun Kawahara at Nara
