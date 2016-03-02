@@ -20,8 +20,6 @@
 """Module for a set of sets.
 """
 
-from builtins import range
-from future.utils import viewitems
 import _graphillion
 
 
@@ -63,7 +61,7 @@ class setset(_graphillion.setset):
             obj = l
         elif isinstance(obj, dict):  # constraints
             d = {}
-            for k, l in viewitems(obj):
+            for k, l in obj.iteritems():
                 d[k] = [setset._conv_elem(e) for e in l]
             obj = d
         _graphillion.setset.__init__(self, obj)
@@ -122,12 +120,12 @@ class setset(_graphillion.setset):
     def __iter__(self):
         i = _graphillion.setset.iter(self)
         while (True):
-            yield setset._conv_ret(next(i))
+            yield setset._conv_ret(i.next())
 
     def rand_iter(self):
         i = _graphillion.setset.rand_iter(self)
         while (True):
-            yield setset._conv_ret(next(i))
+            yield setset._conv_ret(i.next())
 
     def min_iter(self, weights=None, default=1):
         return self._optimize(weights, default, _graphillion.setset.min_iter)
@@ -138,12 +136,12 @@ class setset(_graphillion.setset):
     def _optimize(self, weights, default, generator):
         ws = [default] * (_graphillion._num_elems() + 1)
         if weights:
-            for e, w in viewitems(weights):
+            for e, w in weights.iteritems():
                 i = setset._obj2int[e]
                 ws[i] = w
         i = generator(self, ws)
         while (True):
-            yield setset._conv_ret(next(i))
+            yield setset._conv_ret(i.next())
 
     def supersets(self, obj):
         if (not isinstance(obj, setset)):
@@ -161,7 +159,7 @@ class setset(_graphillion.setset):
 
     def probability(self, probabilities):
         ps = [-1] * (_graphillion._num_elems() + 1)
-        for e, p in viewitems(probabilities):
+        for e, p in probabilities. iteritems():
             i = setset._obj2int[e]
             ps[i] = p
         assert len([p for p in ps[1:] if p < 0 or 1 < p]) == 0
@@ -178,7 +176,7 @@ class setset(_graphillion.setset):
     @staticmethod
     def set_universe(universe):
         if len(universe) != len(set(universe)):
-            raise ValueError('duplicated elements found')
+            raise ValueError, 'duplicated elements found'
         _graphillion._num_elems(0)
         setset._obj2int = {}
         setset._int2obj = [None]
@@ -194,9 +192,9 @@ class setset(_graphillion.setset):
     @staticmethod
     def _check_universe():
         assert len(setset._int2obj) == _graphillion._num_elems() + 1
-        for e, i in viewitems(setset._obj2int):
+        for e, i in setset._obj2int.iteritems():
             assert e == setset._int2obj[i]
-        for i in range(1, len(setset._int2obj)):
+        for i in xrange(1, len(setset._int2obj)):
             e = setset._int2obj[i]
             assert i == setset._obj2int[e]
 
@@ -205,7 +203,7 @@ class setset(_graphillion.setset):
         assert elem not in setset._obj2int
         if len(setset._obj2int) >= _graphillion._elem_limit():
             m = 'not more than %d elements used' % _graphillion._elem_limit()
-            raise RuntimeError(m)
+            raise RuntimeError, m
         i = len(setset._int2obj)
         _graphillion.setset([set([i])])
         setset._obj2int[elem] = i
@@ -234,7 +232,7 @@ class setset(_graphillion.setset):
             for e in obj:
                 ret.add(setset._int2obj[e])
             return ret
-        raise TypeError(obj)
+        raise TypeError, obj
 
     _obj2int = {}
     _int2obj = [None]

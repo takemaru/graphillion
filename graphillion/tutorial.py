@@ -20,7 +20,6 @@
 """Helper functions for tutorial.
 """
 
-from builtins import range
 from graphillion import GraphSet
 from random import seed, shuffle
 
@@ -35,7 +34,7 @@ def grid(m, n=None, prob_to_remove_edge=0.0):
     else:
         n += 1
     edges = []
-    for v in range(1, m * n + 1):
+    for v in xrange(1, m * n + 1):
         if v % n != 0:
             edges.append((v, v + 1))
         if v <= (m - 1) * n:
@@ -63,7 +62,7 @@ def draw(g, universe=None):
     m = universe.number_of_nodes() / n
     g.add_nodes_from(universe.nodes())
     pos = {}
-    for v in range(1, m * n + 1):
+    for v in xrange(1, m * n + 1):
         pos[v] = ((v - 1) % n, (m * n - v) / n)
     nx.draw(g, pos)
     plt.show()
