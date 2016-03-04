@@ -60,11 +60,11 @@ def draw(g, universe=None):
     if not isinstance(universe, nx.Graph):
         universe = nx.Graph(list(universe))
     n = sorted(universe[1].keys())[1] - 1
-    m = universe.number_of_nodes() / n
+    m = universe.number_of_nodes() // n
     g.add_nodes_from(universe.nodes())
     pos = {}
     for v in range(1, m * n + 1):
-        pos[v] = ((v - 1) % n, (m * n - v) / n)
+        pos[v] = ((v - 1) % n, (m * n - v) // n)
     nx.draw(g, pos)
     plt.show()
 
