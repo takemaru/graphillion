@@ -19,6 +19,8 @@ Graphillion - Fast, lightweight library for a huge number of graphs
 News
 --------------------------------------------------------------------------------
 
+- Graphillion experimentally supports Python 3; please see
+  [#13](https://github.com/takemaru/graphillion/issues/13).
 - Graphillion [book] is published in April 2015 (sorry, written in
   Japanese).
 - Graphillion was used in the lecture by Prof. Jun Kawahara at Nara
@@ -113,6 +115,9 @@ Graphillion requires 64-bit machines to efficiently handle large numbers.
 To build Graphillion, you need Python version 2.6 or later, with
 development environment (Python.h is required).
 http://www.python.org/
+
+For Python 3, please see
+[#13](https://github.com/takemaru/graphillion/issues/13).
 
 #### GCC (The Gnu Compiler Collection) or Clang
 
@@ -357,7 +362,7 @@ provided by Graphillion.
 
 ```python
 >>> for path in treasure_paths.min_iter():
-...     tl.how_many_turns(path)
+...     print tl.how_many_turns(path)
 ...     break  # if not break, multiple paths can be yielded in the ascending order
 ...
 5
