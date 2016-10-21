@@ -362,7 +362,7 @@ provided by Graphillion.
 
 ```python
 >>> for path in treasure_paths.min_iter():
-...     tl.how_many_turns(path)
+...     print tl.how_many_turns(path)
 ...     break  # if not break, multiple paths can be yielded in the ascending order
 ...
 5
