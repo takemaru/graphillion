@@ -24,6 +24,7 @@ from functools import partial
 import _graphillion
 from graphillion import setset
 import pickle
+import heapq
 
 class GraphSet(object):
     """Represents and manipulates a set of graphs.
@@ -1542,7 +1543,7 @@ class GraphSet(object):
         return GraphSet(setset.loads(s))
 
     @staticmethod
-    def set_universe(universe, traversal='bfs', source=None):
+    def set_universe(universe, traversal='greedy', source=None):
         """Registers the new universe.
 
         Examples:
@@ -1572,7 +1573,7 @@ class GraphSet(object):
             edges.append(e[:2])
             if len(e) > 2:
                 GraphSet._weights[e[:2]] = e[2]
-        if traversal == 'bfs' or traversal == 'dfs':
+        if traversal == 'bfs' or traversal == 'dfs' or traversal == 'greedy':
             if not source:
                 source = edges[0][0]
                 for e in edges:
@@ -1909,29 +1910,61 @@ class GraphSet(object):
         vertices = set(neighbors.keys())
 
         sorted_edges = []
-        queue_or_stack = []
         visited_vertices = set()
         u = source
-        while True:
-            visited_vertices.add(u)
-            for v in sorted(neighbors[u]):
-                if v in visited_vertices:
-                    e = (u, v) if (u, v) in edges else (v, u)
-                    sorted_edges.append(e)
-            new_vertices = neighbors[u] - visited_vertices - set(queue_or_stack)
-            queue_or_stack.extend(new_vertices)
-            if not queue_or_stack:
+
+        if traversal == 'greedy':
+            degree = dict()
+            for v in vertices:
+                degree[v] = len(neighbors[v])
+
+            heap = []
+            while True:
+                visited_vertices.add(u)
+                for v in sorted(neighbors[u]):
+                    degree[v] -= 1
+                    if v in visited_vertices:
+                        degree[u] -= 1
+                        e = (u, v) if (u, v) in edges else (v,u)
+                        sorted_edges.append(e)
+                        if degree[v]:
+                            for w in sorted(neighbors[v]):
+                                if w not in visited_vertices:
+                                    heapq.heappush(heap, (degree[v], degree[w], w))
+                for v in sorted(neighbors[u]):
+                    if v not in visited_vertices:
+                         heapq.heappush(heap, (degree[u], degree[v], v))
                 if visited_vertices == vertices:
                     break
+                while u in visited_vertices:
+                    if not heap:
+                        u = min(vertices - visited_vertices)
+                    else:
+                        u = heapq.heappop(heap)[2]
+            assert set(edges) == set(sorted_edges)
+            return sorted_edges
+        else:
+            queue_or_stack = []
+            while True:
+                visited_vertices.add(u)
+                for v in sorted(neighbors[u]):
+                    if v in visited_vertices:
+                        e = (u, v) if (u, v) in edges else (v, u)
+                        sorted_edges.append(e)
+                new_vertices = neighbors[u] - visited_vertices - set(queue_or_stack)
+                queue_or_stack.extend(new_vertices)
+                if not queue_or_stack:
+                    if visited_vertices == vertices:
+                        break
+                    else:
+                        queue_or_stack.append(min(vertices - visited_vertices))
+                if traversal == 'bfs':
+                    u, queue_or_stack = queue_or_stack[0], queue_or_stack[1:]
                 else:
-                    queue_or_stack.append(min(vertices - visited_vertices))
-            if traversal == 'bfs':
-                u, queue_or_stack = queue_or_stack[0], queue_or_stack[1:]
-            else:
-                queue_or_stack, u = queue_or_stack[:-1], queue_or_stack[-1]
-            assert u not in visited_vertices
-        assert set(edges) == set(sorted_edges)
-        return sorted_edges
+                    queue_or_stack, u = queue_or_stack[:-1], queue_or_stack[-1]
+                assert u not in visited_vertices
+            assert set(edges) == set(sorted_edges)
+            return sorted_edges
 
     @staticmethod
     def _conv_arg(obj):
