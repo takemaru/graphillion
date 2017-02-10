@@ -1556,11 +1556,11 @@ class GraphSet(object):
 
           traversal: Optional.  This argument specifies the order of
             edges to be processed in the internal graphset operations.
-            The default is 'bfs', the breadth-first search from
-            `source`.  Other options include 'dfs', the depth-first
-            search, 'greedy', best-first search with respect to
-            the number of unused incident edges, and 'as-is', 
-            the order of `universe` list.
+            The default is 'greedy', best-first search from `source`
+            with respect to the number of unused incident edges.
+            Other options include 'bfs', the breadth-first search, 
+            'dfs', the depth-first search, and 'as-is', the order of
+            `universe` list.
 
           source: Optional.  This argument specifies the starting
             point of the edge traversal.
