@@ -1558,7 +1558,9 @@ class GraphSet(object):
             edges to be processed in the internal graphset operations.
             The default is 'bfs', the breadth-first search from
             `source`.  Other options include 'dfs', the depth-first
-            search, and 'as-is', the order of `universe` list.
+            search, 'greedy', best-first search with respect to
+            the number of unused incident edges, and 'as-is', 
+            the order of `universe` list.
 
           source: Optional.  This argument specifies the starting
             point of the edge traversal.
