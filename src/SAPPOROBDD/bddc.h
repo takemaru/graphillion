@@ -38,7 +38,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #endif
 
 /***************** Internal macro for index *****************/
-#define B_VAR_WIDTH 16U  /* Width of variable index */
+#define B_VAR_WIDTH 20U  /* Width of variable index */
 #define B_VAR_MASK       ((1U << B_VAR_WIDTH) - 1U)
 
 /***************** Internal macro for bddp *****************/
