@@ -204,7 +204,7 @@ class setset(_graphillion.setset):
     def _add_elem(elem):
         assert elem not in setset._obj2int
         if len(setset._obj2int) >= _graphillion._elem_limit():
-            m = 'not more than %d elements used' % _graphillion._elem_limit()
+            m = 'too many elements are set, which must be %d or less' % _graphillion._elem_limit()
             raise RuntimeError(m)
         i = len(setset._int2obj)
         _graphillion.setset([set([i])])
