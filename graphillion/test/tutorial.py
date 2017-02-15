@@ -33,7 +33,7 @@ class TestTutorial(unittest.TestCase):
     def test_paths(self):
         try:
             universe = tl.grid(8, 8)
-            GraphSet.set_universe(universe)
+            GraphSet.set_universe(universe, traversal='bfs')
 
             start = 1
             goal = 81

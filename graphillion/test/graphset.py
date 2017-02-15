@@ -782,7 +782,7 @@ class TestGraphSet(unittest.TestCase):
             g = nx.grid_2d_graph(8, 8)
             v00, v01, v10 = (0,0), (0,1), (1,0)
 
-            GraphSet.set_universe(g)
+            GraphSet.set_universe(g, traversal='bfs')
             self.assertEqual(len(GraphSet.universe().edges()), 112)
 #            self.assertEqual(GraphSet.universe().edges()[:2], [(v00, v01), (v00, v10)])
 
