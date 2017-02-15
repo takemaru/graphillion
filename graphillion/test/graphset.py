@@ -471,15 +471,15 @@ class TestGraphSet(unittest.TestCase):
         gs = GraphSet(u).complement()
         self.assertEqual(gs, GraphSet([g0, g123, g1234, g2, g23, g234, g34, g4]))
 
-#        v = [g12, g14, g23, g34]
-#        gs = GraphSet(u).join(GraphSet(v))
-#        self.assertTrue(isinstance(gs, GraphSet))
-#        self.assertEqual(
-#            gs, GraphSet([g12, g123, g124, g1234, g134, g14, g23, g234, g34]))
+        v = [g12, g14, g23, g34]
+        gs = GraphSet(u).join(GraphSet(v))
+        self.assertTrue(isinstance(gs, GraphSet))
+        self.assertEqual(
+            gs, GraphSet([g12, g123, g124, g1234, g134, g14, g23, g234, g34]))
 
-#        gs = GraphSet(u).meet(GraphSet(v))
-#        self.assertTrue(isinstance(gs, GraphSet))
-#        self.assertEqual(gs, GraphSet([g0, g1, g12, g14, g2, g23, g3, g34, g4]))
+        gs = GraphSet(u).meet(GraphSet(v))
+        self.assertTrue(isinstance(gs, GraphSet))
+        self.assertEqual(gs, GraphSet([g0, g1, g12, g14, g2, g23, g3, g34, g4]))
 
 #        v = [g12, g14, g23, g34]
 #        gs = GraphSet(u).subgraphs(GraphSet(v))
