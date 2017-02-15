@@ -49,7 +49,8 @@ g1234 = [e1, e2, e3, e4]
 class TestGraphSet(unittest.TestCase):
 
     def setUp(self):
-        GraphSet.set_universe([e1 + (.3,), e2 + (-.2,), e3 + (-.2,), e4 + (.4,)])
+        GraphSet.set_universe([e1 + (.3,), e2 + (-.2,), e3 + (-.2,), e4 + (.4,)],
+                              traversal='bfs', source=1)
 
     def tearDown(self):
         pass
@@ -58,7 +59,8 @@ class TestGraphSet(unittest.TestCase):
         GraphSet.set_universe([('i', 'ii')])
         self.assertEqual(GraphSet.universe(), [('i', 'ii')])
 
-        GraphSet.set_universe([e1 + (.3,), e2 + (-.2,), e3 + (-.2,), e4 + (.4,)])
+        GraphSet.set_universe([e1 + (.3,), e2 + (-.2,), e3 + (-.2,), e4 + (.4,)],
+                              traversal='bfs', source=1)
         self.assertEqual(GraphSet.universe(),
                          [e1 + (.3,), e2 + (-.2,), e3 + (-.2,), e4 + (.4,)])
 
@@ -66,6 +68,11 @@ class TestGraphSet(unittest.TestCase):
                               traversal='dfs', source=1)
         self.assertEqual(GraphSet.universe(),
                          [e2 + (-.2,), e4 + (.4,), e1 + (.3,), e3 + (-.2,)])
+
+        GraphSet.set_universe([e1 + (.3,), e2 + (-.2,), e3 + (-.2,), e4 + (.4,)],
+                              traversal='greedy', source=3)
+        self.assertEqual(GraphSet.universe(),
+                         [e2 + (-.2,), e1 + (.3,), e3 + (-.2,), e4 + (.4,)])
 
         self.assertRaises(KeyError, GraphSet.set_universe, [(1,2), (2,1)])
 
