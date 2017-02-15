@@ -1515,7 +1515,7 @@ class GraphSet(object):
         Examples:
           >>> import pickle
           >>> fp = open('/path/to/universe')
-          >>> GraphSet.set_universe(pickle.load(fp))
+          >>> GraphSet.set_universe(pickle.load(fp), traversal='as-is')
           >>> fp = open('/path/to/graphset')
           >>> gs = GraphSet.load(fp)
 
@@ -1536,7 +1536,7 @@ class GraphSet(object):
 
         Examples:
           >>> import pickle
-          >>> GraphSet.set_universe(pickle.loads(universe_str))
+          >>> GraphSet.set_universe(pickle.loads(universe_str), traversal='as-is')
           >>> gs = GraphSet.load(graphset_str)
 
         See Also:
