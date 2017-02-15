@@ -1142,59 +1142,59 @@ class GraphSet(object):
         ss.flip()
         return GraphSet(ss)
 
-#    def join(self, other):
-#        """Returns a new GraphSet of join between `self` and `other`.
-#
-#        The join operation is defined by,
-#          gs1 \\sqcup gs2 = {a \\cup b | a \\in gs1 and b \\in gs2}.
-#        D. Knuth, Exercise 203, The art of computer programming,
-#        Sect.7.1.4.
-#
-#        The `self` is not changed.
-#
-#        Examples:
-#          >>> graph1 = [(1, 2)]
-#          >>> graph2 = [(1, 2), (1, 4)]
-#          >>> graph3 = [(2, 3)]
-#          >>> gs1 = GraphSet([graph1, graph2])
-#          >>> gs2 = GraphSet([graph3])
-#          >>> gs1.join(gs2)
-#          GraphSet([[(1, 2), (2, 3)], [(1, 2), (1, 4), (2, 3)]])
-#
-#        Returns:
-#          A new GraphSet object.
-#
-#        See Also:
-#          meet()
-#        """
-#        return GraphSet(self._ss.join(other._ss))
+    def join(self, other):
+        """Returns a new GraphSet of join between `self` and `other`.
 
-#    def meet(self, other):
-#        """Returns a new GraphSet of meet between `self` and `other`.
-#
-#        The meet operation is defined by,
-#          gs1 \\sqcap gs2 = {a \\cap b | a \\in gs1 and b \\in gs2}.
-#        D. Knuth, Exercise 203, The art of computer programming,
-#        Sect.7.1.4.
-#
-#        The `self` is not changed.
-#
-#        Examples:
-#          >>> graph1 = [(1, 2), (1, 4)]
-#          >>> graph2 = [(1, 2), (2, 3)]
-#          >>> graph3 = [(1, 4), (2, 3)]
-#          >>> gs1 = GraphSet([graph1, graph2])
-#          >>> gs2 = GraphSet([graph3])
-#          >>> gs1.meet(gs2)
-#          GraphSet([[(1, 4)], [(2, 3)]])
-#
-#        Returns:
-#          A new GraphSet object.
-#
-#        See Also:
-#          join()
-#        """
-#        return GraphSet(self._ss.meet(other._ss))
+        The join operation is defined by,
+          gs1 \\sqcup gs2 = {a \\cup b | a \\in gs1 and b \\in gs2}.
+        D. Knuth, Exercise 203, The art of computer programming,
+        Sect.7.1.4.
+
+        The `self` is not changed.
+
+        Examples:
+          >>> graph1 = [(1, 2)]
+          >>> graph2 = [(1, 2), (1, 4)]
+          >>> graph3 = [(2, 3)]
+          >>> gs1 = GraphSet([graph1, graph2])
+          >>> gs2 = GraphSet([graph3])
+          >>> gs1.join(gs2)
+          GraphSet([[(1, 2), (2, 3)], [(1, 2), (1, 4), (2, 3)]])
+
+        Returns:
+          A new GraphSet object.
+
+        See Also:
+          meet()
+        """
+        return GraphSet(self._ss.join(other._ss))
+
+    def meet(self, other):
+        """Returns a new GraphSet of meet between `self` and `other`.
+
+        The meet operation is defined by,
+          gs1 \\sqcap gs2 = {a \\cap b | a \\in gs1 and b \\in gs2}.
+        D. Knuth, Exercise 203, The art of computer programming,
+        Sect.7.1.4.
+
+        The `self` is not changed.
+
+        Examples:
+          >>> graph1 = [(1, 2), (1, 4)]
+          >>> graph2 = [(1, 2), (2, 3)]
+          >>> graph3 = [(1, 4), (2, 3)]
+          >>> gs1 = GraphSet([graph1, graph2])
+          >>> gs2 = GraphSet([graph3])
+          >>> gs1.meet(gs2)
+          GraphSet([[(1, 4)], [(2, 3)]])
+
+        Returns:
+          A new GraphSet object.
+
+        See Also:
+          join()
+        """
+        return GraphSet(self._ss.meet(other._ss))
 
 #    def subgraphs(self, other):
 #        """Returns a new GraphSet with subgraphs of a graph in `other`.
