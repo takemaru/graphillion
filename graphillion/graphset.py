@@ -679,8 +679,9 @@ class GraphSet(object):
 
         Returns a generator that iterates over graphs in `self`
         GraphSet.  The graphs are selected in the ascending order of
-        edge weights, which are specified by the argument or the
-        universe (1.0 if not specified).
+        edge weights, which are specified by the argument `weights` or
+        those set as the universe (1.0 for unspecified edges).  The
+        `weights` does not overwrite the weights of the universe.
 
         Examples:
           >>> graph1 = [(1, 2), (1, 4)]
@@ -704,6 +705,7 @@ class GraphSet(object):
 
         See Also:
           __iter__(), rand_iter(), max_iter()
+
         """
         if weights is None:
             weights = GraphSet._weights
@@ -715,8 +717,9 @@ class GraphSet(object):
 
         Returns a generator that iterates over graphs in `self`
         GraphSet.  The graphs are selected in the descending order of
-        edge weights, which are specified by the argument or the
-        universe (1.0 if not specified).
+        edge weights, which are specified by the argument `weights` or
+        those set as the universe (1.0 for unspecified edges).  The
+        `weights` does not overwrite the weights of the universe.
 
         Examples:
           >>> graph1 = [(1, 2), (1, 4)]
