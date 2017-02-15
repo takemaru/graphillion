@@ -19,8 +19,7 @@ Graphillion - Fast, lightweight library for a huge number of graphs
 News
 --------------------------------------------------------------------------------
 
-- Graphillion experimentally supports Python 3; please see
-  [#13](https://github.com/takemaru/graphillion/issues/13).
+- Graphillion officially supports Python 3.6 as well as 2.7.
 - Graphillion [book] is published in April 2015 (sorry, written in
   Japanese).
 - Graphillion was used in the lecture by Prof. Jun Kawahara at Nara
@@ -112,12 +111,9 @@ Graphillion requires 64-bit machines to efficiently handle large numbers.
 
 #### Python
 
-To build Graphillion, you need Python version 2.6 or later, with
+To build Graphillion, you need Python version 2.7 or 3.6, with
 development environment (Python.h is required).
 http://www.python.org/
-
-For Python 3, please see
-[#13](https://github.com/takemaru/graphillion/issues/13).
 
 #### GCC (The Gnu Compiler Collection) or Clang
 
@@ -134,12 +130,10 @@ a graph.  These packages are not required for Graphillion, but used in
 [tutorial].  They can be installed by:
 
 ```bash
-$ sudo easy_install networkx
-$ sudo easy_install matplotlib
+$ sudo pip install networkx
+$ sudo pip install matplotlib
 ```
 
-For MacOSX: if installing matplotlib fails, use MacPorts, `sudo port
-install py-matplotlib`.
 For Ubuntu: if it fails, use APT, `sudo apt-get install python-matplotlib`.
 
 ### Quick install
@@ -147,7 +141,7 @@ For Ubuntu: if it fails, use APT, `sudo apt-get install python-matplotlib`.
 Just type:
 
 ```bash
-$ sudo easy_install graphillion
+$ sudo pip install graphillion
 ```
 
 and an attempt will be made to find and install an appropriate version
@@ -243,7 +237,7 @@ We first introduce terminology used in Graphillion, as follows:
 | vertex        | any hashable object           | `1`, `'v1'`, `(x, y)`                            |
 | edge          | tuple of vertices             | `(1, 2)`                                         |
 | weighted edge | tuple of vertices with weight | `(1, 2, -1.5)`                                   |
-| graph         | list of (weighted) edges      | `[(1, 2, -1.5), (1, 3)]`                               |
+| graph         | list of (weighted) edges      | `[(1, 2, -1.5), (1, 3)]`                         |
 | set of graphs | GraphSet object               | `GraphSet([[(1, 2), (1, 3)], [(1, 2), (2, 3)]])` |
 
 Vertices (or nodes) can be any hashable object; e.g., a number, a text
