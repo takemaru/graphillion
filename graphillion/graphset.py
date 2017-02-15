@@ -1565,26 +1565,28 @@ class GraphSet(object):
           source: Optional.  This argument specifies the starting
             point of the edge traversal.
         """
-        edges = []
+        sorted_edges = []
+        indexed_edges = set()
         GraphSet._vertices = set()
         GraphSet._weights = {}
         universe = GraphSet.converters['to_edges'](universe)
         for e in universe:
-            if e[:2] in edges or (e[1], e[0]) in edges:
+            if e[:2] in indexed_edges or (e[1], e[0]) in indexed_edges:
                 raise KeyError, e
-            edges.append(e[:2])
+            sorted_edges.append(e[:2])
+            indexed_edges.add(e[:2])
             if len(e) > 2:
                 GraphSet._weights[e[:2]] = e[2]
-        if traversal == 'bfs' or traversal == 'dfs' or traversal == 'greedy':
-            if not source:
-                source = edges[0][0]
-                for e in edges:
+        if traversal <> 'as-is':
+            if source is None:
+                source = sorted_edges[0][0]
+                for e in sorted_edges:
                     source = min(e[0], e[1], source)
-            edges = GraphSet._traverse(edges, traversal, source)
-        for u, v in edges:
+            sorted_edges = GraphSet._traverse(indexed_edges, traversal, source)
+        for u, v in sorted_edges:
             GraphSet._vertices.add(u)
             GraphSet._vertices.add(v)
-        setset.set_universe(edges)
+        setset.set_universe(sorted_edges)
 
     @staticmethod
     def universe():
@@ -1897,9 +1899,9 @@ class GraphSet(object):
         return _graphillion._show_messages(flag)
 
     @staticmethod
-    def _traverse(edges, traversal, source):
+    def _traverse(indexed_edges, traversal, source):
         neighbors = {}
-        for u, v in edges:
+        for u, v in indexed_edges:
             if u not in neighbors:
                 neighbors[u] = set([v])
             else:
@@ -1927,7 +1929,7 @@ class GraphSet(object):
                     degree[v] -= 1
                     if v in visited_vertices:
                         degree[u] -= 1
-                        e = (u, v) if (u, v) in edges else (v,u)
+                        e = (u, v) if (u, v) in indexed_edges else (v, u)
                         sorted_edges.append(e)
                         if degree[v]:
                             for w in sorted(neighbors[v]):
@@ -1943,15 +1945,15 @@ class GraphSet(object):
                         u = min(vertices - visited_vertices)
                     else:
                         u = heapq.heappop(heap)[2]
-            assert set(edges) == set(sorted_edges)
+            assert set(indexed_edges) == set(sorted_edges)
             return sorted_edges
-        else:
+        elif traversal == 'bfs' or traversal == 'dfs':
             queue_or_stack = []
             while True:
                 visited_vertices.add(u)
                 for v in sorted(neighbors[u]):
                     if v in visited_vertices:
-                        e = (u, v) if (u, v) in edges else (v, u)
+                        e = (u, v) if (u, v) in indexed_edges else (v, u)
                         sorted_edges.append(e)
                 new_vertices = neighbors[u] - visited_vertices - set(queue_or_stack)
                 queue_or_stack.extend(new_vertices)
@@ -1965,8 +1967,10 @@ class GraphSet(object):
                 else:
                     queue_or_stack, u = queue_or_stack[:-1], queue_or_stack[-1]
                 assert u not in visited_vertices
-            assert set(edges) == set(sorted_edges)
+            assert set(indexed_edges) == set(sorted_edges)
             return sorted_edges
+        else:
+            raise ValueError, 'invalid `traversal`: %s' % traversal
 
     @staticmethod
     def _conv_arg(obj):
