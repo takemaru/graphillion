@@ -381,8 +381,9 @@ vertex is a house and an edge is a power line with a switch.  The
 power is provided from the four generators at corners.
 
 ```python
->>> universe = tl.grid(8, 8, 0.37)  # 37 % of edges are removed from 8x8 grid
+>>> universe = tl.grid(8, 8, 0.37)  # 37 % of edges are randomly removed from 8x8 grid
 >>> GraphSet.set_universe(universe)
+>>> generators = [1, 9, 73, 81]
 >>> tl.draw(universe)
 ```
 
@@ -394,10 +395,10 @@ power is transmitted on the line; otherwise, not.  The power must be
 transmitted to all houses, while the flow must not have a loop to
 protect against short circuit.  The power flow, hence, must form a
 *forest*, a set of trees, rooted at generators.  We find all of such
-forests as follows:
+forests as follows: (note that the number, 54060425088, can be
+different since the network was randomly generated in `tl.grid()`)
 
 ```python
->>> generators = [1, 9, 73, 81]
 >>> forests = GraphSet.forests(roots=generators, is_spanning=True)  # a forest represents a power flow covering all houses without loop
 >>> len(forests)
 54060425088
