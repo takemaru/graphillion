@@ -111,17 +111,18 @@ Graphillion requires 64-bit machines to efficiently handle large numbers.
 
 #### Python
 
-To build Graphillion, you need Python version 2.7 or 3.6, with
-development environment (Python.h is required).
-http://www.python.org/
+To build Graphillion, you need [Python](http://www.python.org/)
+version 2.7 or 3.6 with the development environment for `Python.h`;
+`Python.h` is included with XCode in macOS, while it can be installed
+by `apt-get install python-dev` in Ubuntu.
 
 #### GCC (The Gnu Compiler Collection) or Clang
 
-To build Graphillion, you need gcc version 4.2 or later.
-http://gcc.gnu.org/
+To build Graphillion, you need [http://gcc.gnu.org/](gcc) version 4.2
+or later.
 
-For MacOSX: use Apple official Clang included in XCode, or a memory allocation
-error might occur.
+For macOS: use Apple official Clang included in XCode, or a memory
+allocation error might occur.
 
 #### NetworkX and Matplotlib - optional for the tutorial
 

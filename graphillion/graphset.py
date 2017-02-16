@@ -69,7 +69,7 @@ class GraphSet(object):
 
       >>> paths = GraphSet.paths(1, 6)
       >>> len(paths)
-      3
+      4
 
       Give constraints in which edge 1-4 must not be passed but 2 must
       be passed, and show the paths that meet the constraints.
