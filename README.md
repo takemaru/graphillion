@@ -118,7 +118,7 @@ by `apt-get install python-dev` in Ubuntu.
 
 #### GCC (The Gnu Compiler Collection) or Clang
 
-To build Graphillion, you need [http://gcc.gnu.org/](gcc) version 4.2
+To build Graphillion, you need [gcc](http://gcc.gnu.org/) version 4.2
 or later.
 
 For macOS: use Apple official Clang included in XCode, or a memory
