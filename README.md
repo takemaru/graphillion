@@ -839,53 +839,145 @@ Future work
 References
 --------------------------------------------------------------------------------
 
-- JST ERATO Minato Discrete Structure Manipulation System Project,
-  "High-Speed Graph Enumeration Algorithms," Morikita Publishing, April
-  2015. ([amazon](http://www.amazon.co.jp/dp/4627852614), in Japanese)
-- Jun Kawahara, "graphillion: Python library handling a huge number of
-  subgraphs," Python Seminer, December
-  2014. ([pdf](http://www.logopt.com/download/graph.pdf), in Japanese)
+### Related software
+
+- [Graphillion for Windows](https://github.com/junkawahara/graphillion_for_windows)
+- [DNET - Distribution Network Evaluation Tool][DNET]
+- [Ekillion - Enumerating all JR train paths in Japan][Ekillion]
+- [TdZdd - A top-down/breadth-first decision diagram manipulation framework][TdZdd]
+- [GGCount - A C++ program for fast computation of the number of paths in a grid graph][GGCount]
+
+### About Graphillion and its internals
+
 - Takeru Inoue, Hiroaki Iwashita, Jun Kawahara, and Shin-ichi Minato:
   "Graphillion: Software Library Designed for Very Large Sets of
   Labeled Graphs," International Journal on Software Tools for
-  Technology Transfer, Springer, vol.18, issue 1, pp.57-66, February 2016. ([pdf](http://dx.doi.org/10.1007/s10009-014-0352-z))
-- Takeru Inoue, Norihito Yasuda, Shunsuke Kawano, Yuji Takenobu,
-  Shin-ichi Minato, and Yasuhiro Hayashi, "Distribution Network
-  Verification for Secure Restoration by Enumerating All Critical
-  Failures," IEEE Transactions on Smart Grid, October 2014. ([pdf](http://dx.doi.org/10.1109/TSG.2014.2359114))
+  Technology Transfer, Springer, vol.18, issue 1, pp.57-66, February 2016. ([doi](http://dx.doi.org/10.1007/s10009-014-0352-z))
+- JST ERATO Minato Discrete Structure Manipulation System Project,
+  "High-Speed Graph Enumeration Algorithms," Morikita Publishing,
+  April  2015. ([amazon](http://www.amazon.co.jp/dp/4627852614), in Japanese)
+- Jun Kawahara, "Graphillion: Python library handling a huge number of
+  subgraphs," Python Seminer, December 2014. ([pdf](http://www.logopt.com/download/graph.pdf), in Japanese)
 - Jun Kawahara, Takeru Inoue, Hiroaki Iwashita and Shin-ichi Minato,
   "Frontier-based Search for Enumerating All Constrained Subgraphs
   with Compressed Representation," Hokkaido University, Division of
   Computer Science, TCS Technical Reports, TCS-TR-A-14-76, September 2014. ([pdf](http://www-alg.ist.hokudai.ac.jp/~thomas/TCSTR/tcstr_14_76/tcstr_14_76.pdf))
 - Takeru Inoue, "Graphillion updates," JST ERATO Minato project
   seminar, February 2014.  ([pdf](http://www-erato.ist.hokudai.ac.jp/docs/seminar/20140226-erato-pub.pdf))
-- Takeru Inoue, Keiji Takano, Takayuki Watanabe, Jun Kawahara, Ryo
-  Yoshinaka, Akihiro Kishimoto, Koji Tsuda, Shin-ichi Minato, and
-  Yasuhiro Hayashi, "Distribution Loss Minimization with Guaranteed
-  Error Bound," IEEE Transactions on Smart Grid, vol.5, issue.1,
-  pp.102-111, January 2014.
-  ([pdf](http://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=6693788))
 - Hiroaki Iwashita and Shin-ichi Minato, "Efficient Top-Down ZDD
   Construction Techniques Using Recursive Specifications," TCS
   Technical Reports, TCS-TR-A-13-69, December 2013. ([pdf](http://www-alg.ist.hokudai.ac.jp/~thomas/TCSTR/tcstr_13_69/tcstr_13_69.pdf))
+- Takeru Inoue, Hiroaki Iwashita, Jun Kawahara, and Shin-ichi Minato,
+  "Graphillion: ZDD-based Software Library for Very Large Sets of
+  Graphs," Proc. of the 18th Workshop on Synthesis And System
+  Integration of Mixed Information Technologies (SASIMI), Poster
+  Presentation, October 2013.  ([html](http://www2.infonets.hiroshima-u.ac.jp/sasimi/program/R4_abst.html#R4-6))
 - Takeru Inoue, "Graphillion: Python module for very large sets of graphs,"
   PyCon APAC, September 2013.
 
     [![][pycon-thumbnail]][PyCon]
 - Takeru Inoue, "[Invited Talk] Graphillion: Software Library for Very
   Large Sets of Graphs," Technical Report of IEICE, vol.113, no.140,
-  IN2013-43, pp.43-47, July
-  2013. ([pdf](https://sites.google.com/site/takeruinoue/home/publications/inoue13graphillion-ja.pdf?attredirects=0),
-  in Japanese)
+  IN2013-43, pp.43-47, July 2013.
+  ([pdf](https://sites.google.com/site/takeruinoue/home/publications/inoue13graphillion-ja.pdf?attredirects=0), in Japanese)
+- Takahisa Toda, "Hypergraph Transversal Computation with Binary
+  Decision Diagrams," Proc. of 12th International Symposium on
+  Experimental Algorithms (SEA), pp.91-102, June 2013.
+  ([doi](http://dx.doi.org/10.1007/978-3-642-38527-8_10))
+
+### Using Graphillion or related algorithms
+
+- Daisuke Yoshino and Eiji Hato, "Fast Enumeration Method of Travel
+  Route of DRT Using Zero-suppressed Binary Decision Diagram," Journal
+  of Japan Society of Civil Engineers, vol.72, no.5, pp.1229-1239,
+  December 2016.
+  ([doi](http://doi.org/10.2208/jscejipm.72.I_1229))
+- Jun Kawahara, Toshiki Saitoh, Hirofumi Suzuki, and Ryo Yoshinaka,
+  "Solving the Longest Oneway-Ticket Problem and Enumerating Letter
+  Graphs by Augmenting the Two Representative Approaches with ZDDs,"
+  Proc. of the Computational Intelligence in Information Systems
+  Conference (CIIS), pp.294-305, November 2016.
+  ([doi](http://dx.doi.org/10.1007/978-3-319-48517-1_26))
+- Yuji Takenobu, Norihito Yasuda, Shunsuke Kawano, Yasuhiro Hayashi,
+  and Shin-ichi Minato, "Evaluation of Annual Energy Loss Reduction
+  Based on Reconfiguration Scheduling," IEEE Transactions on Smart
+  Grid, September 2016.
+  ([doi](https://doi.org/10.1109/TSG.2016.2604922))
+- Masashi Hashimoto, Tomihiro Utsumi, and Takeru Inoue, "Availability
+  Analyses for Photonic Network by Minimal Blocking Set using ZDD
+  based Graphillion," Technical Report of IEICE, vol.116, no.205,
+  PN2016-22, pp.45-51, September 2016.
+  ([html](http://www.ieice.org/ken/paper/20160902tbkK/), in Japanese)
+- Subaru Fukuda and Naoshi Sakamoto, "A Failure Estimation System for
+  Networks Applying Graphillion," Technical Report of IEICE, vol.115,
+  no.483, NS2015-212, pp.255-260, March 2016.
+  ([html](http://www.ieice.org/ken/paper/20160304Nbgl/), in Japanese)
+- Arthur Choi, Nazgol Tavabi, and Adnan Darwiche, "Structured Features
+  in Naive Bayes Classification," AAAI, pp.3233-3240, February 2016.
+  ([pdf](https://pdfs.semanticscholar.org/28a4/f88271ff8e0d008230676ac3ab9dac265871.pdf))
+- Hana Ito, Yuma Inoue, and Shin-ichi Minato, "Experiments and
+  Considerations on Variable Ordering in Top-Down Construction of
+  ZDDs," Forum on Information Technology, vol.14, no.1, pp.115-116,
+  September 2015.  ([pdf](http://ci.nii.ac.jp/naid/110009988569/en/), in Japanese)
+- Ikki Fujiwara, Satoshi Fujita, Koji Nakano, Takeru Inoue, and
+  Michihiro Koibuchi, "Let's Solve the Order/Degree Problem to Make
+  the Lowest-latency Interconnections," Technical Report of IEICE,
+  vol.115, no.174, CPSY2015-38, pp.223-228, August 2015.
+  ([html](http://www.ieice.org/ken/paper/20150806zbbG/), in Japanese)
+- Atsushi Takizawa, Yushi Miyata, and Naoki Katoh, "Enumeration of
+  Floor Plans Based on a Zero-Suppressed Binary Decision Diagram,"
+  International Journal of Architectural Computing, vol.13, no.1,
+  pp.25-44, March 2015.
+  ([pdf](https://www.researchgate.net/profile/Atsushi_Takizawa/publication/276885930_Enumeration_of_Floor_Plans_Based_on_a_Zero-Suppressed_Binary_Decision_Diagram/links/574a382308ae5c51e29e8cfe.pdf))
+- Hiroyuki Hanada, Shuhei Denzumi, Yuma Inoue, Hiroshi Aoki, Norihito
+  Yasuda, Shogo Takeuchi, and Shin-ichi Minato,
+  "Enumerating Eulerian Trails via Hamiltonian Path Enumeration,"
+  International Workshop on Algorithms and Computation (WALCOM),
+  pp.161-174, February 2015.
+  ([doi](http://dx.doi.org/10.1007/978-3-319-15612-5_15)
+- Takeru Inoue, Norihito Yasuda, Shunsuke Kawano, Yuji Takenobu,
+  Shin-ichi Minato, and Yasuhiro Hayashi, "Distribution Network
+  Verification for Secure Restoration by Enumerating All Critical
+  Failures," IEEE Transactions on Smart Grid, October 2014.
+  ([doi](http://dx.doi.org/10.1109/TSG.2014.2359114))
+- Takeru Inoue, Keiji Takano, Takayuki Watanabe, Jun Kawahara, Ryo
+  Yoshinaka, Akihiro Kishimoto, Koji Tsuda, Shin-ichi Minato, and
+  Yasuhiro Hayashi, "Distribution Loss Minimization with Guaranteed
+  Error Bound," IEEE Transactions on Smart Grid, vol.5, issue.1,
+  pp.102-111, January 2014.
+  ([doi](http://dx.doi.org/10.1109/TSG.2013.2288976))
 - Ryo Yoshinaka, Toshiki Saitoh, Jun Kawahara, Koji Tsuruma, Hiroaki
   Iwashita, and Shin-ichi Minato, "Finding All Solutions and Instances
   of Numberlink and Slitherlink by ZDDs," Algorithms 2012, 5(2),
   pp.176-213, 2012.  ([doi](http://dx.doi.org/10.3390/a5020176))
-- [DNET - Distribution Network Evaluation Tool][DNET]
-- [Ekillion - Enumerating all JR train paths in Japan][Ekillion]
-- [GGCount - A C++ program for fast computation of the number of paths in a grid graph][GGCount]
-- [TdZdd - A top-down/breadth-first decision diagram manipulation framework][TdZdd]
-- [Graphillion for Windows](https://github.com/junkawahara/graphillion_for_windows)
+
+### Citing Graphillion
+
+- Michihiro Koibuchi, Ikki Fujiwara, Fabien Chaix, and Henri Casanova,
+  "Towards Ideal Hop Counts in Interconnection Networks with Arbitrary
+  Size," Proc. of 4th International Symposium on Computing and
+  Networking (CANDAR), pp.188-194, November 2016.
+  ([doi](https://doi.org/10.1109/CANDAR.2016.0042))
+- Shin-ichi Minato, "Power of Enumeration -- BDD/ZDD-Based Techniques
+  for Discrete Structure Manipulation," IEEE 46th International
+  Symposium on Multiple-Valued Logic (ISMVL),
+  pp.143-143, July 2016. ([doi](http://doi.org/10.1109/ISMVL.2016.49))
+- Masahiro Kawahara, Takehide Soh, Mutsunori Banbara, and Naoyuki
+  Tamura, "Constraint Models for SAT-based Subgraph Search," Proc. of
+  the 30th Annual Conference of the Japanese Society for Artificial
+  Intelligence, 1D4-OS-02a-4, June 2016.
+  ([pdf](https://kaigi.org/jsai/webprogram/2016/pdf/171.pdf))
+- Shin-ichi Minato, "Counting by ZDD," Encyclopedia of Algorithms,
+  Springer, pp.454-458, April 2016.
+  ([doi](http://dx.doi.org/10.1007/978-1-4939-2864-4_734))
+- Yasuhiro Takei, Masanori Hariyama, and Michitaka Kameyama,
+  "Evaluation of an FPGA-Based Shortest-Path-Search Accelerator,"
+  Proc. of the International Conference on Parallel and Distributed
+  Processing Techniques and Applications (PDPTA),
+  pp.613-617, 2015. ([pdf](http://www.ecei.tohoku.ac.jp/hariyama-lab/papers/old/C20150729_PDPTA_FPGA-BasedShortest-Path-Search.pdf))
+- Tsutomu Sasao and Jon T. Butler, "Applications of Zero-Suppressed
+  Decision Diagrams," Morgan & Claypool Publishers, November 2014.
+  ([doi](http://doi.org/10.2200/S00612ED1V01Y201411DCS045))
 
 [JST ERATO Minato project]: http://www-erato.ist.hokudai.ac.jp/?language=en
 [DNET]: https://github.com/takemaru/dnet#dnet---distribution-network-evaluation-tool
