@@ -19,7 +19,7 @@ Graphillion - Fast, lightweight library for a huge number of graphs
 News
 --------------------------------------------------------------------------------
 
-- Graphillion officially supports Python 3.6 as well as 2.7.
+- Graphillion officially supports Python 3.4 as well as 2.7.
 - Graphillion [book] is published in April 2015 (sorry, written in
   Japanese).
 - Graphillion was used in the lecture by Prof. Jun Kawahara at Nara
@@ -112,7 +112,7 @@ Graphillion requires 64-bit machines to efficiently handle large numbers.
 #### Python
 
 To build Graphillion, you need [Python](http://www.python.org/)
-version 2.7 or 3.6 with the development environment for `Python.h`;
+version 2.7 or 3.4 with the development environment for `Python.h`;
 `Python.h` is included with XCode in macOS, while it can be installed
 by `apt-get install python-dev` in Ubuntu.
 
