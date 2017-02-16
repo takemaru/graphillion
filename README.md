@@ -934,7 +934,7 @@ References
   "Enumerating Eulerian Trails via Hamiltonian Path Enumeration,"
   International Workshop on Algorithms and Computation (WALCOM),
   pp.161-174, February 2015.
-  ([doi](http://dx.doi.org/10.1007/978-3-319-15612-5_15)
+  ([doi](http://dx.doi.org/10.1007/978-3-319-15612-5_15))
 - Takeru Inoue, Norihito Yasuda, Shunsuke Kawano, Yuji Takenobu,
   Shin-ichi Minato, and Yasuhiro Hayashi, "Distribution Network
   Verification for Secure Restoration by Enumerating All Critical
@@ -966,7 +966,7 @@ References
   Tamura, "Constraint Models for SAT-based Subgraph Search," Proc. of
   the 30th Annual Conference of the Japanese Society for Artificial
   Intelligence, 1D4-OS-02a-4, June 2016.
-  ([pdf](https://kaigi.org/jsai/webprogram/2016/pdf/171.pdf))
+  ([pdf](https://kaigi.org/jsai/webprogram/2016/pdf/171.pdf), in Japanese)
 - Shin-ichi Minato, "Counting by ZDD," Encyclopedia of Algorithms,
   Springer, pp.454-458, April 2016.
   ([doi](http://dx.doi.org/10.1007/978-1-4939-2864-4_734))
