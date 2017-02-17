@@ -10,7 +10,7 @@ Graphillion - Fast, lightweight library for a huge number of graphs
 * [Tutorial](#tutorial "Tutorial")
 * [Creating graphsets](#creating-graphsets "Creating graphsets")
 * [Manipulating graphsets](#manipulating-graphsets "Manipulating graphsets")
-* [Parallel computing](#parallel-computing")
+* [Parallel computing](#parallel-computing "Parallel computing")
 * [Working with NetworkX](#working-with-networkx "Working with NetworkX")
 * [Library reference](#library-reference "Library reference")
 * [Example codes](http://github.com/takemaru/graphillion/wiki/Example-codes)
