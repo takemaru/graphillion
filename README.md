@@ -1031,6 +1031,8 @@ References
 [PyCon]: http://youtu.be/DjPyLSNxmqI "PyCon APAC 2013"
 [pycon-thumbnail]: http://i.ytimg.com/vi/DjPyLSNxmqI/3.jpg
 [tutorial]: #tutorial
+[Parallel computing]: #parallel-computing
+[References]: #references
 [GGCount]: https://github.com/kunisura/GGCount
 [TdZdd]: https://github.com/kunisura/TdZdd
 [book]: http://www.amazon.co.jp/dp/4627852614
