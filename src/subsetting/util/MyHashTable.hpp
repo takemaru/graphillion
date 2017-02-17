@@ -1,22 +1,38 @@
 /*
- * Top-Down ZDD Construction Library for Frontier-Based Search
+ * TdZdd: a Top-down/Breadth-first Decision Diagram Manipulation Framework
  * by Hiroaki Iwashita <iwashita@erato.ist.hokudai.ac.jp>
- * Copyright (c) 2012 Japan Science and Technology Agency
- * $Id: MyHashTable.hpp 410 2013-02-14 06:33:04Z iwashita $
+ * Copyright (c) 2014 ERATO MINATO Project
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ * DEALINGS IN THE SOFTWARE.
  */
 
 #pragma once
 
 #include <cassert>
 #include <ostream>
+#include <stdint.h>
+
+namespace tdzdd {
 
 class MyHashConstant {
 protected:
     static int const MAX_FILL = 75;
-
-    static size_t tableSize(size_t n) {
-        return primeSize(n * 100 / MAX_FILL + 1);
-    }
 
 public:
     static size_t primeSize(size_t n) {
@@ -78,15 +94,47 @@ struct MyHashDefault<T*> {
     }
 };
 
-template<>
-struct MyHashDefault<size_t> {
-    size_t operator()(size_t o) const {
-        return o;
+template<typename T>
+struct MyHashDefaultForInt {
+    size_t operator()(T k) const {
+        return k * 314159257ULL;
     }
 
-    bool operator()(size_t o1, size_t o2) const {
-        return o1 == o2;
+    bool operator()(T k1, T k2) const {
+        return k1 == k2;
     }
+};
+
+template<>
+struct MyHashDefault<int8_t> : MyHashDefaultForInt<int8_t> {
+};
+
+template<>
+struct MyHashDefault<int16_t> : MyHashDefaultForInt<int16_t> {
+};
+
+template<>
+struct MyHashDefault<int32_t> : MyHashDefaultForInt<int32_t> {
+};
+
+template<>
+struct MyHashDefault<int64_t> : MyHashDefaultForInt<int64_t> {
+};
+
+template<>
+struct MyHashDefault<uint8_t> : MyHashDefaultForInt<uint8_t> {
+};
+
+template<>
+struct MyHashDefault<uint16_t> : MyHashDefaultForInt<uint16_t> {
+};
+
+template<>
+struct MyHashDefault<uint32_t> : MyHashDefaultForInt<uint32_t> {
+};
+
+template<>
+struct MyHashDefault<uint64_t> : MyHashDefaultForInt<uint64_t> {
 };
 
 /**
@@ -212,8 +260,12 @@ public:
         delete[] table;
     }
 
-    size_t memorySize() const {
+    size_t tableCapacity() const {
         return tableCapacity_ * sizeof(Entry);
+    }
+
+    size_t tableSize() const {
+        return tableSize_;
     }
 
     size_t size() const {
@@ -247,7 +299,7 @@ public:
      * @param n initial table size.
      */
     void initialize(size_t n) {
-        tableSize_ = tableSize(n);
+        tableSize_ = primeSize(n * 100 / MAX_FILL + 1);
         maxSize_ = tableSize_ * MAX_FILL / 100;
         size_ = 0;
         collisions_ = 0;
@@ -281,15 +333,15 @@ public:
      * @param elem the element to be inserted.
      * @return reference to the element in the table.
      */
-    T& add(T const& elem) {
-        assert(!(elem == T()));
+    Entry& add(Entry const& elem) {
+        assert(!(elem == Entry()));
         if (tableSize_ == 0) rehash();
         size_t i;
 
         while (1) {
             i = hashFunc(elem) % tableSize_;
 
-            while (!(table[i] == T())) {
+            while (!(table[i] == Entry())) {
                 if (eqFunc(table[i], elem)) return table[i];
                 ++collisions_;
                 ++i;
@@ -310,21 +362,21 @@ public:
     /**
      * Get the element that is already registered.
      * @param elem the element to be searched.
-     * @return reference to the element in the table or null.
+     * @return pointer to the element in the table or null.
      */
-    T& get(T const& elem) const {
-        assert(!(elem == T()));
+    Entry* get(Entry const& elem) const {
+        assert(!(elem == Entry()));
 
         if (tableSize_ > 0) {
             size_t i = hashFunc(elem) % tableSize_;
-            while (!(table[i] == T())) {
-                if (eqFunc(table[i], elem)) return table[i];
+            while (!(table[i] == Entry())) {
+                if (eqFunc(table[i], elem)) return &table[i];
                 ++i;
                 if (i >= tableSize_) i = 0;
             }
         }
 
-        return *static_cast<T*>(0);
+        return static_cast<Entry*>(0);
     }
 
     class iterator {
@@ -334,7 +386,7 @@ public:
     public:
         explicit iterator(Entry* from, Entry const* to)
                 : ptr(from), end(to) {
-            while (ptr < end && *ptr == 0) {
+            while (ptr < end && *ptr == Entry()) {
                 ++ptr;
             }
         }
@@ -348,9 +400,8 @@ public:
         }
 
         iterator& operator++() {
-            while (ptr < end) {
-                ++ptr;
-                if (!(*ptr == T())) break;
+            while (++ptr < end) {
+                if (!(*ptr == Entry())) break;
             }
             return *this;
         }
@@ -371,7 +422,7 @@ public:
     public:
         explicit const_iterator(Entry const* from, Entry const* to)
                 : ptr(from), end(to) {
-            while (ptr < end && *ptr == 0) {
+            while (ptr < end && *ptr == Entry()) {
                 ++ptr;
             }
         }
@@ -385,9 +436,8 @@ public:
         }
 
         const_iterator& operator++() {
-            while (ptr < end) {
-                ++ptr;
-                if (!(*ptr == T())) break;
+            while (++ptr < end) {
+                if (!(*ptr == Entry())) break;
             }
             return *this;
         }
@@ -432,7 +482,7 @@ struct MyHashMapEntry {
     V value; ///< The value.
 
     MyHashMapEntry()
-            : key(0), value() {
+            : key(), value() {
     }
 
     MyHashMapEntry(K const& key)
@@ -523,7 +573,8 @@ struct MyHashMap: public MyHashTable<MyHashMapEntry<K,V>,
      * @param equal equality function.
      */
     MyHashMap(size_t n, Hash const& hash = Hash(), Equal const& equal = Equal())
-            : Table(n, hash, equal) {
+            : Table(n, MyHashMapHashWrapper<K,V,Hash,Equal>(hash, equal),
+                    MyHashMapHashWrapper<K,V,Hash,Equal>(hash, equal)) {
     }
 
     /**
@@ -549,48 +600,18 @@ struct MyHashMap: public MyHashTable<MyHashMapEntry<K,V>,
      * @return reference to the value in the table.
      */
     V& operator[](K const& key) {
-        assert(!(key == K()));
-        if (Table::tableSize_ == 0) Table::rehash();
-        size_t i;
-
-        while (1) {
-            i = Table::hashFunc(key) % Table::tableSize_;
-
-            while (!(Table::table[i].key == K())) {
-                if (Table::eqFunc(Table::table[i].key, key)) return Table::table[i].value;
-                ++Table::collisions_;
-                ++i;
-                if (i >= Table::tableSize_) i = 0;
-            }
-
-            if (Table::size_ < Table::maxSize_) break;
-
-            /* Rehash only when new element is inserted. */
-            Table::rehash(Table::size_ * 2);
-        }
-
-        ++Table::size_;
-        Table::table[i].key = key;
-        return Table::table[i].value;
+        return Table::add(Entry(key)).value;
     }
 
-//    /**
-//     * Get operation as a map.
-//     * @param key the key to be searched.
-//     * @return reference to the value in the map or null.
-//     */
-//    V& getValue(K const& key) const {
-//        assert(!(key == K(0)));
-//
-//        if (Table::tableSize_ > 0) {
-//            size_t i = hashFunc(key) % Table::tableSize_;
-//            while (!(Table::table[i].key == K(0))) {
-//                if (eqFunc(Table::table[i].key, key)) return Table::table[i].value;
-//                ++i;
-//                if (i >= Table::tableSize_) i = 0;
-//            }
-//        }
-//
-//        return *static_cast<V*>(0);
-//    }
+    /**
+     * Get the value that is already registered.
+     * @param key the key to be searched.
+     * @return pointer to the value in the map or null.
+     */
+    V* getValue(K const& key) const {
+        Entry* p = Table::get(Entry(key));
+        return (p != 0) ? &p->value : 0;
+    }
 };
+
+} // namespace tdzdd

@@ -1,8 +1,25 @@
 /*
- * Top-Down ZDD Construction Library for Frontier-Based Search
+ * TdZdd: a Top-down/Breadth-first Decision Diagram Manipulation Framework
  * by Hiroaki Iwashita <iwashita@erato.ist.hokudai.ac.jp>
- * Copyright (c) 2012 Japan Science and Technology Agency
- * $Id: Graph.hpp 424 2013-02-25 09:17:54Z iwashita $
+ * Copyright (c) 2014 ERATO MINATO Project
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ * DEALINGS IN THE SOFTWARE.
  */
 
 #pragma once
@@ -21,7 +38,7 @@
 #include <stdint.h>
 #include <vector>
 
-#include "MessageHandler.hpp"
+namespace tdzdd {
 
 class Graph {
 public:
@@ -65,7 +82,6 @@ public:
     static ColorNumber const MAX_COLORS = USHRT_MAX;
 
 private:
-//    std::vector<std::string> vertexNames;
     std::vector<std::pair<std::string,std::string> > edgeNames;
     std::map<std::string,std::string> name2label;
     std::map<std::string,std::string> name2color;
@@ -75,9 +91,6 @@ private:
     std::vector<std::pair<std::string,std::string> > edge2name;
     std::vector<EdgeInfo> edgeInfo_;
     std::map<VertexNumberPair,EdgeNumber> edgeIndex;
-//    std::vector<std::vector<VertexNumber> > connectedVertices_;
-//    std::vector<std::vector<VertexNumber> > connectedGreaterVertices_;
-//    std::vector<std::vector<VertexNumber> > leavingVertices_;
     std::vector<VertexNumber> virtualMate_;
     std::vector<ColorNumber> colorNumber_;
     VertexNumber vMax;
@@ -89,28 +102,16 @@ public:
         edgeNames.push_back(std::make_pair(vertexName1, vertexName2));
     }
 
-//    void addEdge(int v1, int v2) {
-//        addEdge(to_string(v1), to_string(v2));
-//    }
-
     void setColor(std::string v, std::string color) {
         name2color[v] = color;
     }
-
-//    void setColor(int v, std::string color) {
-//        setColor(to_string(v), color);
-//    }
 
     void setColor(std::string v, int color) {
         name2color[v] = getColor(color);
     }
 
-//    void setColor(int v, int color) {
-//        setColor(to_string(v), color);
-//    }
-
     void readEdges(std::string const& filename) {
-        MessageHandler mh;
+        tdzdd::MessageHandler mh;
         mh.begin("reading");
 
         if (filename.empty()) {
@@ -129,7 +130,7 @@ public:
     }
 
     void readAdjacencyList(std::string const& filename) {
-        MessageHandler mh;
+        tdzdd::MessageHandler mh;
         mh.begin("reading");
 
         if (filename.empty()) {
@@ -148,7 +149,7 @@ public:
     }
 
     void readVertexGroups(std::string const& filename) {
-        MessageHandler mh;
+        tdzdd::MessageHandler mh;
         mh.begin("reading");
 
         if (filename.empty()) {
@@ -215,14 +216,12 @@ private:
     }
 
     void readAdjacencyList(std::istream& is) {
-//        vertexNames.clear();
         edgeNames.clear();
         name2label.clear();
         name2color.clear();
 
         VertexNumber v1 = 1;
         VertexNumber v2;
-//        VertexNumber vmax = 0;
 
         while (is) {
             char c;
@@ -232,12 +231,6 @@ private:
             if (!is) break;
             is.unget();
             is >> v2;
-
-//            while (vmax < v1 || vmax < v2) {
-//                ++vmax;
-//                std::string s = to_string(vmax);
-//                vertexNames.push_back(s);
-//            }
 
             edgeNames.push_back(std::make_pair(to_string(v1), to_string(v2)));
         }
@@ -293,8 +286,6 @@ public:
         edge2name.clear();
         edgeInfo_.clear();
         edgeIndex.clear();
-        //    connectedVertices_.clear();
-        //    leavingVertices_.clear();
         vMax = 0;
 
         // Make unique edge name list
@@ -365,49 +356,12 @@ public:
                 edgeIndex[vp] = a;
                 name2edge[std::make_pair(s1, s2)] = a;
                 name2edge[std::make_pair(s2, s1)] = a;
-                if (vMax < v2) {
-                    vMax = v2;
-                    //        connectedVertices_.resize(vMax + 1);
-                }
-                //    connectedVertices_[v1].emplace_back(v2);
-                //    connectedVertices_[v2].emplace_back(v1);
+                if (vMax < v2) vMax = v2;
             }
 
             if (edgeInfo_.size() > size_t(MAX_EDGES)) throw std::runtime_error(
                     "ERROR: Edge number > " + to_string(MAX_EDGES));
         }
-
-        //    connectedGreaterVertices_.resize(vMax + 1);
-        //    for (Graph::VertexNumber v = 1; v <= vMax; ++v) {
-        //        std::sort(connectedVertices_[v].begin(), connectedVertices_[v].end());
-        //        auto p = connectedVertices_[v].begin();
-        //        auto q = connectedVertices_[v].end();
-        //        while (p != q && *p <= v) {
-        //            ++p;
-        //        }
-        //        connectedGreaterVertices_[v] = std::vector<VertexNumber>(p, q);
-        //    }
-
-        //    leavingVertices_.resize(vMax + 1);
-        //    for (VertexNumber v = 1; v <= vMax; ++v) {
-        //        EdgeNumber a = theLastEdge_[v];
-        //        if (a > edgeSize()) continue;
-        //        VertexNumberPair vp = elements[a];
-        //        leavingVertices_[vp.second].push_back(v); // v == vp.second included
-        //    }
-        //    std::vector<bool> left(vMax + 1);
-        //    VertexNumber tail = 1;
-        //    for (VertexNumber v = 1; v <= vMax; ++v) {
-        //        auto& leaving = leavingVertices_[v];
-        //        for (auto p = leaving.begin(); p != leaving.end(); ++p) {
-        //            left[*p] = true;
-        //        }
-        //        leaving.clear();
-        //        while (tail <= vMax && left[tail]) {
-        //            leaving.push_back(tail);
-        //            ++tail;
-        //        }
-        //    }
 
         {
             std::map<std::string,std::set<VertexNumber> > color2vertices;
@@ -529,30 +483,6 @@ public:
         }
     }
 
-private:
-//    struct EdgeLessThan {
-//        std::map<std::string,VertexNumber>& name2vertex;
-//        EdgeLessThan(std::map<std::string,VertexNumber>& name2vertex)
-//                : name2vertex(name2vertex) {
-//        }
-//
-//        bool operator()(std::pair<std::string,std::string> const& p1,
-//                std::pair<std::string,std::string> const& p2) const {
-//            VertexNumber v1 = name2vertex[p1.first];
-//            VertexNumber v2 = name2vertex[p2.first];
-//            if (v1 == v2) {
-//                v1 = name2vertex[p1.second];
-//                v2 = name2vertex[p2.second];
-//            }
-//            return v1 < v2;
-//        }
-//    };
-//
-//    void sortEdges(std::vector<std::pair<std::string,std::string> >& edges) {
-//        std::sort(edges.begin(), edges.end(), EdgeLessThan(name2vertex));
-//    }
-
-public:
     VertexNumber vertexSize() const {
         return vMax;
     }
@@ -566,28 +496,6 @@ public:
         assert(0 <= a && size_t(a) < edgeInfo_.size());
         return edgeInfo_[a];
     }
-
-//    VertexNumber nextVertex(EdgeNumber a) const {
-//        assert(0 <= a && size_t(a) < elements.size());
-//        if (a + 1 >= edgeSize()) return vMax + 1;
-//        return elements[a + 1].first;
-//    }
-
-//    std::vector<VertexNumber> const& connectedVertices(VertexNumber v) const {
-//        assert(1 <= v && v <= vMax);
-//        return connectedVertices_[v];
-//    }
-//
-//    std::vector<VertexNumber> const& connectedGreaterVertices(
-//            VertexNumber v) const {
-//        assert(1 <= v && v <= vMax);
-//        return connectedGreaterVertices_[v];
-//    }
-//
-//    std::vector<VertexNumber> const& leavingVertices(VertexNumber v) const {
-//        assert(1 <= v && v <= vMax);
-//        return leavingVertices_[v];
-//    }
 
     VertexNumber getVertex(std::string const& name) const {
         std::map<std::string,VertexNumber>::const_iterator found =
@@ -744,22 +652,6 @@ public:
         return os;
     }
 
-    struct EdgeLabeler {
-        Graph const& graph;
-
-        EdgeLabeler(Graph const& graph)
-                : graph(graph) {
-        }
-
-        std::string operator()(DdNodeId f) {
-            return graph.edgeLabel(graph.edgeSize() - f.row);
-        }
-    };
-
-    EdgeLabeler edgeLabeler() const {
-        return EdgeLabeler(*this);
-    }
-
 private:
     struct NoEdgeDecorator {
         std::string operator()(EdgeNumber a) const {
@@ -782,5 +674,6 @@ private:
         oss << i;
         return oss.str();
     }
-}
-;
+};
+
+} // namespace tdzdd

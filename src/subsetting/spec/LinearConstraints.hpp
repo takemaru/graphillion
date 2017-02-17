@@ -11,10 +11,12 @@
 #include <map>
 #include <vector>
 
-#include "../dd/DdSpec.hpp"
+#include "../DdSpec.hpp"
+
+namespace tdzdd {
 
 template<typename T>
-class LinearConstraints: public PodArrayDdSpec<LinearConstraints<T>,T> {
+class LinearConstraints: public PodArrayDdSpec<LinearConstraints<T>,T,2> {
     struct CheckItem {
         int index;
         T weight;
@@ -157,3 +159,5 @@ public:
         return (--level >= 1) ? level : -1;
     }
 };
+
+} // namespace tdzdd

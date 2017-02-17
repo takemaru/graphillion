@@ -1,8 +1,25 @@
 /*
- * Top-Down ZDD Construction Library for Frontier-Based Search
+ * TdZdd: a Top-down/Breadth-first Decision Diagram Manipulation Framework
  * by Hiroaki Iwashita <iwashita@erato.ist.hokudai.ac.jp>
- * Copyright (c) 2012 Japan Science and Technology Agency
- * $Id: DegreeConstraint.hpp 421 2013-02-25 05:33:17Z iwashita $
+ * Copyright (c) 2014 ERATO MINATO Project
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ * DEALINGS IN THE SOFTWARE.
  */
 
 #pragma once
@@ -13,17 +30,20 @@
 #include <map>
 #include <vector>
 
-#include "../dd/DdSpec.hpp"
+#include "../DdSpec.hpp"
 #include "../util/Graph.hpp"
 #include "../util/IntSubset.hpp"
 
-class DegreeConstraint: public PodArrayDdSpec<DegreeConstraint,int16_t> {
+namespace tdzdd {
+
+class DegreeConstraint: public PodArrayDdSpec<DegreeConstraint,int16_t,2> {
     typedef int16_t Mate;
 
     Graph const& graph;
     std::vector<IntSubset const*> constraints;
     int const n;
     int const mateSize;
+    bool const lookahead;
 
     void shiftMate(Mate* mate, int d) const {
         assert(d >= 0);
@@ -47,9 +67,9 @@ class DegreeConstraint: public PodArrayDdSpec<DegreeConstraint,int16_t> {
     }
 
 public:
-    DegreeConstraint(Graph const& graph, IntSubset const* c = 0)
+    DegreeConstraint(Graph const& graph, IntSubset const* c = 0, bool lookahead = true)
             : graph(graph), n(graph.edgeSize()),
-              mateSize(graph.maxFrontierSize()) {
+              mateSize(graph.maxFrontierSize()), lookahead(lookahead) {
         setArraySize(mateSize);
 
         int m = graph.vertexSize();
@@ -76,7 +96,7 @@ public:
         return n;
     }
 
-    int getChild(Mate* mate, int level, bool take) const {
+    int getChild(Mate* mate, int level, int take) const {
         assert(1 <= level && level <= n);
         int i = n - level;
         Graph::EdgeInfo const& e = graph.edgeInfo(i);
@@ -85,10 +105,6 @@ public:
         IntSubset const* c1 = constraints[e.v1];
         IntSubset const* c2 = constraints[e.v2];
         assert(e.v1 <= e.v2);
-//        std::cerr << "\ne" << i << (take ? ": T " : ": F ")
-//                << graph.vertexName(e.v1) << "-" << graph.vertexName(e.v2)
-//                << " ";
-//        print(std::cerr, mate);
 
         if (take) {
             if (!takable(c1, w1, e.v1final)) return 0;
@@ -107,7 +123,7 @@ public:
         if (++i == n) return -1;
         shiftMate(mate, graph.edgeInfo(i).v0 - e.v0);
 
-        while (true) {
+        while (lookahead) {
             Graph::EdgeInfo const& e = graph.edgeInfo(i);
             Mate& w1 = mate[e.v1 - e.v0];
             Mate& w2 = mate[e.v2 - e.v0];
@@ -130,3 +146,5 @@ public:
         return n - i;
     }
 };
+
+} // namespace tdzdd

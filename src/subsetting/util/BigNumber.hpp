@@ -1,18 +1,38 @@
 /*
- * Top-Down BDD/ZDD Package
+ * TdZdd: a Top-down/Breadth-first Decision Diagram Manipulation Framework
  * by Hiroaki Iwashita <iwashita@erato.ist.hokudai.ac.jp>
- * Copyright (c) 2012 Japan Science and Technology Agency
- * $Id: BigNumber.hpp 410 2013-02-14 06:33:04Z iwashita $
+ * Copyright (c) 2014 ERATO MINATO Project
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ * DEALINGS IN THE SOFTWARE.
  */
 
 #pragma once
 
+#include <cassert>
 #include <stdint.h>
 #include <cstdlib>
 #include <iostream>
 #include <sstream>
 #include <stdexcept>
 #include <string>
+
+namespace tdzdd {
 
 class BigNumber {
 protected:
@@ -41,32 +61,46 @@ public:
         return p - array;
     }
 
-    BigNumber& store(BigNumber const& o) {
+    size_t store(BigNumber const& o) {
         if (o.array == 0) return store(0);
 
         uint64_t* p = array;
         uint64_t const* q = o.array;
+
+        if (p == 0) {
+            if (*q != 0) throw std::runtime_error(
+                    "Non-zero assignment to null BigNumber");
+            return 1;
+        }
+
         do {
             *p++ = *q;
         } while (*q++ & MSB);
-        return *this;
+
+        return p - array;
     }
 
-    BigNumber& store(uint64_t n) {
+    size_t store(uint64_t n) {
+        size_t w = 1;
+
         if (array == 0) {
             if (n != 0) throw std::runtime_error(
-                    "Non-zero assignment to null BigNumberWriter");
+                    "Non-zero assignment to null BigNumber");
         }
         else {
             array[0] = n;
-            if (n & MSB) array[1] = 1;
+            if (n & MSB) {
+                w = 2;
+                array[1] = 1;
+            }
         }
-        return *this;
+
+        return w;
     }
 
-    bool equals(BigNumber const& o) const {
-        if (array == 0) return o.equals(0);
-        if (o.array == 0) return equals(0);
+    bool operator==(BigNumber const& o) const {
+        if (array == 0) return o.operator==(0);
+        if (o.array == 0) return operator==(0);
 
         uint64_t* p = array;
         uint64_t const* q = o.array;
@@ -76,9 +110,17 @@ public:
         return true;
     }
 
-    bool equals(uint64_t n) const {
+    bool operator!=(BigNumber const& o) const {
+        return !operator==(o);
+    }
+
+    bool operator==(uint64_t n) const {
         return (array == 0) ? n == 0 :
                 array[0] == n && ((n & MSB) == 0 || array[1] == 1);
+    }
+
+    bool operator!=(uint64_t const& o) const {
+        return !operator==(o);
     }
 
     size_t add(BigNumber const& o) {
@@ -148,6 +190,40 @@ public:
         return r;
     }
 
+    size_t shiftLeft(int k) {
+        assert(k >= 0);
+        if (k >= 63) {
+            int w = k / 63;
+            for (uint64_t* q = array + size() - 1; q >= array; --q) {
+                *(q + w) = *q;
+            }
+            for (uint64_t* q = array; q < array + w; ++q) {
+                *q = MSB;
+            }
+        }
+        k %= 63;
+
+        uint64_t* p = array;
+        uint64_t x = 0;
+
+        while (true) {
+            uint64_t tmp = x | (*p << k);
+            x = (*p & ~MSB) >> (63 - k);
+            if (x == 0 && (*p & MSB) == 0) {
+                *p++ = tmp & ~MSB;
+                break;
+            }
+            else if ((*p & MSB) == 0) {
+                *p++ = tmp | MSB;
+                *p++ = x;
+                break;
+            }
+            *p++ = tmp | MSB;
+        }
+
+        return p - array;
+    }
+
     template<typename T>
     T translate() const {
         uint64_t const* p = array;
@@ -165,7 +241,7 @@ public:
 private:
     void printHelper(std::ostream& os) {
         uint32_t r = divide(10);
-        if (!equals(0)) printHelper(os);
+        if (*this != 0) printHelper(os);
         os << r;
     }
 
@@ -292,3 +368,5 @@ public:
         return ss.str();
     }
 };
+
+} // namespace tdzdd

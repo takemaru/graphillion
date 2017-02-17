@@ -10,6 +10,7 @@ Graphillion - Fast, lightweight library for a huge number of graphs
 * [Tutorial](#tutorial "Tutorial")
 * [Creating graphsets](#creating-graphsets "Creating graphsets")
 * [Manipulating graphsets](#manipulating-graphsets "Manipulating graphsets")
+* [Parallel computing](#parallel-computing")
 * [Working with NetworkX](#working-with-networkx "Working with NetworkX")
 * [Library reference](#library-reference "Library reference")
 * [Example codes](http://github.com/takemaru/graphillion/wiki/Example-codes)
@@ -19,7 +20,11 @@ Graphillion - Fast, lightweight library for a huge number of graphs
 News
 --------------------------------------------------------------------------------
 
-- Graphillion officially supports Python 3.4 as well as 2.7.
+- Graphillion version 1.0 is released with long-awaited features:
+  - Python 3 is supported (Python 2 is as well),
+  - [Parallel computing] is enabled with [OpenMP],
+  - More efficient configuration (i.e., the edge order) is introduced, and
+  - Advanced set operations (e.g., join, meet, quotient) are introduced.
 - Graphillion [book] is published in April 2015 (sorry, written in
   Japanese).
 - Graphillion was used in the lecture by Prof. Jun Kawahara at Nara
@@ -32,11 +37,11 @@ Graphillion is a Python software package on search, optimization, and
 enumeration for a *graphset*, or a set of graphs.
 
 * Lightweight data structures for handling *x-illions* of graphs
-* Search, optimization, and enumeration for large and complex graph
-  sets
-* Used for power network evaluation ([DNET]), railway analysis
-  ([Ekillion]), etc.
+* Search, optimization, and enumeration performed over a large number of graphs
+* Used for several applications, e.g., power network evaluation
+  ([DNET]), railway analysis ([Ekillion]), as shown in [References]
 * Efficient implementation extending Python with C/C++
+* [Parallel computing] with [OpenMP]
 * Working with existing graph tools like [NetworkX]
 * Open source MIT license
 * Well tested: more than 600 unit tests
@@ -760,6 +765,27 @@ structure.
 - `gs.pop()`, and
 - `gs.copy()`.
 
+Parallel computing
+--------------------------------------------------------------------------------
+
+Graphillion runs in parallel using [OpenMP], an API supporting
+multi-platform shared memory multiprocessing.  To enjoy parallel
+computing, specify the number of CPU cores to use by the environmental
+variable `OMP_NUM_THREADS`.  An example to use four cores is:
+
+```bash
+$ OMP_NUM_THREADS=4 python your_graphillion_script.py
+```
+
+Currently, the following methods can be parallelized:
+
+- `GraphSet.graphs(constraints)`
+- `GraphSet.connected_components(vertices)`
+- `GraphSet.cliques(k)`
+- `GraphSet.trees(root, is_spanning)`
+- `GraphSet.forests(roots, is_spanning)`
+- `GraphSet.cycles(is_hamilton)`
+- `GraphSet.paths(terminal1, terminal2, is_hamilton)`
 
 Working with NetworkX
 --------------------------------------------------------------------------------
@@ -910,11 +936,16 @@ References
   Based on Reconfiguration Scheduling," IEEE Transactions on Smart
   Grid, September 2016.
   ([doi](https://doi.org/10.1109/TSG.2016.2604922))
-- Masashi Hashimoto, Tomihiro Utsumi, and Takeru Inoue, "Availability
-  Analyses for Photonic Network by Minimal Blocking Set using ZDD
-  based Graphillion," Technical Report of IEICE, vol.116, no.205,
-  PN2016-22, pp.45-51, September 2016.
+- Masashi Hashimoto, Tomihiro Utsumi, and Takeru Inoue, "[Invited
+  Talk] Availability Analyses for Photonic Network by Minimal Blocking
+  Set using ZDD based Graphillion," Technical Report of IEICE,
+  vol.116, no.205, PN2016-22, pp.45-51, September 2016.
   ([html](http://www.ieice.org/ken/paper/20160902tbkK/), in Japanese)
+- Y. Takenobu, S. Kawano, Y. Hayashi, N. Yasuda and S. Minato,
+  "Maximizing hosting capacity of distributed generation by network
+  reconfiguration in distribution system," Proc. of Power Systems
+  Computation Conference (PSCC), pp.1-7, June 2016.
+  ([doi](https://doi.org/10.1109/PSCC.2016.7540965))
 - Subaru Fukuda and Naoshi Sakamoto, "A Failure Estimation System for
   Networks Applying Graphillion," Technical Report of IEICE, vol.115,
   no.483, NS2015-212, pp.255-260, March 2016.
@@ -986,6 +1017,7 @@ References
 [DNET]: https://github.com/takemaru/dnet#dnet---distribution-network-evaluation-tool
 [Ekillion]: http://www.nysol.jp/en/home/apps/ekillion
 [NetworkX]: http://networkx.github.io/
+[OpenMP]: http://openmp.org/
 [Time with class! Let's count!]: http://youtu.be/Q4gTV4r0zRs "Time with class! Let's count!"
 [lets_count-thumbnail]: http://i.ytimg.com/vi/Q4gTV4r0zRs/default.jpg
 [Graphillion: Don't count naively]: http://youtu.be/R3Hp9k876Kk "Graphillion: Don't count naively"

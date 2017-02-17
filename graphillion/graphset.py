@@ -1569,6 +1569,9 @@ class GraphSet(object):
 
           source: Optional.  This argument specifies the starting
             point of the edge traversal.
+
+        See Also:
+          universe()
         """
         sorted_edges = []
         indexed_edges = set()
@@ -1606,6 +1609,9 @@ class GraphSet(object):
 
         Returns:
           The universe if no argument is given, or None otherwise.
+
+        See Also:
+          set_universe()
         """
         edges = []
         for e in setset.universe():
@@ -1614,10 +1620,19 @@ class GraphSet(object):
             else:
                 edges.append(e)
         return GraphSet.converters['to_graph'](edges)
+
     @staticmethod
     def graphs(vertex_groups=None, degree_constraints=None, num_edges=None,
                no_loop=False, graphset=None, linear_constraints=None):
         """Returns a GraphSet with graphs under given constraints.
+
+        This is the base method for specific graph classes, e.g.,
+        paths and trees.
+
+        This method can be parallelized with OpenMP by specifying the
+        environmental variable `OMP_NUM_THREADS`:
+
+          `$ OMP_NUM_THREADS=4 python your_graphillion_script.py`
 
         Examples: a set of paths from vertex 1 to vertex 6
           >>> start = 1
@@ -1666,6 +1681,10 @@ class GraphSet(object):
 
         Returns:
           A new GraphSet object.
+
+        See Also:
+          connected_components(), cliques(), trees(), forests(),
+          cycles(), paths()
 
         """
         graph = []
@@ -1737,6 +1756,11 @@ class GraphSet(object):
     def connected_components(vertices, graphset=None):
         """Returns a GraphSet of connected components.
 
+        This method can be parallelized with OpenMP by specifying the
+        environmental variable `OMP_NUM_THREADS`:
+
+          `$ OMP_NUM_THREADS=4 python your_graphillion_script.py`
+
         Examples:
           >>> GraphSet.connected_components([1, 3, 5])
           GraphSet([[(1, 2), (2, 3), (2, 5)], [(1, 2), (1, 4), (2, 3), (2, 5)], [(1, 2 ...
@@ -1749,12 +1773,20 @@ class GraphSet(object):
 
         Returns:
           A new GraphSet object.
+
+        See Also:
+          graphs()
         """
         return GraphSet.graphs(vertex_groups=[vertices], graphset=graphset)
 
     @staticmethod
     def cliques(k, graphset=None):
         """Returns a GraphSet of k-cliques.
+
+        This method can be parallelized with OpenMP by specifying the
+        environmental variable `OMP_NUM_THREADS`:
+
+          `$ OMP_NUM_THREADS=4 python your_graphillion_script.py`
 
         Examples:
           >>> GraphSet.set_universe([(1, 2), (1, 3), (1, 4), (1, 5), (2, 3), (2, 4),
@@ -1770,6 +1802,9 @@ class GraphSet(object):
 
         Returns:
           A new GraphSet object.
+
+        See Also:
+          graphs()
         """
         dc = {}
         for v in GraphSet._vertices:
@@ -1781,6 +1816,11 @@ class GraphSet(object):
     @staticmethod
     def trees(root=None, is_spanning=False, graphset=None):
         """Returns a GraphSet of trees.
+
+        This method can be parallelized with OpenMP by specifying the
+        environmental variable `OMP_NUM_THREADS`:
+
+          `$ OMP_NUM_THREADS=4 python your_graphillion_script.py`
 
         Examples:
           >>> GraphSet.trees(1, is_spanning=True)
@@ -1797,6 +1837,9 @@ class GraphSet(object):
 
         Returns:
           A new GraphSet object.
+
+        See Also:
+          graphs()
         """
         vg = [[]] if root is None else [[root]]
         dc = None
@@ -1810,6 +1853,11 @@ class GraphSet(object):
     @staticmethod
     def forests(roots, is_spanning=False, graphset=None):
         """Returns a GraphSet of forests, sets of trees.
+
+        This method can be parallelized with OpenMP by specifying the
+        environmental variable `OMP_NUM_THREADS`:
+
+          `$ OMP_NUM_THREADS=4 python your_graphillion_script.py`
 
         Examples:
           >>> GraphSet.forests([1, 6])
@@ -1827,6 +1875,9 @@ class GraphSet(object):
 
         Returns:
           A new GraphSet object.
+
+        See Also:
+          graphs()
         """
         vg = [[r] for r in roots]
         dc = None
@@ -1842,6 +1893,11 @@ class GraphSet(object):
     def cycles(is_hamilton=False, graphset=None):
         """Returns a GraphSet of cycles.
 
+        This method can be parallelized with OpenMP by specifying the
+        environmental variable `OMP_NUM_THREADS`:
+
+          `$ OMP_NUM_THREADS=4 python your_graphillion_script.py`
+
         Examples:
           >>> GraphSet.cycles(is_hamilton=True)
           GraphSet([[(1, 2), (1, 4), (2, 3), (3, 6), (4, 5), (5, 6)]])
@@ -1855,6 +1911,9 @@ class GraphSet(object):
 
         Returns:
           A new GraphSet object.
+
+        See Also:
+          graphs()
         """
         dc = {}
         for v in GraphSet._vertices:
@@ -1865,6 +1924,11 @@ class GraphSet(object):
     @staticmethod
     def paths(terminal1, terminal2, is_hamilton=False, graphset=None):
         """Returns a GraphSet of paths.
+
+        This method can be parallelized with OpenMP by specifying the
+        environmental variable `OMP_NUM_THREADS`:
+
+          `$ OMP_NUM_THREADS=4 python your_graphillion_script.py`
 
         Examples:
           >>> GraphSet.paths(1, 6)
@@ -1878,6 +1942,9 @@ class GraphSet(object):
 
         Returns:
           A new GraphSet object.
+
+        See Also:
+          graphs()
         """
         dc = {}
         for v in GraphSet._vertices:

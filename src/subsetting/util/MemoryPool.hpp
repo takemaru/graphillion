@@ -1,8 +1,25 @@
 /*
- * Top-Down ZDD Construction Library for Frontier-Based Search
+ * TdZdd: a Top-down/Breadth-first Decision Diagram Manipulation Framework
  * by Hiroaki Iwashita <iwashita@erato.ist.hokudai.ac.jp>
- * Copyright (c) 2012 Japan Science and Technology Agency
- * $Id: MemoryPool.hpp 410 2013-02-14 06:33:04Z iwashita $
+ * Copyright (c) 2014 ERATO MINATO Project
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ * DEALINGS IN THE SOFTWARE.
  */
 
 #pragma once
@@ -10,6 +27,10 @@
 #include <cassert>
 #include <iostream>
 #include <stdexcept>
+
+#include "MyVector.hpp"
+
+namespace tdzdd {
 
 /**
  * Memory pool.
@@ -34,16 +55,16 @@ public:
 
     MemoryPool(MemoryPool const& o)
             : blockList(0), nextUnit(BLOCK_UNITS) {
-        if (o.blockList != 0) throw std::runtime_error(
-                "MemoryPool can't be copied unless it is empty!");//FIXME
+//        if (o.blockList != 0) throw std::runtime_error(
+//                "MemoryPool can't be copied unless it is empty!"); //FIXME
     }
 
-    MemoryPool& operator=(MemoryPool const& o) {
-        if (o.blockList != 0) throw std::runtime_error(
-                "MemoryPool can't be copied unless it is empty!");//FIXME
-        clear();
-        return *this;
-    }
+//    MemoryPool& operator=(MemoryPool const& o) {
+//        if (o.blockList != 0) throw std::runtime_error(
+//                "MemoryPool can't be copied unless it is empty!"); //FIXME
+//        clear();
+//        return *this;
+//    }
 
 //    MemoryPool(MemoryPool&& o): blockList(o.blockList), nextUnit(o.nextUnit) {
 //        o.blockList = 0;
@@ -56,8 +77,18 @@ public:
 //        return *this;
 //    }
 
+    void moveFrom(MemoryPool& o) {
+        blockList = o.blockList;
+        nextUnit = o.nextUnit;
+        o.blockList = 0;
+    }
+
     virtual ~MemoryPool() {
         clear();
+    }
+
+    bool empty() const {
+        return blockList == 0;
     }
 
     void clear() {
@@ -140,12 +171,16 @@ public:
             typedef Allocator<U> other;
         };
 
+        Allocator() throw ()
+                : pool(0) {
+        }
+
         Allocator(MemoryPool& pool) throw ()
-        : pool(&pool) {
+                : pool(&pool) {
         }
 
         Allocator(Allocator const& o) throw ()
-        : pool(o.pool) {
+                : pool(o.pool) {
         }
 
         Allocator& operator=(Allocator const& o) {
@@ -155,7 +190,7 @@ public:
 
         template<typename U>
         Allocator(Allocator<U> const& o) throw ()
-        : pool(o.pool) {
+                : pool(o.pool) {
         }
 
         ~Allocator() throw () {
@@ -188,3 +223,16 @@ public:
         return os << "MemoryPool(" << n << ")";
     }
 };
+
+/**
+ * Collection of memory pools.
+ */
+typedef MyVector<MemoryPool> MemoryPools;
+
+template<>
+inline void MyVector<MemoryPool>::moveElement(MemoryPool& from,
+        MemoryPool& to) {
+    to.moveFrom(from);
+}
+
+} // namespace tdzdd

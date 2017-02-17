@@ -1,43 +1,75 @@
 /*
- * Top-Down ZDD Construction Library for Frontier-Based Search
+ * TdZdd: a Top-down/Breadth-first Decision Diagram Manipulation Framework
  * by Hiroaki Iwashita <iwashita@erato.ist.hokudai.ac.jp>
- * Copyright (c) 2012 Japan Science and Technology Agency
- * $Id: DdBuilder.hpp 412 2013-02-15 01:13:19Z iwashita $
+ * Copyright (c) 2014 ERATO MINATO Project
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ * DEALINGS IN THE SOFTWARE.
  */
 
 #pragma once
 
 #include <cassert>
+#include <cmath>
 #include <ostream>
 #include <stdexcept>
-#include <vector>
 
 #ifdef _OPENMP
 #include <omp.h>
 #endif
 
-#include "DdNode.hpp"
-#include "DdNodeTable.hpp"
+#include "DdSweeper.hpp"
+#include "Node.hpp"
+#include "NodeTable.hpp"
+#include "../DdSpec.hpp"
 #include "../util/MemoryPool.hpp"
+#include "../util/MessageHandler.hpp"
 #include "../util/MyHashTable.hpp"
 #include "../util/MyList.hpp"
 #include "../util/MyVector.hpp"
+
+namespace tdzdd {
 
 class DdBuilderBase {
 protected:
     static int const headerSize = 1;
 
+    /* SpecNode
+     * ┌────────┬────────┬────────┬─────
+     * │ srcPtr │state[0]│state[1]│ ...
+     * │ nodeId │        │        │
+     * └────────┴────────┴────────┴─────
+     */
     union SpecNode {
-        DdNodeId* source;
-        uint64_t code;
+        NodeId* srcPtr;
+        int64_t code;
     };
 
-    static DdNodeId*& source(SpecNode* p) {
-        return p[0].source;
+    static NodeId*& srcPtr(SpecNode* p) {
+        return p[0].srcPtr;
     }
 
-    static DdNodeId& nodeId(SpecNode* p) {
-        return *reinterpret_cast<DdNodeId*>(&p[0].code);
+    static int64_t& code(SpecNode* p) {
+        return p[0].code;
+    }
+
+    static NodeId& nodeId(SpecNode* p) {
+        return *reinterpret_cast<NodeId*>(&p[0].code);
     }
 
     static void* state(SpecNode* p) {
@@ -49,355 +81,644 @@ protected:
     }
 
     static int getSpecNodeSize(int n) {
-        if (n < 0) throw std::runtime_error(
-                "storage size is not initialized!!!");
+        if (n < 0)
+            throw std::runtime_error("storage size is not initialized!!!");
         return headerSize + (n + sizeof(SpecNode) - 1) / sizeof(SpecNode);
     }
 
     template<typename SPEC>
     struct Hasher {
         SPEC const& spec;
+        int const level;
 
-        Hasher(SPEC const& spec)
-                : spec(spec) {
+        Hasher(SPEC const& spec, int level) :
+                spec(spec), level(level) {
         }
 
         size_t operator()(SpecNode const* p) const {
-            return spec.hash_code(state(p));
+            return spec.hash_code(state(p), level);
         }
 
         size_t operator()(SpecNode const* p, SpecNode const* q) const {
-            return spec.equal_to(state(p), state(q));
+            return spec.equal_to(state(p), state(q), level);
+        }
+    };
+};
+
+class DdBuilderMPBase {
+protected:
+    static int const headerSize = 2;
+
+    /* SpecNode
+     * ┌────────┬────────┬────────┬────────┬─────
+     * │ srcPtr │ nodeId │state[0]│state[1]│ ...
+     * └────────┴────────┴────────┴────────┴─────
+     */
+    union SpecNode {
+        NodeId* srcPtr;
+        int64_t code;
+    };
+
+    static NodeId*& srcPtr(SpecNode* p) {
+        return p[0].srcPtr;
+    }
+
+    static int64_t& code(SpecNode* p) {
+        return p[1].code;
+    }
+
+    static NodeId& nodeId(SpecNode* p) {
+        return *reinterpret_cast<NodeId*>(&p[1].code);
+    }
+
+    static NodeId nodeId(SpecNode const* p) {
+        return *reinterpret_cast<NodeId const*>(&p[1].code);
+    }
+
+    static void* state(SpecNode* p) {
+        return p + headerSize;
+    }
+
+    static void const* state(SpecNode const* p) {
+        return p + headerSize;
+    }
+
+    static int getSpecNodeSize(int n) {
+        if (n < 0)
+            throw std::runtime_error("storage size is not initialized!!!");
+        return headerSize + (n + sizeof(SpecNode) - 1) / sizeof(SpecNode);
+    }
+
+    template<typename SPEC>
+    struct Hasher {
+        SPEC const& spec;
+        int const level;
+
+        Hasher(SPEC const& spec, int level) :
+                spec(spec), level(level) {
+        }
+
+        size_t operator()(SpecNode const* p) const {
+            return spec.hash_code(state(p), level);
+        }
+
+        size_t operator()(SpecNode const* p, SpecNode const* q) const {
+            return spec.equal_to(state(p), state(q), level);
         }
     };
 };
 
 /**
- * Basic top-down DD builder.
+ * Basic breadth-first DD builder.
  */
 template<typename S>
 class DdBuilder: DdBuilderBase {
     typedef S Spec;
     typedef MyHashTable<SpecNode*,Hasher<Spec>,Hasher<Spec> > UniqTable;
+    static int const AR = Spec::ARITY;
 
-    DdNodeTable& output;
-    Spec& spec;
-    Hasher<Spec> const hasher;
+    Spec spec;
     int const specNodeSize;
+    NodeTableEntity<AR>& output;
+    DdSweeper<AR> sweeper;
 
     MyVector<MyList<SpecNode> > snodeTable;
 
+    MyVector<char> oneStorage;
+    void* const one;
+    MyVector<NodeBranchId> oneSrcPtr;
+
+    void init(int n) {
+        snodeTable.resize(n + 1);
+        if (n >= output.numRows()) output.setNumRows(n + 1);
+        oneSrcPtr.clear();
+    }
+
 public:
-    DdBuilder(Spec& s, DdNodeTable& output)
-            : output(output), spec(s), hasher(spec),
-              specNodeSize(getSpecNodeSize(spec.datasize())) {
+    DdBuilder(Spec const& spec, NodeTableHandler<AR>& output, int n = 0) :
+            spec(spec),
+            specNodeSize(getSpecNodeSize(spec.datasize())),
+            output(output.privateEntity()),
+            sweeper(this->output, oneSrcPtr),
+            oneStorage(spec.datasize()),
+            one(oneStorage.data()) {
+        if (n >= 1) init(n);
+    }
+
+    ~DdBuilder() {
+        if (!oneSrcPtr.empty()) {
+            spec.destruct(one);
+            oneSrcPtr.clear();
+        }
     }
 
     /**
-     * Initialization.
-     * @param root the root node.
+     * Schedules a top-down event.
+     * @param fp result storage.
+     * @param level node level of the event.
+     * @param s node state of the event.
      */
-    void initialize(DdNodeId& root) {
-        std::vector<SpecNode> tmp(specNodeSize);
-        SpecNode* ptmp = tmp.data();
-        int n = spec.get_root(state(ptmp));
+    void schedule(NodeId* fp, int level, void* s) {
+        SpecNode* p0 = snodeTable[level].alloc_front(specNodeSize);
+        spec.get_copy(state(p0), s);
+        srcPtr(p0) = fp;
+    }
+
+    /**
+     * Initializes the builder.
+     * @param root result storage.
+     */
+    int initialize(NodeId& root) {
+        sweeper.setRoot(root);
+        MyVector<char> tmp(spec.datasize());
+        void* const tmpState = tmp.data();
+        int n = spec.get_root(tmpState);
 
         if (n <= 0) {
-            root = DdNodeId(-n);
+            root = n ? 1 : 0;
             n = 0;
         }
         else {
-            root = DdNodeId(n, 0);
-            snodeTable.resize(n + 1);
-            SpecNode* p0 = snodeTable[n].alloc_front(specNodeSize);
-            spec.get_copy(state(p0), state(ptmp));
-            source(p0) = &root;
+            init(n);
+            schedule(&root, n, tmpState);
         }
 
-        spec.destruct(state(ptmp));
-        output.init(n + 1);
+        spec.destruct(tmpState);
+        if (!oneSrcPtr.empty()) {
+            spec.destruct(one);
+            oneSrcPtr.clear();
+        }
+        return n;
     }
 
     /**
-     * Build one level.
+     * Builds one level.
      * @param i level.
      */
     void construct(int i) {
-        assert(0 < i && i < output.numRows());
-        assert(output.numRows() - snodeTable.size() == 0);
+        assert(0 < i && size_t(i) < snodeTable.size());
 
-        MyList<SpecNode>& vnodes = snodeTable[i];
-        size_t m = 0;
+        MyList<SpecNode> &snodes = snodeTable[i];
+        size_t j0 = output[i].size();
+        size_t m = j0;
+        int lowestChild = i - 1;
+        size_t deadCount = 0;
 
         {
-            UniqTable uniq(vnodes.size() * 2, hasher, hasher);
+            Hasher<Spec> hasher(spec, i);
+            UniqTable uniq(snodes.size() * 2, hasher, hasher);
 
-            for (MyList<SpecNode>::iterator t = vnodes.begin();
-                    t != vnodes.end(); ++t) {
+            for (MyList<SpecNode>::iterator t = snodes.begin();
+                    t != snodes.end(); ++t) {
                 SpecNode* p = *t;
-                SpecNode* pp = uniq.add(p);
+                SpecNode*& p0 = uniq.add(p);
 
-                if (pp == p) {
-                    nodeId(p) = *source(p) = DdNodeId(i, m++);
+                if (p0 == p) {
+                    nodeId(p) = *srcPtr(p) = NodeId(i, m++);
                 }
                 else {
-                    *source(p) = nodeId(pp);
-                    nodeId(p) = 0;
+                    switch (spec.merge_states(state(p0), state(p))) {
+                    case 1:
+                        nodeId(p0) = 0; // forward to 0-terminal
+                        nodeId(p) = *srcPtr(p) = NodeId(i, m++);
+                        p0 = p;
+                        break;
+                    case 2:
+                        *srcPtr(p) = 0;
+                        nodeId(p) = 1; // unused
+                        break;
+                    default:
+                        *srcPtr(p) = nodeId(p0);
+                        nodeId(p) = 1; // unused
+                        break;
+                    }
                 }
             }
+//#ifdef DEBUG
+//            MessageHandler mh;
+//            mh << "table_size[" << i << "] = " << uniq.tableSize() << "\n";
+//#endif
         }
 
-        DdNode* q = output.initRow(i, m);
+        output[i].resize(m);
+        Node<AR>* const outi = output[i].data();
+        size_t jj = j0;
         SpecNode* pp = snodeTable[i - 1].alloc_front(specNodeSize);
 
-        for (; !vnodes.empty(); vnodes.pop_front()) {
-            SpecNode* p = vnodes.front();
-            if (nodeId(p) == 0) {
+        for (; !snodes.empty(); snodes.pop_front()) {
+            SpecNode* p = snodes.front();
+            Node<AR>& q = outi[jj];
+
+            if (nodeId(p) == 1) {
                 spec.destruct(state(p));
                 continue;
             }
 
-            for (int b = 0; b <= 1; ++b) {
+            bool allZero = true;
+
+            for (int b = 0; b < AR; ++b) {
+                if (nodeId(p) == 0) {
+                    q.branch[b] = 0;
+                    continue;
+                }
+
                 spec.get_copy(state(pp), state(p));
                 int ii = spec.get_child(state(pp), i, b);
 
-                if (ii <= 0) {
+                if (ii == 0) {
+                    q.branch[b] = 0;
                     spec.destruct(state(pp));
-                    q->branch[b] = DdNodeId(-ii);
+                }
+                else if (ii < 0) {
+                    if (oneSrcPtr.empty()) { // the first 1-terminal candidate
+                        spec.get_copy(one, state(pp));
+                        q.branch[b] = 1;
+                        oneSrcPtr.push_back(NodeBranchId(i, jj, b));
+                    }
+                    else {
+                        switch (spec.merge_states(one, state(pp))) {
+                        case 1:
+                            while (!oneSrcPtr.empty()) {
+                                NodeBranchId const& nbi = oneSrcPtr.back();
+                                assert(nbi.row >= i);
+                                output[nbi.row][nbi.col].branch[nbi.val] = 0;
+                                oneSrcPtr.pop_back();
+                            }
+                            spec.destruct(one);
+                            spec.get_copy(one, state(pp));
+                            q.branch[b] = 1;
+                            oneSrcPtr.push_back(NodeBranchId(i, jj, b));
+                            break;
+                        case 2:
+                            q.branch[b] = 0;
+                            break;
+                        default:
+                            q.branch[b] = 1;
+                            oneSrcPtr.push_back(NodeBranchId(i, jj, b));
+                            break;
+                        }
+                    }
+                    spec.destruct(state(pp));
+                    allZero = false;
                 }
                 else if (ii == i - 1) {
-                    source(pp) = &q->branch[b];
+                    srcPtr(pp) = &q.branch[b];
                     pp = snodeTable[ii].alloc_front(specNodeSize);
+                    allZero = false;
                 }
                 else {
                     assert(ii < i - 1);
                     SpecNode* ppp = snodeTable[ii].alloc_front(specNodeSize);
                     spec.get_copy(state(ppp), state(pp));
                     spec.destruct(state(pp));
-                    source(ppp) = &q->branch[b];
+                    srcPtr(ppp) = &q.branch[b];
+                    if (ii < lowestChild) lowestChild = ii;
+                    allZero = false;
                 }
             }
 
             spec.destruct(state(p));
-            ++q;
+            ++jj;
+            if (allZero) ++deadCount;
         }
 
-        assert(q == output[i] + m);
         snodeTable[i - 1].pop_front();
         spec.destructLevel(i);
+        sweeper.update(i, lowestChild, deadCount);
     }
 };
 
 /**
- * Another top-down DD builder.
- * A node table for the <I>i</I>-th level becomes available instantly
- * after @p construct(i) is called, and is destructable at any time.
+ * Multi-threaded breadth-first DD builder.
  */
-template<typename S, bool dumpDot = false>
-class InstantDdBuilder: DdBuilderBase {
-    //typedef typename std::remove_const<typename std::remove_reference<S>::type>::type Spec;
+template<typename S>
+class DdBuilderMP: DdBuilderMPBase {//TODO oneStorage
     typedef S Spec;
     typedef MyHashTable<SpecNode*,Hasher<Spec>,Hasher<Spec> > UniqTable;
+    static int const AR = Spec::ARITY;
+    static int const TASKS_PER_THREAD = 10;
 
-    DdNodeTable& output;
-    Spec& spec;
-    Hasher<Spec> const hasher;
+    int const threads;
+    int const tasks;
+
+    MyVector<Spec> specs;
     int const specNodeSize;
+    NodeTableEntity<AR>& output;
+    DdSweeper<AR> sweeper;
 
-    MyVector<MyList<SpecNode> > snodeTable;
-    MyVector<UniqTable> uniqTable;
+    MyVector<MyVector<MyVector<MyList<SpecNode> > > > snodeTables;
+
+#ifdef DEBUG
+    ElapsedTimeCounter etcP1, etcP2, etcS1;
+#endif
+
+    void init(int n) {
+        for (int y = 0; y < threads; ++y) {
+            snodeTables[y].resize(tasks);
+            for (int x = 0; x < tasks; ++x) {
+                snodeTables[y][x].resize(n + 1);
+            }
+        }
+        if (n >= output.numRows()) output.setNumRows(n + 1);
+    }
 
 public:
-    InstantDdBuilder(Spec& s, DdNodeTable& output)
-            : output(output), spec(s), hasher(spec),
-              specNodeSize(getSpecNodeSize(spec.datasize())) {
+    DdBuilderMP(Spec const& s, NodeTableHandler<AR>& output, int n = 0) :
+#ifdef _OPENMP
+            threads(omp_get_max_threads()),
+            tasks(MyHashConstant::primeSize(TASKS_PER_THREAD * threads)),
+#else
+            threads(1),
+            tasks(1),
+#endif
+            specs(threads, s),
+            specNodeSize(getSpecNodeSize(s.datasize())), output(
+                    output.privateEntity()),
+            sweeper(this->output), snodeTables(threads) {
+        if (n >= 1) init(n);
+#ifdef DEBUG
+        MessageHandler mh;
+        mh << "#thread = " << threads << ", #task = " << tasks;
+#endif
+    }
+
+#ifdef DEBUG
+    ~DdBuilderMP() {
+        MessageHandler mh;
+        mh << "P1: " << etcP1 << "\n";
+        mh << "P2: " << etcP2 << "\n";
+        mh << "S1: " << etcS1 << "\n";
+    }
+#endif
+
+    /**
+     * Schedules a top-down event.
+     * @param fp result storage.
+     * @param level node level of the event.
+     * @param s node state of the event.
+     */
+    void schedule(NodeId* fp, int level, void* s) {
+        SpecNode* p0 = snodeTables[0][0][level].alloc_front(specNodeSize);
+        specs[0].get_copy(state(p0), s);
+        srcPtr(p0) = fp;
     }
 
     /**
-     * Initialization.
-     * @param root the root node.
+     * Initializes the builder.
+     * @param root result storage.
      */
-    void initialize(DdNodeId& root) {
-        std::vector<SpecNode> tmp(specNodeSize);
-        SpecNode* ptmp = tmp.data();
-        int n = spec.get_root(state(ptmp));
+    int initialize(NodeId& root) {
+        sweeper.setRoot(root);
+        MyVector<char> tmp(specs[0].datasize());
+        void* const tmpState = tmp.data();
+        int n = specs[0].get_root(tmpState);
 
         if (n <= 0) {
-            root = DdNodeId(-n);
+            root = n ? 1 : 0;
             n = 0;
         }
         else {
-            root = DdNodeId(n, 0);
-            snodeTable.resize(n + 1);
-            SpecNode* p0 = snodeTable[n].alloc_front(specNodeSize);
-            spec.get_copy(state(p0), state(ptmp));
-
-            uniqTable.reserve(n + 1);
-            for (int i = 0; i <= n; ++i) {
-                uniqTable.push_back(UniqTable(hasher, hasher));
-            }
+            init(n);
+            schedule(&root, n, tmpState);
         }
 
-        spec.destruct(state(ptmp));
-        output.init(n + 1);
+        specs[0].destruct(tmpState);
+        return n;
     }
 
     /**
-     * Build one level.
+     * Builds one level.
      * @param i level.
      */
     void construct(int i) {
-        if (i <= 0) return;
-        assert(i < output.numRows());
-        assert(output.numRows() - snodeTable.size() == 0);
+        assert(0 < i && i < output.numRows());
+        assert(output.numRows() - snodeTables[0][0].size() == 0);
 
-        MyList<SpecNode>& vnodes = snodeTable[i];
-        size_t m = vnodes.size();
-        DdNode* q = output.initRow(i, m) + m; // reverse of snodeTable
-        SpecNode* pp = snodeTable[i - 1].alloc_front(specNodeSize);
+        MyVector<size_t> nodeColumn(tasks);
+        int lowestChild = i - 1;
+        size_t deadCount = 0;
 
-        for (; !vnodes.empty(); vnodes.pop_front()) {
-            SpecNode* p = vnodes.front();
-            --q;
+#ifdef DEBUG
+        etcP1.start();
+#endif
 
-            if (dumpDot) {
-                DdNodeId f(i, q - output[i]);
-                std::cout << "  \"" << f << "\" [label=\"" << i << " ";
-                spec.print(std::cout, state(p));
-                std::cout << "\"];\n";
+#ifdef _OPENMP
+#pragma omp parallel reduction(min:lowestChild) reduction(+:deadCount)
+#endif
+        {
+#ifdef _OPENMP
+            int yy = omp_get_thread_num();
+            //CPUAffinity().bind(yy);
+#else
+            int yy = 0;
+#endif
+
+            Spec& spec = specs[yy];
+            MyVector<char> tmp(spec.datasize());
+            void* const tmpState = tmp.data();
+            Hasher<Spec> hasher(spec, i);
+            UniqTable uniq(hasher, hasher);
+
+#ifdef _OPENMP
+#pragma omp for schedule(dynamic)
+#endif
+            for (int x = 0; x < tasks; ++x) {
+                size_t m = 0;
+                for (int y = 0; y < threads; ++y) {
+                    m += snodeTables[y][x][i].size();
+                }
+                if (m == 0) continue;
+
+                uniq.initialize(m * 2);
+                size_t j = 0;
+
+                for (int y = 0; y < threads; ++y) {
+                    MyList<SpecNode> &snodes = snodeTables[y][x][i];
+
+                    for (MyList<SpecNode>::iterator t = snodes.begin();
+                            t != snodes.end(); ++t) {
+                        SpecNode* p = *t;
+                        SpecNode*& p0 = uniq.add(p);
+
+                        if (p0 == p) {
+                            code(p) = ++j; // code(p) >= 1
+                        }
+                        else {
+                            switch (spec.merge_states(state(p0),
+                                    state(p))) {
+                            case 1:
+                                code(p0) = 0;
+                                code(p) = ++j; // code(p) >= 1
+                                p0 = p;
+                                break;
+                            case 2:
+                                code(p) = 0;
+                                break;
+                            default:
+                                code(p) = -code(p0);
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                nodeColumn[x] = j;
+//#ifdef DEBUG
+//                MessageHandler mh;
+//#ifdef _OPENMP
+//#pragma omp critical
+//#endif
+//                mh << "table_size[" << i << "][" << x << "] = " << uniq.tableSize() << "\n";
+//#endif
             }
 
-            for (int b = 0; b <= 1; ++b) {
-                spec.get_copy(state(pp), state(p));
-                int ii = spec.get_child(state(pp), i, b);
-
-                if (ii <= 0) {
-                    spec.destruct(state(pp));
-                    q->branch[b] = DdNodeId(-ii);
-                }
-                else if (ii == i - 1) {
-                    SpecNode* pp1 = uniqTable[ii].add(pp);
-                    if (pp1 == pp) {
-                        size_t jj = snodeTable[ii].size() - 1;
-                        nodeId(pp1) = DdNodeId(ii, jj);
-                        pp = snodeTable[ii].alloc_front(specNodeSize);
-                    }
-                    else {
-                        spec.destruct(state(pp));
-                    }
-                    q->branch[b] = nodeId(pp1);
-                }
-                else {
-                    assert(ii < i - 1);
-                    SpecNode* pp2 = snodeTable[ii].alloc_front(specNodeSize);
-                    spec.get_copy(state(pp2), state(pp));
-                    spec.destruct(state(pp));
-
-                    SpecNode* pp1 = uniqTable[ii].add(pp2);
-                    if (pp1 == pp2) {
-                        size_t j = snodeTable[ii].size() - 1;
-                        nodeId(pp1) = DdNodeId(ii, j);
-                    }
-                    else {
-                        spec.destruct(state(pp2));
-                        snodeTable[ii].pop_front();
-                    }
-                    q->branch[b] = nodeId(pp1);
+#ifdef _OPENMP
+#pragma omp single
+#endif
+            {
+#ifdef DEBUG
+                etcP1.stop();
+                etcS1.start();
+#endif
+                size_t m = output[i].size();
+                for (int x = 0; x < tasks; ++x) {
+                    size_t j = nodeColumn[x];
+                    nodeColumn[x] = (j >= 1) ? m : -1; // -1 for skip
+                    m += j;
                 }
 
-                if (dumpDot) {
-                    DdNodeId f(i, q - output[i]);
-                    DdNodeId g = q->branch[b];
-                    if (g != 0) {
-                        std::cout << "  \"" << f << "\" -> \"" << g
-                                << "\" [style=" << (b ? "solid" : "dashed")
-                                << "];\n";
+                output.initRow(i, m);
+#ifdef DEBUG
+                etcS1.stop();
+                etcP2.start();
+#endif
+            }
+
+#ifdef _OPENMP
+#pragma omp for schedule(dynamic)
+#endif
+            for (int x = 0; x < tasks; ++x) {
+                if (nodeColumn[x] < 0) continue; // -1 for skip
+                size_t j0 = nodeColumn[x] - 1;   // code(p) >= 1
+
+                for (int y = 0; y < threads; ++y) {
+                    MyList<SpecNode> &snodes = snodeTables[y][x][i];
+
+                    for (; !snodes.empty(); snodes.pop_front()) {
+                        SpecNode* p = snodes.front();
+
+                        if (code(p) <= 0) {
+                            *srcPtr(p) = code(p) ? NodeId(i, j0 - code(p)) : 0;
+                            spec.destruct(state(p));
+                            continue;
+                        }
+
+                        size_t j = j0 + code(p);
+                        *srcPtr(p) = NodeId(i, j);
+
+                        Node<AR> &q = output[i][j];
+                        bool allZero = true;
+                        void* s = tmpState;
+
+                        for (int b = 0; b < AR; ++b) {
+                            if (b < AR - 1) {
+                                spec.get_copy(s, state(p));
+                            }
+                            else {
+                                s = state(p);
+                            }
+
+                            int ii = spec.get_child(s, i, b);
+
+                            if (ii <= 0) {
+                                q.branch[b] = ii ? 1 : 0;
+                                if (ii) allZero = false;
+                            }
+                            else {
+                                assert(ii <= i - 1);
+                                int xx = spec.hash_code(s, ii) % tasks;
+                                SpecNode* pp =
+                                        snodeTables[yy][xx][ii].alloc_front(
+                                                specNodeSize);
+                                spec.get_copy(state(pp), s);
+                                srcPtr(pp) = &q.branch[b];
+                                if (ii < lowestChild) lowestChild = ii;
+                                allZero = false;
+                            }
+
+                            spec.destruct(s);
+                        }
+
+                        if (allZero) ++deadCount;
                     }
                 }
             }
 
-            spec.destruct(state(p));
+            spec.destructLevel(i);
         }
 
-        if (dumpDot) {
-            if (m >= 2) {
-                std::cout << "  {rank=same";
-                for (size_t j = 0; j < m; ++j) {
-                    std::cout << "; \"" << DdNodeId(i, j) << "\"";
-                }
-                std::cout << "}\n";
-            }
-        }
-
-        assert(q == output[i]);
-        snodeTable[i - 1].pop_front();
-        uniqTable[i - 1].clear();
-        spec.destructLevel(i);
+        sweeper.update(i, lowestChild, deadCount);
+#ifdef DEBUG
+        etcP2.stop();
+#endif
     }
 };
 
-template<typename S>
-void dumpDot(S& spec) {
-    DdNodeTable nodeTable;
-    InstantDdBuilder<S,true> idb(spec, nodeTable);
-    DdNodeId root;
-    idb.initialize(root);
-
-    std::cout << "digraph {\n";
-
-    for (int i = root.row; i >= 1; --i) {
-        idb.construct(i);
-        nodeTable.clear(i);
-    }
-
-    if (root == 0) {
-        std::cout << "  \"" << DdNodeId(0)
-                << "\" [shape=square,label=\"0\"];\n";
-    }
-    else {
-        std::cout << "  \"" << DdNodeId(1)
-                << "\" [shape=square,label=\"1\"];\n";
-    }
-
-    std::cout << "}\n";
-    std::cout.flush();
-}
-
 /**
- * Top-down ZDD subset builder.
+ * Breadth-first ZDD subset builder.
  */
 template<typename S>
 class ZddSubsetter: DdBuilderBase {
-    //typedef typename std::remove_const<typename std::remove_reference<S>::type>::type Spec;
+//typedef typename std::remove_const<typename std::remove_reference<S>::type>::type Spec;
     typedef S Spec;
     typedef MyHashTable<SpecNode*,Hasher<Spec>,Hasher<Spec> > UniqTable;
+    static int const AR = Spec::ARITY;
 
-    DdNodeTable const& input;
-    DdNodeTable& output;
-    Spec& spec;
-    Hasher<Spec> const hasher;
+    Spec spec;
     int const specNodeSize;
-    DdNodeProperty<MyListOnPool<SpecNode> > work;
+    NodeTableEntity<AR> const& input;
+    NodeTableEntity<AR>& output;
+    DataTable<MyListOnPool<SpecNode> > work;
+    DdSweeper<AR> sweeper;
 
-    std::vector<SpecNode> tmp;
-    std::vector<MemoryPool> pools;
+    MyVector<char> oneStorage;
+    void* const one;
+    MyVector<NodeBranchId> oneSrcPtr;
+
+    MemoryPools pools;
 
 public:
-    ZddSubsetter(DdNodeTable const& input, Spec& s, DdNodeTable& output)
-            : input(input), output(output), spec(s), hasher(spec),
-              specNodeSize(getSpecNodeSize(spec.datasize())), work(input) {
+    ZddSubsetter(NodeTableHandler<AR> const& input,
+                 Spec const& s,
+                 NodeTableHandler<AR>& output) :
+            spec(s),
+            specNodeSize(getSpecNodeSize(spec.datasize())),
+            input(*input),
+            output(output.privateEntity()),
+            work(input->numRows()),
+            sweeper(this->output, oneSrcPtr),
+            oneStorage(spec.datasize()),
+            one(oneStorage.data()) {
+    }
+
+    ~ZddSubsetter() {
+        if (!oneSrcPtr.empty()) {
+            spec.destruct(one);
+            oneSrcPtr.clear();
+        }
     }
 
     /**
-     * Initialization.
+     * Initializes the builder.
      * @param root the root node.
      */
-    void initialize(DdNodeId& root) {
-        tmp.resize(specNodeSize);
-        SpecNode* ptmp = tmp.data();
-        int n = spec.get_root(state(ptmp));
+    int initialize(NodeId& root) {
+        sweeper.setRoot(root);
+        MyVector<char> tmp(spec.datasize());
+        void* const tmpState = tmp.data();
+        int n = spec.get_root(tmpState);
 
-        int k = (root == 1) ? -1 : root.row;
+        int k = (root == 1) ? -1 : root.row();
 
         while (n != 0 && k != 0 && n != k) {
             if (n < k) {
@@ -406,45 +727,58 @@ public:
             }
             else {
                 assert(n >= 1);
-                n = downSpec(state(ptmp), n, 0, k);
+                n = downSpec(tmpState, n, 0, k);
             }
         }
 
         if (n <= 0 || k <= 0) {
             assert(n == 0 || k == 0 || (n == -1 && k == -1));
-            root = DdNodeId(0, n != 0 && k != 0);
+            root = NodeId(0, n != 0 && k != 0);
             n = 0;
         }
         else {
             assert(n == k);
-            assert(n == root.row);
+            assert(n == root.row());
 
             pools.resize(n + 1);
+            work[n].resize(input[n].size());
 
-            SpecNode* p0 = work[n][root.col].alloc_front(pools[n],
+            SpecNode* p0 = work[n][root.col()].alloc_front(pools[n],
                     specNodeSize);
-            spec.get_copy(state(p0), state(ptmp));
-            source(p0) = &root;
+            spec.get_copy(state(p0), tmpState);
+            srcPtr(p0) = &root;
         }
 
-        spec.destruct(state(ptmp));
+        spec.destruct(tmpState);
         output.init(n + 1);
+        if (!oneSrcPtr.empty()) {
+            spec.destruct(one);
+            oneSrcPtr.clear();
+        }
+        return n;
     }
 
     /**
-     * Build one level.
+     * Builds one level.
      * @param i level.
      */
     void subset(int i) {
         assert(0 < i && i < output.numRows());
         assert(output.numRows() - pools.size() == 0);
 
-        SpecNode* const ptmp = tmp.data();
-        size_t const m = input.rowSize(i);
+        Hasher<Spec> const hasher(spec, i);
+        MyVector<char> tmp(spec.datasize());
+        void* const tmpState = tmp.data();
+        size_t const m = input[i].size();
         size_t mm = 0;
+        int lowestChild = i - 1;
+        size_t deadCount = 0;
+
+        if (work[i].empty()) work[i].resize(m);
+        assert(work[i].size() == m);
 
         for (size_t j = 0; j < m; ++j) {
-            MyListOnPool<SpecNode>& list = work[i][j];
+            MyListOnPool<SpecNode> &list = work[i][j];
             size_t n = list.size();
 
             if (n >= 2) {
@@ -453,43 +787,65 @@ public:
                 for (MyListOnPool<SpecNode>::iterator t = list.begin();
                         t != list.end(); ++t) {
                     SpecNode* p = *t;
-                    SpecNode* pp = uniq.add(p);
+                    SpecNode*& p0 = uniq.add(p);
 
-                    if (pp == p) {
-                        nodeId(p) = *source(p) = DdNodeId(i, mm++);
+                    if (p0 == p) {
+                        nodeId(p) = *srcPtr(p) = NodeId(i, mm++);
                     }
                     else {
-                        *source(p) = nodeId(pp);
-                        nodeId(p) = 0;
+                        switch (spec.merge_states(state(p0), state(p))) {
+                        case 1:
+                            nodeId(p0) = 0; // forward to 0-terminal
+                            nodeId(p) = *srcPtr(p) = NodeId(i, mm++);
+                            p0 = p;
+                            break;
+                        case 2:
+                            *srcPtr(p) = 0;
+                            nodeId(p) = 1; // unused
+                            break;
+                        default:
+                            *srcPtr(p) = nodeId(p0);
+                            nodeId(p) = 1; // unused
+                            break;
+                        }
                     }
                 }
             }
             else if (n == 1) {
                 SpecNode* p = list.front();
-                nodeId(p) = *source(p) = DdNodeId(i, mm++);
+                nodeId(p) = *srcPtr(p) = NodeId(i, mm++);
             }
         }
 
-        DdNode* q = output.initRow(i, mm);
+        output.initRow(i, mm);
+        Node<AR>* const outi = output[i].data();
+        size_t jj = 0;
 
         for (size_t j = 0; j < m; ++j) {
-            MyListOnPool<SpecNode>& list = work[i][j];
+            MyListOnPool<SpecNode> &list = work[i][j];
 
             for (MyListOnPool<SpecNode>::iterator t = list.begin();
                     t != list.end(); ++t) {
                 SpecNode* p = *t;
-                if (nodeId(p) == 0) {
+                Node<AR>& q = outi[jj];
+
+                if (nodeId(p) == 1) {
                     spec.destruct(state(p));
                     continue;
                 }
 
-                void* a[2] = {state(p), state(ptmp)};
-                spec.get_copy(a[1], a[0]);
+                bool allZero = true;
 
-                for (int b = 0; b <= 1; ++b) {
-                    DdNodeId f(i, j);
+                for (int b = 0; b < AR; ++b) {
+                    if (nodeId(p) == 0) {
+                        q.branch[b] = 0;
+                        continue;
+                    }
+
+                    NodeId f(i, j);
+                    spec.get_copy(tmpState, state(p));
                     int kk = downTable(f, b, i - 1);
-                    int ii = downSpec(a[b], i, b, kk);
+                    int ii = downSpec(tmpState, i, b, kk);
 
                     while (ii != 0 && kk != 0 && ii != kk) {
                         if (ii < kk) {
@@ -498,48 +854,84 @@ public:
                         }
                         else {
                             assert(ii >= 1);
-                            ii = downSpec(a[b], ii, 0, kk);
+                            ii = downSpec(tmpState, ii, 0, kk);
                         }
                     }
 
                     if (ii <= 0 || kk <= 0) {
-                        bool val = ii != 0 && kk != 0;
-                        q->branch[b] = val;
+                        if (ii == 0 || kk == 0) {
+                            q.branch[b] = 0;
+                        }
+                        else {
+                            if (oneSrcPtr.empty()) { // the first 1-terminal candidate
+                                spec.get_copy(one, tmpState);
+                                q.branch[b] = 1;
+                                oneSrcPtr.push_back(NodeBranchId(i, jj, b));
+                            }
+                            else {
+                                switch (spec.merge_states(one, tmpState)) {
+                                case 1:
+                                    while (!oneSrcPtr.empty()) {
+                                        NodeBranchId const& nbi = oneSrcPtr.back();
+                                        assert(nbi.row >= i);
+                                        output[nbi.row][nbi.col].branch[nbi.val] = 0;
+                                        oneSrcPtr.pop_back();
+                                    }
+                                    spec.destruct(one);
+                                    spec.get_copy(one, tmpState);
+                                    q.branch[b] = 1;
+                                    oneSrcPtr.push_back(NodeBranchId(i, jj, b));
+                                    break;
+                                case 2:
+                                    q.branch[b] = 0;
+                                    break;
+                                default:
+                                    q.branch[b] = 1;
+                                    oneSrcPtr.push_back(NodeBranchId(i, jj, b));
+                                    break;
+                                }
+                            }
+                            allZero = false;
+                        }
                     }
                     else {
-                        assert(ii == f.row && ii == kk && ii < i);
-                        SpecNode* pp = work[ii][f.col].alloc_front(pools[ii],
+                        assert(ii == f.row() && ii == kk && ii < i);
+                        if (work[ii].empty()) work[ii].resize(input[ii].size());
+                        SpecNode* pp = work[ii][f.col()].alloc_front(pools[ii],
                                 specNodeSize);
-                        spec.get_copy(state(pp), a[b]);
-                        source(pp) = &q->branch[b];
+                        spec.get_copy(state(pp), tmpState);
+                        srcPtr(pp) = &q.branch[b];
+                        if (ii < lowestChild) lowestChild = ii;
+                        allZero = false;
                     }
 
-                    spec.destruct(state(ptmp));
+                    spec.destruct(tmpState);
                 }
 
                 spec.destruct(state(p));
-                ++q;
+                ++jj;
+                if (allZero) ++deadCount;
             }
         }
 
-        assert(q == output[i] + mm);
-        work.clear(i);
+        work[i].clear();
         pools[i].clear();
         spec.destructLevel(i);
+        sweeper.update(i, lowestChild, deadCount);
     }
 
 private:
-    int downTable(DdNodeId& f, bool b, int zerosupLevel) const {
+    int downTable(NodeId& f, int b, int zerosupLevel) const {
         if (zerosupLevel < 0) zerosupLevel = 0;
 
-        f = input[f.row][f.col].branch[b];
-        while (f.row > zerosupLevel) {
-            f = input[f.row][f.col].branch[0];
+        f = input.child(f, b);
+        while (f.row() > zerosupLevel) {
+            f = input.child(f, 0);
         }
-        return (f == 1) ? -1 : f.row;
+        return (f == 1) ? -1 : f.row();
     }
 
-    int downSpec(void* p, int level, bool b, int zerosupLevel) {
+    int downSpec(void* p, int level, int b, int zerosupLevel) {
         if (zerosupLevel < 0) zerosupLevel = 0;
         assert(level > zerosupLevel);
 
@@ -551,48 +943,310 @@ private:
     }
 };
 
-class DdBuilderMPBase {
-protected:
-    static int const headerSize = 2;
+/**
+ * Multi-threaded breadth-first ZDD subset builder.
+ */
+template<typename S>
+class ZddSubsetterMP: DdBuilderMPBase {//TODO oneStorage
+//typedef typename std::remove_const<typename std::remove_reference<S>::type>::type Spec;
+    typedef S Spec;
+    typedef MyHashTable<SpecNode*,Hasher<Spec>,Hasher<Spec> > UniqTable;
+    static int const AR = Spec::ARITY;
 
-    union SpecNode {
-        DdNodeId* ddSrcPtr;
-        uint64_t code;
-    };
+    int const threads;
 
-    struct Work {
-        uint16_t parentRow;
-        uint16_t nextRow[2];
-        size_t parentCol;
-        size_t nextCol[2];
-        size_t numSibling;
-        size_t outColBase;
-        MyListOnPool<SpecNode> snodes[2];
+    MyVector<Spec> specs;
+    int const specNodeSize;
+    NodeTableEntity<AR> const& input;
+    NodeTableEntity<AR>& output;
+    DdSweeper<AR> sweeper;
 
-        Work()
-                : parentRow(), nextRow(), parentCol(), nextCol(), numSibling(0),
-                  outColBase() {
+    MyVector<MyVector<MyVector<MyListOnPool<SpecNode> > > > snodeTables;
+    MyVector<MemoryPools> pools;
+
+public:
+    ZddSubsetterMP(NodeTableHandler<AR> const& input,
+                   Spec const& s,
+                   NodeTableHandler<AR>& output) :
+#ifdef _OPENMP
+            threads(omp_get_max_threads()),
+
+#else
+            threads(1),
+#endif
+            specs(threads, s),
+            specNodeSize(getSpecNodeSize(s.datasize())), input(*input), output(
+                    output.privateEntity()),
+            sweeper(this->output), snodeTables(threads), pools(threads) {
+    }
+
+    /**
+     * Initializes the builder.
+     * @param root the root node.
+     */
+    int initialize(NodeId& root) {
+        sweeper.setRoot(root);
+        MyVector<char> tmp(specs[0].datasize());
+        void* const tmpState = tmp.data();
+        Spec& spec = specs[0];
+        int n = spec.get_root(tmpState);
+
+        int k = (root == 1) ? -1 : root.row();
+
+        while (n != 0 && k != 0 && n != k) {
+            if (n < k) {
+                assert(k >= 1);
+                k = downTable(root, 0, n);
+            }
+            else {
+                assert(n >= 1);
+                n = downSpec(spec, tmpState, n, 0, k);
+            }
         }
+
+        if (n <= 0 || k <= 0) {
+            assert(n == 0 || k == 0 || (n == -1 && k == -1));
+            root = NodeId(0, n != 0 && k != 0);
+            n = 0;
+        }
+        else {
+            assert(n == k);
+            assert(n == root.row());
+
+            for (int y = 0; y < threads; ++y) {
+                snodeTables[y].resize(n + 1);
+                pools[y].resize(n + 1);
+            }
+
+            snodeTables[0][n].resize(input[n].size());
+            SpecNode* p0 = snodeTables[0][n][root.col()].alloc_front(
+                    pools[0][n], specNodeSize);
+            spec.get_copy(state(p0), tmpState);
+            srcPtr(p0) = &root;
+        }
+
+        spec.destruct(tmpState);
+        output.init(n + 1);
+        return n;
+    }
+
+    /**
+     * Builds one level.
+     * @param i level.
+     */
+    void subset(int i) {
+        assert(0 < i && i < output.numRows());
+        size_t const m = input[i].size();
+
+        MyVector<size_t> nodeColumn(m);
+        int lowestChild = i - 1;
+        size_t deadCount = 0;
+
+#ifdef _OPENMP
+#pragma omp parallel reduction(min:lowestChild) reduction(+:deadCount)
+#endif
+        {
+#ifdef _OPENMP
+            int yy = omp_get_thread_num();
+#else
+            int yy = 0;
+#endif
+            Spec& spec = specs[yy];
+            MyVector<char> tmp(spec.datasize());
+            void* const tmpState = tmp.data();
+            Hasher<Spec> hasher(spec, i);
+            UniqTable uniq(hasher, hasher);
+
+#ifdef _OPENMP
+#pragma omp for schedule(dynamic)
+#endif
+            for (size_t j = 0; j < m; ++j) {
+                size_t mm = 0;
+                for (int y = 0; y < threads; ++y) {
+                    if (snodeTables[y][i].empty()) continue;
+                    MyListOnPool<SpecNode> &snodes = snodeTables[y][i][j];
+                    mm += snodes.size();
+                }
+                uniq.initialize(mm * 2);
+                size_t jj = 0;
+
+                for (int y = 0; y < threads; ++y) {
+                    if (snodeTables[y][i].empty()) continue;
+                    MyListOnPool<SpecNode> &snodes = snodeTables[y][i][j];
+
+                    for (MyListOnPool<SpecNode>::iterator t = snodes.begin();
+                            t != snodes.end(); ++t) {
+                        SpecNode* p = *t;
+                        SpecNode* pp = uniq.add(p);
+
+                        if (pp == p) {
+                            code(p) = ++jj; // code(p) >= 1
+                        }
+                        else {
+                            code(p) = -code(pp);
+                            if (int prune = spec.merge_states(state(pp),
+                                    state(p))) {
+                                if (prune & 1) code(pp) = 0;
+                                if (prune & 2) code(p) = 0;
+                            }
+                        }
+                    }
+                }
+
+                nodeColumn[j] = jj;
+            }
+
+#ifdef _OPENMP
+#pragma omp single
+#endif
+            {
+                size_t mm = 0;
+                for (size_t j = 0; j < m; ++j) {
+                    size_t jj = nodeColumn[j];
+                    nodeColumn[j] = mm;
+                    mm += jj;
+                }
+
+                output.initRow(i, mm);
+            }
+
+#ifdef _OPENMP
+#pragma omp for schedule(dynamic)
+#endif
+            for (size_t j = 0; j < m; ++j) {
+                size_t const jj0 = nodeColumn[j] - 1;   // code(p) >= 1
+
+                for (int y = 0; y < threads; ++y) {
+                    if (snodeTables[y][i].empty()) continue;
+
+                    MyListOnPool<SpecNode> &snodes = snodeTables[y][i][j];
+
+                    for (MyListOnPool<SpecNode>::iterator t = snodes.begin();
+                            t != snodes.end(); ++t) {
+                        SpecNode* p = *t;
+
+                        if (code(p) <= 0) {
+                            *srcPtr(p) = code(p) ? NodeId(i, jj0 - code(p)) : 0;
+                            spec.destruct(state(p));
+                            continue;
+                        }
+
+                        size_t const jj = jj0 + code(p);
+                        *srcPtr(p) = NodeId(i, jj);
+                        Node<AR> &q = output[i][jj];
+                        bool allZero = true;
+                        void* s = tmpState;
+
+                        for (int b = 0; b < AR; ++b) {
+                            if (b < AR - 1) {
+                                spec.get_copy(s, state(p));
+                            }
+                            else {
+                                s = state(p);
+                            }
+
+                            NodeId f(i, j);
+                            int kk = downTable(f, b, i - 1);
+                            int ii = downSpec(spec, s, i, b, kk);
+
+                            while (ii != 0 && kk != 0 && ii != kk) {
+                                if (ii < kk) {
+                                    assert(kk >= 1);
+                                    kk = downTable(f, 0, ii);
+                                }
+                                else {
+                                    assert(ii >= 1);
+                                    ii = downSpec(spec, s, ii, 0, kk);
+                                }
+                            }
+
+                            if (ii <= 0 || kk <= 0) {
+                                bool val = ii != 0 && kk != 0;
+                                q.branch[b] = val;
+                                if (val) allZero = false;
+                            }
+                            else {
+                                assert(ii == f.row() && ii == kk && ii < i);
+                                size_t jj = f.col();
+
+                                if (snodeTables[yy][ii].empty()) {
+                                    snodeTables[yy][ii].resize(
+                                            input[ii].size());
+                                }
+
+                                SpecNode* pp =
+                                        snodeTables[yy][ii][jj].alloc_front(
+                                                pools[yy][ii], specNodeSize);
+                                spec.get_copy(state(pp), s);
+                                srcPtr(pp) = &q.branch[b];
+                                if (ii < lowestChild) lowestChild = ii;
+                                allZero = false;
+                            }
+
+                            spec.destruct(s);
+                        }
+
+                        if (allZero) ++deadCount;
+                    }
+                }
+            }
+
+            snodeTables[yy][i].clear();
+            pools[yy][i].clear();
+            spec.destructLevel(i);
+        }
+
+        sweeper.update(i, lowestChild, deadCount);
+    }
+
+private:
+    int downTable(NodeId& f, int b, int zerosupLevel) const {
+        if (zerosupLevel < 0) zerosupLevel = 0;
+
+        f = input.child(f, b);
+        while (f.row() > zerosupLevel) {
+            f = input.child(f, 0);
+        }
+        return (f == 1) ? -1 : f.row();
+    }
+
+    int downSpec(Spec& spec, void* p, int level, int b, int zerosupLevel) {
+        if (zerosupLevel < 0) zerosupLevel = 0;
+        assert(level > zerosupLevel);
+
+        int i = spec.get_child(p, level, b);
+        while (i > zerosupLevel) {
+            i = spec.get_child(p, i, 0);
+        }
+        return i;
+    }
+};
+
+/**
+ * DD dumper.
+ * A node table is printed in Graphviz (dot) format.
+ */
+template<typename S>
+class DdDumper {
+    typedef S Spec;
+    static int const AR = Spec::ARITY;
+    static int const headerSize = 1;
+
+    /* SpecNode
+     * ┌────────┬────────┬────────┬─────
+     * │ nodeId │state[0]│state[1]│ ...
+     * └────────┴────────┴────────┴─────
+     */
+    struct SpecNode {
+        NodeId nodeId;
     };
 
-    static DdNodeId*& ddSrcPtr(SpecNode* p) {
-        return p[0].ddSrcPtr;
+    static NodeId& nodeId(SpecNode* p) {
+        return p->nodeId;
     }
 
-    static DdNodeId& ddNodeId(SpecNode* p) {
-        return *reinterpret_cast<DdNodeId*>(&p[1].code);
-    }
-
-    static DdNodeId ddNodeId(SpecNode const* p) {
-        return *reinterpret_cast<DdNodeId const*>(&p[1].code);
-    }
-
-    static int row(SpecNode const* p) {
-        return ddNodeId(p).row;
-    }
-
-    static size_t col(SpecNode const* p) {
-        return ddNodeId(p).col;
+    static NodeId nodeId(SpecNode const* p) {
+        return p->nodeId;
     }
 
     static void* state(SpecNode* p) {
@@ -603,389 +1257,255 @@ protected:
         return p + headerSize;
     }
 
-    static int getSpecNodeSize(int n) {
-        if (n < 0) throw std::runtime_error(
-                "storage size is not initialized!!!");
-        return headerSize + (n + sizeof(SpecNode) - 1) / sizeof(SpecNode);
-    }
-
     template<typename SPEC>
     struct Hasher {
         SPEC const& spec;
+        int const level;
 
-        Hasher(SPEC const& spec)
-                : spec(spec) {
+        Hasher(SPEC const& spec, int level) :
+                spec(spec), level(level) {
         }
 
         size_t operator()(SpecNode const* p) const {
-            return spec.hash_code(state(p));
+            return spec.hash_code(state(p), level);
         }
 
         size_t operator()(SpecNode const* p, SpecNode const* q) const {
-            return spec.equal_to(state(p), state(q));
+            return spec.equal_to(state(p), state(q), level);
         }
     };
-};
 
-/**
- * Multi-threaded top-down ZDD subset builder.
- */
-template<typename S>
-class ZddSubsetterMP: DdBuilderMPBase {
-    //typedef typename std::remove_const<typename std::remove_reference<S>::type>::type Spec;
-    typedef S Spec;
     typedef MyHashTable<SpecNode*,Hasher<Spec>,Hasher<Spec> > UniqTable;
 
-    DdNodeTable const& input;
-    DdNodeTable& output;
-    Spec& spec;
-    Hasher<Spec> const hasher;
+    static int getSpecNodeSize(int n) {
+        if (n < 0)
+            throw std::runtime_error("storage size is not initialized!!!");
+        return headerSize + (n + sizeof(SpecNode) - 1) / sizeof(SpecNode);
+    }
+
+    Spec spec;
     int const specNodeSize;
-    DdNodeProperty<Work> work;
+    char* oneState;
+    NodeId oneId;
 
-    int const maxThreads;
-    std::vector<std::vector<MemoryPool> > pools;
-
-    std::vector<SpecNode> tmpVector;
-    SpecNode* tmp;
-
-    ElapsedTimeCounter etc1;
-    ElapsedTimeCounter etc2;
-    ElapsedTimeCounter etc3;
-    ElapsedTimeCounter etc4;
-    ElapsedTimeCounter etc5;
+    MyVector<MyList<SpecNode> > snodeTable;
+    MyVector<UniqTable> uniqTable;
+    MyVector<Hasher<Spec> > hasher;
 
 public:
-    ZddSubsetterMP(DdNodeTable const& input, Spec& s, DdNodeTable& output)
-            : input(input), output(output), spec(s), hasher(spec),
-              specNodeSize(getSpecNodeSize(spec.datasize())), work(input),
-#ifdef _OPENMP
-              maxThreads(omp_get_max_threads()),
-#else
-              maxThreads(1),
-#endif
-              pools(maxThreads),
-              tmpVector(specNodeSize), tmp(tmpVector.data()) {
+    DdDumper(Spec const& s) :
+            spec(s),
+            specNodeSize(getSpecNodeSize(spec.datasize())),
+            oneState(0),
+            oneId(1) {
     }
 
-    ~ZddSubsetterMP() {
-        MessageHandler mh;
-        mh << "MP1: " << etc1 << "\n";
-        mh << "MP2: " << etc2 << "\n";
-        mh << "MP3: " << etc3 << "\n";
-        mh << "MP4: " << etc4 << "\n";
-        mh << "MP5: " << etc5 << "\n";
-    }
-
-    int numThreads() const {
-        return maxThreads;
+    ~DdDumper() {
+        if (oneState) {
+            spec.destruct(oneState);
+            delete[] oneState;
+        }
     }
 
     /**
-     * Initialization.
-     * @param root the root node.
+     * Dumps the node table in Graphviz (dot) format.
+     * @param os the output stream.
+     * @param title title label.
      */
-    void initialize(DdNodeId& root) {
-        ddNodeId(tmp).row = spec.get_root(state(tmp));
-
-        int n = (root == 1) ? -1 : root.row;
-
-        while (row(tmp) != 0 && n != 0 && row(tmp) != n) {
-            if (row(tmp) < n) {
-                assert(n >= 1);
-                n = downTable(root, 0, row(tmp));
-            }
-            else {
-                assert(row(tmp) >= 1);
-                downSpec(tmp, row(tmp), 0, n);
-            }
-        }
-
-        if (row(tmp) <= 0 || n <= 0) {
-            assert(row(tmp) == 0 || n == 0 || (row(tmp) == -1 && n == -1));
-            root = DdNodeId(0, row(tmp) != 0 && n != 0);
-            ddNodeId(tmp) = 0;
-            output.init(1);
+    void dump(std::ostream& os, std::string title) {
+        if (oneState) {
+            spec.destruct(oneState);
         }
         else {
-            assert(n == root.row);
-            assert(row(tmp) == n);
-
-            for (int t = 0; t < maxThreads; ++t) {
-                pools[t].resize(n + 1);
-            }
-
-            output.init(n + 1);
-            output.initRow(n, 1);
-
-            for (int b = 0; b <= 1; ++b) {
-                int ii = input[root.row][root.col].branch[b].row;
-                MyListOnPool<SpecNode>& snodes =
-                        work[root.row][root.col].snodes[b];
-                SpecNode* p = snodes.alloc_front(pools[0][ii], specNodeSize);
-                ddSrcPtr(p) = &output[n][0].branch[b];
-                ddNodeId(p) = root;
-                spec.get_copy(state(p), state(tmp));
-            }
-
-            root = DdNodeId(n, 0);
+            oneState = new char[spec.datasize()];
         }
+        int n = spec.get_root(oneState);
 
-        spec.destruct(state(tmp));
-    }
+        os << "digraph \"" << title << "\" {\n";
 
-    /**
-     * Build one level.
-     * @param i level.
-     */
-    void subset(int const i) {
-        assert(0 < i && i < output.numRows());
-        assert(output.numRows() - pools[0].size() == 0);
-
-        etc1.start();
-        size_t const m = input.rowSize(i);
-
-#ifdef _OPENMP
-        { // allocate lower lows
-            MyVector<int> const& levels = input.lowerLevels(i);
-
-            for (int const* it = levels.begin(); it != levels.end(); ++it) {
-                work[*it];
+        if (n == 0) {
+            if (!title.empty()) {
+                os << "  labelloc=\"t\";\n";
+                os << "  label=\"" << title << "\";\n";
             }
         }
-#endif
-
-        etc1.stop();
-        etc2.start();
-
-#ifdef _OPENMP
-#pragma omp parallel for schedule(dynamic)
-#endif
-        for (size_t j = 0; j < m; ++j) {
-            Work& w = work[i][j];
-
-            for (int b = 0; b <= 1; ++b) {
-                DdNodeId f = input[i][j].branch[b];
-                MyListOnPool<SpecNode>& snodes = w.snodes[b];
-
-                if (f == 0) {
-                    for (MyListOnPool<SpecNode>::iterator it = snodes.begin();
-                            it != snodes.end(); ++it) {
-                        SpecNode* p = *it;
-                        *ddSrcPtr(p) = 0;
-                    }
-                }
-                else if (f == 1) {
-                    for (MyListOnPool<SpecNode>::iterator it = snodes.begin();
-                            it != snodes.end(); ++it) {
-                        SpecNode* p = *it;
-                        downSpec(p, i, 1, 0);
-                        assert(row(p) == 0 || row(p) == 65535);
-                        *ddSrcPtr(p) = (row(p) == 0) ? 0 : 1;
-                    }
-                }
-            }
+        else if (n < 0) {
+            os << "  \"^\" [shape=none,label=\"" << title << "\"];\n";
+            os << "  \"^\" -> \"" << oneId << "\" [style=dashed" << "];\n";
+            os << "  \"" << oneId << "\" ";
+            os << "[shape=square,label=\"⊤\"];\n";
         }
+        else {
+            NodeId root(n, 0);
 
-        etc2.stop();
-        etc3.start();
-
-#ifdef _OPENMP
-#pragma omp parallel
-#endif
-        {
-#ifdef _OPENMP
-            size_t nt = omp_get_num_threads();
-            size_t tn = omp_get_thread_num();
-#endif
-            for (size_t j = 0; j < m; ++j) {
-                Work& w = work[i][j];
-
-                for (int b = 0; b <= 1; ++b) {
-                    DdNodeId f = input[i][j].branch[b];
-                    if (f.row == 0) continue;
-#ifdef _OPENMP
-                    if (f.hash() % nt != tn) continue;
-#endif
-                    Work& ww = work[f.row][f.col];
-                    w.nextRow[b] = ww.parentRow;
-                    w.nextCol[b] = ww.parentCol;
-                    ww.parentRow = i;
-                    ww.parentCol = (j << 1) | b;
-                    ww.numSibling += w.snodes[b].size();
-                }
+            for (int i = n; i >= 1; --i) {
+                os << "  " << i << " [shape=none,label=\"";
+                spec.printLevel(os, i);
+                os << "\"];\n";
             }
-        }
-
-        int const ii = i - 1;
-        size_t const mm = input.rowSize(ii);
-
-        etc3.stop();
-        etc4.start();
-
-#ifdef _OPENMP
-#pragma omp parallel for schedule(dynamic)
-#endif
-        for (size_t jj = 0; jj < mm; ++jj) {
-            UniqTable uniq(hasher, hasher);
-            Work& ww = work[ii][jj];
-            int i = ww.parentRow;
-            int j = ww.parentCol >> 1;
-            int b = ww.parentCol & 1;
-            size_t k = 0;
-
-            if (ww.numSibling >= 2) uniq.initialize(ww.numSibling * 2);
-
-            while (i > 0) {
-                Work& w = work[i][j];
-
-                for (MyListOnPool<SpecNode>::iterator it = w.snodes[b].begin();
-                        it != w.snodes[b].end(); ++it) {
-                    SpecNode* p = *it;
-
-                    downSpec(p, i, b, ii);
-
-                    if (row(p) == ii) {
-                        if (ww.numSibling >= 2) {
-                            SpecNode* q = uniq.add(p);
-                            if (q != p) { // state convergence
-                                ddNodeId(p) = ddNodeId(q);
-                                continue;
-                            }
-                        }
-
-                        ddNodeId(p) = DdNodeId(ii, k++);
-                    }
-                }
-
-                i = w.nextRow[b];
-                j = w.nextCol[b] >> 1;
-                b = w.nextCol[b] & 1;
+            for (int i = n - 1; i >= 1; --i) {
+                os << "  " << (i + 1) << " -> " << i << " [style=invis];\n";
             }
 
-            ww.numSibling = k;
-        }
+            os << "  \"^\" [shape=none,label=\"" << title << "\"];\n";
+            os << "  \"^\" -> \"" << root << "\" [style=dashed" << "];\n";
 
-        etc4.stop();
-        etc1.start();
+            snodeTable.init(n + 1);
+            SpecNode* p = snodeTable[n].alloc_front(specNodeSize);
+            spec.destruct(oneState);
+            spec.get_copy(state(p), oneState);
+            nodeId(p) = root;
 
-        size_t nn = 0;
-        for (size_t jj = 0; jj < mm; ++jj) {
-            Work& ww = work[ii][jj];
-            ww.outColBase = nn;
-            nn += ww.numSibling;
-        }
-        output.initRow(ii, nn);
-
-        etc1.stop();
-        etc5.start();
-
-#ifdef _OPENMP
-#pragma omp parallel for schedule(dynamic)
-#endif
-        for (size_t jj = 0; jj < mm; ++jj) {
-#ifdef _OPENMP
-            int const t = omp_get_thread_num();
-#else
-            int const t = 0;
-#endif
-            DdNode const& inNode = input[ii][jj];
-            Work& ww = work[ii][jj];
-            int i = ww.parentRow;
-            int j = ww.parentCol >> 1;
-            int b = ww.parentCol & 1;
-            size_t k = 0;
-
-            while (i > 0) {
-                Work& w = work[i][j];
-
-                for (MyListOnPool<SpecNode>::iterator it = w.snodes[b].begin();
-                        it != w.snodes[b].end(); ++it) {
-                    SpecNode* p = *it;
-
-                    if (row(p) == ii) {
-                        DdNodeId dst(ii, ww.outColBase + col(p));
-
-                        *ddSrcPtr(p) = dst;
-                        if (col(p) < k) continue;
-                        ++k;
-
-                        for (int bb = 0; bb <= 1; ++bb) {
-                            int iii = inNode.branch[bb].row;
-                            if (iii == 0) iii = ii;
-
-                            SpecNode* pp = ww.snodes[bb].alloc_front(
-                                    pools[t][iii], specNodeSize);
-                            ddSrcPtr(pp) = &output[dst.row][dst.col].branch[bb];
-                            ddNodeId(pp) = dst;
-                            spec.get_copy(state(pp), state(p));
-                        }
-                    }
-                    else {
-                        assert(row(p) < ii);
-                        int iii = inNode.branch[0].row;
-                        if (iii == 0) iii = ii;
-
-                        SpecNode* pp = ww.snodes[0].alloc_front(pools[t][iii],
-                                specNodeSize);
-                        ddSrcPtr(pp) = ddSrcPtr(p);
-                        ddNodeId(pp) = ddNodeId(p);
-                        spec.get_copy(state(pp), state(p));
-                    }
-                }
-
-                i = w.nextRow[b];
-                j = w.nextCol[b] >> 1;
-                b = w.nextCol[b] & 1;
+            uniqTable.clear();
+            uniqTable.reserve(n + 1);
+            hasher.clear();
+            hasher.reserve(n + 1);
+            for (int i = 0; i <= n; ++i) {
+                hasher.push_back(Hasher<Spec>(spec, i));
+                uniqTable.push_back(UniqTable(hasher.back(), hasher.back()));
             }
-        }
-        etc5.stop();
-        etc1.start();
 
-        for (int t = 0; t < maxThreads; ++t) {
-            pools[t][i].clear();
-        }
-
-        {
-            MyVector<int> const& levels = input.higherLevels(i);
-
-            for (int const* it = levels.begin(); it != levels.end(); ++it) {
-                work.clear(*it);
-                spec.destructLevel(*it);
+            for (int i = n; i >= 1; --i) {
+                dumpStep(os, i);
             }
+
+            for (size_t j = 2; j < oneId.code(); ++j) {
+                os << "  \"" << NodeId(j) << "\" ";
+                os << "[style=invis];\n";
+            }
+            os << "  \"" << oneId << "\" ";
+            os << "[shape=square,label=\"⊤\"];\n";
         }
-        etc1.stop();
+
+        os << "}\n";
+        os.flush();
     }
 
 private:
-    int downTable(DdNodeId& f, bool b, int zerosupLevel) const {
-        if (zerosupLevel < 0) zerosupLevel = 0;
+    void dumpStep(std::ostream& os, int i) {
+        MyList<SpecNode> &snodes = snodeTable[i];
+        size_t const m = snodes.size();
+        MyVector<char> tmp(spec.datasize());
+        void* const tmpState = tmp.data();
+        MyVector<Node<AR> > nodeList(m);
 
-        f = input[f.row][f.col].branch[b];
-        while (f.row > zerosupLevel) {
-            f = input[f.row][f.col].branch[0];
-        }
-        return (f == 1) ? -1 : f.row;
-    }
+        for (size_t j = m - 1; j + 1 > 0; --j, snodes.pop_front()) {
+            NodeId f(i, j);
+            assert(!snodes.empty());
+            SpecNode* p = snodes.front();
 
-    void downSpec(SpecNode* p, int i, bool b, int zerosupLevel) {
-        if (zerosupLevel < 0) zerosupLevel = 0;
-        int level = row(p);
+            os << "  \"" << f << "\" [label=\"";
+            spec.print_state(os, state(p), i);
+            os << "\"];\n";
 
-        if (i > zerosupLevel) {
-            while (level > i) {
-                level = spec.get_child(state(p), level, 0);
+            for (int b = 0; b < AR; ++b) {
+                NodeId& child = nodeList[j].branch[b];
+
+                if (nodeId(p) == 0) {
+                    child = 0;
+                    continue;
+                }
+
+                spec.get_copy(tmpState, state(p));
+                int ii = spec.get_child(tmpState, i, b);
+
+                if (ii == 0) {
+                    child = 0;
+                }
+                else if (ii < 0) {
+                    if (oneId == 1) { // the first 1-terminal candidate
+                        oneId = 2;
+                        spec.destruct(oneState);
+                        spec.get_copy(oneState, tmpState);
+                        child = oneId;
+                    }
+                    else {
+                        switch (spec.merge_states(oneState, tmpState)) {
+                        case 1:
+                            oneId = oneId.code() + 1;
+                            spec.destruct(oneState);
+                            spec.get_copy(oneState, tmpState);
+                            child = oneId;
+                            break;
+                        case 2:
+                            child = 0;
+                            break;
+                        default:
+                            child = oneId;
+                            break;
+                        }
+                    }
+                }
+                else {
+                    SpecNode* pp = snodeTable[ii].alloc_front(specNodeSize);
+                    size_t jj = snodeTable[ii].size() - 1;
+                    spec.get_copy(state(pp), tmpState);
+
+                    SpecNode*& pp0 = uniqTable[ii].add(pp);
+                    if (pp0 == pp) {
+                        nodeId(pp) = child = NodeId(ii, jj);
+                    }
+                    else {
+                        switch (spec.merge_states(state(pp0), state(pp))) {
+                        case 1:
+                            nodeId(pp0) = 0;
+                            nodeId(pp) = child = NodeId(ii, jj);
+                            pp0 = pp;
+                            break;
+                        case 2:
+                            child = 0;
+                            spec.destruct(state(pp));
+                            snodeTable[ii].pop_front();
+                            break;
+                        default:
+                            child = nodeId(pp0);
+                            spec.destruct(state(pp));
+                            snodeTable[ii].pop_front();
+                            break;
+                        }
+                    }
+                }
+
+                spec.destruct(tmpState);
             }
 
-            if (level == i) {
-                level = spec.get_child(state(p), level, b);
+            spec.destruct(state(p));
+        }
+
+        for (size_t j = 0; j < m; ++j) {
+            for (int b = 0; b < AR; ++b) {
+                NodeId f(i, j);
+                NodeId child = nodeList[j].branch[b];
+                if (child == 0) continue;
+                if (child == 1) child = oneId;
+
+                os << "  \"" << f << "\" -> \"" << child << "\"";
+
+                os << " [style=";
+                if (b == 0) {
+                    os << "dashed";
+                }
+                else {
+                    os << "solid";
+                    if (AR > 2) {
+                        os << ",color="
+                                << ((b == 1) ? "blue" :
+                                    (b == 2) ? "red" : "green");
+                    }
+                }
+                os << "];\n";
             }
         }
 
-        while (level > zerosupLevel) {
-            level = spec.get_child(state(p), level, 0);
+        os << "  {rank=same; " << i;
+        for (size_t j = 0; j < m; ++j) {
+            os << "; \"" << NodeId(i, j) << "\"";
         }
+        os << "}\n";
 
-        ddNodeId(p).row = level; // can be 65535
+        uniqTable[i - 1].clear();
+        spec.destructLevel(i);
     }
 };
+
+} // namespace tdzdd

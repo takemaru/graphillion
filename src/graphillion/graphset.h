@@ -31,7 +31,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 namespace graphillion {
 
-class Range : public IntSubset {
+class Range : public tdzdd::IntSubset {
  public:
   Range(int max = 1);
   Range(int min, int max, int step = 1);

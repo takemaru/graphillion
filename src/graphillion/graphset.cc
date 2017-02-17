@@ -29,9 +29,9 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <set>
 #include <vector>
 
-#include "subsetting/dd/ZddStructure.hpp"
+#include "subsetting/DdStructure.hpp"
+#include "subsetting/DdSpecOp.hpp"
 #include "subsetting/eval/ToZBDD.hpp"
-#include "subsetting/spec/BinaryOperation.hpp"
 #include "subsetting/spec/DegreeConstraint.hpp"
 #include "subsetting/spec/FrontierBasedSearch.hpp"
 #include "subsetting/spec/LinearConstraints.hpp"
@@ -47,6 +47,7 @@ using std::map;
 using std::pair;
 using std::set;
 using std::vector;
+using namespace tdzdd;
 
 Range::Range(int max) : min_(0), max_(max - 1), step_(1) {
   assert(this->min_ <= this->max_);
@@ -88,12 +89,18 @@ setset SearchGraphs(
   g.update();
   assert(static_cast<size_t>(g.edgeSize()) == graph.size());
 
-  ZddStructure dd;
+#ifdef _OPENMP
+  bool use_mp = (omp_get_num_procs() >= 2);
+#else
+  bool use_mp = false;
+#endif
+
+  DdStructure<2> dd;
   if (search_space != NULL) {
     SapporoZdd f(search_space->zdd_, setset::max_elem() - setset::num_elems());
-    dd = ZddStructure(f);
+    dd = DdStructure<2>(f, use_mp);
   } else {
-    dd = ZddStructure(g.edgeSize());
+    dd = DdStructure<2>(g.edgeSize(), use_mp);
   }
 
   if (vertex_groups != NULL) {
@@ -110,12 +117,12 @@ setset SearchGraphs(
     for (map<vertex_t, Range>::const_iterator i = degree_constraints->begin();
          i != degree_constraints->end(); ++i)
       dc.setConstraint(i->first, &i->second);
-    dd.subset(dc);
+    dd.zddSubset(dc);
   }
 
   if (num_edges != NULL) {
     SizeConstraint sc(g.edgeSize(), num_edges);
-    dd.subset(sc);
+    dd.zddSubset(sc);
   }
 
   FrontierBasedSearch fbs(g, num_comps, no_loop);
@@ -136,12 +143,13 @@ setset SearchGraphs(
     lc.update();
     ZddIntersection<LinearConstraints<double>,FrontierBasedSearch> zi(lc, fbs);
 
-    dd.subset(zi);
+    dd.zddSubset(zi);
   }
   else {
-    dd.subset(fbs);
+    dd.zddSubset(fbs);
   }
 
+  dd.useMultiProcessors(false);
   zdd_t f = dd.evaluate(ToZBDD(setset::max_elem() - setset::num_elems()));
   return setset(f);
 }

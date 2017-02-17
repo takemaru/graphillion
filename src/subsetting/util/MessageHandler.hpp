@@ -24,6 +24,7 @@
 
 #pragma once
 
+#include <cstdio>
 #include <ctime>
 #include <iostream>
 #include <streambuf>
@@ -31,7 +32,7 @@
 
 #include "ResourceUsage.hpp"
 
-//namespace tdzdd {
+namespace tdzdd {
 
 inline std::string capitalize(std::string const& s) {
     std::string t = s;
@@ -267,4 +268,4 @@ typename MessageHandler_<os>::Buf* MessageHandler_<os>::lastUser = 0;
 
 typedef MessageHandler_<std::cerr> MessageHandler;
 
-//} // namespace tdzdd
+} // namespace tdzdd

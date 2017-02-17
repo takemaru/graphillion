@@ -1,17 +1,34 @@
 /*
- * Top-Down ZDD Construction Library for Frontier-Based Search
+ * TdZdd: a Top-down/Breadth-first Decision Diagram Manipulation Framework
  * by Hiroaki Iwashita <iwashita@erato.ist.hokudai.ac.jp>
- * Copyright (c) 2012 Japan Science and Technology Agency
- * $Id: PathCounter.hpp 412 2013-02-15 01:13:19Z iwashita $
+ * Copyright (c) 2014 ERATO MINATO Project
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ * DEALINGS IN THE SOFTWARE.
  */
 
 #pragma once
 
+#include <cassert>
 #include <ostream>
 #include <stdexcept>
 #include <string>
 #include <utility>
-#include <vector>
 
 #include "../util/BigNumber.hpp"
 #include "../util/demangle.hpp"
@@ -20,7 +37,9 @@
 #include "../util/MyHashTable.hpp"
 #include "../util/MyList.hpp"
 #include "../util/MyVector.hpp"
-#include "DdSpec.hpp"
+#include "../DdSpec.hpp"
+
+namespace tdzdd {
 
 template<typename S>
 class PathCounter {
@@ -30,24 +49,24 @@ class PathCounter {
 
     struct Hasher {
         Spec const& spec;
+        int const level;
 
-        Hasher(Spec const& spec)
-                : spec(spec) {
+        Hasher(Spec const& spec, int level)
+                : spec(spec), level(level) {
         }
 
         size_t operator()(Word const* p) const {
-            return spec.hash_code(state(p));
+            return spec.hash_code(state(p), level);
         }
 
         size_t operator()(Word const* p, Word const* q) const {
-            return spec.equal_to(state(p), state(q));
+            return spec.equal_to(state(p), state(q), level);
         }
     };
 
     typedef MyHashTable<Word*,Hasher,Hasher> UniqTable;
 
     Spec& spec;
-    Hasher const hasher;
     int const stateWords;
 
     static int numWords(int n) {
@@ -76,14 +95,14 @@ public:
 //    PathCounter(S&& s): spec(std::forward<S>(s)), hasher(spec), stateWords(numWords(spec.datasize())) {
 //    }
     PathCounter(S& s)
-            : spec(s), hasher(spec), stateWords(numWords(spec.datasize())) {
+            : spec(s), stateWords(numWords(spec.datasize())) {
     }
 
     std::string count() {
         MessageHandler mh;
-        mh.begin("counting") << " paths of " << typenameof(spec);
+        mh.begin(typenameof(spec));
 
-        std::vector<Word> tmp(stateWords + 1);
+        MyVector<Word> tmp(stateWords + 1);
         Word* ptmp = tmp.data();
         int const n = spec.get_root(state(ptmp));
         if (n <= 0) {
@@ -98,13 +117,16 @@ public:
         size_t maxWidth = 0;
         //std::cerr << "\nLevel,Width\n";
 
-        std::vector<MemoryPool> pools(n + 1);
+        MemoryPools pools(n + 1);
         MyVector<MyList<Word> > vnodeTable(n + 1);
         MyVector<UniqTable> uniqTable;
+        MyVector<Hasher> hasher;
 
         uniqTable.reserve(n + 1);
+        hasher.reserve(n + 1);
         for (int i = 0; i <= n; ++i) {
-            uniqTable.push_back(UniqTable(hasher, hasher));
+            hasher.push_back(Hasher(spec, i));
+            uniqTable.push_back(UniqTable(hasher.back(), hasher.back()));
         }
 
         int numberWords = 1;
@@ -128,12 +150,12 @@ public:
 
             for (; !vnodes.empty(); vnodes.pop_front()) {
                 Word* p = vnodes.front();
-                if (number(p).equals(0)) {
+                if (number(p) == 0) {
                     spec.destruct(state(p));
                     continue;
                 }
 
-                for (int b = 0; b <= 1; ++b) {
+                for (int b = 0; b < Spec::ARITY; ++b) {
                     spec.get_copy(state(pp), state(p));
                     int ii = spec.get_child(state(pp), i, b);
 
@@ -197,9 +219,9 @@ public:
 
     std::string countFast() {
         MessageHandler mh;
-        mh.begin("counting") << " paths of " << typenameof(spec);
+        mh.begin(typenameof(spec));
 
-        std::vector<Word> tmp(stateWords + 1);
+        MyVector<Word> tmp(stateWords + 1);
         Word* ptmp = tmp.data();
         int const n = spec.get_root(state(ptmp));
         if (n <= 0) {
@@ -214,7 +236,7 @@ public:
         size_t maxWidth = 0;
         //std::cerr << "\nLevel,Width\n";
 
-        std::vector<MemoryPool> pools(n + 1);
+        MemoryPools pools(n + 1);
         MyVector<MyList<Word> > vnodeTable(n + 1);
 
         int numberWords = 1;
@@ -229,6 +251,7 @@ public:
             size_t m = 0;
 
             {
+                Hasher hasher(spec, i);
                 UniqTable uniq(vnodes.size(), hasher, hasher);
 
                 for (MyList<Word>::iterator t = vnodes.begin();
@@ -257,12 +280,12 @@ public:
 
             for (; !vnodes.empty(); vnodes.pop_front()) {
                 Word* p = vnodes.front();
-                if (number(p).equals(0)) {
+                if (number(p) == 0) {
                     spec.destruct(state(p));
                     continue;
                 }
 
-                for (int b = 0; b <= 1; ++b) {
+                for (int b = 0; b < Spec::ARITY; ++b) {
                     spec.get_copy(state(pp), state(p));
                     int ii = spec.get_child(state(pp), i, b);
 
@@ -301,9 +324,9 @@ public:
 
     uint64_t count64() {
         MessageHandler mh;
-        mh.begin("counting") << " paths of " << typenameof(spec);
+        mh.begin(typenameof(spec));
 
-        std::vector<Word> tmp(stateWords + 1);
+        MyVector<Word> tmp(stateWords + 1);
         Word* ptmp = tmp.data();
         int const n = spec.get_root(state(ptmp));
         if (n <= 0) {
@@ -311,19 +334,21 @@ public:
             mh.end(0);
             return (n == 0) ? 0 : 1;
         }
-        mh << "\n";
 
         uint64_t total = 0;
         size_t maxWidth = 0;
         //std::cerr << "\nLevel,Width\n";
 
-        std::vector<MemoryPool> pools(n + 1);
+        MemoryPools pools(n + 1);
         MyVector<MyList<Word> > vnodeTable(n + 1);
         MyVector<UniqTable> uniqTable;
+        MyVector<Hasher> hasher;
 
         uniqTable.reserve(n + 1);
+        hasher.reserve(n + 1);
         for (int i = 0; i <= n; ++i) {
-            uniqTable.push_back(UniqTable(hasher, hasher));
+            hasher.push_back(Hasher(spec, i));
+            uniqTable.push_back(UniqTable(hasher.back(), hasher.back()));
         }
 
         Word* p0 = vnodeTable[n].alloc_front(stateWords + 1);
@@ -331,6 +356,7 @@ public:
         spec.destruct(state(ptmp));
         number64(p0) = 1;
 
+        mh.setSteps(n);
         for (int i = n; i > 0; --i) {
             MyList<Word>& vnodes = vnodeTable[i];
             size_t m = vnodes.size();
@@ -349,7 +375,7 @@ public:
                     continue;
                 }
 
-                for (int b = 0; b <= 1; ++b) {
+                for (int b = 0; b < Spec::ARITY; ++b) {
                     spec.get_copy(state(pp), state(p));
                     int ii = spec.get_child(state(pp), i, b);
 
@@ -397,7 +423,7 @@ public:
             nextUniq.clear();
             pools[i].clear();
             spec.destructLevel(i);
-            mh << ".";
+            mh.step();
         }
 
         mh.end(maxWidth);
@@ -405,13 +431,28 @@ public:
     }
 };
 
+/**
+ * Counts the number of paths from the root to the 1-terminal
+ * without building entire DD structure.
+ * This function uses arbitrary-precision integer for counting.
+ * @param spec DD specification.
+ * @param fast @p true to select a faster algorithm instead of a memory-efficient one.
+ */
 template<typename S>
 std::string countPaths(S& spec, bool fast = false) {
     PathCounter<S> pc(spec);
     return fast ? pc.countFast() : pc.count();
 }
 
+/**
+ * Counts the number of paths from the root to the 1-terminal
+ * without building entire DD structure.
+ * This function uses unsigned 64-bit integer for counting.
+ * @param spec DD specification.
+ */
 template<typename S>
 uint64_t countPaths64(S& spec) {
     return PathCounter<S>(spec).count64();
 }
+
+} // namespace tdzdd

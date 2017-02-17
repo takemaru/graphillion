@@ -1,8 +1,25 @@
 /*
- * Top-Down ZDD Construction Library for Frontier-Based Search
+ * TdZdd: a Top-down/Breadth-first Decision Diagram Manipulation Framework
  * by Hiroaki Iwashita <iwashita@erato.ist.hokudai.ac.jp>
- * Copyright (c) 2012 Japan Science and Technology Agency
- * $Id: FrontierBasedSearch.hpp 426 2013-02-26 06:50:04Z iwashita $
+ * Copyright (c) 2014 ERATO MINATO Project
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ * DEALINGS IN THE SOFTWARE.
  */
 
 #pragma once
@@ -14,14 +31,28 @@
 #include <stdexcept>
 #include <vector>
 
-#include "../dd/DdSpec.hpp"
+#include "../DdSpec.hpp"
 #include "../util/Graph.hpp"
+
+namespace tdzdd {
 
 struct FrontierBasedSearchCount {
     int16_t uec; ///< uncolored edge component counter.
 
+    FrontierBasedSearchCount()
+            : uec(0) {
+    }
+
     FrontierBasedSearchCount(int16_t uncoloredEdgeComponents)
             : uec(uncoloredEdgeComponents) {
+    }
+
+    size_t hash() const {
+        return uec;
+    }
+
+    bool operator==(FrontierBasedSearchCount const& o) const {
+        return uec == o.uec;
     }
 
     friend std::ostream& operator<<(std::ostream& os,
@@ -232,8 +263,8 @@ public:
     }
 };
 
-class FrontierBasedSearch: public PodHybridDdSpec<FrontierBasedSearch,
-        FrontierBasedSearchCount,FrontierBasedSearchMate> {
+class FrontierBasedSearch: public tdzdd::HybridDdSpec<FrontierBasedSearch,
+        FrontierBasedSearchCount,FrontierBasedSearchMate,2> {
     typedef FrontierBasedSearchCount Count;
     typedef FrontierBasedSearchMate Mate;
 
@@ -243,7 +274,8 @@ class FrontierBasedSearch: public PodHybridDdSpec<FrontierBasedSearch,
     int const mateSize;
     std::vector<Mate> initialMate;
     int numUEC;
-    bool noLoop;
+    bool const noLoop;
+    bool const lookahead;
 
     int takable(Count& c, Mate const* mate, Graph::EdgeInfo const& e) const {
         Mate const& w1 = mate[e.v1 - e.v0];
@@ -377,17 +409,16 @@ class FrontierBasedSearch: public PodHybridDdSpec<FrontierBasedSearch,
             std::memmove(p1, pd, (mateSize - d) * sizeof(*mate));
             for (int i = mateSize - d; i < mateSize; ++i) {
                 p1[i] = initialMate[ee.v0 + i];
-                //std::cerr << "\np1[" << i << "] = " << p1[i];
             }
         }
     }
 
 public:
     FrontierBasedSearch(Graph const& graph, int numUEC = -1,
-            bool noLoop = false)
+            bool noLoop = false, bool lookahead = true)
             : graph(graph), m(graph.vertexSize()), n(graph.edgeSize()),
               mateSize(graph.maxFrontierSize()), initialMate(1 + m + mateSize),
-              numUEC(numUEC), noLoop(noLoop) {
+              numUEC(numUEC), noLoop(noLoop), lookahead(lookahead) {
         this->setArraySize(mateSize);
 
         std::vector<int> rootOfColor(graph.numColor() + 1);
@@ -398,7 +429,6 @@ public:
             int k = graph.colorNumber(v);
             int hoc = (k > 0) ? rootOfColor[k] - v : Mate::UNCOLORED;
             initialMate[v] = Mate(hoc);
-//            std::cerr << "\ninitialMate[" << v << "] = " << initialMate[v];
         }
     }
 
@@ -411,19 +441,13 @@ public:
             mate[i] = initialMate[v0 + i];
         }
 
-//        std::cerr << "\nroot ";
-//        print(std::cerr, count, mate);
         return n;
     }
 
-    int getChild(Count& count, Mate* mate, int level, bool take) const {
+    int getChild(Count& count, Mate* mate, int level, int take) const {
         assert(1 <= level && level <= n);
         int i = n - level;
         Graph::EdgeInfo const* e = &graph.edgeInfo(i);
-//        std::cerr << "\ne" << i << (take ? ": T " : ": F ")
-//                << graph.vertexName(e->v1) << "-" << graph.vertexName(e->v2)
-//                << " ";
-//        print(std::cerr, count, mate);
 
         if (take) {
             if (!doTake(count, mate, *e)) return 0;
@@ -433,35 +457,30 @@ public:
         }
 
         if (++i == n) return -1;
-//        std::cerr << " -> ";
-//        print(std::cerr, count, mate);
 
         Graph::EdgeInfo const* ee = &graph.edgeInfo(i);
         update(mate, *e, *ee);
-//        std::cerr << " => ";
-//        print(std::cerr, count, mate);
 
-        while (true) {
+        while (lookahead) {
             e = ee;
 
             Count c = count;
             if (takable(c, mate, *e)) break;
-//            std::cerr << "\ne" << i << ": F " << graph.vertexName(e->v1) << "-"
-//                    << graph.vertexName(e->v2) << " ";
-//            print(std::cerr, c, mate);
             if (!doNotTake(count, mate, *e)) return 0;
 
             if (++i == n) return -1;
-//            std::cerr << " -> ";
-//            print(std::cerr, count, mate);
 
             ee = &graph.edgeInfo(i);
             update(mate, *e, *ee);
-//            std::cerr << " => ";
-//            print(std::cerr, count, mate);
         }
 
         assert(i < n);
         return n - i;
     }
+
+    size_t hashCode(Count const& count) const {
+        return count.hash();
+    }
 };
+
+} // namespace tdzdd
