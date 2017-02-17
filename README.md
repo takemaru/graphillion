@@ -658,6 +658,10 @@ generated during the operation.
 | `gs.update(other(s))`                             | Updates `gs`, adding graphs from all others                                                  |
 | `gs.join(other)`                                  | Returns a new GraphSet of join between `self` and `other`                                    |
 | `gs.meet(other)`                                  | Returns a new GraphSet of meet between `self` and `other`                                    |
+| `gs.subgraphs(other)`                             | Returns a new GraphSet with subgraphs of a graph in `other`                                  |
+| `gs.supergraphs(other)`                           | Returns a new GraphSet with supergraphs of a graph in `other`                                |
+| `gs.non_subgraphs(other)`                         | Returns a new GraphSet with graphs that aren't subgraphs of any graph in `other`             |
+| `gs.non_supergraphs(other)`                       | Returns a new GraphSet with graphs that aren't supergraphs of any graph in `other`           |
 | `gs.including(obj)`                               | Returns a new GraphSet that includes supergraphs of `obj` (graphset, graph, edge, or vertex) |
 | `gs.excluding(obj)`                               | Returns a new GraphSet that doesn't include `obj`  (graphset, graph, edge, or vertex)        |
 | `gs.included(obj)`                                | Returns a new GraphSet with subgraphs of a graph in `obj` (graphset or graph)                |
