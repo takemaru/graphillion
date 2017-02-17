@@ -653,6 +653,8 @@ generated during the operation.
 | `gs.intersection(other(s))`, `gs & other`         | Returns a new GraphSet with graphs common to `gs` and all others                             |
 | `gs.difference(other(s))`, `gs - other`           | Returns a new GraphSet with graphs in `gs` that are not in the others                        |
 | `gs.symmetric_difference(other(s))`, `gs ^ other` | Returns a new GraphSet with graphs in either `gs` or `other` but not both                    |
+| `gs.quotient(other)`, `gs / other`                | Returns a new GraphSet of quotient.                                                          |
+| `gs.remainder(other)`, `gs % other`               | Returns a new GraphSet of remainder.                                                         |
 | `gs.update(other(s))`                             | Updates `gs`, adding graphs from all others                                                  |
 | `gs.join(other)`                                  | Returns a new GraphSet of join between `self` and `other`                                    |
 | `gs.meet(other)`                                  | Returns a new GraphSet of meet between `self` and `other`                                    |

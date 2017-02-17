@@ -256,57 +256,57 @@ class GraphSet(object):
         """
         return GraphSet(self._ss.symmetric_difference(*[gs._ss for gs in others]))
 
-#    def quotient(self, other):
-#        """Returns a new GraphSet of quotient.
-#
-#        The quotient is defined by,
-#          gs1 / gs2 = {a | a \\cup b \\in gs1 and a \\cap b = \\empty, \\forall b \\in gs2}.
-#        D. Knuth, Exercise 204, The art of computer programming,
-#        Sect.7.1.4.
-#
-#        The `self` is not changed.
-#
-#        Examples:
-#          >>> graph1 = [(1, 2), (1, 4)]
-#          >>> graph2 = [(2, 3), (2, 5)]
-#          >>> graph3 = [(1, 4)]
-#          >>> gs = GraphSet([graph1, graph2])
-#          >>> gs / GraphSet([graph3])
-#          GraphSet([[(1, 2)]])
-#
-#        Returns:
-#          A new GraphSet object.
-#
-#        See Also:
-#          remainder(), quotient_update()
-#        """
-#        return GraphSet(self._ss.quotient(other._ss))
+    def quotient(self, other):
+        """Returns a new GraphSet of quotient.
 
-#    def remainder(self, other):
-#        """Returns a new GraphSet of remainder.
-#
-#        The remainder is defined by,
-#          gs1 % gs2 = gs1 - (gs1 \\sqcup (gs1 / gs2)).
-#        D. Knuth, Exercise 204, The art of computer programming,
-#        Sect.7.1.4.
-#
-#        The `self` is not changed.
-#
-#        Examples:
-#          >>> graph1 = [(1, 2), (1, 4)]
-#          >>> graph2 = [(2, 3), (2, 5)]
-#          >>> graph3 = [(1, 4)]
-#          >>> gs = GraphSet([graph1, graph2])
-#          >>> gs % GraphSet([graph3])
-#          GraphSet([[(2, 3), (2, 5)]])
-#
-#        Returns:
-#          A new GraphSet object.
-#
-#        See Also:
-#          quotient(), remainder_update()
-#        """
-#        return GraphSet(self._ss.remainder(other._ss))
+        The quotient is defined by,
+          gs1 / gs2 = {a | a \\cup b \\in gs1 and a \\cap b = \\empty, \\forall b \\in gs2}.
+        D. Knuth, Exercise 204, The art of computer programming,
+        Sect.7.1.4.
+
+        The `self` is not changed.
+
+        Examples:
+          >>> graph1 = [(1, 2), (1, 4)]
+          >>> graph2 = [(2, 3), (2, 5)]
+          >>> graph3 = [(1, 4)]
+          >>> gs = GraphSet([graph1, graph2])
+          >>> gs / GraphSet([graph3])
+          GraphSet([[(1, 2)]])
+
+        Returns:
+          A new GraphSet object.
+
+        See Also:
+          remainder(), quotient_update()
+        """
+        return GraphSet(self._ss.quotient(other._ss))
+
+    def remainder(self, other):
+        """Returns a new GraphSet of remainder.
+
+        The remainder is defined by,
+          gs1 % gs2 = gs1 - (gs1 \\sqcup (gs1 / gs2)).
+        D. Knuth, Exercise 204, The art of computer programming,
+        Sect.7.1.4.
+
+        The `self` is not changed.
+
+        Examples:
+          >>> graph1 = [(1, 2), (1, 4)]
+          >>> graph2 = [(2, 3), (2, 5)]
+          >>> graph3 = [(1, 4)]
+          >>> gs = GraphSet([graph1, graph2])
+          >>> gs % GraphSet([graph3])
+          GraphSet([[(2, 3), (2, 5)]])
+
+        Returns:
+          A new GraphSet object.
+
+        See Also:
+          quotient(), remainder_update()
+        """
+        return GraphSet(self._ss.remainder(other._ss))
 
     def update(self, *others):
         """Updates `self`, adding graphs from all others.
@@ -396,47 +396,47 @@ class GraphSet(object):
         self._ss.symmetric_difference_update(*[gs._ss for gs in others])
         return self
 
-#    def quotient_update(self, other):
-#        """Updates `self` by the quotient.
-#
-#        Examples:
-#          >>> graph1 = [(1, 2), (1, 4)]
-#          >>> graph2 = [(2, 3), (2, 5)]
-#          >>> graph3 = [(1, 4)]
-#          >>> gs = GraphSet([graph1, graph2])
-#          >>> gs /= GraphSet([graph3])
-#          >>> gs
-#          GraphSet([[(1, 2)]])
-#
-#        Returns:
-#          A new GraphSet object.
-#
-#        See Also:
-#          quotient()
-#        """
-#        self._ss.quotient_update(other._ss)
-#        return self
+    def quotient_update(self, other):
+        """Updates `self` by the quotient.
 
-#    def remainder_update(self, other):
-#        """Updates `self` by the remainder.
-#
-#        Examples:
-#          >>> graph1 = [(1, 2), (1, 4)]
-#          >>> graph2 = [(2, 3), (2, 5)]
-#          >>> graph3 = [(1, 4)]
-#          >>> gs = GraphSet([graph1, graph2])
-#          >>> gs %= GraphSet([graph3])
-#          >>> gs
-#          GraphSet([[(2, 3), (2, 5)]])
-#
-#        Returns:
-#          A new GraphSet object.
-#
-#        See Also:
-#          remainder()
-#        """
-#        self._ss.remainder_update(other._ss)
-#        return self
+        Examples:
+          >>> graph1 = [(1, 2), (1, 4)]
+          >>> graph2 = [(2, 3), (2, 5)]
+          >>> graph3 = [(1, 4)]
+          >>> gs = GraphSet([graph1, graph2])
+          >>> gs /= GraphSet([graph3])
+          >>> gs
+          GraphSet([[(1, 2)]])
+
+        Returns:
+          A new GraphSet object.
+
+        See Also:
+          quotient()
+        """
+        self._ss.quotient_update(other._ss)
+        return self
+
+    def remainder_update(self, other):
+        """Updates `self` by the remainder.
+
+        Examples:
+          >>> graph1 = [(1, 2), (1, 4)]
+          >>> graph2 = [(2, 3), (2, 5)]
+          >>> graph3 = [(1, 4)]
+          >>> gs = GraphSet([graph1, graph2])
+          >>> gs %= GraphSet([graph3])
+          >>> gs
+          GraphSet([[(2, 3), (2, 5)]])
+
+        Returns:
+          A new GraphSet object.
+
+        See Also:
+          remainder()
+        """
+        self._ss.remainder_update(other._ss)
+        return self
 
     def __invert__(self):
         """Returns a new GraphSet with graphs not stored in `self`.
@@ -457,15 +457,19 @@ class GraphSet(object):
     __and__ = intersection
     __sub__ = difference
     __xor__ = symmetric_difference
-#    __div__ = quotient
-#    __mod__ = remainder
+    __div__ = quotient
+    __truediv__ = quotient
+    __floordiv__ = quotient
+    __mod__ = remainder
 
     __ior__ = update
     __iand__ = intersection_update
     __isub__ = difference_update
     __ixor__ = symmetric_difference_update
-#    __idiv__ = quotient_update
-#    __imod__ = remainder_update
+    __idiv__ = quotient_update
+    __itruediv__ = quotient_update
+    __ifloordiv__ = quotient_update
+    __imod__ = remainder_update
 
     def isdisjoint(self, other):
         """Returns True if `self` has no graphs in common with `other`.
