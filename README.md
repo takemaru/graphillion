@@ -839,20 +839,20 @@ Future work
 References
 --------------------------------------------------------------------------------
 
-### Related software
-
-- [Graphillion for Windows](https://github.com/junkawahara/graphillion_for_windows)
-- [DNET - Distribution Network Evaluation Tool][DNET]
-- [Ekillion - Enumerating all JR train paths in Japan][Ekillion]
-- [TdZdd - A top-down/breadth-first decision diagram manipulation framework][TdZdd]
-- [GGCount - A C++ program for fast computation of the number of paths in a grid graph][GGCount]
-
 ### About Graphillion and its internals
 
 - Takeru Inoue, Hiroaki Iwashita, Jun Kawahara, and Shin-ichi Minato:
   "Graphillion: Software Library Designed for Very Large Sets of
   Labeled Graphs," International Journal on Software Tools for
   Technology Transfer, Springer, vol.18, issue 1, pp.57-66, February 2016. ([doi](http://dx.doi.org/10.1007/s10009-014-0352-z))
+- Yuma Inoue and Shin-ichi Minato, "Acceleration of ZDD Construction
+  for Subgraph Enumeration via Path-width Optimization,"
+  TCS Technical Reports, TCS-TR-A-16-80, October 2016.
+  ([pdf](http://www-alg.ist.hokudai.ac.jp/~thomas/TCSTR/tcstr_16_80/tcstr_16_80.pdf))
+- Hana Ito, Yuma Inoue, and Shin-ichi Minato, "Experiments and
+  Considerations on Variable Ordering in Top-Down Construction of
+  ZDDs," Forum on Information Technology, vol.14, no.1, pp.115-116,
+  September 2015.  ([pdf](http://ci.nii.ac.jp/naid/110009988569/en/), in Japanese)
 - JST ERATO Minato Discrete Structure Manipulation System Project,
   "High-Speed Graph Enumeration Algorithms," Morikita Publishing,
   April  2015. ([amazon](http://www.amazon.co.jp/dp/4627852614), in Japanese)
@@ -885,7 +885,14 @@ References
   Experimental Algorithms (SEA), pp.91-102, June 2013.
   ([doi](http://dx.doi.org/10.1007/978-3-642-38527-8_10))
 
+- [Graphillion for Windows](https://github.com/junkawahara/graphillion_for_windows)
+- [TdZdd - A top-down/breadth-first decision diagram manipulation framework][TdZdd]
+- [GGCount - A C++ program for fast computation of the number of paths in a grid graph][GGCount]
+
 ### Using Graphillion or related algorithms
+
+- [DNET - Distribution Network Evaluation Tool][DNET]
+- [Ekillion - Enumerating all JR train paths in Japan][Ekillion]
 
 - Daisuke Yoshino and Eiji Hato, "Fast Enumeration Method of Travel
   Route of DRT Using Zero-suppressed Binary Decision Diagram," Journal
@@ -915,10 +922,6 @@ References
 - Arthur Choi, Nazgol Tavabi, and Adnan Darwiche, "Structured Features
   in Naive Bayes Classification," AAAI, pp.3233-3240, February 2016.
   ([pdf](https://pdfs.semanticscholar.org/28a4/f88271ff8e0d008230676ac3ab9dac265871.pdf))
-- Hana Ito, Yuma Inoue, and Shin-ichi Minato, "Experiments and
-  Considerations on Variable Ordering in Top-Down Construction of
-  ZDDs," Forum on Information Technology, vol.14, no.1, pp.115-116,
-  September 2015.  ([pdf](http://ci.nii.ac.jp/naid/110009988569/en/), in Japanese)
 - Ikki Fujiwara, Satoshi Fujita, Koji Nakano, Takeru Inoue, and
   Michihiro Koibuchi, "Let's Solve the Order/Degree Problem to Make
   the Lowest-latency Interconnections," Technical Report of IEICE,
