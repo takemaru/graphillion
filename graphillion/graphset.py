@@ -2032,7 +2032,7 @@ class GraphSet(object):
                         e = (u, v) if (u, v) in indexed_edges else (v, u)
                         sorted_edges.append(e)
                 new_vertices = neighbors[u] - visited_vertices - set(queue_or_stack)
-                queue_or_stack.extend(new_vertices)
+                queue_or_stack.extend(sorted(new_vertices))
                 if not queue_or_stack:
                     if visited_vertices == vertices:
                         break
