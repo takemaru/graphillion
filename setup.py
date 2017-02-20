@@ -4,6 +4,7 @@ from setuptools import setup, find_packages, Extension
 import subprocess
 import shutil
 import sys
+import sysconfig
 import tempfile
 
 sys.path.insert(0, 'graphillion')
