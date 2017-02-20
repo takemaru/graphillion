@@ -54,10 +54,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #define B_CST_MASK  B_MSB_MASK /* Mask of constant-flag */
 #define B_VAL_MASK  (B_MSB_MASK - 1U)
                       /* Mask of value-field */
-
-/***************** For stack overflow limit *****************/
-extern const int BDD_RecurLimit;
-extern int BDD_RecurCount;
  
 /***************** External typedef *****************/
 typedef unsigned int bddvar;
@@ -82,6 +78,10 @@ typedef unsigned int bddvar;
 #ifdef BDD_CPP
   extern "C" {
 #endif /* BDD_CPP */
+
+/***************** For stack overflow limit *****************/
+extern const int BDD_RecurLimit;
+extern int BDD_RecurCount;
 
 /***************** External operations *****************/
 

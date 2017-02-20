@@ -432,9 +432,10 @@ public:
             tasks(1),
 #endif
             specs(threads, s),
-            specNodeSize(getSpecNodeSize(s.datasize())), output(
-                    output.privateEntity()),
-            sweeper(this->output), snodeTables(threads) {
+            specNodeSize(getSpecNodeSize(s.datasize())),
+            output(output.privateEntity()),
+            sweeper(this->output),
+            snodeTables(threads) {
         if (n >= 1) init(n);
 #ifdef DEBUG
         MessageHandler mh;
@@ -503,7 +504,8 @@ public:
 #endif
 
 #ifdef _OPENMP
-#pragma omp parallel reduction(min:lowestChild) reduction(+:deadCount)
+        // OpenMP 2.0 does not support reduction(min:lowestChild)
+#pragma omp parallel reduction(+:deadCount)
 #endif
         {
 #ifdef _OPENMP
@@ -518,6 +520,7 @@ public:
             void* const tmpState = tmp.data();
             Hasher<Spec> hasher(spec, i);
             UniqTable uniq(hasher, hasher);
+            int lc = lowestChild;
 
 #ifdef _OPENMP
 #pragma omp for schedule(dynamic)
@@ -544,8 +547,7 @@ public:
                             code(p) = ++j; // code(p) >= 1
                         }
                         else {
-                            switch (spec.merge_states(state(p0),
-                                    state(p))) {
+                            switch (spec.merge_states(state(p0), state(p))) {
                             case 1:
                                 code(p0) = 0;
                                 code(p) = ++j; // code(p) >= 1
@@ -642,7 +644,7 @@ public:
                                                 specNodeSize);
                                 spec.get_copy(state(pp), s);
                                 srcPtr(pp) = &q.branch[b];
-                                if (ii < lowestChild) lowestChild = ii;
+                                if (ii < lc) lc = ii;
                                 allZero = false;
                             }
 
@@ -655,6 +657,11 @@ public:
             }
 
             spec.destructLevel(i);
+
+#ifdef _OPENMP
+#pragma omp critical
+#endif
+            if (lc < lowestChild) lowestChild = lc;
         }
 
         sweeper.update(i, lowestChild, deadCount);
@@ -688,8 +695,7 @@ class ZddSubsetter: DdBuilderBase {
     MemoryPools pools;
 
 public:
-    ZddSubsetter(NodeTableHandler<AR> const& input,
-                 Spec const& s,
+    ZddSubsetter(NodeTableHandler<AR> const& input, Spec const& s,
                  NodeTableHandler<AR>& output) :
             spec(s),
             specNodeSize(getSpecNodeSize(spec.datasize())),
@@ -872,9 +878,11 @@ public:
                                 switch (spec.merge_states(one, tmpState)) {
                                 case 1:
                                     while (!oneSrcPtr.empty()) {
-                                        NodeBranchId const& nbi = oneSrcPtr.back();
+                                        NodeBranchId const& nbi =
+                                                oneSrcPtr.back();
                                         assert(nbi.row >= i);
-                                        output[nbi.row][nbi.col].branch[nbi.val] = 0;
+                                        output[nbi.row][nbi.col].branch[nbi.val] =
+                                                0;
                                         oneSrcPtr.pop_back();
                                     }
                                     spec.destruct(one);
@@ -947,7 +955,7 @@ private:
  * Multi-threaded breadth-first ZDD subset builder.
  */
 template<typename S>
-class ZddSubsetterMP: DdBuilderMPBase {//TODO oneStorage
+class ZddSubsetterMP: DdBuilderMPBase { //TODO oneStorage
 //typedef typename std::remove_const<typename std::remove_reference<S>::type>::type Spec;
     typedef S Spec;
     typedef MyHashTable<SpecNode*,Hasher<Spec>,Hasher<Spec> > UniqTable;
@@ -975,9 +983,12 @@ public:
             threads(1),
 #endif
             specs(threads, s),
-            specNodeSize(getSpecNodeSize(s.datasize())), input(*input), output(
-                    output.privateEntity()),
-            sweeper(this->output), snodeTables(threads), pools(threads) {
+            specNodeSize(getSpecNodeSize(s.datasize())),
+            input(*input),
+            output(output.privateEntity()),
+            sweeper(this->output),
+            snodeTables(threads),
+            pools(threads) {
     }
 
     /**
@@ -1043,7 +1054,8 @@ public:
         size_t deadCount = 0;
 
 #ifdef _OPENMP
-#pragma omp parallel reduction(min:lowestChild) reduction(+:deadCount)
+        // OpenMP 2.0 does not support reduction(min:lowestChild)
+#pragma omp parallel reduction(+:deadCount)
 #endif
         {
 #ifdef _OPENMP
@@ -1056,11 +1068,12 @@ public:
             void* const tmpState = tmp.data();
             Hasher<Spec> hasher(spec, i);
             UniqTable uniq(hasher, hasher);
+            int lc = lowestChild;
 
 #ifdef _OPENMP
 #pragma omp for schedule(dynamic)
 #endif
-            for (size_t j = 0; j < m; ++j) {
+            for (intmax_t j = 0; j < intmax_t(m); ++j) {
                 size_t mm = 0;
                 for (int y = 0; y < threads; ++y) {
                     if (snodeTables[y][i].empty()) continue;
@@ -1113,7 +1126,7 @@ public:
 #ifdef _OPENMP
 #pragma omp for schedule(dynamic)
 #endif
-            for (size_t j = 0; j < m; ++j) {
+            for (intmax_t j = 0; j < intmax_t(m); ++j) {
                 size_t const jj0 = nodeColumn[j] - 1;   // code(p) >= 1
 
                 for (int y = 0; y < threads; ++y) {
@@ -1179,7 +1192,7 @@ public:
                                                 pools[yy][ii], specNodeSize);
                                 spec.get_copy(state(pp), s);
                                 srcPtr(pp) = &q.branch[b];
-                                if (ii < lowestChild) lowestChild = ii;
+                                if (ii < lc) lc = ii;
                                 allZero = false;
                             }
 
@@ -1194,6 +1207,11 @@ public:
             snodeTables[yy][i].clear();
             pools[yy][i].clear();
             spec.destructLevel(i);
+
+#ifdef _OPENMP
+#pragma omp critical
+#endif
+            if (lc < lowestChild) lowestChild = lc;
         }
 
         sweeper.update(i, lowestChild, deadCount);
@@ -1489,8 +1507,7 @@ private:
                     os << "solid";
                     if (AR > 2) {
                         os << ",color="
-                                << ((b == 1) ? "blue" :
-                                    (b == 2) ? "red" : "green");
+                           << ((b == 1) ? "blue" : (b == 2) ? "red" : "green");
                     }
                 }
                 os << "];\n";

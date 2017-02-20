@@ -284,7 +284,7 @@ class MyBitSetOnPool: public MyBitSet<0> {
 public:
     static MyBitSetOnPool* newInstance(MemoryPool& pool, size_t bits) {
         size_t n = (bits + 63) / 64;
-        return new (pool.allocate<uint64_t>(1 + n)) MyBitSetOnPool(n);
+        return new (pool.template allocate<uint64_t>(1 + n)) MyBitSetOnPool(n);
     }
 };
 
@@ -560,7 +560,7 @@ public:
                     + sizeof(size_t)
                     - 1)
                    / sizeof(size_t);
-        return new (pool.allocate<size_t>(m)) MySmallSetOnPool();
+        return new (pool.template allocate<size_t>(m)) MySmallSetOnPool();
     }
 
     static MySmallSetOnPool* newInstance(MemoryPool& pool, int n) {

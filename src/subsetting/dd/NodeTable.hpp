@@ -265,7 +265,7 @@ public:
 #ifdef _OPENMP
             if (useMP) {
 #pragma omp parallel for schedule(static)
-                for (size_t j = 0; j < m; ++j) {
+                for (intmax_t j = 0; j < intmax_t(m); ++j) {
                     for (int b = 0; b < ARITY; ++b) {
                         int const ii = node[j].branch[b].row();
                         if (ii == 0) continue;

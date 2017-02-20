@@ -28,6 +28,10 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #ifdef WIN32
 #include "../mingw32/strtok_r.hpp"
+#else
+#ifdef _WIN32
+#define strtok_r strtok_s
+#endif
 #endif
 
 namespace graphillion {

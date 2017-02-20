@@ -25,18 +25,25 @@
 #pragma once
 
 #include <cstdlib>
-#include <cxxabi.h>
 #include <string>
 #include <typeinfo>
+
+#ifdef __GNUC__
+#include <cxxabi.h>
+#endif
 
 namespace tdzdd {
 
 inline std::string demangle(char const* name) {
+#ifdef __GNUC__
     char* dName = abi::__cxa_demangle(name, 0, 0, 0);
     if (dName == 0) return name;
+    char const* p = dName;
+#else
+    char const* p = name;
+#endif
 
     std::string s;
-    char* p = dName;
 
     for (char c = *p++; c; c = *p++) {
         s += c;
@@ -47,7 +54,9 @@ inline std::string demangle(char const* name) {
         }
     }
 
+#ifdef __GNUC__
     free(dName);
+#endif
     return s;
 }
 

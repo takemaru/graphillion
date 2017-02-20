@@ -29,6 +29,7 @@
 #include <stdexcept>
 #include <string>
 #include <utility>
+#include <vector>
 
 #include "../util/BigNumber.hpp"
 #include "../util/demangle.hpp"
@@ -111,8 +112,8 @@ public:
             return (n == 0) ? "0" : "1";
         }
 
-        uint64_t totalStorage[n / 63 + 1];
-        BigNumber total(totalStorage);
+        std::vector<uint64_t> totalStorage(n / 63 + 1);
+        BigNumber total(totalStorage.data());
         total.store(0);
         size_t maxWidth = 0;
         //std::cerr << "\nLevel,Width\n";
@@ -230,8 +231,8 @@ public:
             return (n == 0) ? "0" : "1";
         }
 
-        uint64_t totalStorage[n / 63 + 1];
-        BigNumber total(totalStorage);
+        std::vector<uint64_t> totalStorage(n / 63 + 1);
+        BigNumber total(totalStorage.data());
         total.store(0);
         size_t maxWidth = 0;
         //std::cerr << "\nLevel,Width\n";

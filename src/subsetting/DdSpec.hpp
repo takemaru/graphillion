@@ -219,7 +219,7 @@ public:
     }
 
     void print_state(std::ostream& os, void const* p, int level) const {
-        os << "＊";
+        os << "*";
     }
 };
 

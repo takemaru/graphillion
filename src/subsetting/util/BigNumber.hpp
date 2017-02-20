@@ -247,10 +247,11 @@ private:
 
 public:
     friend std::ostream& operator<<(std::ostream& os, BigNumber const& o) {
-        uint64_t storage[o.size()];
+        uint64_t* storage = new uint64_t[o.size()];
         BigNumber n(storage);
         n.store(o);
         n.printHelper(os);
+        delete[] storage;
         return os;
     }
 

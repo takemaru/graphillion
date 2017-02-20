@@ -32,7 +32,6 @@
 #define B_64
 #endif
 #endif
-#include <ZBDD.h>
 
 #include "../DdSpec.hpp"
 

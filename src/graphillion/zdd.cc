@@ -458,7 +458,7 @@ void _enum(zdd_t f, ostream& out,
   bool first = true;
   _enum(f, out, &stack, &first, inner_braces);
   out << outer_braces.second;
-  if (out == std::cout || out == std::cerr)
+  if (out.rdbuf() == std::cout.rdbuf() || out.rdbuf() == std::cerr.rdbuf())
     out << endl;
 }
 

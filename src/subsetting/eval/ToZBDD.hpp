@@ -29,7 +29,6 @@
 #define B_64
 #endif
 #endif
-#include <ZBDD.h>
 
 #include "../DdEval.hpp"
 

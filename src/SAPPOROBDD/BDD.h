@@ -59,8 +59,6 @@ extern const int BDDV_MaxLen;
 extern const int BDDV_MaxLenImport;
 
 //--------- Stack overflow limitter ---------
-extern const int BDD_RecurLimit;
-extern int BDD_RecurCount;
 #define BDD_RECUR_INC \
   {if(++BDD_RecurCount >= BDD_RecurLimit) \
   BDDerr("BDD_RECUR_INC:Stack overflow ", (bddword) BDD_RecurCount);}

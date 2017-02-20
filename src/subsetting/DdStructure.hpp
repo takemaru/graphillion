@@ -502,7 +502,7 @@ public:
                 int k = omp_get_thread_num();
 
 #pragma omp for schedule(static)
-                for (size_t j = 0; j < m; ++j) {
+                for (intmax_t j = 0; j < intmax_t(m); ++j) {
                     DdValues<T,ARITY> values;
                     for (int b = 0; b < ARITY; ++b) {
                         NodeId f = node[j].branch[b];
