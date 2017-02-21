@@ -101,7 +101,7 @@ set of graphs with great efficiency.  Surprisingly, trillions of
 trillions of graphs can be processed on a single computer.
 """,
       classifiers=[ # http://pypi.python.org/pypi?%3Aaction=list_classifiers
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
         'Intended Audience :: Science/Research',
         'License :: OSI Approved :: MIT License',
@@ -110,12 +110,11 @@ trillions of graphs can be processed on a single computer.
         'Operating System :: MacOS :: MacOS X',
         'Programming Language :: C',
         'Programming Language :: C++',
-        'Programming Language :: Python :: 2.6',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 3.3',
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3',
         'Topic :: Software Development :: Libraries :: Python Modules',
         'Topic :: Scientific/Engineering :: Information Analysis',
