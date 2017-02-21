@@ -156,30 +156,6 @@ that matches your operating system and Python version.
 For FreeBSD: Graphillion can also be installed by [FreeBSD
 Ports](http://www.freshports.org/math/py-graphillion/).
 
-### Installing on Windows with Anaconda
-
-1. Download and install Anaconda (fetch
-Anaconda-2.1.0-Windows-x86_64.exe from
-http://repo.continuum.io/archive/, since the later versions are not
-tested)
-2. Add the following paths to the %PATH% variable (Your Anaconda paths may be different):
-```
-set PATH=%PATH%;C:\Anaconda;C:\Anaconda\Scripts;C:\Anaconda\DLLs;C:\Anaconda\MinGW\bin;C:\Anaconda\MinGW\x86_64-w64-mingw32\lib
-```
-3. Download the source (tar.gz or zip file) from Github (Do not use the Pypi tarball):
-   https://github.com/takemaru/graphillion
-4. Run IPython
-5. Change directory to the source directory
-   (it should have the file setup.py)
-6. Run ```run setup.py build``` to build
-7. (optional) Run ```run setup.py test -q``` to execute the tests
-8. Run ```run setup.py install``` to install
-
-If you have the wheel package installed you can create a redistributable wheel with:
-```run setup.py bdist_wheel```
-or an egg with:
-```run setup.py bdist_egg```
-
 ### Installing from source
 
 You can install from source by downloading a source archive file
@@ -221,6 +197,19 @@ If you didn't install in the standard Python site-packages directory
 you will need to set your `PYTHONPATH` variable to the alternate
 location.  See http://docs.python.org/inst/search-path.html for
 further details.
+
+### Installing on Windows
+
+For Windows environment, you need to build graphillion
+according to "Installing from source." Currently, we confirmed
+that the build was completed in the [Python 3.6](https://www.python.org/downloads/)
+and [Visual C++ 2015](http://landinghub.visualstudio.com/visual-cpp-build-tools)
+environment.
+
+If you have the wheel package installed you can create a redistributable wheel with:
+```run setup.py bdist_wheel```
+or an egg with:
+```run setup.py bdist_egg```
 
 
 Tutorial
