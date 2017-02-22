@@ -817,7 +817,7 @@ static PyObject* setset_dump(PySetsetObject* self, PyObject* obj) {
   self->ss->dump(fp);
   Py_END_ALLOW_THREADS;
 #if IS_PY3 == 1
-  fflush(fp);
+  fclose(fp);
 #else
   PyFile_DecUseCount(file);
 #endif
@@ -846,7 +846,9 @@ static PyObject* setset_load(PySetsetObject* self, PyObject* obj) {
       PySetset_Type.tp_alloc(&PySetset_Type, 0));
   ret->ss = new setset(setset::load(fp));
   Py_END_ALLOW_THREADS;
-#if IS_PY3 == 0
+#if IS_PY3 == 1
+  fclose(fp);
+#else
   PyFile_DecUseCount(file);
 #endif
   return reinterpret_cast<PyObject*>(ret);
