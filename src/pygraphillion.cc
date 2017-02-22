@@ -807,7 +807,7 @@ static PyObject* setset_dump(PySetsetObject* self, PyObject* obj) {
   CHECK_OR_ERROR(obj, PyFile_Check, "file", NULL);
 #if IS_PY3 == 1
   int fd = PyObject_AsFileDescriptor(obj);
-  FILE* fp = fdopen(fd, "w");
+  FILE* fp = fdopen(dup(fd), "w");
 #else
   FILE* fp = PyFile_AsFile(obj);
   PyFileObject* file = reinterpret_cast<PyFileObject*>(obj);
@@ -834,7 +834,7 @@ static PyObject* setset_load(PySetsetObject* self, PyObject* obj) {
   CHECK_OR_ERROR(obj, PyFile_Check, "file", NULL);
 #if IS_PY3 == 1
   int fd = PyObject_AsFileDescriptor(obj);
-  FILE* fp = fdopen(fd, "r");
+  FILE* fp = fdopen(dup(fd), "r");
 #else
   FILE* fp = PyFile_AsFile(obj);
   PyFileObject* file = reinterpret_cast<PyFileObject*>(obj);
