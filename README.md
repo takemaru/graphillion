@@ -3,19 +3,19 @@ Graphillion - Fast, lightweight library for a huge number of graphs
 
 [Japanese page](http://github.com/takemaru/graphillion/wiki)
 
-* [News](#news "News")
-* [Features](#features "Features")
-* [Overview](#overview "Overview")
-* [Installing](#installing "Installing")
-* [Tutorial](#tutorial "Tutorial")
-* [Creating graphsets](#creating-graphsets "Creating graphsets")
-* [Manipulating graphsets](#manipulating-graphsets "Manipulating graphsets")
-* [Parallel computing](#parallel-computing "Parallel computing")
-* [Working with NetworkX](#working-with-networkx "Working with NetworkX")
-* [Library reference](#library-reference "Library reference")
-* [Example codes](http://github.com/takemaru/graphillion/wiki/Example-codes)
-* [Future work](#future-work "Future work")
-* [References](#references "References")
+- [News](#news "News")
+- [Features](#features "Features")
+- [Overview](#overview "Overview")
+- [Installing](#installing "Installing")
+- [Tutorial](#tutorial "Tutorial")
+- [Creating graphsets](#creating-graphsets "Creating graphsets")
+- [Manipulating graphsets](#manipulating-graphsets "Manipulating graphsets")
+- [Parallel computing](#parallel-computing "Parallel computing")
+- [Working with NetworkX](#working-with-networkx "Working with NetworkX")
+- [Library reference](#library-reference "Library reference")
+- [Example codes](http://github.com/takemaru/graphillion/wiki/Example-codes)
+- [Future work](#future-work "Future work")
+- [References](#references "References")
 
 News
 --------------------------------------------------------------------------------
@@ -36,26 +36,26 @@ Features
 Graphillion is a Python software package on search, optimization, and
 enumeration for a *graphset*, or a set of graphs.
 
-* Lightweight data structures for handling *x-illions* of graphs
-* Search, optimization, and enumeration performed over a large number of graphs
-* Used for several applications, e.g., power network evaluation
+- Lightweight data structures for handling *x-illions* of graphs
+- Search, optimization, and enumeration performed over a large number of graphs
+- Used for several applications, e.g., power network evaluation
   ([DNET]), railway analysis ([Ekillion]), as shown in [References]
-* Efficient implementation extending Python with C/C++
-* [Parallel computing] with [OpenMP]
-* Working with existing graph tools like [NetworkX]
-* Open source MIT license
-* Well tested: more than 600 unit tests
-* Additional benefits from Python: fast prototyping, easy to teach,
+- Efficient implementation extending Python with C/C++
+- [Parallel computing] with [OpenMP]
+- Working with existing graph tools like [NetworkX]
+- Open source MIT license
+- Well tested: more than 600 unit tests
+- Additional benefits from Python: fast prototyping, easy to teach,
   and multi-platform
 
 We provide fun short movies to answer the following questions.
 
-* Why Graphillion? Watch [Time with class! Let's count!], which is
+- Why Graphillion? Watch [Time with class! Let's count!], which is
   watched more than a million times!
 
     [![][lets_count-thumbnail]][Time with class! Let's count!]
 
-* What's Graphillion?  Watch [Graphillion: Don't count naively].
+- What's Graphillion?  Watch [Graphillion: Don't count naively].
 
     [![][dont_count-thumbnail]][Graphillion: Don't count naively]
 
@@ -112,35 +112,37 @@ Installing
 
 ### Requirements
 
-Graphillion requires 64-bit machines to efficiently handle large numbers.
+#### All OSes
 
-#### Python
-
-To build Graphillion, you need [Python](http://www.python.org/)
-version 2.7 or 3.4 with the development environment for `Python.h`;
-`Python.h` is included with XCode in macOS, while it can be installed
-by `apt-get install python-dev` in Ubuntu.
-
-#### GCC (The Gnu Compiler Collection) or Clang
-
-To build Graphillion, you need [gcc](http://gcc.gnu.org/) version 4.2
-or later.
-
-For macOS: use Apple official Clang included in XCode, or a memory
-allocation error might occur.
-
-#### NetworkX and Matplotlib - optional for the tutorial
-
-[NetworkX] and Matplotlib are Python modules for creating and drawing
-a graph.  These packages are not required for Graphillion, but used in
-[tutorial].  They can be installed by:
+- 64-bit machines to handle large numbers
+- [Python](http://www.python.org/) version 2.7/3.4 or later
+- NetworkX and Matplotlib - optional for the tutorial
+  - [NetworkX] and Matplotlib are Python modules for creating
+    and drawing a graph.  These packages are not required for
+    Graphillion, but used in [tutorial].  They can be installed by:
 
 ```bash
 $ sudo pip install networkx
 $ sudo pip install matplotlib
 ```
 
-For Ubuntu: if it fails, use APT, `sudo apt-get install python-matplotlib`.
+  - For Ubuntu: if it fails, use APT, `sudo apt-get install python-matplotlib`.
+
+#### UNIX including Linux and macOS
+
+- Python development environment (`Python.h`)
+  - It is included with XCode in macOS, while it can be installed by
+    `apt-get install python-dev` in Ubuntu.
+- GCC or Clang
+  - To build Graphillion, you need [gcc](http://gcc.gnu.org/) version
+    4.2 or later.
+  - For macOS: use Apple official Clang included in XCode, or a memory
+    allocation error might occur.
+
+#### Windows
+
+- [Visual C++ 2015 Redistributable Packages](https://www.microsoft.com/en-US/download/details.aspx?id=48145)
+  - To run Graphillion on Windows, you need this.
 
 ### Quick install
 
@@ -198,18 +200,9 @@ you will need to set your `PYTHONPATH` variable to the alternate
 location.  See http://docs.python.org/inst/search-path.html for
 further details.
 
-### Installing on Windows
+#### Windows
 
-For Windows environment, you need to build graphillion
-according to "Installing from source." Currently, we confirmed
-that the build was completed in the [Python 3.6](https://www.python.org/downloads/)
-and [Visual C++ 2015](http://landinghub.visualstudio.com/visual-cpp-build-tools)
-environment.
-
-If you have the wheel package installed you can create a redistributable wheel with:
-```run setup.py bdist_wheel```
-or an egg with:
-```run setup.py bdist_egg```
+Please see [Graphillion for Windows](https://github.com/junkawahara/graphillion_for_windows).
 
 
 Tutorial
