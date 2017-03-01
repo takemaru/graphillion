@@ -114,18 +114,17 @@ Installing
 
 #### All OSes
 
-- 64-bit machines to handle large numbers
+- 64-bit machines
+  - It is required to handle large numbers
 - [Python](http://www.python.org/) version 2.7/3.4 or later
 - NetworkX and Matplotlib - optional for the tutorial
   - [NetworkX] and Matplotlib are Python modules for creating
     and drawing a graph.  These packages are not required for
     Graphillion, but used in [tutorial].  They can be installed by:
-
 ```bash
 $ sudo pip install networkx
 $ sudo pip install matplotlib
 ```
-
   - For Ubuntu: if it fails, use APT, `sudo apt-get install python-matplotlib`.
 
 #### UNIX including Linux and macOS
