@@ -125,7 +125,6 @@ Installing
 $ sudo pip install networkx
 $ sudo pip install matplotlib
 ```
-  - For Ubuntu: if it fails, use APT, `sudo apt-get install python-matplotlib`.
 
 #### UNIX including Linux and macOS
 
