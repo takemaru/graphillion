@@ -906,6 +906,11 @@ References
 - [DNET - Distribution Network Evaluation Tool][DNET]
 - [Ekillion - Enumerating all JR train paths in Japan][Ekillion]
 
+- Teru Ohashi and Tatsuhiro Tsuchiya, "Generating High Strength
+  Test Suites for Combinatorial Interaction Testing Using ZDD-Based
+  Graph Algorithms," Proc. of IEEE 22nd Pacific Rim International
+  Symposium on Dependable Computing (PRDC), pp.78-85, January 2017.
+  ([doi](https://doi.org/10.1109/PRDC.2017.19))
 - Daisuke Yoshino and Eiji Hato, "Fast Enumeration Method of Travel
   Route of DRT Using Zero-suppressed Binary Decision Diagram," Journal
   of Japan Society of Civil Engineers, vol.72, no.5, pp.1229-1239,
@@ -973,6 +978,10 @@ References
 
 ### Citing Graphillion
 
+- Arthur Choi, Yujia Shen, and Adnan Darwiche,
+  "Tractability in Structured Probability Spaces,"
+  Proc. of Advances in Neural Information Processing Systems (NIPS),
+  pp.3480-3488, 2017.
 - Michihiro Koibuchi, Ikki Fujiwara, Fabien Chaix, and Henri Casanova,
   "Towards Ideal Hop Counts in Interconnection Networks with Arbitrary
   Size," Proc. of 4th International Symposium on Computing and
