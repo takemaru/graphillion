@@ -745,8 +745,12 @@ class TestGraphSet(unittest.TestCase):
             return
 
         try:
-            GraphSet.converters['to_graph'] = nx.from_edgelist
-            GraphSet.converters['to_edges'] = nx.to_edgelist
+            if nx.__version__[0] == "1": # for NetworkX version 1.x
+                GraphSet.converters['to_graph'] = nx.Graph
+                GraphSet.converters['to_edges'] = nx.Graph.edges
+            else: # for NetworkX version 2.x
+                GraphSet.converters['to_graph'] = nx.from_edgelist
+                GraphSet.converters['to_edges'] = nx.to_edgelist
 
             g = nx.grid_2d_graph(3, 3)
             GraphSet.set_universe(g)
@@ -777,8 +781,12 @@ class TestGraphSet(unittest.TestCase):
             return
 
         try:
-            GraphSet.converters['to_graph'] = nx.from_edgelist
-            GraphSet.converters['to_edges'] = nx.to_edgelist
+            if nx.__version__[0] == "1": # for NetworkX version 1.x
+                GraphSet.converters['to_graph'] = nx.Graph
+                GraphSet.converters['to_edges'] = nx.Graph.edges
+            else: # for NetworkX version 2.x
+                GraphSet.converters['to_graph'] = nx.from_edgelist
+                GraphSet.converters['to_edges'] = nx.to_edgelist
 
             g = nx.grid_2d_graph(8, 8)
             v00, v01, v10 = (0,0), (0,1), (1,0)
