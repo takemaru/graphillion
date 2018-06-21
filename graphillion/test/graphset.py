@@ -745,8 +745,8 @@ class TestGraphSet(unittest.TestCase):
             return
 
         try:
-            GraphSet.converters['to_graph'] = nx.Graph
-            GraphSet.converters['to_edges'] = nx.Graph.edges
+            GraphSet.converters['to_graph'] = nx.from_edgelist
+            GraphSet.converters['to_edges'] = nx.to_edgelist
 
             g = nx.grid_2d_graph(3, 3)
             GraphSet.set_universe(g)
@@ -761,7 +761,7 @@ class TestGraphSet(unittest.TestCase):
             g = gs.pop()
             self.assertEqual(len(gs), 0)
             self.assertTrue(isinstance(g, nx.Graph))
-            self.assertTrue(g.edges() == [(v00, v01)] or g.edges() == [(v01, v00)])
+            self.assertTrue(list(g.edges()) == [(v00, v01)] or list(g.edges()) == [(v01, v00)])
             gs.add(nx.Graph([e2]))
             self.assertEqual(len(gs), 1)
         except:
@@ -777,8 +777,8 @@ class TestGraphSet(unittest.TestCase):
             return
 
         try:
-            GraphSet.converters['to_graph'] = nx.Graph
-            GraphSet.converters['to_edges'] = nx.Graph.edges
+            GraphSet.converters['to_graph'] = nx.from_edgelist
+            GraphSet.converters['to_edges'] = nx.to_edgelist
 
             g = nx.grid_2d_graph(8, 8)
             v00, v01, v10 = (0,0), (0,1), (1,0)
