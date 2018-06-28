@@ -786,8 +786,14 @@ object, and the other is vice versa.  We show an example for NetworkX.
 
 ```python
 >>> import networkx as nx
+>>> # for NetworkX version 1.x
+...
 >>> GraphSet.converters['to_graph'] = nx.Graph
 >>> GraphSet.converters['to_edges'] = nx.Graph.edges
+>>> # for NetworkX version 2.x
+...
+>>> GraphSet.converters['to_graph'] = nx.from_edgelist
+>>> GraphSet.converters['to_edges'] = nx.to_edgelist
 ```
 
 We can now pass NetworkX's graph objects to Graphillion like this.
