@@ -651,7 +651,10 @@ class GraphSet(object):
           rand_iter(), max_iter(), min_iter()
         """
         for g in self._ss.__iter__():
-            yield GraphSet._conv_ret(g)
+            try:
+                yield GraphSet._conv_ret(g)
+            except StopIteration:
+                return
 
     def rand_iter(self):
         """Iterates over graphs uniformly randomly.
@@ -678,7 +681,10 @@ class GraphSet(object):
           __iter__(), max_iter(), min_iter()
         """
         for g in self._ss.rand_iter():
-            yield GraphSet._conv_ret(g)
+            try:
+                yield GraphSet._conv_ret(g)
+            except StopIteration:
+                return
 
     def min_iter(self, weights=None):
         """Iterates over graphs in the ascending order of weights.
@@ -716,7 +722,10 @@ class GraphSet(object):
         if weights is None:
             weights = GraphSet._weights
         for g in self._ss.min_iter(weights):
-            yield GraphSet._conv_ret(g)
+            try:
+                yield GraphSet._conv_ret(g)
+            except StopIteration:
+                return
 
     def max_iter(self, weights=None):
         """Iterates over graphs in the descending order of weights.
@@ -753,7 +762,10 @@ class GraphSet(object):
         if weights is None:
             weights = GraphSet._weights
         for g in self._ss.max_iter(weights):
-            yield GraphSet._conv_ret(g)
+            try:
+                yield GraphSet._conv_ret(g)
+            except StopIteration:
+                return
 
     def __contains__(self, obj):
         """Returns True if `obj` is in the `self`, False otherwise.
