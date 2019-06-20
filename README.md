@@ -290,7 +290,7 @@ figure.
 ![Key and treasure box](https://github.com/takemaru/graphillion/blob/master/doc/fig3.png?raw=true)
 
 We consider all paths on which the key is picked up before reaching
-the treasure box.  We're not allowed to pass thorugh the same place
+the treasure box.  We're not allowed to pass through the same place
 twice.  First, search for the paths to the key not through the
 treasure box, and then select the paths including the key's paths and
 the treasure box.
@@ -852,7 +852,7 @@ Future work
 - Garbage collections
 - Mailing lists
 - Coding rules
-- Deveroper documents
+- Developer documents
 
 References
 --------------------------------------------------------------------------------
