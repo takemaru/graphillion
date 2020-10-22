@@ -25,4 +25,4 @@ setset SearchPartitions(const std::vector<edge_t> &edges, int16_t comp_lb,
 
 }  // namespace graphillion
 
-#endif GRAPHILLION_PARTITION_H_
+#endif  // GRAPHILLION_PARTITION_H_
