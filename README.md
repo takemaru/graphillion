@@ -662,6 +662,7 @@ Creation methods specifying graph types also work as selection methods.
 | `gs.forests(roots, is_spanning)`              | Returns a GraphSet of forests, sets of trees           |
 | `gs.cycles(is_hamilton)`                      | Returns a GraphSet of cycles                           |
 | `gs.paths(terminal1, terminal2, is_hamilton)` | Returns a GraphSet of paths                            |
+| `gs.partitions(num_comp_lb, num_comp_ub)` | Returns a GraphSet of partitions |
 
 ### Modification or generation methods
 
