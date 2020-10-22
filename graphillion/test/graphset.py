@@ -310,6 +310,44 @@ class TestGraphSet(unittest.TestCase):
         d = GraphSet.show_messages(a)
         self.assertFalse(d)
 
+    def test_partitions(self):
+        GraphSet.set_universe([(1, 2), (1, 4), (2, 3), (2, 5), (3, 6), (4, 5),
+                               (5, 6)])
+
+        # lower bound and upper bound
+        gs = GraphSet.partitions(num_comp_lb=2, num_comp_ub=3)
+        self.assertEqual(len(gs), 44)
+        self.assertTrue([(1, 2), (2, 3), (2, 5)] in gs)
+        self.assertTrue([(1, 2), (1, 4), (2, 3), (2, 5), (4, 5)] in gs)
+        self.assertTrue([(1, 2), (2, 3)] not in gs)
+
+        gs = GraphSet.partitions(num_comp_lb=1, num_comp_ub=1)
+        self.assertEqual(len(gs), 1)
+        self.assertTrue([(1, 2), (1, 4), (2, 3), (2, 5), (3, 6), (4, 5), (5, 6)] in gs)
+        self.assertTrue([(1, 2), (1, 4), (2, 5), (4, 5), (3, 6)] not in gs)
+        self.assertTrue([(1, 2), (3, 6), (4, 5), (5, 6)] not in gs)
+
+        gs = GraphSet.partitions(num_comp_lb=2, num_comp_ub=2)
+        self.assertEqual(len(gs), 15)
+        self.assertTrue([(1, 2), (1, 4), (2, 5), (4, 5), (3, 6)] in gs)
+        self.assertTrue([(1, 2), (3, 6), (4, 5), (5, 6)] in gs)
+        self.assertTrue([(1, 2), (1, 4), (2, 3), (2, 5), (3, 6), (4, 5), (5, 6)] not in gs)
+
+        # only upper bound
+        gs = GraphSet.partitions(num_comp_ub=2)
+        self.assertEqual(len(gs), 1 + 15)
+        self.assertTrue([(1, 2), (1, 4), (2, 5), (4, 5), (3, 6)] in gs)
+        self.assertTrue([(1, 2), (3, 6), (4, 5), (5, 6)] in gs)
+        self.assertTrue([(1, 2), (1, 4), (2, 3), (2, 5), (3, 6), (4, 5), (5, 6)] in gs)
+        self.assertTrue([(1, 4), (2, 5), (3, 6)] not in gs)
+
+        # only lower bound
+        gs = GraphSet.partitions(num_comp_lb=2)
+        self.assertTrue([(1, 2), (1, 4), (2, 5), (4, 5), (3, 6)] in gs)
+        self.assertTrue([(1, 2), (3, 6), (4, 5), (5, 6)] in gs)
+        self.assertTrue([(1, 2), (1, 4), (2, 3), (2, 5), (3, 6), (4, 5), (5, 6)] not in gs)
+        self.assertTrue([(1, 4), (2, 5), (3, 6)] in gs)
+
     def test_comparison(self):
         gs = GraphSet([g12])
         self.assertEqual(gs, GraphSet([g12]))

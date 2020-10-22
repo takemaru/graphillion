@@ -27,6 +27,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include "structmember.h"
 
+#include "graphillion/partition/Partition.h"
 #include "pygraphillion.h"
 
 #include <cstdlib>
@@ -1325,6 +1326,66 @@ static PyObject* graphset_show_messages(PySetsetObject* self, PyObject* obj) {
   else Py_RETURN_FALSE;
 }
 
+static PyObject* graph_partitions(PyObject*, PyObject* args, PyObject* kwds){
+  static char s1[] = "graph";
+  static char s2[] = "num_comp_lb";
+  static char s3[] = "num_comp_ub";
+  static char* kwlist[4] = {s1, s2, s3, NULL};
+  PyObject* graph_obj = NULL;
+  int num_comp_lb = 1;
+  int num_comp_ub = std::numeric_limits<int16_t>::max();
+  if(!PyArg_ParseTupleAndKeywords(args, kwds, "O|ii", kwlist, &graph_obj, &num_comp_lb, &num_comp_ub)){
+    return NULL;
+  }
+  if (num_comp_lb < 1){
+    PyErr_SetString(PyExc_TypeError, "not positive integer");
+    return NULL;
+  }
+  if (num_comp_ub < num_comp_lb) {
+    PyErr_SetString(PyExc_TypeError, "lower bound is larger than upper bound");
+    return NULL;
+  }
+  if(std::numeric_limits<int16_t>::max() < num_comp_ub){
+    PyErr_SetString(PyExc_TypeError, "too many components");
+    return NULL;
+  }
+
+  vector<pair<string, string> > graph;
+  if (graph_obj == NULL || graph_obj == Py_None) {
+    PyErr_SetString(PyExc_TypeError, "no graph");
+    return NULL;
+  }
+  PyObject* i = PyObject_GetIter(graph_obj);
+  if (i == NULL) return NULL;
+  PyObject* eo;
+  while ((eo = PyIter_Next(i))) {
+    PyObject* j = PyObject_GetIter(eo);
+    if (j == NULL) return NULL;
+    vector<string> e;
+    PyObject* vo;
+    while ((vo = PyIter_Next(j))) {
+      if (!PyBytes_Check(vo)) {
+        PyErr_SetString(PyExc_TypeError, "invalid graph");
+        return NULL;
+      }
+      string v = PyBytes_AsString(vo);
+      if (v.find(',') != string::npos) {
+        PyErr_SetString(PyExc_TypeError, "invalid vertex in the graph");
+        return NULL;
+      }
+      e.push_back(v);
+    }
+    assert(e.size() == 2);
+    graph.push_back(make_pair(e[0], e[1]));
+  }
+
+  auto ss = graphillion::SearchPartitions(graph, num_comp_lb, num_comp_ub);
+  PySetsetObject* ret = reinterpret_cast<PySetsetObject*>
+      (PySetset_Type.tp_alloc(&PySetset_Type, 0));
+  ret->ss = new setset(ss);
+  return reinterpret_cast<PyObject*>(ret);
+}
+
 static PyMethodDef module_methods[] = {
   {"load", reinterpret_cast<PyCFunction>(setset_load), METH_O, ""},
   {"loads", reinterpret_cast<PyCFunction>(setset_loads), METH_O, ""},
@@ -1332,6 +1393,7 @@ static PyMethodDef module_methods[] = {
   {"_num_elems", setset_num_elems, METH_VARARGS, ""},
   {"_graphs", reinterpret_cast<PyCFunction>(graphset_graphs), METH_VARARGS | METH_KEYWORDS, ""},
   {"_show_messages", reinterpret_cast<PyCFunction>(graphset_show_messages), METH_O, ""},
+  {"_partitions", reinterpret_cast<PyCFunction>(graph_partitions), METH_VARARGS | METH_KEYWORDS, ""},
   {NULL}  /* Sentinel */
 };
 
