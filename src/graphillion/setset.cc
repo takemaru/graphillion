@@ -91,7 +91,7 @@ setset::random_iterator::random_iterator(const setset::random_iterator& i)
     : iterator(i), size_(i.size_) {
 }
 
-setset::random_iterator::random_iterator(const setset& ss) : iterator(ss) {
+setset::random_iterator::random_iterator(const setset& ss) : iterator(ss, set<elem_t>()) {
   this->size_ = algo_c(ss.zdd_);
   this->next();
 }
@@ -119,7 +119,7 @@ setset::weighted_iterator::weighted_iterator(const setset::weighted_iterator& i)
 
 setset::weighted_iterator::weighted_iterator(const setset& ss,
                                              vector<double> weights)
-    : iterator(ss), weights_(weights) {
+    : iterator(ss, set<elem_t>()), weights_(weights) {
   this->next();
 }
 
