@@ -390,6 +390,9 @@ class TestSetset(unittest.TestCase):
         self.assertEqual(r[0], set())
         self.assertEqual(r[-1], s1234)
 
+        ss = setset([[]])
+        self.assertEqual(list(ss.min_iter()), [set()])
+
     def test_lookup(self):
         ss1 = setset([s0, s12, s13])
         self.assertTrue(s12 in ss1)

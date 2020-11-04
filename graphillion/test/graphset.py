@@ -620,6 +620,9 @@ class TestGraphSet(unittest.TestCase):
         self.assertEqual(r[1], g134)
         self.assertEqual(r[2], g4)
 
+        gs = GraphSet([[]])
+        self.assertEqual(list(gs.min_iter()), [[]])
+
     def test_lookup(self):
         gs1 = GraphSet([g1, g12])
 

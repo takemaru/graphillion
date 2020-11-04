@@ -304,6 +304,13 @@ class TestSetset {
     assert(v.size() == 3);
     assert(ss == setset(v));
 
+    ss = setset(V("{{}}"));
+    v.clear();
+    for (setset::random_iterator s = ss.begin_randomly(); s != ss.end(); ++s)
+      v.push_back(*s);
+    assert(v.size() == 1);
+    assert(ss == setset(v));
+
     ss = setset(V("{{}, {1}, {1,2}, {1,2,3}, {1,2,3,4}, {1,3,4}, {1,4}, {4}}"));
     vector<double> w;
     w.push_back(0);  // 1-offset
