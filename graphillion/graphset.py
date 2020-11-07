@@ -2089,6 +2089,50 @@ class GraphSet(object):
         return GraphSet(ss)
 
     @staticmethod
+    def redistricting(weight_list=None, ratio=0.0, lower=0, upper=4294967295 // 4, num_comps=-1):
+        """Returns a GraphSet with redistricting of the graph.
+
+        Examples: redistricting with disparity less than or equal to 2.0.
+          >>> wl = {}
+          >>> for v in range(1,7):
+          >>>   if v % 2:
+          >>>     wl[v] = 1
+          >>>   else:
+          >>>     wl[v] = 2
+          >>> gs = GraphSet.redistricting(weight_list=wl, ratio=2, num_comps=2, lower=2)
+          GraphSet([[(1, 4), (2, 3), (3, 6), (4, 5)], [(1, 4), (2, 3), (4, 5), (5, 6)] ...
+
+        Args:
+          weight_list: Optional. A list of int. Vertex weights.
+          ratio: Optional. a floating point number more than or equal to 1.0.
+          lower: Optional. int. the lower bound of the sum of vertex weights
+            in each connected component. (including)
+          upper: Optional. int. the upper bound of the sum of vertex weights
+            in each connected component. (including)
+          num_comps: Optional. int. the number of connected components.
+
+        Returns:
+          A new GraphSet object.
+        """
+        graph = []
+        for e in setset.universe():
+            assert e[0] in GraphSet._vertices and e[1] in GraphSet._vertices
+            graph.append(
+                (pickle.dumps(e[0], protocol=0), pickle.dumps(e[1], protocol=0)))
+
+        wl = None
+        if weight_list is not None:
+            wl = {}
+            for v, r in viewitems(weight_list):
+                if v not in GraphSet._vertices:
+                    raise KeyError(v)
+                wl[pickle.dumps(v, protocol=0)] = r
+
+        ss = _graphillion._redistricting(
+            graph=graph, weight_list=wl, ratio=ratio, lower=lower, upper=upper, num_comps=num_comps)
+        return GraphSet(ss)
+
+    @staticmethod
     def _conv_arg(obj):
         if isinstance(obj, GraphSet):
             return 'graphset', obj
