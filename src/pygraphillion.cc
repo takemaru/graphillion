@@ -1387,7 +1387,7 @@ static PyObject* graph_partitions(PyObject*, PyObject* args, PyObject* kwds){
   return reinterpret_cast<PyObject*>(ret);
 }
 
-static PyObject* redistricting(PyObject*, PyObject* args, PyObject* kwds){
+static PyObject* redistricting(PyObject*, PyObject* args, PyObject* kwds) {
   static char s1[] = "graph";
   static char s2[] = "weight_list";
   static char s3[] = "ratio";
@@ -1402,10 +1402,11 @@ static PyObject* redistricting(PyObject*, PyObject* args, PyObject* kwds){
   uint32_t lower = 0, upper = std::numeric_limits<weight_t>::max() / 4;
   int num_comps = -1;
   if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|OdIIi", kwlist, &graph_obj,
-          &weight_list_obj, &ratio, &lower, &upper, &num_comps)) {
+                                   &weight_list_obj, &ratio, &lower, &upper,
+                                   &num_comps)) {
     return NULL;
   }
-  if (num_comps != -1 && num_comps < 1){
+  if (num_comps != -1 && num_comps < 1) {
     PyErr_SetString(PyExc_TypeError, "not positive integer");
     return NULL;
   }
@@ -1417,7 +1418,7 @@ static PyObject* redistricting(PyObject*, PyObject* args, PyObject* kwds){
     PyErr_SetString(PyExc_TypeError, "ratio is less than 1.0");
     return NULL;
   }
-  if(std::numeric_limits<int16_t>::max() < num_comps){
+  if (std::numeric_limits<int16_t>::max() < num_comps) {
     PyErr_SetString(PyExc_TypeError, "too many components");
     return NULL;
   }
@@ -1428,11 +1429,15 @@ static PyObject* redistricting(PyObject*, PyObject* args, PyObject* kwds){
     return NULL;
   }
   PyObject* i = PyObject_GetIter(graph_obj);
-  if (i == NULL) return NULL;
+  if (i == NULL) {
+    return NULL;
+  }
   PyObject* eo;
   while ((eo = PyIter_Next(i))) {
     PyObject* j = PyObject_GetIter(eo);
-    if (j == NULL) return NULL;
+    if (j == NULL) {
+      return NULL;
+    }
     vector<string> e;
     PyObject* vo;
     while ((vo = PyIter_Next(j))) {
@@ -1452,17 +1457,17 @@ static PyObject* redistricting(PyObject*, PyObject* args, PyObject* kwds){
   }
 
   map<string, uint32_t> weight_list;
-  if(weight_list_obj != NULL && weight_list_obj != Py_None) {
+  if (weight_list_obj != NULL && weight_list_obj != Py_None) {
     PyObject* keyObject;
     PyObject* valObject;
     Py_ssize_t pos = 0;
-    while(PyDict_Next(weight_list_obj, &pos, &keyObject, &valObject)){
-      if(!PyBytes_Check(keyObject)){
+    while (PyDict_Next(weight_list_obj, &pos, &keyObject, &valObject)) {
+      if (!PyBytes_Check(keyObject)) {
         PyErr_SetString(PyExc_TypeError, "invalid vertex in weight list");
         return NULL;
       }
       string vertex = PyBytes_AsString(keyObject);
-      if(!PyInt_Check(valObject)){
+      if (!PyInt_Check(valObject)) {
         PyErr_SetString(PyExc_TypeError, "invalid weight in weight list");
         return NULL;
       }
@@ -1471,7 +1476,8 @@ static PyObject* redistricting(PyObject*, PyObject* args, PyObject* kwds){
     }
   }
 
-  auto ss = graphillion::SearchRedistricting(graph, weight_list, ratio, lower, upper, num_comps);
+  auto ss = graphillion::SearchRedistricting(graph, weight_list, ratio, lower,
+                                             upper, num_comps);
   PySetsetObject* ret = reinterpret_cast<PySetsetObject*>
       (PySetset_Type.tp_alloc(&PySetset_Type, 0));
   ret->ss = new setset(ss);

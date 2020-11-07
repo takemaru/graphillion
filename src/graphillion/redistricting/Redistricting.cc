@@ -24,7 +24,7 @@ std::vector<weight_t> convert_weight_list(
  * @param weight_list: list of the vertex weights.
  * @param ratio:       the maximum value of the allowed disparity.
  * @param k:           the number of connected components.
- *                     If not specified, enumerates partitions that devide 
+ *                     If not specified, enumerates partitions that devide
  *                     the graph into any connected components.
  */
 tdzdd::DdStructure<2> constructRatioDd(const tdzdd::Graph &g,
@@ -49,14 +49,14 @@ tdzdd::DdStructure<2> constructRatioDd(const tdzdd::Graph &g,
                                             (ratio + (k - 1)))));
   }
 
-  ComponentRatioSpec crspec(g, weight_list, initial_lower, initial_upper,
-                            ratio);
+  ComponentWeightSpec cwspec(g, weight_list, initial_lower, initial_upper);
+  dd.zddSubset(cwspec);
+  dd.zddReduce();
+
+  ComponentRatioSpec crspec(g, weight_list, _lower, _upper, ratio);
   dd.zddSubset(crspec);
   dd.zddReduce();
 
-  ComponentWeightSpec cwspec(g, weight_list, _lower, _upper);
-  dd.zddSubset(cwspec);
-  dd.zddReduce();
   return dd;
 }
 
@@ -66,7 +66,7 @@ tdzdd::DdStructure<2> constructRatioDd(const tdzdd::Graph &g,
  * @param lower:       the minimum weights of a connected component.
  * @param upper:       the maximum weights of a connected component.
  * @param k:           the number of connected components.
- *                     If not specified, enumerates partitions that devide 
+ *                     If not specified, enumerates partitions that devide
  *                     the graph into any connected components.
  */
 tdzdd::DdStructure<2> constructWeightDd(
@@ -117,11 +117,10 @@ setset SearchWeightPartitions(
   return setset(f);
 }
 
-setset SearchRedistricting(
-    const std::vector<edge_t> &edges,
-    const std::map<std::string, weight_t> &weight_list, double ratio = 0.0,
-    weight_t lower = 0, weight_t upper = std::numeric_limits<weight_t>::max(),
-    int k = -1) {
+setset SearchRedistricting(const std::vector<edge_t> &edges,
+                           const std::map<std::string, weight_t> &weight_list,
+                           double ratio, weight_t lower, weight_t upper,
+                           int k) {
   if (ratio < 1.0) {
     return SearchWeightPartitions(edges, weight_list, lower, upper, k);
   }

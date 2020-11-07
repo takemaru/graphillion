@@ -16,12 +16,12 @@ setset SearchWeightPartitions(
     weight_t upper, int k);
 
 /**
- * @brief enumerate redistristings.
+ * @brief enumerate graph partitions with constraints of lower bound/upper bound/disparity.
  *
  * @param edges       edge set.
  * @param weight_list list of the vertex weights.
  * @param ratio       the maximam value of the allowed disparity.
- * @param lower/upper the minimum/maximum sum of the weights in 
+ * @param lower/upper the minimum/maximum sum of the weights in
  *                    a connected component.
  * @param k           the number of connected components.
  */
