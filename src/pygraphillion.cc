@@ -28,6 +28,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "structmember.h"
 
 #include "graphillion/partition/Partition.h"
+#include "graphillion/redistricting/Redistricting.h"
 #include "pygraphillion.h"
 
 #include <cstdlib>
@@ -1386,6 +1387,97 @@ static PyObject* graph_partitions(PyObject*, PyObject* args, PyObject* kwds){
   return reinterpret_cast<PyObject*>(ret);
 }
 
+static PyObject* redistricting(PyObject*, PyObject* args, PyObject* kwds){
+  static char s1[] = "graph";
+  static char s2[] = "weight_list";
+  static char s3[] = "ratio";
+  static char s4[] = "lower";
+  static char s5[] = "upper";
+  static char s6[] = "num_comps";
+  static char* kwlist[7] = {s1, s2, s3, s4, s5, s6, NULL};
+
+  PyObject* graph_obj = NULL;
+  PyObject* weight_list_obj = NULL;
+  double ratio = 0;
+  uint32_t lower = 0, upper = std::numeric_limits<weight_t>::max() / 4;
+  int num_comps = -1;
+  if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|OdIIi", kwlist, &graph_obj,
+          &weight_list_obj, &ratio, &lower, &upper, &num_comps)) {
+    return NULL;
+  }
+  if (num_comps != -1 && num_comps < 1){
+    PyErr_SetString(PyExc_TypeError, "not positive integer");
+    return NULL;
+  }
+  if (upper < lower) {
+    PyErr_SetString(PyExc_TypeError, "lower bound is larger than upper bound");
+    return NULL;
+  }
+  if (ratio != 0 && ratio < 1.0) {
+    PyErr_SetString(PyExc_TypeError, "ratio is less than 1.0");
+    return NULL;
+  }
+  if(std::numeric_limits<int16_t>::max() < num_comps){
+    PyErr_SetString(PyExc_TypeError, "too many components");
+    return NULL;
+  }
+
+  vector<pair<string, string> > graph;
+  if (graph_obj == NULL || graph_obj == Py_None) {
+    PyErr_SetString(PyExc_TypeError, "no graph");
+    return NULL;
+  }
+  PyObject* i = PyObject_GetIter(graph_obj);
+  if (i == NULL) return NULL;
+  PyObject* eo;
+  while ((eo = PyIter_Next(i))) {
+    PyObject* j = PyObject_GetIter(eo);
+    if (j == NULL) return NULL;
+    vector<string> e;
+    PyObject* vo;
+    while ((vo = PyIter_Next(j))) {
+      if (!PyBytes_Check(vo)) {
+        PyErr_SetString(PyExc_TypeError, "invalid graph");
+        return NULL;
+      }
+      string v = PyBytes_AsString(vo);
+      if (v.find(',') != string::npos) {
+        PyErr_SetString(PyExc_TypeError, "invalid vertex in the graph");
+        return NULL;
+      }
+      e.push_back(v);
+    }
+    assert(e.size() == 2);
+    graph.push_back(make_pair(e[0], e[1]));
+  }
+
+  map<string, uint32_t> weight_list;
+  if(weight_list_obj != NULL && weight_list_obj != Py_None) {
+    PyObject* keyObject;
+    PyObject* valObject;
+    Py_ssize_t pos = 0;
+    while(PyDict_Next(weight_list_obj, &pos, &keyObject, &valObject)){
+      if(!PyBytes_Check(keyObject)){
+        PyErr_SetString(PyExc_TypeError, "invalid vertex in weight list");
+        return NULL;
+      }
+      string vertex = PyBytes_AsString(keyObject);
+      if(!PyInt_Check(valObject)){
+        PyErr_SetString(PyExc_TypeError, "invalid weight in weight list");
+        return NULL;
+      }
+      uint32_t weight = PyInt_AsLong(valObject);
+      weight_list[vertex] = weight;
+    }
+  }
+
+  auto ss = graphillion::SearchRedistricting(graph, weight_list, ratio, lower, upper, num_comps);
+  PySetsetObject* ret = reinterpret_cast<PySetsetObject*>
+      (PySetset_Type.tp_alloc(&PySetset_Type, 0));
+  ret->ss = new setset(ss);
+  return reinterpret_cast<PyObject*>(ret);
+}
+
 static PyMethodDef module_methods[] = {
   {"load", reinterpret_cast<PyCFunction>(setset_load), METH_O, ""},
   {"loads", reinterpret_cast<PyCFunction>(setset_loads), METH_O, ""},
@@ -1394,6 +1486,7 @@ static PyMethodDef module_methods[] = {
   {"_graphs", reinterpret_cast<PyCFunction>(graphset_graphs), METH_VARARGS | METH_KEYWORDS, ""},
   {"_show_messages", reinterpret_cast<PyCFunction>(graphset_show_messages), METH_O, ""},
   {"_partitions", reinterpret_cast<PyCFunction>(graph_partitions), METH_VARARGS | METH_KEYWORDS, ""},
+  {"_redistricting", reinterpret_cast<PyCFunction>(redistricting), METH_VARARGS | METH_KEYWORDS, ""},
   {NULL}  /* Sentinel */
 };
 
