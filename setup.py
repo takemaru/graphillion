@@ -75,7 +75,7 @@ sources_list = [os.path.join('src', 'pygraphillion.cc'),
                 os.path.join('src', 'SAPPOROBDD', 'BDD.cc'),
                 os.path.join('src', 'SAPPOROBDD', 'ZBDD.cc'),
                 os.path.join('src', 'graphillion', 'partition', 'Partition.cc'),
-                os.path.join('src', 'graphillion', 'redistricting', 'Redistricting.cc')]
+                os.path.join('src', 'graphillion', 'balanced_partitions', 'BalancedPartitions.cc')]
 
 if sys.platform == 'win32':
     sources_list.append(os.path.join('src', 'mingw32', 'RpWinResource.c'))

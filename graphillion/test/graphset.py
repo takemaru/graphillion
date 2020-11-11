@@ -348,28 +348,28 @@ class TestGraphSet(unittest.TestCase):
         self.assertTrue([(1, 2), (1, 4), (2, 3), (2, 5), (3, 6), (4, 5), (5, 6)] not in gs)
         self.assertTrue([(1, 4), (2, 5), (3, 6)] in gs)
 
-    def test_redistricting(self):
+    def test_balanced_partitions(self):
         GraphSet.set_universe([(1, 2), (1, 4), (2, 3), (2, 5), (3, 6), (4, 5),
                                (5, 6)])
 
-        gs = GraphSet.redistricting(ratio=1.0, num_comps=3)
+        gs = GraphSet.balanced_partitions(ratio=1.0, num_comps=3)
         self.assertEqual(len(gs), 3)
         self.assertTrue([(1, 4), (2, 3), (5, 6)] in gs)
 
-        gs = GraphSet.redistricting(ratio=1.0)
+        gs = GraphSet.balanced_partitions(ratio=1.0)
         self.assertEqual(len(gs), 8)
         self.assertTrue([] in gs)
         self.assertTrue([(1, 2), (1, 4), (3, 6), (5, 6)] in gs)
 
-        gs = GraphSet.redistricting(ratio=1.0, lower=2, upper=3)
+        gs = GraphSet.balanced_partitions(ratio=1.0, lower=2, upper=3)
         self.assertEqual(len(gs), 6)
         self.assertTrue([] not in gs)
 
-        gs = GraphSet.redistricting(ratio=2.0)
+        gs = GraphSet.balanced_partitions(ratio=2.0)
         self.assertTrue([(2, 3), (5, 6)] in gs)
         self.assertTrue([(1, 2), (2, 3)] not in gs)
 
-        gs = GraphSet.redistricting(lower=1, upper=2, num_comps=4)
+        gs = GraphSet.balanced_partitions(lower=1, upper=2, num_comps=4)
         self.assertTrue([(1, 2), (3, 6)] in gs)
         self.assertTrue([(1, 2), (2, 3)] not in gs)
 
@@ -380,19 +380,19 @@ class TestGraphSet(unittest.TestCase):
             else:
                 wl[v] = 2
 
-        gs = GraphSet.redistricting(weight_list=wl, ratio=2)
+        gs = GraphSet.balanced_partitions(weight_list=wl, ratio=2)
         self.assertTrue([(2, 3), (5, 6)] not in gs)
         self.assertTrue([(1, 2), (2, 3), (5, 6)] in gs)
 
-        gs = GraphSet.redistricting(weight_list=wl, lower=4)
+        gs = GraphSet.balanced_partitions(weight_list=wl, lower=4)
         self.assertTrue([(1, 2), (1, 4), (3, 6), (5, 6)] in gs)
         self.assertTrue([(1, 4), (2, 5), (3, 6)] not in gs)
 
-        gs = GraphSet.redistricting(weight_list=wl, upper=3)
+        gs = GraphSet.balanced_partitions(weight_list=wl, upper=3)
         self.assertTrue([(1, 4), (2, 5), (3, 6)] in gs)
         self.assertTrue([(1, 2), (1, 4), (3, 6), (5, 6)] not in gs)
 
-        gs = GraphSet.redistricting(weight_list=wl, lower=3, upper=4)
+        gs = GraphSet.balanced_partitions(weight_list=wl, lower=3, upper=4)
         self.assertTrue([(1, 4), (2, 5), (3, 6)] in gs)
         self.assertTrue([(1, 2), (1, 4), (3, 6), (5, 6)] not in gs)
 

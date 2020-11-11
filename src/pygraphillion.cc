@@ -28,7 +28,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "structmember.h"
 
 #include "graphillion/partition/Partition.h"
-#include "graphillion/redistricting/Redistricting.h"
+#include "graphillion/balanced_partitions/BalancedPartitions.h"
 #include "pygraphillion.h"
 
 #include <cstdlib>
@@ -1387,7 +1387,7 @@ static PyObject* graph_partitions(PyObject*, PyObject* args, PyObject* kwds){
   return reinterpret_cast<PyObject*>(ret);
 }
 
-static PyObject* redistricting(PyObject*, PyObject* args, PyObject* kwds) {
+static PyObject* balanced_partitions(PyObject*, PyObject* args, PyObject* kwds) {
   static char s1[] = "graph";
   static char s2[] = "weight_list";
   static char s3[] = "ratio";
@@ -1476,7 +1476,7 @@ static PyObject* redistricting(PyObject*, PyObject* args, PyObject* kwds) {
     }
   }
 
-  auto ss = graphillion::SearchRedistricting(graph, weight_list, ratio, lower,
+  auto ss = graphillion::SearchBalancedPartitions(graph, weight_list, ratio, lower,
                                              upper, num_comps);
   PySetsetObject* ret = reinterpret_cast<PySetsetObject*>
       (PySetset_Type.tp_alloc(&PySetset_Type, 0));
@@ -1492,7 +1492,7 @@ static PyMethodDef module_methods[] = {
   {"_graphs", reinterpret_cast<PyCFunction>(graphset_graphs), METH_VARARGS | METH_KEYWORDS, ""},
   {"_show_messages", reinterpret_cast<PyCFunction>(graphset_show_messages), METH_O, ""},
   {"_partitions", reinterpret_cast<PyCFunction>(graph_partitions), METH_VARARGS | METH_KEYWORDS, ""},
-  {"_redistricting", reinterpret_cast<PyCFunction>(redistricting), METH_VARARGS | METH_KEYWORDS, ""},
+  {"_balanced_partitions", reinterpret_cast<PyCFunction>(balanced_partitions), METH_VARARGS | METH_KEYWORDS, ""},
   {NULL}  /* Sentinel */
 };
 

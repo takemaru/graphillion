@@ -25,7 +25,7 @@ setset SearchWeightPartitions(
  *                    a connected component.
  * @param k           the number of connected components.
  */
-setset SearchRedistricting(const std::vector<edge_t> &edges,
+setset SearchBalancedPartitions(const std::vector<edge_t> &edges,
                            const std::map<std::string, weight_t> &weight_list,
                            double ratio, weight_t lower, weight_t upper, int k);
 
