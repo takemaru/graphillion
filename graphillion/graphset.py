@@ -1987,6 +1987,27 @@ class GraphSet(object):
         return _graphillion._show_messages(flag)
 
     @staticmethod
+    def induced_graphs():
+        """Return a GraphSet with connected induced graphs.
+
+        Example: all connected induced graphs (more than a vertex)
+          >>> gs = GraphSet.induced_graphs()
+          GraphSet([[(1, 2), (1, 4), (2, 3), (2, 5), (3, 6), (4, 5), (5, 6)],
+          [(1, 2), (1, 4), (2, 3), (2, 5), (4, 5)], [(1, 2), (1, 4), (2, 5), (4, 5), (5, 6)]] ...
+
+        Returns:
+          A new GraphSet Object.
+        """
+        graph = []
+        for e in setset.universe():
+            assert e[0] in GraphSet._vertices and e[1] in GraphSet._vertices
+            graph.append(
+                (pickle.dumps(e[0], protocol=0), pickle.dumps(e[1], protocol=0)))
+
+        ss = _graphillion._induced_graphs(graph=graph)
+        return GraphSet(ss)
+
+    @staticmethod
     def _traverse(indexed_edges, traversal, source):
         neighbors = {}
         for u, v in indexed_edges:

@@ -73,7 +73,8 @@ sources_list = [os.path.join('src', 'pygraphillion.cc'),
                 os.path.join('src', 'graphillion', 'zdd.cc'),
                 os.path.join('src', 'SAPPOROBDD', 'bddc.c'),
                 os.path.join('src', 'SAPPOROBDD', 'BDD.cc'),
-                os.path.join('src', 'SAPPOROBDD', 'ZBDD.cc')]
+                os.path.join('src', 'SAPPOROBDD', 'ZBDD.cc'),
+                os.path.join('src', 'graphillion', 'induced_graphs', 'InducedGraphs.cc')]
 
 if sys.platform == 'win32':
     sources_list.append(os.path.join('src', 'mingw32', 'RpWinResource.c'))

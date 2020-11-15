@@ -205,6 +205,7 @@ class setset {
       bool no_loop,
       const setset* search_space,
       const std::vector<linear_constraint_t>* linear_constraints);
+  friend setset SearchInducedGraphs(const std::vector<edge_t>& edges);
 };
 
 }  // namespace graphillion
