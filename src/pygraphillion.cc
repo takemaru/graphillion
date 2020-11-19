@@ -1331,7 +1331,7 @@ static PyObject* induced_graphs(PyObject*, PyObject* args, PyObject* kwds){
   static char* kwlist[2] = {s1, NULL};
 
   PyObject* graph_obj = NULL;
-  if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|OdIIi", kwlist, &graph_obj)) {
+  if (!PyArg_ParseTupleAndKeywords(args, kwds, "O", kwlist, &graph_obj)) {
     return NULL;
   }
 

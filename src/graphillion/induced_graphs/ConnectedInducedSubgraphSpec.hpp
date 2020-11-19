@@ -1,9 +1,5 @@
 /*
  * ConnectedInducedSubgraphSpec.hpp
- *
- * This program is written based on FrontierBasedSearch.hpp
- * in the TdZdd library, located at
- * https://github.com/kunisura/TdZdd/blob/master/include/tdzdd/spec/FrontierBasedSearch.hpp
  */
 
 #pragma once
