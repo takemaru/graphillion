@@ -1335,7 +1335,7 @@ static PyObject* reliability(PyObject*, PyObject* args, PyObject* kwds) {
   PyObject* graph_obj = NULL;
   PyObject* prob_list_obj = NULL;
   PyObject* terminals_obj = NULL;
-  if (!PyArg_ParseTupleAndKeywords(args, kwds, "OOO", kwlist, &graph_obj,
+  if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|OO", kwlist, &graph_obj,
                                    &prob_list_obj, &terminals_obj)) {
     return NULL;
   }
