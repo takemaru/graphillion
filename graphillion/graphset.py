@@ -1987,6 +1987,47 @@ class GraphSet(object):
         return _graphillion._show_messages(flag)
 
     @staticmethod
+    def reliability(probabilities, terminals):
+        """Returns the reliability of the graph with edge `probabilities` and `terminals`.
+        This method calculates the reliability of the graph with `probabilities` of each edge
+        and terminals. If  the probability is not assigned, it is considered to be 1.0
+        Examples:
+          >>> probabilities = {(1, 2): 0.5,(1, 4): 0.5}
+          >>> terminals = [1, 2, 3, 4, 5, 6]
+          >>> reliability = GraphSet({}).reliability(prob_list, terminals)
+          >>> reliability
+          0.75
+        Args:
+          probabilities: A dictionary of probabilities of each edge.
+          terminals: terminal vertices.
+        Returns:
+          Reliability.
+        Raises:
+          KeyError: If a given edge is not found in the universe.
+        """
+        graph = []
+        for e in setset.universe():
+            assert e[0] in GraphSet._vertices and e[1] in GraphSet._vertices
+            graph.append(
+                (pickle.dumps(e[0], protocol=0), pickle.dumps(e[1], protocol=0)))
+
+        terms = []
+        if terminals is not None:
+            for v in terminals:
+                if v not in GraphSet._vertices:
+                    raise KeyError(v)
+                terms.append(pickle.dumps(v, protocol=0))
+
+        ps = [1.0] * (_graphillion._num_elems())
+        for e, p in viewitems(probabilities):
+            i = setset._obj2int[e]
+            ps[i - 1] = p
+
+        reliability = _graphillion._reliability(
+            graph=graph, probabilities=ps, terminals=terms)
+        return reliability
+
+    @staticmethod
     def _traverse(indexed_edges, traversal, source):
         neighbors = {}
         for u, v in indexed_edges:

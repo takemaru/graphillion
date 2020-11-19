@@ -40,6 +40,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <vector>
 
 #include "graphillion/graphset.h"
+#include "graphillion/reliability/reliability.h"
 
 using graphillion::setset;
 using graphillion::Range;
@@ -1325,6 +1326,95 @@ static PyObject* graphset_show_messages(PySetsetObject* self, PyObject* obj) {
   else Py_RETURN_FALSE;
 }
 
+static PyObject* reliability(PyObject*, PyObject* args, PyObject* kwds) {
+  static char s1[] = "graph";
+  static char s2[] = "probabilities";
+  static char s3[] = "terminals";
+  static char* kwlist[4] = {s1, s2, s3, NULL};
+
+  PyObject* graph_obj = NULL;
+  PyObject* prob_list_obj = NULL;
+  PyObject* terminals_obj = NULL;
+  if (!PyArg_ParseTupleAndKeywords(args, kwds, "OOO", kwlist, &graph_obj,
+                                   &prob_list_obj, &terminals_obj)) {
+    return NULL;
+  }
+
+  vector<pair<string, string> > graph;
+  if (graph_obj == NULL || graph_obj == Py_None) {
+    PyErr_SetString(PyExc_TypeError, "no graph");
+    return NULL;
+  }
+  PyObject* i = PyObject_GetIter(graph_obj);
+  if (i == NULL) return NULL;
+  PyObject* eo;
+  while ((eo = PyIter_Next(i))) {
+    PyObject* j = PyObject_GetIter(eo);
+    if (j == NULL) return NULL;
+    vector<string> e;
+    PyObject* vo;
+    while ((vo = PyIter_Next(j))) {
+      if (!PyBytes_Check(vo)) {
+        PyErr_SetString(PyExc_TypeError, "invalid graph");
+        return NULL;
+      }
+      string v = PyBytes_AsString(vo);
+      if (v.find(',') != string::npos) {
+        PyErr_SetString(PyExc_TypeError, "invalid vertex in the graph");
+        return NULL;
+      }
+      e.push_back(v);
+    }
+    assert(e.size() == 2);
+    graph.push_back(make_pair(e[0], e[1]));
+  }
+
+  vector<double> probabilities;
+  if (prob_list_obj == NULL || prob_list_obj == Py_None) {
+    PyErr_SetString(PyExc_TypeError, "no prob_list");
+    return NULL;
+  }
+  {
+    PyObject* i = PyObject_GetIter(prob_list_obj);
+    if (i == NULL) return NULL;
+    PyObject* p;
+    while (p = PyIter_Next(i)) {
+      if (!PyFloat_Check(p)) {
+        PyErr_SetString(PyExc_TypeError, "invalid probability");
+        Py_DECREF(p);
+        return NULL;
+      }
+      probabilities.push_back(PyFloat_AsDouble(p));
+      Py_DECREF(p);
+    }
+    Py_DECREF(i);
+  }
+
+  if (terminals_obj == NULL || terminals_obj == Py_None) {
+    PyErr_SetString(PyExc_TypeError, "no terminals");
+    return NULL;
+  }
+  vector<string> terminals;
+  {
+    PyObject* i = PyObject_GetIter(terminals_obj);
+    if (i == NULL) return NULL;
+    PyObject* term;
+    while (term = PyIter_Next(i)) {
+      if (!PyBytes_Check(term)) {
+        PyErr_SetString(PyExc_TypeError, "invalid terminals");
+        Py_DECREF(term);
+        return NULL;
+      }
+      terminals.push_back(PyBytes_AsString(term));
+      Py_DECREF(term);
+    }
+    Py_DECREF(i);
+  }
+
+  auto prob = graphillion::reliability(graph, probabilities, terminals);
+  return PyFloat_FromDouble(prob);
+}
+
 static PyMethodDef module_methods[] = {
   {"load", reinterpret_cast<PyCFunction>(setset_load), METH_O, ""},
   {"loads", reinterpret_cast<PyCFunction>(setset_loads), METH_O, ""},
@@ -1332,6 +1422,7 @@ static PyMethodDef module_methods[] = {
   {"_num_elems", setset_num_elems, METH_VARARGS, ""},
   {"_graphs", reinterpret_cast<PyCFunction>(graphset_graphs), METH_VARARGS | METH_KEYWORDS, ""},
   {"_show_messages", reinterpret_cast<PyCFunction>(graphset_show_messages), METH_O, ""},
+  {"_reliability", reinterpret_cast<PyCFunction>(reliability), METH_VARARGS | METH_KEYWORDS, ""},
   {NULL}  /* Sentinel */
 };
 

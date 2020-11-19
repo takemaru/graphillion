@@ -310,6 +310,34 @@ class TestGraphSet(unittest.TestCase):
         d = GraphSet.show_messages(a)
         self.assertFalse(d)
 
+    def test_reliability(self):
+        GraphSet.set_universe([(1, 2), (1, 4), (2, 3), (2, 5), (3, 6), (4, 5),
+                               (5, 6)])
+
+        # calculated by hand
+        probabilities = {(1, 2): 0.5}
+        terminals = [1]
+        reliability = GraphSet({}).reliability(probabilities, terminals)
+        self.assertTrue(abs(1.0 - reliability) < 1e-9)
+
+        probabilities = {(1, 2): 0.5, (1, 4): 0.5}
+        terminals = [1, 2, 3, 4, 5, 6]
+        reliability = GraphSet({}).reliability(probabilities, terminals)
+        self.assertTrue(abs(0.75 - reliability) < 1e-9)
+
+        # calculated by brute-force search
+        probabilities = {(1, 2): 0.5, (1, 4): 0.5, (2, 3): 0.5,
+                         (2, 5): 0.5, (3, 6): 0.5, (4, 5): 0.5, (5, 6): 0.5}
+        terminals = [1, 2, 3, 4, 5, 6]
+        reliability = GraphSet({}).reliability(probabilities, terminals)
+        self.assertTrue(abs(0.1796875 - reliability) < 1e-9)
+
+        probabilities = {(1, 2): 0.2, (1, 4): 0.3, (2, 3): 0.4, (2, 5): 0.5,
+                         (3, 6): 0.6, (4, 5): 0.7, (5, 6): 0.8}
+        terminals = [1, 2, 3, 4, 5, 6]
+        reliability = GraphSet({}).reliability(probabilities, terminals)
+        self.assertTrue(abs(0.1479680 - reliability) < 1e-9)
+
     def test_comparison(self):
         gs = GraphSet([g12])
         self.assertEqual(gs, GraphSet([g12]))
