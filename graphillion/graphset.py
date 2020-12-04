@@ -2061,6 +2061,34 @@ class GraphSet(object):
             raise ValueError('invalid `traversal`: %s' % traversal)
 
     @staticmethod
+    def partitions(num_comp_lb=1, num_comp_ub=32767):
+        """Returns a GraphSet with partitions of the graph.
+        Examples: partitions with two or three connected components.
+          >>> lb = 2
+          >>> ub = 3
+          >>> GraphSet.partitions(num_comp_lb=lb,num_comp_ub=ub)
+          GraphSet([[(1, 4), (2, 3), (4, 5)], [(1, 2), (1, 4), (2, 3)], [(1, 4), (3, 6 ...
+
+        Args:
+          num_comp_lb: Optional. int. the lower bound of the number of 
+            connected components. (including)
+          num_comp_ub: Optional. int. the upper bound of the number of
+            connected components. (including)
+
+        Returns:
+          A new GraphSet object.
+        """
+        graph = []
+        for e in setset.universe():
+            assert e[0] in GraphSet._vertices and e[1] in GraphSet._vertices
+            graph.append(
+              (pickle.dumps(e[0], protocol=0), pickle.dumps(e[1], protocol=0)))
+
+        ss = _graphillion._partitions(
+          graph=graph, num_comp_lb=num_comp_lb, num_comp_ub=num_comp_ub)
+        return GraphSet(ss)
+
+    @staticmethod
     def _conv_arg(obj):
         if isinstance(obj, GraphSet):
             return 'graphset', obj
