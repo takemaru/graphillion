@@ -205,8 +205,20 @@ class setset {
       bool no_loop,
       const setset* search_space,
       const std::vector<linear_constraint_t>* linear_constraints);
-  friend setset SearchPartitions(
-      const std::vector<graphillion::edge_t> &edges, int16_t comp_lb, int16_t comp_ub);
+  friend setset SearchPartitions(const std::vector<graphillion::edge_t>& edges,
+                                 int16_t comp_lb, int16_t comp_ub);
+  friend setset SearchRatioPatitions(
+      const std::vector<edge_t>& edges,
+      const std::map<std::string, uint32_t>& weight_list, double ratio,
+      uint32_t lower, uint32_t upper, int k);
+  friend setset SearchWeightPartitions(
+      const std::vector<edge_t>& edges,
+      const std::map<std::string, uint32_t>& weight_list, uint32_t lower,
+      uint32_t upper, int k);
+  friend setset SearchBalancedPartitions(
+      const std::vector<edge_t>& edges,
+      const std::map<std::string, uint32_t>& weight_list, double ratio,
+      uint32_t lower, uint32_t upper, int k);
 };
 
 }  // namespace graphillion
