@@ -662,6 +662,7 @@ Creation methods specifying graph types also work as selection methods.
 | `gs.forests(roots, is_spanning)`              | Returns a GraphSet of forests, sets of trees           |
 | `gs.cycles(is_hamilton)`                      | Returns a GraphSet of cycles                           |
 | `gs.paths(terminal1, terminal2, is_hamilton)` | Returns a GraphSet of paths                            |
+| `gs.chordal_graphs()`                         | Returns a GraphSet of chordal graphs                   |
 
 ### Modification or generation methods
 
