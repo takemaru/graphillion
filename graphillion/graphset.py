@@ -1987,6 +1987,26 @@ class GraphSet(object):
         return _graphillion._show_messages(flag)
 
     @staticmethod
+    def chordal_graphs():
+        """Returns a GraphSet with chordal graphs.
+
+        Examples:
+            >>> GraphSet.chordal_graphs()
+            GraphSet([[], [(1, 4)], [(4, 5)], [(1, 2)], [(2, 5)], [(2, 3)], [(3, 6)], [( ...
+
+        Returns:
+            A new GraphSet object.
+        """
+        graph = []
+        for e in setset.universe():
+            assert e[0] in GraphSet._vertices and e[1] in GraphSet._vertices
+            graph.append(
+                (pickle.dumps(e[0], protocol=0), pickle.dumps(e[1], protocol=0)))
+
+        ss = _graphillion._chordal_graphs(graph=graph)
+        return GraphSet(ss)
+
+    @staticmethod
     def _traverse(indexed_edges, traversal, source):
         neighbors = {}
         for u, v in indexed_edges:
