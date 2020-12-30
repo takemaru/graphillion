@@ -2011,7 +2011,7 @@ class GraphSet(object):
     def weighted_induced_graphs(weight_list=None, lower=0, upper=4294967295//2):
         """Return a GraphSet with weighted connected induced graphs.
 
-        Examples: weighted connected induced graphs smaller than 8
+        Examples: weighted connected induced graphs
           >>> wl = {}
           >>> for v in range(1, 7):
           >>>   wl[v] = v
