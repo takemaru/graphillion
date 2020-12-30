@@ -653,16 +653,17 @@ generated during the operation.
 
 Creation methods specifying graph types also work as selection methods.
 
-| Method                                        | Description                                            |
-| :-------------------------------------------- | :----------------------------------------------------- |
-| `gs.graphs(constraints)`                      | Returns a GraphSet with graphs under given constraints |
-| `gs.connected_components(vertices)`           | Returns a GraphSet of connected components             |
-| `gs.cliques(k)`                               | Returns a GraphSet of k-cliques                        |
-| `gs.trees(root, is_spanning)`                 | Returns a GraphSet of trees                            |
-| `gs.forests(roots, is_spanning)`              | Returns a GraphSet of forests, sets of trees           |
-| `gs.cycles(is_hamilton)`                      | Returns a GraphSet of cycles                           |
-| `gs.paths(terminal1, terminal2, is_hamilton)` | Returns a GraphSet of paths                            |
-| `gs.induced_graphs()`                         | Returns a GraphSet of induced graphs                   |
+| Method                                                  | Description                                            |
+| :------------------------------------------------------ | :----------------------------------------------------- |
+| `gs.graphs(constraints)`                                | Returns a GraphSet with graphs under given constraints |
+| `gs.connected_components(vertices)`                     | Returns a GraphSet of connected components             |
+| `gs.cliques(k)`                                         | Returns a GraphSet of k-cliques                        |
+| `gs.trees(root, is_spanning)`                           | Returns a GraphSet of trees                            |
+| `gs.forests(roots, is_spanning)`                        | Returns a GraphSet of forests, sets of trees           |
+| `gs.cycles(is_hamilton)`                                | Returns a GraphSet of cycles                           |
+| `gs.paths(terminal1, terminal2, is_hamilton)`           | Returns a GraphSet of paths                            |
+| `gs.induced_graphs()`                                   | Returns a GraphSet of induced graphs                   |
+| `gs.weighted_induced_graphs(weight_list, lower, upper)` | Return a GraphSet of induced graphs with weight_list   |
 
 ### Modification or generation methods
 

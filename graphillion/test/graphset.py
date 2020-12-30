@@ -339,6 +339,42 @@ class TestGraphSet(unittest.TestCase):
         gs = GraphSet.weighted_induced_graphs()
         self.assertEqual(len(gs), 34)
 
+        # induced graphs with more than or equal to 5 vertices
+        gs = GraphSet.weighted_induced_graphs(lower=5)
+        self.assertEqual(len(gs), 7)
+        self.assertTrue([(1, 4), (4, 5), (5, 6), (3, 6)] in gs)
+        self.assertTrue([(1, 2), (1, 4), (2, 3), (2, 5), (3, 6), (4, 5), (5, 6)] in gs)
+        self.assertTrue([(1, 2), (2, 3)] not in gs)
+
+        gs = GraphSet.weighted_induced_graphs(upper=2)
+        self.assertEqual(len(gs), 7)
+
+        gs = GraphSet.weighted_induced_graphs(lower=3, upper=4)
+        self.assertEqual(len(gs), 20)
+
+        wl = {}
+        for v in range(1, 7):
+            wl[v] = v
+
+        gs = GraphSet.weighted_induced_graphs(weight_list=wl)
+        self.assertTrue(len(gs), 34)
+
+        gs = GraphSet.weighted_induced_graphs(weight_list=wl, lower=18)
+        self.assertEqual(len(gs), 5)
+        self.assertTrue([(1, 2), (1, 4), (2, 5), (4, 5), (5, 6)] in gs)
+        self.assertTrue([(1, 2), (2, 3), (2, 5), (3, 6), (5, 6)] not in gs)
+
+        gs = GraphSet.weighted_induced_graphs(weight_list=wl, upper=9)
+        self.assertEqual(len(gs), 9) # 6 + 3
+        self.assertTrue([(1, 2), (2, 3)] in gs)
+        self.assertTrue([(1, 2), (2, 5)] in gs)
+        self.assertTrue([(1, 2), (1, 4)] in gs)
+        self.assertTrue([(2, 3), (2, 5)] not in gs)
+        self.assertTrue([(1, 2), (1, 4), (2, 5), (4, 5), (5, 6)] not in gs)
+
+        gs = GraphSet.weighted_induced_graphs(weight_list=wl, lower=10, upper=17)
+        self.assertEqual(len(gs), 20) # 34 - 5 - 9
+
     def test_comparison(self):
         gs = GraphSet([g12])
         self.assertEqual(gs, GraphSet([g12]))

@@ -22,7 +22,6 @@ class ComponentWeightInducedSpecMate {
 
   void clear() {
     offset_or_weight = 0;
-    // next_conn = 0;
     next_conn = (1 << single_vertex_bit);
   }
 
@@ -267,13 +266,6 @@ class ComponentWeightInducedSpec
   }
 
   int getRoot(ComponentWeightInducedSpecMate* mate) const {
-    /*
-    for (int v = 1; v <= m; ++v) {
-      if (initialMate[v].get_weight() > upper) {
-        return 0;
-      }
-    }*/
-
     int const v0 = graph.edgeInfo(0).v0;
 
     for (int i = 0; i < mateSize; ++i) {

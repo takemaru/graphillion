@@ -2011,7 +2011,19 @@ class GraphSet(object):
     def weighted_induced_graphs(weight_list=None, lower=0, upper=4294967295//2):
         """Return a GraphSet with weighted connected induced graphs.
 
-        Example:
+        Examples: weighted connected induced graphs smaller than 8
+          >>> wl = {}
+          >>> for v in range(1, 7):
+          >>>   wl[v] = v
+          >>> gs = GraphSet.weighted_induced_graphs(weight_list=wl, lower=10, upper=17)
+          GraphSet([[(5, 6)], [(1, 4), (4, 5)], [(2, 5), (4, 5)], [(2, 3), (2, 5)], [( ...
+
+        Args:
+          weight_list: Optional. A list of int. Vertex weights. default weight is 1.
+          lower: Optional. int. the lower bound of the sum of vertex weights
+            in each connected component. (including)
+          upper: Optional. int. the upper bound of the sum of vertex weights
+            in each connected component. (including)
 
         Returns:
           A new GraphSet Object.
@@ -2030,7 +2042,7 @@ class GraphSet(object):
                     raise KeyError(v)
                 wl[pickle.dumps(v, protocol=0)] = r
 
-        ss = _graphillion._weighted_induced_graphs(graph=graph, weight_list=weight_list, lower=lower, upper=upper)
+        ss = _graphillion._weighted_induced_graphs(graph=graph, weight_list=wl, lower=lower, upper=upper)
         return GraphSet(ss)
 
     @staticmethod
