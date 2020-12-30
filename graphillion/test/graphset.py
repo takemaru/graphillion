@@ -332,6 +332,13 @@ class TestGraphSet(unittest.TestCase):
         self.assertTrue([(1, 2), (1, 4), (2, 3), (2, 5),
                          (3, 6), (4, 5), (5, 6)] in gs)
 
+    def test_weighted_induced_graphs(self):
+        GraphSet.set_universe([(1, 2), (1, 4), (2, 3), (2, 5), (3, 6), (4, 5),
+                               (5, 6)])
+
+        gs = GraphSet.weighted_induced_graphs()
+        self.assertEqual(len(gs), 34)
+
     def test_comparison(self):
         gs = GraphSet([g12])
         self.assertEqual(gs, GraphSet([g12]))

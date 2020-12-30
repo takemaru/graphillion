@@ -2008,6 +2008,32 @@ class GraphSet(object):
         return GraphSet(ss)
 
     @staticmethod
+    def weighted_induced_graphs(weight_list=None, lower=0, upper=4294967295//2):
+        """Return a GraphSet with weighted connected induced graphs.
+
+        Example:
+
+        Returns:
+          A new GraphSet Object.
+        """
+        graph = []
+        for e in setset.universe():
+            assert e[0] in GraphSet._vertices and e[1] in GraphSet._vertices
+            graph.append(
+                (pickle.dumps(e[0], protocol=0), pickle.dumps(e[1], protocol=0)))
+
+        wl = None
+        if weight_list is not None:
+            wl = {}
+            for v, r in viewitems(weight_list):
+                if v not in GraphSet._vertices:
+                    raise KeyError(v)
+                wl[pickle.dumps(v, protocol=0)] = r
+
+        ss = _graphillion._weighted_induced_graphs(graph=graph, weight_list=weight_list, lower=lower, upper=upper)
+        return GraphSet(ss)
+
+    @staticmethod
     def _traverse(indexed_edges, traversal, source):
         neighbors = {}
         for u, v in indexed_edges:
