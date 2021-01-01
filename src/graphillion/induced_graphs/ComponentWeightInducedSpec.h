@@ -128,7 +128,7 @@ class ComponentWeightInducedSpecMate {
   static const int next_mask = (1 << single_vertex_bit) - 1;
 
   offset offset_or_weight;  ///< offset to head or vertex-weight.
-  // (next_conn >> single_vertex_bit) & 1 なら孤立点
+  // if (next_conn >> single_vertex_bit) & 1 then isolated
   offset next_conn;  ///< offset to next connected vertex.
 };
 
@@ -142,7 +142,6 @@ class ComponentWeightInducedSpec
   int const upper;
   int const mateSize;
   std::vector<ComponentWeightInducedSpecMate> initialMate;
-  bool const lookahead;
 
   int takable(ComponentWeightInducedSpecMate const* mate,
               tdzdd::Graph::EdgeInfo const& e) const {
@@ -247,16 +246,14 @@ class ComponentWeightInducedSpec
   // m]
   ComponentWeightInducedSpec(tdzdd::Graph const& graph,
                              const std::vector<uint32_t>& weight_list,
-                             uint32_t lower, uint32_t upper,
-                             bool lookahead = true)
+                             uint32_t lower, uint32_t upper)
       : graph(graph),
         m(graph.vertexSize()),
         n(graph.edgeSize()),
         lower(lower),
         upper(upper),
         mateSize(graph.maxFrontierSize()),
-        initialMate(1 + m + mateSize),
-        lookahead(lookahead) {
+        initialMate(1 + m + mateSize) {
     this->setArraySize(mateSize);
 
     for (int u = 0; u < m; ++u) {
@@ -292,7 +289,7 @@ class ComponentWeightInducedSpec
     tdzdd::Graph::EdgeInfo const* ee = &graph.edgeInfo(i);
     update(mate, *e, *ee);
 
-    while (lookahead) {
+    while (true) {
       e = ee;
       if (takable(mate, *e)) break;
       if (!doNotTake(mate, *e)) return 0;
