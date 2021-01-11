@@ -140,10 +140,7 @@ class TestGraphSet(unittest.TestCase):
         self.assertTrue([(1, 2), (1, 4), (4, 5)] not in gs)
 
         # matching
-        dc = {}
-        for v in range(1, 7):
-            dc[v] = range(0, 2)
-        gs = GraphSet.graphs(degree_constraints=dc)
+        gs = GraphSet.matchings()
         self.assertEqual(len(gs), 22)
         self.assertTrue([(1, 2), (3, 6)] in gs)
         self.assertTrue([(1, 2), (2, 3), (3, 6)] not in gs)

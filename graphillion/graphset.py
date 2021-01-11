@@ -1973,6 +1973,33 @@ class GraphSet(object):
                                no_loop=True, graphset=graphset)
 
     @staticmethod
+    def matchings(graphset=None):
+        """Returns a GraphSet of matchings.
+
+        This method can be parallelized with OpenMP by specifying the
+        environmental variable `OMP_NUM_THREADS`:
+
+          `$ OMP_NUM_THREADS=4 python your_graphillion_script.py`
+
+        Examples:
+          >>> GraphSet.matchings()
+
+        Args:
+          graphset: Optional.  A GraphSet object.  Matchings to be stored
+            are selected from this object.
+
+        Returns:
+          A new GraphSet object.
+
+        See Also:
+          graphs()
+        """
+        dc = {}
+        for v in GraphSet._vertices:
+          dc[v] = range(0, 2)
+        return GraphSet.graphs(degree_constraints=dc, graphset=graphset)
+
+    @staticmethod
     def show_messages(flag=True):
         """Enables/disables status messages.
 
