@@ -1986,7 +1986,7 @@ class GraphSet(object):
           GraphSet([[(1, 4), (2, 5), (3, 6)], [(1, 2), (3, 6), (4, 5)], [(1, 4), (2, 3 ...
 
         Args:
-          graphset: Optional.  A GraphSet object.  Paths to be stored
+          graphset: Optional.  A GraphSet object. Matchings to be stored
             are selected from this object.
 
         Returns:
