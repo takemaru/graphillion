@@ -1973,6 +1973,34 @@ class GraphSet(object):
                                no_loop=True, graphset=graphset)
 
     @staticmethod
+    def perfect_matchings(graphset=None):
+        """Return a GraphSet of perfect matchings.
+
+        This method can be parallelized with OpenMP by specifying the
+        environmental variable `OMP_NUM_THREADS`:
+
+          `$ OMP_NUM_THREADS=4 python your_graphillion_script.py`
+
+        Examples:
+          >>> GraphSet.perfect_matchings()
+          GraphSet([[(1, 4), (2, 5), (3, 6)], [(1, 2), (3, 6), (4, 5)], [(1, 4), (2, 3 ...
+
+        Args:
+          graphset: Optional.  A GraphSet object.  Paths to be stored
+            are selected from this object.
+
+        Returns:
+          A new GraphSet object.
+
+        See Also:
+          graphs()
+        """
+        dc = {}
+        for v in GraphSet._vertices:
+          dc[v] = 1
+        return GraphSet.graphs(degree_constraints=dc, graphset=graphset)
+
+    @staticmethod
     def show_messages(flag=True):
         """Enables/disables status messages.
 
