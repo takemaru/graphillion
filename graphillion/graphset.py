@@ -1983,6 +1983,7 @@ class GraphSet(object):
 
         Examples:
           >>> GraphSet.matchings()
+          GraphSet([[], [(1, 4)], [(4, 5)], [(1, 2)], [(2, 5)], [(2, 3)], [(3, 6)], [( ...
 
         Args:
           graphset: Optional.  A GraphSet object.  Matchings to be stored

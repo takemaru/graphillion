@@ -141,6 +141,7 @@ class TestGraphSet(unittest.TestCase):
 
         # matching
         gs = GraphSet.matchings()
+        print(gs)
         self.assertEqual(len(gs), 22)
         self.assertTrue([(1, 2), (3, 6)] in gs)
         self.assertTrue([(1, 2), (2, 3), (3, 6)] not in gs)
