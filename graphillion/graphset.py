@@ -1987,7 +1987,7 @@ class GraphSet(object):
         return _graphillion._show_messages(flag)
 
     @staticmethod
-    def bipartite_graphs():
+    def bipartite_graphs(graphset=None):
         """
         """
         graph = []
@@ -1998,7 +1998,11 @@ class GraphSet(object):
 
         odd_gs = GraphSet(_graphillion._odd_edges_subgraphs(graph))
         odd_cycle_gs = odd_gs.cycles()
-        return GraphSet({}).non_supergraphs(odd_cycle_gs)
+
+        if graphset is None:
+          return GraphSet({}).non_supergraphs(odd_cycle_gs)
+
+        return graphset.non_supergraphs(odd_cycle_gs)
 
     @staticmethod
     def _traverse(indexed_edges, traversal, source):

@@ -324,6 +324,11 @@ class TestGraphSet(unittest.TestCase):
         self.assertTrue([(1, 2), (1, 3), (2, 3)] not in gs)
         self.assertTrue([(1, 2), (1, 3), (2, 3), (3, 4)] not in gs)
 
+        graphset = GraphSet([[(1, 2), (1, 3), (2, 3)], [(1, 2), (2, 3), (3, 4)]])
+        gs = GraphSet.bipartite_graphs(graphset=graphset)
+        self.assertTrue([(1, 2), (2, 3), (3, 4)] in gs)
+        self.assertTrue([(1, 2), (1, 3), (3, 4)] not in gs)
+
         GraphSet.set_universe([(1, 2), (2, 3), (3, 4), (4, 5)])
         """
         1 --- 2 --- 3 --- 4 --- 5
