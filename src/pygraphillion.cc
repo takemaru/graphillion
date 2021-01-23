@@ -1365,8 +1365,8 @@ static PyObject* odd_edges_subgraphs(PyObject*, PyObject* args, PyObject* kwds) 
   }
 
   auto ss = graphillion::SearchOddEdgeSubgraphs(graph);
-  PySetsetObject* ret = reinterpret_cast<PySetsetObject*>
-      (PySetset_Type.tp_alloc(&PySetset_Type, 0));
+  PySetsetObject* ret = reinterpret_cast<PySetsetObject*>(
+      PySetset_Type.tp_alloc(&PySetset_Type, 0));
   ret->ss = new setset(ss);
   return reinterpret_cast<PyObject*>(ret);
 }

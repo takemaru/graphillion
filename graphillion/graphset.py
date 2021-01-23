@@ -1988,7 +1988,18 @@ class GraphSet(object):
 
     @staticmethod
     def bipartite_graphs(graphset=None):
-        """
+        """Returns a GraphSet of bipartite subgraphs.
+
+        Example:
+          >>> GraphSet.bipartite_graphs()
+          GraphSet([[], [(1, 4)], [(4, 5)], [(1, 2)], [(2, 5)], [(2, 3)], [(3, 6)], [( ...
+
+        Args:
+          graphset: Optional. A GraphSet object. Subgraphs to be stored
+            are selected from this object.
+
+        Returns:
+          A new GraphSet object.
         """
         graph = []
         for e in setset.universe():
@@ -2000,7 +2011,7 @@ class GraphSet(object):
         odd_cycle_gs = odd_gs.cycles()
 
         if graphset is None:
-          return GraphSet({}).non_supergraphs(odd_cycle_gs)
+            return GraphSet({}).non_supergraphs(odd_cycle_gs)
 
         return graphset.non_supergraphs(odd_cycle_gs)
 
