@@ -1,6 +1,6 @@
+from setuptools import setup, find_packages, Extension
 import distutils.sysconfig
 import os
-from setuptools import setup, find_packages, Extension
 import subprocess
 import shutil
 import sys
