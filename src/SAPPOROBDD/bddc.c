@@ -1632,7 +1632,7 @@ unsigned char op, skip;
   struct B_CacheTable *cachep;
   bddp key, f0, f1, g0, g1, h0, h1, h;
   bddvar v, flev, glev;
-  char z; /* flag to check ZBDD node */
+  char z = 0; /* flag to check ZBDD node */
 
   /* Check terminal case */
   if(!skip) switch(op)
