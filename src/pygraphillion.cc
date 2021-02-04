@@ -76,7 +76,7 @@ using std::vector;
 
 #define RETURN_NEW_SETSET2(self, other, _other, expr)                   \
   do {                                                                  \
-    PySetsetObject* (_other) = reinterpret_cast<PySetsetObject*>(other); \
+    PySetsetObject* _other = reinterpret_cast<PySetsetObject*>(other); \
     PySetsetObject* _ret = reinterpret_cast<PySetsetObject*>(           \
         Py_TYPE(self)->tp_alloc(Py_TYPE(self), 0));                     \
     if (_ret == NULL) return NULL;                                      \
