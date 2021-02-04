@@ -2633,7 +2633,7 @@ int z;
   v = fscanf(strm, "%s", s);
   if(v == EOF) return 1;
   n = strtol(s, NULL, 10);
-  while(n > bddvarused()) bddnewvar();
+  while((bddvar)n > bddvarused()) bddnewvar();
 
   v = fscanf(strm, "%s", s);
   if(v == EOF) return 1;
