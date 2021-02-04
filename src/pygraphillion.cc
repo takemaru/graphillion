@@ -94,7 +94,7 @@ using std::vector;
 
 #define RETURN_TRUE_IF(self, other, _other, expr)                       \
   do {                                                                  \
-    PySetsetObject* (_other) = reinterpret_cast<PySetsetObject*>(other); \
+    PySetsetObject* _other = reinterpret_cast<PySetsetObject*>(other); \
     if (expr) Py_RETURN_TRUE;                                           \
     else      Py_RETURN_FALSE;                                          \
   } while (0);
