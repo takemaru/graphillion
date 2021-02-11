@@ -83,8 +83,8 @@ BDD BDD::Swap(const int& v1, const int& v2) const
   BDD y = BDDvar(v2);
   BDD fx0 = At0(v1);
   BDD fx1 = At1(v1);
-  return x & ( ~y & fx0.At1(v2) | y & fx1.At1(v2) ) |
-        ~x & ( ~y & fx0.At0(v2) | y & fx1.At0(v2) );
+  return (x & ( (~y & fx0.At1(v2)) | (y & fx1.At1(v2)))) |
+        (~x & ( (~y & fx0.At0(v2)) | (y & fx1.At0(v2))));
 }
 
 #define BDD_CACHE_CHK_RETURN(op, fx, gx) \
@@ -383,20 +383,20 @@ BDDV BDDV_Import(FILE *strm)
   bddword *hash1;
   BDD *hash2;
 
-  if(fscanf(strm, "%s", &s) == EOF) return BDDV(-1);
+  if(fscanf(strm, "%s", s) == EOF) return BDDV(-1);
   if(strcmp(s, "_i") != 0) return BDDV(-1);
-  if(fscanf(strm, "%s", &s) == EOF) return BDDV(-1);
+  if(fscanf(strm, "%s", s) == EOF) return BDDV(-1);
   int n = strtol(s, NULL, 10);
   while(n > BDD_TopLev()) BDD_NewVar();
 
-  if(fscanf(strm, "%s", &s) == EOF) return BDDV(-1);
+  if(fscanf(strm, "%s", s) == EOF) return BDDV(-1);
   if(strcmp(s, "_o") != 0) return BDDV(-1);
-  if(fscanf(strm, "%s", &s) == EOF) return BDDV(-1);
+  if(fscanf(strm, "%s", s) == EOF) return BDDV(-1);
   int m = strtol(s, NULL, 10);
 
-  if(fscanf(strm, "%s", &s) == EOF) return BDDV(-1);
+  if(fscanf(strm, "%s", s) == EOF) return BDDV(-1);
   if(strcmp(s, "_n") != 0) return BDDV(-1);
-  if(fscanf(strm, "%s", &s) == EOF) return BDDV(-1);
+  if(fscanf(strm, "%s", s) == EOF) return BDDV(-1);
   bddword n_nd = B_STRTOI(s, NULL, 10);
 
   for(hashsize = 1; hashsize < (n_nd<<1); hashsize <<= 1)
@@ -414,14 +414,14 @@ BDDV BDDV_Import(FILE *strm)
   e = 0;
   for(bddword ix=0; ix<n_nd; ix++)
   {
-    if(fscanf(strm, "%s", &s) == EOF) { e = 1; break; }
+    if(fscanf(strm, "%s", s) == EOF) { e = 1; break; }
     bddword nd = B_STRTOI(s, NULL, 10);
     
-    if(fscanf(strm, "%s", &s) == EOF) { e = 1; break; }
+    if(fscanf(strm, "%s", s) == EOF) { e = 1; break; }
     int lev = strtol(s, NULL, 10);
     int var = bddvaroflev(lev);
 
-    if(fscanf(strm, "%s", &s) == EOF) { e = 1; break; }
+    if(fscanf(strm, "%s", s) == EOF) { e = 1; break; }
     if(strcmp(s, "F") == 0) f0 = 0;
     else if(strcmp(s, "T") == 0) f0 = 1;
     else
@@ -439,7 +439,7 @@ BDDV BDDV_Import(FILE *strm)
       f0 = hash2[ixx];
     }
 
-    if(fscanf(strm, "%s", &s) == EOF) { e = 1; break; }
+    if(fscanf(strm, "%s", s) == EOF) { e = 1; break; }
     if(strcmp(s, "F") == 0) f1 = 0;
     else if(strcmp(s, "T") == 0) f1 = 1;
     else
@@ -485,7 +485,7 @@ BDDV BDDV_Import(FILE *strm)
   BDDV v = BDDV();
   for(int i=0; i<m; i++)
   {
-    if(fscanf(strm, "%s", &s) == EOF)
+    if(fscanf(strm, "%s", s) == EOF)
     {
       delete[] hash2;
       delete[] hash1;
