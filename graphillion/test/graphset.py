@@ -310,6 +310,32 @@ class TestGraphSet(unittest.TestCase):
         d = GraphSet.show_messages(a)
         self.assertFalse(d)
 
+    def test_chordal_graphs(self):
+        # the number of chordal labeled graphs: https://oeis.org/A058862
+
+        # K3
+        GraphSet.set_universe([(1, 2), (1, 3), (2, 3)])
+        gs = GraphSet.chordal_graphs()
+        self.assertEqual(len(gs), 8)
+
+        # K4
+        GraphSet.set_universe([(1, 2), (1, 3), (1, 4), (2, 3), (2, 4), (3, 4)])
+        gs = GraphSet.chordal_graphs()
+        self.assertEqual(len(gs), 61)
+        self.assertTrue([(1, 2), (1, 4), (2, 3), (3, 4)] not in gs)
+        self.assertTrue([(1, 2), (1, 3), (1, 4), (2, 3), (3, 4)] in gs)
+
+        # K6
+        es = []
+        for i in range(1, 8):
+            for j in range(i + 1, 8):
+                es.append((i, j))
+        GraphSet.set_universe(es)
+        gs = GraphSet.chordal_graphs()
+        self.assertEqual(len(gs), 617675)
+        self.assertTrue([(2, 3), (2, 5), (3, 4), (4, 5)] not in gs)
+        self.assertTrue([(3, 4), (3, 5), (3, 6), (4, 5), (5, 6)] in gs)
+
     def test_comparison(self):
         gs = GraphSet([g12])
         self.assertEqual(gs, GraphSet([g12]))
