@@ -205,7 +205,7 @@ class setset {
       bool no_loop,
       const setset* search_space,
       const std::vector<linear_constraint_t>* linear_constraints);
-  friend setset SearchChordals(const std::vector<edge_t> &edges);
+  friend setset SearchChordals(const std::vector<edge_t> &edges, const uint32_t k);
 };
 
 }  // namespace graphillion

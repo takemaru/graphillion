@@ -6,10 +6,8 @@
 #include "SAPPOROBDD/ZBDD.h"
 #include "graphillion/graphset.h"
 
-ZBDD constructChadalGraphs(const tdzdd::Graph &graph);
-
 namespace graphillion {
-setset SearchChordals(const std::vector<edge_t> &edges);
+setset SearchChordals(const std::vector<edge_t> &edges, const uint32_t k = 4);
 }  // namespace graphillion
 
 #endif

@@ -10,14 +10,14 @@
 
 #include "graphillion/setset.h"
 
-ZBDD constructChadalGraphs(const tdzdd::Graph &graph) {
+ZBDD constructChadalGraphs(const tdzdd::Graph &graph, const uint32_t k) {
   const int m = graph.edgeSize();
 
   // construct 2-DD reprsenting the set of all the cycles
   FrontierSingleCycleSpec cycleSpec(graph);
   tdzdd::DdStructure<2> cycleDD = tdzdd::DdStructure<2>(cycleSpec);
 
-  tdzdd::IntRange r(4);  // at least 4 edges
+  tdzdd::IntRange r(k);  // at least 4 edges
   tdzdd::SizeConstraint sc(graph.edgeSize(), &r);
   // construct 2-DD reprsenting the set of all the cycles
   // with length at least four
@@ -45,14 +45,14 @@ ZBDD constructChadalGraphs(const tdzdd::Graph &graph) {
 };
 
 namespace graphillion {
-setset SearchChordals(const std::vector<edge_t> &edges) {
+setset SearchChordals(const std::vector<edge_t> &edges, const uint32_t k) {
   tdzdd::Graph g;
   for (const auto &e : edges) {
     g.addEdge(e.first, e.second);
   }
   g.update();
 
-  auto dd = constructChadalGraphs(g);
+  auto dd = constructChadalGraphs(g, k);
   return setset(dd);
 }
 }  // namespace graphillion
