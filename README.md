@@ -773,6 +773,7 @@ Currently, the following methods can be parallelized:
 - `GraphSet.forests(roots, is_spanning)`
 - `GraphSet.cycles(is_hamilton)`
 - `GraphSet.paths(terminal1, terminal2, is_hamilton)`
+- `GraphSet.induced_graphs()`
 
 Working with NetworkX
 --------------------------------------------------------------------------------

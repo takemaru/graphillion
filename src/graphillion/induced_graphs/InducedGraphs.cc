@@ -7,7 +7,14 @@
 tdzdd::DdStructure<2> constructInducedGraphs(const tdzdd::Graph &g) {
   constexpr bool is_noloop = false;
   ConnectedInducedSubgraphSpec scspec(g, !is_noloop);
-  auto dd = tdzdd::DdStructure<2>(scspec);
+
+#ifdef _OPENMP
+  bool use_mp = (omp_get_num_procs() >= 2);
+#else
+  bool use_mp = false;
+#endif
+
+  auto dd = tdzdd::DdStructure<2>(scspec, use_mp);
   dd.zddReduce();
   return dd;
 }
