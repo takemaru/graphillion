@@ -44,10 +44,16 @@ double reliability(const std::vector<edge_t>& edges,
   // look ahead cannot be used for BDDs,
   // so set the 4th argment to false
   tdzdd::FrontierBasedSearch fbs(g, -1, false, false);
-  tdzdd::DdStructure<2> dd;
 
-  dd = tdzdd::DdStructure<2>(fbs);
+#ifdef _OPENMP
+  bool use_mp = (omp_get_num_procs() >= 2);
+#else
+  bool use_mp = false;
+#endif
+
+  tdzdd::DdStructure<2> dd(fbs, use_mp);
   dd.bddReduce();
+  dd.useMultiProcessors(false);
   return dd.evaluate(ProbEval(prob_list));
 }
 
