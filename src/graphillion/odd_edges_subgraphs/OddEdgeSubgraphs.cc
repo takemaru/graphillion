@@ -37,11 +37,18 @@ setset SearchOddEdgeSubgraphs(const std::vector<edge_t>& edges) {
   }
   g.update();
 
-  OddEdgeSubgraphSpec spec(g);
-  auto dd = tdzdd::DdStructure<2>(spec);
-  dd.zddReduce();
-  zdd_t f = dd.evaluate(ToZBDD(setset::max_elem() - setset::num_elems()));
+#ifdef _OPENMP
+  bool use_mp = (omp_get_num_procs() >= 2);
+#else
+  bool use_mp = false;
+#endif
 
+  OddEdgeSubgraphSpec spec(g);
+  auto dd = tdzdd::DdStructure<2>(spec, use_mp);
+  dd.zddReduce();
+
+  dd.useMultiProcessors(false);
+  zdd_t f = dd.evaluate(ToZBDD(setset::max_elem() - setset::num_elems()));
   return setset(f);
 }
 }  // namespace graphillion
