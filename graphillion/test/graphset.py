@@ -139,6 +139,11 @@ class TestGraphSet(unittest.TestCase):
         self.assertTrue([(1, 4), (4, 5)] in gs)
         self.assertTrue([(1, 2), (1, 4), (4, 5)] not in gs)
 
+        gs = GraphSet.graphs(vertex_groups=[[1], [2], [3], [4], [5], [6]])
+        self.assertEqual(len(gs), 1)
+        self.assertTrue([] in gs)
+        self.assertTrue([(1, 2)] not in gs)
+
         # matching
         dc = {}
         for v in range(1, 7):
@@ -257,6 +262,21 @@ class TestGraphSet(unittest.TestCase):
         # exceptions
         self.assertRaises(KeyError, GraphSet.graphs, vertex_groups=[[7]])
         self.assertRaises(KeyError, GraphSet.graphs, degree_constraints={7: 1})
+
+    def test_combined_cases(self):
+        GraphSet.set_universe([(1, 2), (1, 4), (2, 3), (2, 5), (3, 6), (4, 5),
+                               (5, 6)])
+
+        # spanning tree = (forests) & (spanning)
+        gs1 = GraphSet.forests([1])
+        gs2 = GraphSet.connected_components([1, 2, 3, 4, 5, 6])
+        gs3 = GraphSet.trees(is_spanning=True)
+        self.assertEqual(gs3, gs1 & gs2)
+
+        # all hamilton paths are spanning connected components
+        gs1 = GraphSet.paths(1, 6, is_hamilton=True)
+        gs2 = GraphSet.connected_components([1, 2, 3, 4, 5, 6])
+        self.assertTrue(gs1.issubset(gs2))
 
     def test_linear_constraints(self):
         GraphSet.set_universe([(1, 2), (1, 4), (2, 3), (2, 5), (3, 6), (4, 5),
