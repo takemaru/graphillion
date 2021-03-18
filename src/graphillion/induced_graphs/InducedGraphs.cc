@@ -1,5 +1,5 @@
 #include "InducedGraphs.h"
-#include "ConnectedInducedSubgraphSpec.hpp"
+#include "ConnectedInducedSubgraphSpec.h"
 
 #include "graphillion/graphset.h"
 #include "subsetting/eval/ToZBDD.hpp"
@@ -35,3 +35,4 @@ setset SearchInducedGraphs(const std::vector<edge_t> &edges) {
 }
 
 }  // namespace graphillion
+

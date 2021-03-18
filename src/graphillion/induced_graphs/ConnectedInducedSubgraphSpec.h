@@ -1,23 +1,17 @@
 /*
- * ConnectedInducedSubgraphSpec.hpp
+ * ConnectedInducedSubgraphSpec.h
  */
 
-#pragma once
-
-#include <stdint.h>
-#include <cassert>
-#include <cstring>
-#include <iostream>
-#include <stdexcept>
-#include <vector>
+#ifndef GRAPHILLION_CONNECTED_INDUCED_SUBGRAPH_SPEC_H_
+#define GRAPHILLION_CONNECTED_INDUCED_SUBGRAPH_SPEC_H_
 
 #include "subsetting/DdSpec.hpp"
 #include "subsetting/util/Graph.hpp"
 
 class ConnectedInducedSubgraphSpecMate {
  public:
-  typedef int32_t Offset;
-  typedef uint32_t uOffset;
+  using Offset = int32_t;
+  using uOffset = uint32_t;
 
  private:
   Offset hoc;  // offset to head or FPS.
@@ -67,35 +61,26 @@ class ConnectedInducedSubgraphSpecMate {
 
   bool isComponent() const { return !isIsolated() || isTouched(); }
 
-  void print() const { std::cerr << "(" << hoc << "," << nxt << ")"; }
-
-  void print(std::ostream& ost) const {
-    ost << "(" << hoc << "," << nxt << ")";
-  }
-
-  void print(FILE* fp) const { fprintf(fp, "(%d,%d)", hoc, nxt); }
-
   void mergeLists(ConnectedInducedSubgraphSpecMate& o1,
                   ConnectedInducedSubgraphSpecMate& o2,
                   ConnectedInducedSubgraphSpecMate* mate) {
-    ConnectedInducedSubgraphSpecMate* p1 = &o1.head();
-    ConnectedInducedSubgraphSpecMate* p2 = &o2.head();
+    auto p1 = &o1.head();
+    auto p2 = &o2.head();
     if (p1 == p2) return;
     if (p1 > p2) std::swap(p1, p2);
 
     p1->addTouched();
 
-    for (ConnectedInducedSubgraphSpecMate* q = p2;; q += q->nxt) {
+    for (auto q = p2;; q += q->nxt) {
       q->hoc = p1 - q;
       if (q->nxt == 0) break;
     }
 
-    ConnectedInducedSubgraphSpecMate* p = p1;
-    ConnectedInducedSubgraphSpecMate* q = p2;
+    auto p = p1, q = p2;
 
     while (true) {
       assert(p != q);
-      ConnectedInducedSubgraphSpecMate* pp = p + p->nxt;
+      auto pp = p + p->nxt;
       assert(p <= pp && pp != q);
 
       while (p < pp && pp < q) {
@@ -113,8 +98,8 @@ class ConnectedInducedSubgraphSpecMate {
 
   void replaceHeadWith(ConnectedInducedSubgraphSpecMate& newHead,
                        ConnectedInducedSubgraphSpecMate* mate) const {
-    ConnectedInducedSubgraphSpecMate const* p = &head();
-    ConnectedInducedSubgraphSpecMate* q = &newHead;
+    auto p = &head();
+    auto q = &newHead;
 
     q->hoc = p->hoc;
 
@@ -126,26 +111,21 @@ class ConnectedInducedSubgraphSpecMate {
 
   void removeFromList(ConnectedInducedSubgraphSpecMate const& o) {
     if (o.nxt == 0) {
-      for (ConnectedInducedSubgraphSpecMate* p = this; p <= &o; ++p) {
+      for (auto p = this; p <= &o; ++p) {
         if (p + p->nxt == &o) p->nxt = 0;
       }
     } else {
-      for (ConnectedInducedSubgraphSpecMate* p = this; p <= &o; ++p) {
+      for (auto p = this; p <= &o; ++p) {
         if (p + p->nxt == &o) p->nxt += o.nxt;
       }
     }
-  }
-
-  friend std::ostream& operator<<(std::ostream& os,
-                                  ConnectedInducedSubgraphSpecMate const& o) {
-    return os << "<" << o.hoc << "," << o.nxt << ">";
   }
 };
 
 class ConnectedInducedSubgraphSpec
     : public tdzdd::PodArrayDdSpec<ConnectedInducedSubgraphSpec,
                                    ConnectedInducedSubgraphSpecMate, 2> {
-  typedef ConnectedInducedSubgraphSpecMate Mate;
+  using Mate = ConnectedInducedSubgraphSpecMate;
 
   tdzdd::Graph const& graph;
   int const m;
@@ -161,8 +141,7 @@ class ConnectedInducedSubgraphSpec
   std::vector<Vec2> neighborList;
 
   int takable(Mate const* mate, tdzdd::Graph::EdgeInfo const& e) const {
-    Mate const& w1 = mate[e.v1 - e.v0];
-    Mate const& w2 = mate[e.v2 - e.v0];
+    Mate const &w1 = mate[e.v1 - e.v0], w2 = mate[e.v2 - e.v0];
 
     if (!w1.isComponent() && w1.isMarked()) {
       return 0;
@@ -274,11 +253,9 @@ class ConnectedInducedSubgraphSpec
               tdzdd::Graph::EdgeInfo const& ee) const {
     int const d = ee.v0 - e.v0;
     assert(d >= 0);
-    Mate* p1 = &mate[e.v1 - e.v0];
-    Mate* p2 = &mate[e.v2 - e.v0];
-    Mate* pd = p1 + d;
+    auto p1 = &mate[e.v1 - e.v0], p2 = &mate[e.v2 - e.v0], pd = p1 + d;
 
-    for (Mate* q = p1; q < pd; ++q) {
+    for (auto q = p1; q < pd; ++q) {
       Mate* qq = &q->next();
       if (qq >= pd) {
         q->replaceHeadWith(*qq, mate);
@@ -390,3 +367,5 @@ class ConnectedInducedSubgraphSpec
     return n - i;
   }
 };
+
+#endif  // GRAPHILLION_CONNECTED_INDUCED_SUBGRAPH_SPEC_H_
