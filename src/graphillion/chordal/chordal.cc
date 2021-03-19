@@ -21,7 +21,7 @@ ZBDD constructChadalGraphs(const tdzdd::Graph &graph, const uint32_t k) {
 
   // construct 2-DD reprsenting the set of all the cycles
   FrontierSingleCycleSpec cycleSpec(graph);
-  tdzdd::DdStructure<2> cycleDD = tdzdd::DdStructure<2>(cycleSpec, use_mp);
+  auto cycleDD = tdzdd::DdStructure<2>(cycleSpec, use_mp);
 
   tdzdd::IntRange r(k);  // at least 4 edges
   tdzdd::SizeConstraint sc(graph.edgeSize(), &r);
@@ -31,7 +31,7 @@ ZBDD constructChadalGraphs(const tdzdd::Graph &graph, const uint32_t k) {
 
   // construct 3-DD
   InducingColoringSpec coloringSpec(graph, cycleDD);
-  tdzdd::DdStructure<3> DD3 = tdzdd::DdStructure<3>(coloringSpec, use_mp);
+  auto DD3 = tdzdd::DdStructure<3>(coloringSpec, use_mp);
 
   // construct 2-DD representing the set of subgraphs
   // each of which contains a cycle with length at least
