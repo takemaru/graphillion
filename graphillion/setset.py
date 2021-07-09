@@ -178,10 +178,56 @@ class setset(_graphillion.setset):
 
     @staticmethod
     def load(fp):
+        """Deserialize a file `fp` to `self`.
+
+        This method does not deserialize the universe, which should be
+        loaded separately by pickle.
+
+        Args:
+          fp: A read-supporting file-like object.
+
+        Examples of dump():
+          >>> import pickle
+          >>> fp = open('/path/to/setset', 'wb')
+          >>> ss.dump(fp)
+          >>> fp = open('/path/to/universe' 'wb')
+          >>> pickle.dump(setset.universe(), fp)
+
+        Examples of load():
+          >>> import pickle
+          >>> fp = open('/path/to/universe')
+          >>> setset.set_universe(pickle.load(fp))
+          >>> fp = open('/path/to/setset')
+          >>> ss = setset.load(fp)
+
+        See Also:
+          loads()
+        """
         return setset(_graphillion.load(fp))
 
     @staticmethod
     def loads(s):
+        """Deserialize `s` to `self`.
+
+        This method does not deserialize the universe, which should be
+        loaded separately by pickle.
+
+        Args:
+          s: A string instance.
+
+        Examples of dump():
+          >>> import pickle
+          >>> setset_str = ss.dumps()
+          >>> universe_str = pickle.dumps(setset.universe())
+
+        Examples of load():
+          >>> import pickle
+          >>> setset.set_universe(pickle.loads(universe_str))
+          >>> ss = setset.load(graphset_str)
+
+        See Also:
+          load()
+        """
         return setset(_graphillion.loads(s))
 
     @staticmethod
