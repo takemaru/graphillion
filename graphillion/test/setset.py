@@ -477,6 +477,7 @@ class TestSetset(unittest.TestCase):
         st = ss.dumps()
         self.assertEqual(st, "B\n.\n")
         ss = setset.loads(st)
+        self.assertTrue(isinstance(ss, setset))
         self.assertEqual(ss, setset())
 
         ss = setset([s0])
@@ -499,6 +500,7 @@ class TestSetset(unittest.TestCase):
             ss.dump(f)
             f.seek(0)
             ss = setset.load(f)
+            self.assertTrue(isinstance(ss, setset))
             self.assertEqual(ss, setset(v))
 
     def test_large(self):

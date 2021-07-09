@@ -178,11 +178,11 @@ class setset(_graphillion.setset):
 
     @staticmethod
     def load(fp):
-        return _graphillion.load(fp)
+        return setset(_graphillion.load(fp))
 
     @staticmethod
     def loads(s):
-        return _graphillion.loads(s)
+        return setset(_graphillion.loads(s))
 
     @staticmethod
     def set_universe(universe):
