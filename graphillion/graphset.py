@@ -1987,6 +1987,65 @@ class GraphSet(object):
         return _graphillion._show_messages(flag)
 
     @staticmethod
+    def induced_graphs():
+        """Return a GraphSet with connected induced graphs.
+
+        Example: all connected induced graphs (more than a vertex)
+          >>> gs = GraphSet.induced_graphs()
+          GraphSet([[(1, 2), (1, 4), (2, 3), (2, 5), (3, 6), (4, 5), (5, 6)],
+          [(1, 2), (1, 4), (2, 3), (2, 5), (4, 5)], [(1, 2), (1, 4), (2, 5), (4, 5), (5, 6)]] ...
+
+        Returns:
+          A new GraphSet Object.
+        """
+        graph = []
+        for e in setset.universe():
+            assert e[0] in GraphSet._vertices and e[1] in GraphSet._vertices
+            graph.append(
+                (pickle.dumps(e[0], protocol=0), pickle.dumps(e[1], protocol=0)))
+
+        ss = _graphillion._induced_graphs(graph=graph)
+        return GraphSet(ss)
+
+    @staticmethod
+    def weighted_induced_graphs(weight_list=None, lower=0, upper=4294967295//2):
+        """Return a GraphSet with weighted connected induced graphs.
+
+        Examples: weighted connected induced graphs
+          >>> wl = {}
+          >>> for v in range(1, 7):
+          >>>   wl[v] = v
+          >>> gs = GraphSet.weighted_induced_graphs(weight_list=wl, lower=10, upper=17)
+          GraphSet([[(5, 6)], [(1, 4), (4, 5)], [(2, 5), (4, 5)], [(2, 3), (2, 5)], [( ...
+
+        Args:
+          weight_list: Optional. A list of int. Vertex weights. default weight is 1.
+          lower: Optional. int. the lower bound of the sum of vertex weights
+            in each connected component. (including)
+          upper: Optional. int. the upper bound of the sum of vertex weights
+            in each connected component. (including)
+
+        Returns:
+          A new GraphSet Object.
+        """
+        graph = []
+        for e in setset.universe():
+            assert e[0] in GraphSet._vertices and e[1] in GraphSet._vertices
+            graph.append(
+                (pickle.dumps(e[0], protocol=0), pickle.dumps(e[1], protocol=0)))
+
+        wl = None
+        if weight_list is not None:
+            wl = {}
+            for v, r in viewitems(weight_list):
+                if v not in GraphSet._vertices:
+                    raise KeyError(v)
+                wl[pickle.dumps(v, protocol=0)] = r
+
+        ss = _graphillion._weighted_induced_graphs(graph=graph, weight_list=wl, lower=lower, upper=upper)
+        return GraphSet(ss)
+
+    @staticmethod
     def _traverse(indexed_edges, traversal, source):
         neighbors = {}
         for u, v in indexed_edges:
