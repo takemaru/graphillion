@@ -1,29 +1,6 @@
-/*********************************************************************
-Copyright 2013  JST ERATO Minato project and other contributors
-http://www-erato.ist.hokudai.ac.jp/?language=en
-
-Permission is hereby granted, free of charge, to any person obtaining
-a copy of this software and associated documentation files (the
-"Software"), to deal in the Software without restriction, including
-without limitation the rights to use, copy, modify, merge, publish,
-distribute, sublicense, and/or sell copies of the Software, and to
-permit persons to whom the Software is furnished to do so, subject to
-the following conditions:
-
-The above copyright notice and this permission notice shall be
-included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-**********************************************************************/
 /*********************************************
- * ZBDD+ Manipulator (SAPPORO-1.58) - Header *
- * (C) Shin-ichi MINATO  (Nov. 22, 2013)     *
+ * ZBDD+ Manipulator (SAPPORO-1.87) - Header *
+ * (C) Shin-ichi MINATO  (May 14, 2021)      *
  *********************************************/
 
 class ZBDD;
@@ -32,7 +9,7 @@ class ZBDDV;
 #ifndef _ZBDD_
 #define _ZBDD_
 
-#include "SAPPOROBDD/BDD.h"
+#include "BDD.h"
 
 class SeqBDD;
 
@@ -96,6 +73,7 @@ public:
   bddword Card(void) const { return bddcard(_zbdd); }
   bddword Lit(void) const { return bddlit(_zbdd); }
   bddword Len(void) const { return bddlen(_zbdd); }
+  char* CardMP16(char* s) const { return bddcardmp16(_zbdd, s); }
 
   void Export(FILE *strm = stdout) const;
   void XPrint(void) const;

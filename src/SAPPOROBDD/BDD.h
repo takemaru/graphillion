@@ -1,29 +1,6 @@
-/*********************************************************************
-Copyright 2013  JST ERATO Minato project and other contributors
-http://www-erato.ist.hokudai.ac.jp/?language=en
-
-Permission is hereby granted, free of charge, to any person obtaining
-a copy of this software and associated documentation files (the
-"Software"), to deal in the Software without restriction, including
-without limitation the rights to use, copy, modify, merge, publish,
-distribute, sublicense, and/or sell copies of the Software, and to
-permit persons to whom the Software is furnished to do so, subject to
-the following conditions:
-
-The above copyright notice and this permission notice shall be
-included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-**********************************************************************/
 /********************************************
- * BDD+ Manipulator (SAPPORO-1.58) - Header *
- * (C) Shin-ichi MINATO  (Nov. 22, 2013)    *
+ * BDD+ Manipulator (SAPPORO-1.93) - Header *
+ * (C) Shin-ichi MINATO  (Dec. 6, 2021)     *
  ********************************************/
 
 class BDD;
@@ -39,7 +16,7 @@ class BDDV;
 #include <iostream>
 
 #define BDD_CPP
-#include "SAPPOROBDD/bddc.h"
+#include "bddc.h"
 
 //--------- Definition of "bddword" type --------
 #ifdef B_64
@@ -125,7 +102,7 @@ public:
 };
 
 //--------- External functions for BDD ---------
-extern void    BDD_Init(bddword, bddword);
+extern int     BDD_Init(bddword init=256, bddword limit=BDD_MaxNode);
 extern int     BDD_NewVarOfLev(int);
 extern int     BDD_VarUsed(void);
 extern bddword BDD_Used(void);
@@ -290,12 +267,13 @@ public:
 };
 
 //----- External functions for BDDV ---------
-extern void    BDDV_Init(bddword, bddword);
+extern int     BDDV_Init(bddword init=256, bddword limit=BDD_MaxNode);
 extern int     BDDV_NewVarOfLev(int);
 extern BDDV operator||(const BDDV&, const BDDV&);
 extern BDDV BDDV_Mask1(int, int);
 extern BDDV BDDV_Mask2(int, int);
 extern BDDV BDDV_Import(FILE *strm = stdin);
+extern BDDV BDDV_ImportPla(FILE *strm = stdin, int sopf = 0);
 
 //----- Inline functions for BDDV ---------
 inline int BDDV_UserTopLev(void) { return BDD_TopLev(); }

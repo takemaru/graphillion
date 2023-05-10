@@ -1,33 +1,10 @@
-/*********************************************************************
-Copyright 2013  JST ERATO Minato project and other contributors
-http://www-erato.ist.hokudai.ac.jp/?language=en
-
-Permission is hereby granted, free of charge, to any person obtaining
-a copy of this software and associated documentation files (the
-"Software"), to deal in the Software without restriction, including
-without limitation the rights to use, copy, modify, merge, publish,
-distribute, sublicense, and/or sell copies of the Software, and to
-permit persons to whom the Software is furnished to do so, subject to
-the following conditions:
-
-The above copyright notice and this permission notice shall be
-included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-**********************************************************************/
  /***************************************
- * BDD+ Manipulator (SAPPORO-1.58)      *
+ * BDD+ Manipulator (SAPPORO-1.87)      *
  * (Basic methods)                      *
- * (C) Shin-ichi MINATO (Nov. 22, 2013) *
+ * (C) Shin-ichi MINATO (May 14, 2021)  *
  ****************************************/
 
-#include "SAPPOROBDD/BDD.h"
+#include "BDD.h"
 
 using std::cout;
 using std::cerr;
@@ -40,6 +17,10 @@ extern "C"
   int rand();
 };
 
+//----- External constant data for BDD -------
+
+const bddword BDD_MaxNode = B_VAL_MASK >> 1U;
+const int BDD_MaxVar = bddvarmax;
 
 //--- SBDD class for default initialization ----
 
@@ -48,15 +29,10 @@ int BDDV_Active = 0;
 class SBDD
 {
 public:
-  SBDD(bddword init, bddword limit) { bddinit(init, limit); }
+  //SBDD(bddword init, bddword limit) { bddinit(init, limit); }
+  SBDD(void) { BDD_Init(); }
 };
-static SBDD BDD_Manager((bddword)256, (bddword)1024);
-
-
-//----- External constant data for BDD -------
-
-const bddword BDD_MaxNode = B_VAL_MASK >> 1U;
-const int BDD_MaxVar = bddvarmax;
+static SBDD BDD_Manager;
 
 //-------------- class BDD --------------------
 
@@ -83,8 +59,8 @@ BDD BDD::Swap(const int& v1, const int& v2) const
   BDD y = BDDvar(v2);
   BDD fx0 = At0(v1);
   BDD fx1 = At1(v1);
-  return x & ( ~y & fx0.At1(v2) | y & fx1.At1(v2) ) |
-        ~x & ( ~y & fx0.At0(v2) | y & fx1.At0(v2) );
+  return (x & ((~y & fx0.At1(v2) )|(y & fx1.At1(v2) )))|
+        (~x & ((~y & fx0.At0(v2) )|(y & fx1.At0(v2) )));
 }
 
 #define BDD_CACHE_CHK_RETURN(op, fx, gx) \
@@ -129,10 +105,11 @@ BDD BDD::Spread(const int& k) const
 
 //----- External functions for BDD -------
 
-void BDD_Init(bddword init, bddword limit)
+int BDD_Init(bddword init, bddword limit)
 {
-  bddinit(init, limit);
+  if(bddinit(init, limit)) return 1;
   BDDV_Active = 0;
+  return 0;
 }
 	
 int BDD_NewVarOfLev(int lev)
@@ -326,11 +303,12 @@ void BDDV::Print() const
 
 //----- External functions for BDD Vector -------
 
-void BDDV_Init(bddword init, bddword limit)
+int BDDV_Init(bddword init, bddword limit)
 {
-  bddinit(init, limit);
+  if(bddinit(init, limit)) return 1;
   for(int i=0; i<BDDV_SysVarTop; i++) bddnewvar();
   BDDV_Active = 1;
+  return 0;
 }
 	
 BDDV operator||(const BDDV& fv, const BDDV& gv)
@@ -366,7 +344,7 @@ BDDV BDDV_Mask2(int index, int len)
   return BDDV(0,index)||BDDV(1,len-index);
 }
 
-#define IMPORTHASH(x) (((x >> 1) ^ (x >> 16)) & (hashsize - 1))
+#define IMPORTHASH(x) ((((x)>>1)^((x)<<8)^((x)<<16)) & (hashsize-1))
 
 #ifdef B_64
 #  define B_STRTOI strtoll
@@ -380,23 +358,23 @@ BDDV BDDV_Import(FILE *strm)
   bddword hashsize;
   BDD f, f0, f1;
   char s[256];
-  bddword *hash1;
-  BDD *hash2;
+  bddword *hash1 = 0;
+  BDD *hash2 = 0;
 
-  if(fscanf(strm, "%s", &s) == EOF) return BDDV(-1);
+  if(fscanf(strm, "%s", s) == EOF) return BDDV(-1);
   if(strcmp(s, "_i") != 0) return BDDV(-1);
-  if(fscanf(strm, "%s", &s) == EOF) return BDDV(-1);
+  if(fscanf(strm, "%s", s) == EOF) return BDDV(-1);
   int n = strtol(s, NULL, 10);
   while(n > BDD_TopLev()) BDD_NewVar();
 
-  if(fscanf(strm, "%s", &s) == EOF) return BDDV(-1);
+  if(fscanf(strm, "%s", s) == EOF) return BDDV(-1);
   if(strcmp(s, "_o") != 0) return BDDV(-1);
-  if(fscanf(strm, "%s", &s) == EOF) return BDDV(-1);
+  if(fscanf(strm, "%s", s) == EOF) return BDDV(-1);
   int m = strtol(s, NULL, 10);
 
-  if(fscanf(strm, "%s", &s) == EOF) return BDDV(-1);
+  if(fscanf(strm, "%s", s) == EOF) return BDDV(-1);
   if(strcmp(s, "_n") != 0) return BDDV(-1);
-  if(fscanf(strm, "%s", &s) == EOF) return BDDV(-1);
+  if(fscanf(strm, "%s", s) == EOF) return BDDV(-1);
   bddword n_nd = B_STRTOI(s, NULL, 10);
 
   for(hashsize = 1; hashsize < (n_nd<<1); hashsize <<= 1)
@@ -414,14 +392,14 @@ BDDV BDDV_Import(FILE *strm)
   e = 0;
   for(bddword ix=0; ix<n_nd; ix++)
   {
-    if(fscanf(strm, "%s", &s) == EOF) { e = 1; break; }
+    if(fscanf(strm, "%s", s) == EOF) { e = 1; break; }
     bddword nd = B_STRTOI(s, NULL, 10);
     
-    if(fscanf(strm, "%s", &s) == EOF) { e = 1; break; }
+    if(fscanf(strm, "%s", s) == EOF) { e = 1; break; }
     int lev = strtol(s, NULL, 10);
     int var = bddvaroflev(lev);
 
-    if(fscanf(strm, "%s", &s) == EOF) { e = 1; break; }
+    if(fscanf(strm, "%s", s) == EOF) { e = 1; break; }
     if(strcmp(s, "F") == 0) f0 = 0;
     else if(strcmp(s, "T") == 0) f0 = 1;
     else
@@ -439,7 +417,7 @@ BDDV BDDV_Import(FILE *strm)
       f0 = hash2[ixx];
     }
 
-    if(fscanf(strm, "%s", &s) == EOF) { e = 1; break; }
+    if(fscanf(strm, "%s", s) == EOF) { e = 1; break; }
     if(strcmp(s, "F") == 0) f1 = 0;
     else if(strcmp(s, "T") == 0) f1 = 1;
     else
@@ -485,7 +463,7 @@ BDDV BDDV_Import(FILE *strm)
   BDDV v = BDDV();
   for(int i=0; i<m; i++)
   {
-    if(fscanf(strm, "%s", &s) == EOF)
+    if(fscanf(strm, "%s", s) == EOF)
     {
       delete[] hash2;
       delete[] hash1;
@@ -516,3 +494,136 @@ BDDV BDDV_Import(FILE *strm)
   return v;
 }
 
+BDDV BDDV_ImportPla(FILE *strm, int sopf)
+{
+  char s[256];
+  int n = 0;
+  int m = 0;
+  int mode = 1; // 0:f 1:fd 2:fr 3:fdr
+
+  do if(fscanf(strm, "%s", s) == EOF) return BDDV(-1);
+  while(s[0] == '#');
+
+  // declaration part 
+  while(s[0] == '.')
+  {
+    if(strcmp(s, ".i") == 0)
+    {
+      if(fscanf(strm, "%s", s) == EOF)
+      { cerr << "unexpected eof.\n"; return BDDV(-1);}
+      n = strtol(s, NULL, 10);
+    }
+    else if(strcmp(s, ".o") == 0)
+    {
+      if(fscanf(strm, "%s", s) == EOF)
+      { cerr << "unexpected eof.\n"; return BDDV(-1);}
+      m = strtol(s, NULL, 10);
+    }
+    else if(strcmp(s, ".type") == 0)
+    {
+      if(fscanf(strm, "%s", s) == EOF)
+      { cerr << "unexpected eof.\n"; return BDDV(-1);}
+      if(strcmp(s, "f") == 0) mode = 0;
+      else if(strcmp(s, "fd") == 0) mode = 1;
+      else if(strcmp(s, "fr") == 0) mode = 2;
+      else if(strcmp(s, "fdr") == 0) mode = 3;
+      else { } // nop
+    }
+    else 
+    {
+      if(fscanf(strm, "%s", s) == EOF)
+      { cerr << "unexpected eof.\n"; return BDDV(-1);}
+    }
+    if(fscanf(strm, "%s", s) == EOF)
+    { cerr << "unexpected eof.\n"; return BDDV(-1);}
+  }
+  
+  if(n < 0) { cerr << "error in input size.\n"; return BDDV(-1);}
+  if(m <= 0) { cerr << "error in output size.\n"; return BDDV(-1);}
+  while(BDD_TopLev() < n*2) BDD_NewVar();
+  BDDV onset = BDDV(0, m);
+  BDDV offset = BDDV(0, m);
+  BDDV dcset = BDDV(0, m);
+  BDD term;
+
+  // logic description part
+  while(s[0] != '.')
+  {
+    if((int)strlen(s) != n)
+    { cerr << "error at product term.\n"; return BDDV(-1);}
+    term = 1;
+    for(int i=0; i<n; i++)
+    {
+      switch(s[i])
+      {
+      case '0':
+        term &= ~BDDvar(BDD_VarOfLev(sopf? 2*i+2: i+1));
+	break;
+      case '1':
+        term &= BDDvar(BDD_VarOfLev(sopf? 2*i+2: i+1));
+	break;
+      case '-':
+	break;
+      default:
+        cerr << "error at product term.\n";
+        return BDDV(-1);
+      }
+    }
+    if(fscanf(strm, "%s", s) == EOF)
+    { cerr << "unexpected eof.\n"; return BDDV(-1);}
+    if((int)strlen(s) != m) 
+    { cerr << "error at output symbol.\n"; return BDDV(-1);}
+    for(int i=0; i<m; i++)
+    {
+      BDDV tv = BDDV(term, m) & BDDV_Mask1(i, m);
+      switch(s[i])
+      {
+      case '0':
+        offset |= tv;
+        break;
+      case '1':
+        onset |= tv;
+	break;
+      case '-':
+        dcset |= tv;
+	break;
+      case '~':
+	break;
+      default:
+        cerr << "error at output symbol.\n";
+        return BDDV(-1);
+      }
+    }
+    if(fscanf(strm, "%s", s) == EOF)
+    { cerr << "unexpected eof.\n"; return BDDV(-1);}
+  }
+
+  // final part
+  switch(mode)
+  {
+  case 0:
+    offset = ~onset;
+    dcset = BDDV(0, m);
+    break;
+  case 1:
+    onset &= ~dcset;
+    offset = ~(onset | dcset);
+    break;
+  case 2:
+    if((onset & offset) != BDDV(0, m)) 
+    { cerr << "overlaping onset & offset.\n"; return BDDV(-1);}
+    dcset = ~(onset | offset);
+    break;
+  case 3:
+    if((onset & offset) != BDDV(0, m)) 
+    { cerr << "overlaping onset & offset.\n"; return BDDV(-1);}
+    if((onset & dcset) != BDDV(0, m))
+    { cerr << "overlaping onset & dcset.\n"; return BDDV(-1);}
+    if((offset & dcset) != BDDV(0, m))
+    { cerr << "overlaping offset & dcset.\n"; return BDDV(-1);}
+    if((onset | offset | dcset) != BDDV(1, m))
+    { cerr << "not covering function.\n"; return BDDV(-1);}
+    break;
+  }
+  return (onset || dcset);
+}

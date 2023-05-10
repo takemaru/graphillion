@@ -1,35 +1,10 @@
-/*********************************************************************
-Copyright 2013  JST ERATO Minato project and other contributors
-http://www-erato.ist.hokudai.ac.jp/?language=en
-
-Permission is hereby granted, free of charge, to any person obtaining
-a copy of this software and associated documentation files (the
-"Software"), to deal in the Software without restriction, including
-without limitation the rights to use, copy, modify, merge, publish,
-distribute, sublicense, and/or sell copies of the Software, and to
-permit persons to whom the Software is furnished to do so, subject to
-the following conditions:
-
-The above copyright notice and this permission notice shall be
-included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-**********************************************************************/
 /*****************************************
-*  BDD Package (SAPPORO-1.57)   - Header *
-*  (C) Shin-ichi MINATO  (June 14, 2013) *
+*  BDD Package (SAPPORO-1.94)   - Header *
+*  (C) Shin-ichi MINATO  (Apr. 19, 2022)  *
 ******************************************/
 
 #ifndef bddc_h
 #define bddc_h
-
-#include <stdio.h>
 
 #if (defined BDD_CPP)||(! defined B_OLDC)
 #  define B_ARG(a) a       /* ANSI C style */
@@ -38,7 +13,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #endif
 
 /***************** Internal macro for index *****************/
-#define B_VAR_WIDTH 20U  /* Width of variable index */
+#define B_VAR_WIDTH 16U  /* Width of variable index */
 #define B_VAR_MASK       ((1U << B_VAR_WIDTH) - 1U)
 
 /***************** Internal macro for bddp *****************/
@@ -54,7 +29,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #define B_CST_MASK  B_MSB_MASK /* Mask of constant-flag */
 #define B_VAL_MASK  (B_MSB_MASK - 1U)
                       /* Mask of value-field */
- 
+
 /***************** External typedef *****************/
 typedef unsigned int bddvar;
 #ifdef B_64
@@ -82,7 +57,7 @@ typedef unsigned int bddvar;
 /***************** For stack overflow limit *****************/
 extern const int BDD_RecurLimit;
 extern int BDD_RecurCount;
-
+ 
 /***************** External operations *****************/
 
 /***************** Init. and config. ****************/
@@ -145,7 +120,10 @@ extern bddp   bddsubtract B_ARG((bddp f, bddp g));
 extern bddp   bddcard B_ARG((bddp f));
 extern bddp   bddlit B_ARG((bddp f));
 extern bddp   bddlen B_ARG((bddp f));
-extern int    bddimportz B_ARG((FILE *strm, bddp *p, int lim));
+extern int    bddimportz B_ARG((FILE* strm, bddp* p, int lim));
+extern char  *bddcardmp16 B_ARG((bddp f, char *s));
+extern int    bddisbdd B_ARG((bddp f));
+extern int    bddiszbdd B_ARG((bddp f));
 
 /************** SeqBDD operations *************/
 extern bddp   bddpush B_ARG((bddp f, bddvar v));

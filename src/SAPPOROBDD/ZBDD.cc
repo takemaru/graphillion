@@ -1,36 +1,13 @@
-/*********************************************************************
-Copyright 2013  JST ERATO Minato project and other contributors
-http://www-erato.ist.hokudai.ac.jp/?language=en
-
-Permission is hereby granted, free of charge, to any person obtaining
-a copy of this software and associated documentation files (the
-"Software"), to deal in the Software without restriction, including
-without limitation the rights to use, copy, modify, merge, publish,
-distribute, sublicense, and/or sell copies of the Software, and to
-permit persons to whom the Software is furnished to do so, subject to
-the following conditions:
-
-The above copyright notice and this permission notice shall be
-included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-**********************************************************************/
 /****************************************
- * ZBDD+ Manipulator (SAPPORO-1.58)     *
+ * ZBDD+ Manipulator (SAPPORO-1.87)     *
  * (Main part)                          *
- * (C) Shin-ichi MINATO (Nov. 22, 2013) *
+ * (C) Shin-ichi MINATO (May 14, 2021)  *
  ****************************************/
 
-#include "SAPPOROBDD/ZBDD.h"
+#include "ZBDD.h"
 
 #define BDD_CPP
-#include "SAPPOROBDD/bddc.h"
+#include "bddc.h"
 
 using std::cout;
 
@@ -717,7 +694,7 @@ ZBDD ZBDDV::GetZBDD(int index) const
   while(level > 0)
   {
     if(f == 0) return f;
-    if((index & (1<<level-1)) != 0) f = f.OnSet0(level);
+    if((index & (1<<(level-1))) != 0) f = f.OnSet0(level);
     else f = f.OffSet(level);
     level--;
   }
@@ -806,37 +783,7 @@ int ZBDDV::PrintPla() const
   return 0;
 }
 
-/*
-ZBDDV operator&(const ZBDDV& fv1, const ZBDDV& fv2)
-{
-  ZBDDV tmp;
-  tmp._zbdd = fv1._zbdd & fv2._zbdd;
-  return tmp;
-}
-
-ZBDDV operator+(const ZBDDV& fv1, const ZBDDV& fv2)
-{
-  ZBDDV tmp;
-  tmp._zbdd = fv1._zbdd + fv2._zbdd;
-  return tmp;
-}
-
-ZBDDV operator-(const ZBDDV& fv1, const ZBDDV& fv2)
-{
-  ZBDDV tmp;
-  tmp._zbdd = fv1._zbdd - fv2._zbdd;
-  return tmp;
-}
-
-int operator==(const ZBDDV& fv1, const ZBDDV& fv2)
-{ return fv1._zbdd == fv2._zbdd; }
-
-int operator!=(const ZBDDV& fv1, const ZBDDV& fv2)
-{ return !(fv1 == fv2); }
-
-*/
-
-#define IMPORTHASH(x) (((x >> 1) ^ (x >> 16)) & (hashsize - 1))
+#define IMPORTHASH(x) ((((x)>>1)^((x)<<8)^((x)<<16)) & (hashsize-1))
 
 #ifdef B_64
 #  define B_STRTOI strtoll
@@ -850,23 +797,23 @@ ZBDDV ZBDDV_Import(FILE *strm)
   bddword hashsize;
   ZBDD f, f0, f1;
   char s[256];
-  bddword *hash1;
-  ZBDD *hash2;
+  bddword *hash1 = 0;
+  ZBDD *hash2 = 0;
 
-  if(fscanf(strm, "%s", &s) == EOF) return ZBDDV(-1);
+  if(fscanf(strm, "%s", s) == EOF) return ZBDDV(-1);
   if(strcmp(s, "_i") != 0) return ZBDDV(-1);
-  if(fscanf(strm, "%s", &s) == EOF) return ZBDDV(-1);
+  if(fscanf(strm, "%s", s) == EOF) return ZBDDV(-1);
   int n = strtol(s, NULL, 10);
   while(n > BDD_TopLev()) BDD_NewVar();
 
-  if(fscanf(strm, "%s", &s) == EOF) return ZBDDV(-1);
+  if(fscanf(strm, "%s", s) == EOF) return ZBDDV(-1);
   if(strcmp(s, "_o") != 0) return ZBDDV(-1);
-  if(fscanf(strm, "%s", &s) == EOF) return ZBDDV(-1);
+  if(fscanf(strm, "%s", s) == EOF) return ZBDDV(-1);
   int m = strtol(s, NULL, 10);
 
-  if(fscanf(strm, "%s", &s) == EOF) return ZBDDV(-1);
+  if(fscanf(strm, "%s", s) == EOF) return ZBDDV(-1);
   if(strcmp(s, "_n") != 0) return ZBDDV(-1);
-  if(fscanf(strm, "%s", &s) == EOF) return ZBDDV(-1);
+  if(fscanf(strm, "%s", s) == EOF) return ZBDDV(-1);
   bddword n_nd = B_STRTOI(s, NULL, 10);
 
   for(hashsize = 1; hashsize < (n_nd<<1); hashsize <<= 1)
@@ -884,14 +831,14 @@ ZBDDV ZBDDV_Import(FILE *strm)
   e = 0;
   for(bddword ix=0; ix<n_nd; ix++)
   {
-    if(fscanf(strm, "%s", &s) == EOF) { e = 1; break; }
+    if(fscanf(strm, "%s", s) == EOF) { e = 1; break; }
     bddword nd = B_STRTOI(s, NULL, 10);
     
-    if(fscanf(strm, "%s", &s) == EOF) { e = 1; break; }
+    if(fscanf(strm, "%s", s) == EOF) { e = 1; break; }
     int lev = strtol(s, NULL, 10);
     int var = bddvaroflev(lev);
 
-    if(fscanf(strm, "%s", &s) == EOF) { e = 1; break; }
+    if(fscanf(strm, "%s", s) == EOF) { e = 1; break; }
     if(strcmp(s, "F") == 0) f0 = 0;
     else if(strcmp(s, "T") == 0) f0 = 1;
     else
@@ -909,7 +856,7 @@ ZBDDV ZBDDV_Import(FILE *strm)
       f0 = hash2[ixx];
     }
 
-    if(fscanf(strm, "%s", &s) == EOF) { e = 1; break; }
+    if(fscanf(strm, "%s", s) == EOF) { e = 1; break; }
     if(strcmp(s, "F") == 0) f1 = 0;
     else if(strcmp(s, "T") == 0) f1 = 1;
     else
@@ -954,7 +901,7 @@ ZBDDV ZBDDV_Import(FILE *strm)
   ZBDDV v = ZBDDV();
   for(int i=0; i<m; i++)
   {
-    if(fscanf(strm, "%s", &s) == EOF)
+    if(fscanf(strm, "%s", s) == EOF)
     {
       delete[] hash2;
       delete[] hash1;
@@ -1006,12 +953,12 @@ ZBDD ZBDD::ZLev(int lev, int last) const
       int n = ZLevNum(flev);
       if(flev >= 66)
       {
-        if(n < lev || ((flev & 3) < 3 && ZLevNum(flev - 3) >= lev))
+        if(n < lev || ((flev & 3) < 3 && ZLevNum((flev-3)) >= lev))
 	  n = flev - 1;
       }
       else if(flev >= 18)
       {
-        if(n < lev || ((flev & 1) < 1 && ZLevNum(flev - 1) >= lev))
+        if(n < lev || ((flev & 1) < 1 && ZLevNum((flev-1)) >= lev))
 	  n = flev - 1;
       }
       else if(n < lev) n = flev - 1;
