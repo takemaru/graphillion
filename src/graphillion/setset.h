@@ -205,6 +205,8 @@ class setset {
       bool no_loop,
       const setset* search_space,
       const std::vector<linear_constraint_t>* linear_constraints);
+
+  friend int CostLE();
 };
 
 }  // namespace graphillion

@@ -1985,6 +1985,10 @@ class GraphSet(object):
           False (disabled).
         """
         return _graphillion._show_messages(flag)
+    
+    @staticmethod
+    def cost_le():
+        return _graphillion._cost_le()
 
     @staticmethod
     def _traverse(indexed_edges, traversal, source):

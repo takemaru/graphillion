@@ -40,6 +40,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <vector>
 
 #include "graphillion/graphset.h"
+#include "graphillion/graphillion_bddct.h"
 
 using graphillion::setset;
 using graphillion::Range;
@@ -1325,6 +1326,10 @@ static PyObject* graphset_show_messages(PySetsetObject* self, PyObject* obj) {
   else Py_RETURN_FALSE;
 }
 
+static PyObject* cost_le(PyObject* self, PyObject* args) {
+  return PyLong_FromLong(graphillion::CostLE());
+}
+
 static PyMethodDef module_methods[] = {
   {"load", reinterpret_cast<PyCFunction>(setset_load), METH_O, ""},
   {"loads", reinterpret_cast<PyCFunction>(setset_loads), METH_O, ""},
@@ -1332,6 +1337,7 @@ static PyMethodDef module_methods[] = {
   {"_num_elems", setset_num_elems, METH_VARARGS, ""},
   {"_graphs", reinterpret_cast<PyCFunction>(graphset_graphs), METH_VARARGS | METH_KEYWORDS, ""},
   {"_show_messages", reinterpret_cast<PyCFunction>(graphset_show_messages), METH_O, ""},
+  {"_cost_le", reinterpret_cast<PyCFunction>(cost_le), METH_NOARGS, ""},
   {NULL}  /* Sentinel */
 };
 
