@@ -1327,7 +1327,11 @@ static PyObject* graphset_show_messages(PySetsetObject* self, PyObject* obj) {
 }
 
 static PyObject* cost_le(PyObject* self, PyObject* args) {
-  return PyLong_FromLong(graphillion::CostLE());
+  PySetsetObject* ret = reinterpret_cast<PySetsetObject*>
+      (PySetset_Type.tp_alloc(&PySetset_Type, 0));
+  ret->ss = new setset();
+  std::cout << "cost_le" << std::endl;
+  return reinterpret_cast<PyObject*>(ret);
 }
 
 static PyMethodDef module_methods[] = {

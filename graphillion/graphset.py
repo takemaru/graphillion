@@ -1986,8 +1986,7 @@ class GraphSet(object):
         """
         return _graphillion._show_messages(flag)
     
-    @staticmethod
-    def cost_le():
+    def cost_le(self):
         return _graphillion._cost_le()
 
     @staticmethod

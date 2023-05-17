@@ -35,6 +35,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include "graphillion/type.h"
 
+#include "SAPPOROBDD/bddct.h"
+
 namespace graphillion {
 
 class Range;
@@ -206,7 +208,7 @@ class setset {
       const setset* search_space,
       const std::vector<linear_constraint_t>* linear_constraints);
 
-  friend int CostLE();
+  friend setset CostLE(const std::vector<bddcost> costs, const zdd_t &zbdd);
 };
 
 }  // namespace graphillion

@@ -2,8 +2,8 @@
 
 namespace graphillion {
 
-int CostLE() {
-  return 123456;
+setset CostLE(const std::vector<bddcost> costs, const zdd_t &zbdd) {
+  return setset(zbdd);
 }
 
 } // namespace graphillion
