@@ -422,6 +422,17 @@ setset setset::non_supersets(elem_t e) const {
   return setset(this->zdd_ % setset(s).zdd_);
 }
 
+setset setset::cost_le(const std::vector<bddcost> costs, const bddcost cost_bound) const {
+  assert(costs.size() == num_elems() + 1);
+  BDDCT bddct;
+  bddct.Alloc(costs.size());
+  for (int var = 0; var < costs.size(); ++var) {
+    bddct.SetCost(var, costs[var]);
+  }
+  zdd_t valid_cost_zdd = bddct.ZBDD_CostLE(this->zdd_, cost_bound);
+  return setset(valid_cost_zdd);
+}
+
 double setset::probability(const vector<double>& probabilities) const {
   assert(probabilities.size() == num_elems() + 1);
   if (this->zdd_ == bot()) {  // this->empty()

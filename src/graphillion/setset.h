@@ -35,7 +35,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include "graphillion/type.h"
 
-#include "SAPPOROBDD/bddct.h"
+#include "SAPPOROBDD/BDDCT.h"
 
 namespace graphillion {
 
@@ -164,6 +164,7 @@ class setset {
   setset non_subsets(const setset& ss) const;
   setset non_supersets(const setset& ss) const;
   setset non_supersets(elem_t e) const;
+  setset cost_le(const std::vector<bddcost> costs, const bddcost cost_bound) const;
 
   double probability(const std::vector<double>& probabilities) const;
 
@@ -207,8 +208,6 @@ class setset {
       bool no_loop,
       const setset* search_space,
       const std::vector<linear_constraint_t>* linear_constraints);
-
-  friend setset CostLE(const std::vector<bddcost> costs, const zdd_t &zbdd);
 };
 
 }  // namespace graphillion

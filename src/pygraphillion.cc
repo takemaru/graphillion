@@ -40,7 +40,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <vector>
 
 #include "graphillion/graphset.h"
-#include "graphillion/graphillion_bddct.h"
 
 using graphillion::setset;
 using graphillion::Range;
@@ -943,6 +942,45 @@ static PyObject* setset_richcompare(PySetsetObject* self, PyObject* obj, int op)
   return Py_NotImplemented;
 }
 
+static PyObject* setset_cost_le(PySetsetObject* self, PyObject* args, PyObject* kwds) {
+  static char s1[] = "costs";
+  static char s2[] = "cost_bound";
+  static char* kwlist[3] = {s1, s2, NULL};
+  PyObject* costs_obj = NULL;
+  bddcost cost_bound = NULL;
+  if (!PyArg_ParseTupleAndKeywords(args, kwds, "Oi", kwlist, &costs_obj, &cost_bound))
+    return NULL;
+  if (costs_obj == NULL || costs_obj == Py_None) {
+    PyErr_SetString(PyExc_ValueError, "no costs");
+    return NULL;
+  }
+  if (cost_bound == NULL) {
+    PyErr_SetString(PyExc_ValueError, "no cost bound");
+    return NULL;
+  }
+
+  PyObject* cost_iter = PyObject_GetIter(costs_obj);
+  if (cost_iter == NULL) return NULL;
+  vector<bddcost> costs;
+  PyObject* cost;
+  while (cost = PyIter_Next(cost_iter)) {
+    if (PyLong_Check(cost)) {
+      costs.push_back(static_cast<int>(PyLong_AsLong(cost)));
+    } else {
+      PyErr_SetString(PyExc_TypeError, "not a number");
+      Py_DECREF(cost);
+      return NULL;
+    }
+  }
+  Py_DECREF(cost_iter);
+
+  PySetsetObject* ret = reinterpret_cast<PySetsetObject*>
+      (PySetset_Type.tp_alloc(&PySetset_Type, 0));
+  auto ss = self->ss->cost_le(costs, cost_bound);
+  ret->ss = new setset(ss);
+  return reinterpret_cast<PyObject*>(ret);
+}
+
 static PyMemberDef setset_members[] = {
   {NULL}  /* Sentinel */
 };
@@ -994,6 +1032,7 @@ static PyMethodDef setset_methods[] = {
   {"dumps", reinterpret_cast<PyCFunction>(setset_dumps), METH_NOARGS, ""},
   {"_enum", reinterpret_cast<PyCFunction>(setset_enum), METH_O, ""},
   {"_enums", reinterpret_cast<PyCFunction>(setset_enums), METH_NOARGS, ""},
+  {"cost_le", reinterpret_cast<PyCFunction>(setset_cost_le), METH_VARARGS | METH_KEYWORDS, ""},
   {NULL}  /* Sentinel */
 };
 
@@ -1326,14 +1365,6 @@ static PyObject* graphset_show_messages(PySetsetObject* self, PyObject* obj) {
   else Py_RETURN_FALSE;
 }
 
-static PyObject* cost_le(PyObject* self, PyObject* args) {
-  PySetsetObject* ret = reinterpret_cast<PySetsetObject*>
-      (PySetset_Type.tp_alloc(&PySetset_Type, 0));
-  ret->ss = new setset();
-  std::cout << "cost_le" << std::endl;
-  return reinterpret_cast<PyObject*>(ret);
-}
-
 static PyMethodDef module_methods[] = {
   {"load", reinterpret_cast<PyCFunction>(setset_load), METH_O, ""},
   {"loads", reinterpret_cast<PyCFunction>(setset_loads), METH_O, ""},
@@ -1341,7 +1372,6 @@ static PyMethodDef module_methods[] = {
   {"_num_elems", setset_num_elems, METH_VARARGS, ""},
   {"_graphs", reinterpret_cast<PyCFunction>(graphset_graphs), METH_VARARGS | METH_KEYWORDS, ""},
   {"_show_messages", reinterpret_cast<PyCFunction>(graphset_show_messages), METH_O, ""},
-  {"_cost_le", reinterpret_cast<PyCFunction>(cost_le), METH_NOARGS, ""},
   {NULL}  /* Sentinel */
 };
 
