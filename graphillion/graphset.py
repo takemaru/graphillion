@@ -1524,8 +1524,8 @@ class GraphSet(object):
     def cost_le(self, costs, cost_bound):
         """Returns a new GraphSet with subgraphs whose cost is less than or equal to the cost bound.
 
-        This method construct a Graphset of subgraphs whose cost is
-        less than or equal to the cost bound
+        This method constructs a Graphset of subgraphs in which each graph's
+        cost is less than or equal to the cost bound
         given `costs` of each edge and the `cost_bound`.
 
         Examples:
