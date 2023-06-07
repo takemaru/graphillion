@@ -1556,6 +1556,79 @@ class GraphSet(object):
         """
         return GraphSet(self._ss.cost_le(costs=costs, cost_bound=cost_bound))
 
+    def cost_ge(self, costs, cost_bound):
+        """Returns a new GraphSet with subgraphs whose cost is greater than or equal to the cost bound.
+
+        This method constructs a Graphset of subgraphs in which each graph's
+        cost is greater than or equal to the cost bound
+        given `costs` of each edge and the `cost_bound`.
+
+        Examples:
+          >>> universe = [(1, 2), (1, 4), (2, 3), (3, 4)]
+          >>> GraphSet.set_universe(universe)
+
+          >>> graph1 = [(1, 2), (2, 3)]
+          >>> graph2 = [(3, 4)]
+          >>> graph3 = [(1, 2), (1, 4), (3, 4)]
+          >>> gs = GraphSet([graph1, graph2, graph3])
+          >>> costs = {(1, 2): 2, (1, 4): 3, (2, 3): 1, (3, 4): 7}
+          >>> cost_bound = 7
+          >>> print(gs.cost_ge(costs, cost_bound))
+          GraphSet([[(3, 4)], [(1, 2), (1, 4), (3, 4)]])
+
+        Args:
+          costs: A dictionary of cost of each edge.
+          cost_bound: The upper limit of cost of each graph. 32 bit signed integer.
+
+        Returns:
+          A new GraphSet object.
+
+        Raises:
+          KeyError: If a given edge is not found in the universe.
+          AssertionError: If the cost of at least one edge is not given, or outside the range of 32 bit signed integer.
+          TypeError: If at least one cost is not integer.
+
+        """
+        inv_costs = {e: -cost for e, cost in costs.items()}
+        return GraphSet(self._ss.cost_le(costs=inv_costs, cost_bound=-cost_bound))
+
+    def cost_eq(self, costs, cost_bound):
+        """Returns a new GraphSet with subgraphs whose cost is equal to the cost bound.
+
+        This method constructs a Graphset of subgraphs in which each graph's
+        cost is equal to the cost bound
+        given `costs` of each edge and the `cost_bound`.
+
+        Examples:
+          >>> universe = [(1, 2), (1, 4), (2, 3), (3, 4)]
+          >>> GraphSet.set_universe(universe)
+
+          >>> graph1 = [(1, 2), (2, 3)]
+          >>> graph2 = [(3, 4)]
+          >>> graph3 = [(1, 2), (1, 4), (3, 4)]
+          >>> gs = GraphSet([graph1, graph2, graph3])
+          >>> costs = {(1, 2): 2, (1, 4): 3, (2, 3): 1, (3, 4): 7}
+          >>> cost_bound = 7
+          >>> print(gs.cost_eq(costs, cost_bound))
+          GraphSet([[(3, 4)]])
+
+        Args:
+          costs: A dictionary of cost of each edge.
+          cost_bound: The upper limit of cost of each graph. 32 bit signed integer.
+
+        Returns:
+          A new GraphSet object.
+
+        Raises:
+          KeyError: If a given edge is not found in the universe.
+          AssertionError: If the cost of at least one edge is not given, or outside the range of 32 bit signed integer.
+          TypeError: If at least one cost is not integer.
+
+        """
+        le_ss = self._ss.cost_le(costs=costs, cost_bound=cost_bound)
+        lt_ss = self._ss.cost_le(costs=costs, cost_bound=cost_bound - 1)
+        return GraphSet(le_ss.difference(lt_ss))
+
     @staticmethod
     def load(fp):
         """Deserialize a file `fp` to `self`.
