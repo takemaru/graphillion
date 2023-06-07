@@ -650,6 +650,9 @@ generated during the operation.
 | `gs.graph_size(size)`                             | Returns a new GraphSet with `size` edges                                                     |
 | `gs.minimal()`                                    | Returns a new GraphSet of minimal graphs                                                     |
 | `gs.maximal()`                                    | Returns a new GraphSet of maximal graphs                                                     |
+| `gs.cost_le(costs, cost_bound)`                   | Returns a new GraphSet with subgraphs whose cost is less than or equal to the cost bound     |
+| `gs.cost_ge(costs, cost_bound)`                   | Returns a new GraphSet with subgraphs whose cost is greater than or equal to the cost bound  |
+| `gs.cost_eq(costs, cost_bound)`                   | Returns a new GraphSet with subgraphs whose cost is equal to the cost bound                  |
 
 Creation methods specifying graph types also work as selection methods.
 
