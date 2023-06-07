@@ -731,6 +731,44 @@ class TestGraphSet(unittest.TestCase):
         self.assertNotIn(g234, small_cost_gs) # cost: 25
         self.assertNotIn(g1234, small_cost_gs) # cost: 27
 
+    def test_cost_ge(self):
+        GraphSet.set_universe([e1, e2, e3, e4])
+        gs = GraphSet([g0, g1, g2, g3, g4, g12, g14, g134, g234, g1234])
+
+        costs = {e1: 2, e2: 14, e3: 4, e4: 7}
+        cost_bound = 13
+
+        small_cost_gs = gs.cost_ge(costs, cost_bound)
+        self.assertNotIn(g0, small_cost_gs) # cost: 0
+        self.assertNotIn(g1, small_cost_gs) # cost: 2
+        self.assertIn(g2, small_cost_gs) # cost: 14
+        self.assertNotIn(g3, small_cost_gs) # cost: 4
+        self.assertNotIn(g4, small_cost_gs) # cost: 7
+        self.assertIn(g12, small_cost_gs) # cost: 16
+        self.assertNotIn(g14, small_cost_gs) # cost: 9
+        self.assertIn(g134, small_cost_gs) # cost: 13
+        self.assertIn(g234, small_cost_gs) # cost: 25
+        self.assertIn(g1234, small_cost_gs) # cost: 27
+
+    def test_cost_eq(self):
+        GraphSet.set_universe([e1, e2, e3, e4])
+        gs = GraphSet([g0, g1, g2, g3, g4, g12, g14, g134, g234, g1234])
+
+        costs = {e1: 2, e2: 14, e3: 4, e4: 7}
+        cost_bound = 13
+
+        small_cost_gs = gs.cost_eq(costs, cost_bound)
+        self.assertNotIn(g0, small_cost_gs) # cost: 0
+        self.assertNotIn(g1, small_cost_gs) # cost: 2
+        self.assertNotIn(g2, small_cost_gs) # cost: 14
+        self.assertNotIn(g3, small_cost_gs) # cost: 4
+        self.assertNotIn(g4, small_cost_gs) # cost: 7
+        self.assertNotIn(g12, small_cost_gs) # cost: 16
+        self.assertNotIn(g14, small_cost_gs) # cost: 9
+        self.assertIn(g134, small_cost_gs) # cost: 13
+        self.assertNotIn(g234, small_cost_gs) # cost: 25
+        self.assertNotIn(g1234, small_cost_gs) # cost: 27
+
     def test_io(self):
         gs = GraphSet()
         st = gs.dumps()
