@@ -39,6 +39,48 @@ class VertexSetSet(object):
                             ("[", "]"),
                             obj_to_str=VertexSetSet._obj2str)
 
+    def union(self, *others):
+        return VertexSetSet(self._ss.union(*[vss._ss for vss in others]))
+
+    def intersection(self, *others):
+        return VertexSetSet(self._ss.intersection(*[vss._ss for vss in others]))
+
+    def difference(self, *others):
+        return VertexSetSet(self._ss.difference(*[vss._ss for vss in others]))
+
+    def symmetric_difference(self, *others):
+        return VertexSetSet(self._ss.symmetric_difference(*[vss._ss for vss in others]))
+
+    def quotient(self, other):
+        return VertexSetSet(self._ss.quotient(other._ss))
+
+    def remainder(self, other):
+        return VertexSetSet(self._ss.remainder(other._ss))
+
+    def update(self, *others):
+        self._ss.update(*[vss._ss for vss in others])
+        return self
+
+    def intersection_update(self, *others):
+        self._ss.intersection_update(*[vss._ss for vss in others])
+        return self
+
+    def difference_update(self, *others):
+        self._ss.difference_update(*[vss._ss for vss in others])
+        return self
+
+    def symmetric_difference_update(self, *others):
+        self._ss.symmetric_difference_update(*[vss._ss for vss in others])
+        return self
+
+    def quotient_update(self, other):
+        self._ss.quotient_update(other._ss)
+        return self
+
+    def remainder_update(self, other):
+        self._ss.remainder_update(other._ss)
+        return self
+
     @staticmethod
     def set_universe(vertices=None):
         if vertices is None: # adopt the vertex set of GraphSet's underlying graph
