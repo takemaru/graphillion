@@ -24,6 +24,15 @@ class VertexSetSet(object):
                 obj = l
             self._ss = setset(obj)
 
+    def copy(self):
+        return VertexSetSet(self)
+
+    def __nonzero__(self):
+        return bool(self._ss)
+
+    def __bool__(self):
+        return bool(self._ss)
+
     def __repr__(self):
         return setset._repr(self._ss,
                             (self.__class__.__name__ + "([", "])"),
