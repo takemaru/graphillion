@@ -30,8 +30,7 @@ class VertexSetSet(object):
     def __nonzero__(self):
         return bool(self._ss)
 
-    def __bool__(self):
-        return bool(self._ss)
+    __bool__ = __nonzero__
 
     def __repr__(self):
         return setset._repr(self._ss,
@@ -80,6 +79,30 @@ class VertexSetSet(object):
     def remainder_update(self, other):
         self._ss.remainder_update(other._ss)
         return self
+
+    def __invert__(self):
+        invert_ss = ~self._ss
+        for obj in setset._int2obj[len(VertexSetSet._universe_vertices) + 1:]:
+            invert_ss = invert_ss.non_supersets(obj)
+        return VertexSetSet(invert_ss)
+
+    __or__ = union
+    __and__ = intersection
+    __sub__ = difference
+    __xor__ = symmetric_difference
+    __div__ = quotient
+    __truediv__ = quotient
+    __floordiv__ = quotient
+    __mod__ = remainder
+
+    __ior__ = update
+    __iand__ = intersection_update
+    __isub__ = difference_update
+    __ixor__ = symmetric_difference_update
+    __idiv__ = quotient_update
+    __itruediv__ = quotient_update
+    __ifloordiv__ = quotient_update
+    __imod__ = remainder_update
 
     @staticmethod
     def set_universe(vertices=None):
