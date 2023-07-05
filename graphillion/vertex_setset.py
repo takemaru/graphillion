@@ -104,6 +104,49 @@ class VertexSetSet(object):
     __ifloordiv__ = quotient_update
     __imod__ = remainder_update
 
+    def isdisjoint(self, other):
+        return self._ss.isdisjoint(other._ss)
+
+    def issubset(self, other):
+        return self._ss.issubset(other._ss)
+
+    def issuperset(self, other):
+        return self._ss.issuperset(other._ss)
+
+    __le__ = issubset
+    __ge__ = issuperset
+
+    def __lt__(self, other):
+        return self._ss < other._ss
+
+    def __gt__(self, other):
+        return self._ss > other._ss
+
+    def __eq__(self, other):
+        return self._ss == other._ss
+
+    def __ne__(self, other):
+        return self._ss != other._ss
+
+    def __len__(self):
+        return len(self._ss)
+
+    def len(self, size=None):
+        if size is None:
+            return self._ss.len()
+        else:
+            return self.graph_size(size)
+
+    def __iter__(self):
+        for objs in self._ss.__iter__():
+            try:
+                yield VertexSetSet._conv_objs_to_vertices(objs)
+            except StopIteration:
+                return
+
+    def graph_size(self, size):
+        return VertexSetSet(self._ss.set_size(size))
+
     @staticmethod
     def set_universe(vertices=None):
         if vertices is None: # adopt the vertex set of GraphSet's underlying graph
@@ -146,3 +189,7 @@ class VertexSetSet(object):
     # _edge2vertex = {}
     # _edge2int = {}
     # _int2edge = [None]
+
+    @staticmethod
+    def _conv_objs_to_vertices(obj_list):
+        return [VertexSetSet._obj2vertex[obj] for obj in obj_list]
