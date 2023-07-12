@@ -1,3 +1,5 @@
+from future.utils import viewitems
+
 from graphillion import GraphSet
 from graphillion import setset
 
@@ -282,6 +284,13 @@ class VertexSetSet(object):
             return self.included(VertexSetSet([obj]))
         else:
             raise TypeError(obj)
+
+    def choice(self):
+        return VertexSetSet._conv_objs_to_vertices(self._ss.choice())
+
+    def probability(self, probabilities):
+        probabilities = {VertexSetSet._vertex2obj[v]: p for v, p in probabilities.viewitems()}
+        return self._ss.probability(probabilities)
 
     @staticmethod
     # TODO: _weightsも設定できるようにする
