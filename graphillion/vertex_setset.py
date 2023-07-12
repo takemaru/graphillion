@@ -323,6 +323,14 @@ class VertexSetSet(object):
         return GraphSet(le_ss.difference(lt_ss))
 
     @staticmethod
+    def load(fp):
+        return VertexSetSet(setset.load(fp))
+
+    @staticmethod
+    def loads(fp):
+        return VertexSetSet(setset.loads(fp))
+
+    @staticmethod
     # TODO: _weightsも設定できるようにする
     def set_universe(vertices=None):
         if vertices is None: # adopt the vertex set of GraphSet's underlying graph
