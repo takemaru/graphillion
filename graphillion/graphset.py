@@ -1592,12 +1592,13 @@ class GraphSet(object):
         inv_costs = {e: -cost for e, cost in costs.items()}
         return GraphSet(self._ss.cost_le(costs=inv_costs, cost_bound=-cost_bound))
 
-    def cost_eq(self, costs, cost_bound):
+    # TODO: rename the argument as their names are almost the same
+    def cost_eq(self, costs, cost):
         """Returns a new GraphSet with subgraphs whose cost is equal to the cost bound.
 
         This method constructs a Graphset of subgraphs in which each graph's
         cost is equal to the cost bound
-        given `costs` of each edge and the `cost_bound`.
+        given `costs` of each edge and the `cost`.
 
         Examples:
           >>> universe = [(1, 2), (1, 4), (2, 3), (3, 4)]
@@ -1608,13 +1609,13 @@ class GraphSet(object):
           >>> graph3 = [(1, 2), (1, 4), (3, 4)]
           >>> gs = GraphSet([graph1, graph2, graph3])
           >>> costs = {(1, 2): 2, (1, 4): 3, (2, 3): 1, (3, 4): 7}
-          >>> cost_bound = 7
-          >>> print(gs.cost_eq(costs, cost_bound))
+          >>> cost = 7
+          >>> print(gs.cost_eq(costs, cost))
           GraphSet([[(3, 4)]])
 
         Args:
           costs: A dictionary of cost of each edge.
-          cost_bound: The upper limit of cost of each graph. 32 bit signed integer.
+          cost: The upper limit of cost of each graph. 32 bit signed integer.
 
         Returns:
           A new GraphSet object.
@@ -1625,8 +1626,8 @@ class GraphSet(object):
           TypeError: If at least one cost is not integer.
 
         """
-        le_ss = self._ss.cost_le(costs=costs, cost_bound=cost_bound)
-        lt_ss = self._ss.cost_le(costs=costs, cost_bound=cost_bound - 1)
+        le_ss = self._ss.cost_le(costs=costs, cost_bound=cost)
+        lt_ss = self._ss.cost_le(costs=costs, cost_bound=cost - 1)
         return GraphSet(le_ss.difference(lt_ss))
 
     @staticmethod

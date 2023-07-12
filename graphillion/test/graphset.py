@@ -755,9 +755,9 @@ class TestGraphSet(unittest.TestCase):
         gs = GraphSet([g0, g1, g2, g3, g4, g12, g14, g134, g234, g1234])
 
         costs = {e1: 2, e2: 14, e3: 4, e4: 7}
-        cost_bound = 13
+        cost = 13
 
-        small_cost_gs = gs.cost_eq(costs, cost_bound)
+        small_cost_gs = gs.cost_eq(costs, cost)
         self.assertNotIn(g0, small_cost_gs) # cost: 0
         self.assertNotIn(g1, small_cost_gs) # cost: 2
         self.assertNotIn(g2, small_cost_gs) # cost: 14
