@@ -177,6 +177,30 @@ class VertexSetSet(object):
             return obj in self._ss
         raise TypeError(obj)
 
+    def add(self, vertices_or_vertex):
+        type, obj = VertexSetSet._conv_arg(vertices_or_vertex)
+        if type == "vertices" or type == "vertex":
+            self._ss.add(obj)
+        raise TypeError(obj)
+
+    def remove(self, obj):
+        type, obj = VertexSetSet._conv_arg(obj)
+        if type == "vertices" or type == "vertex":
+            self._ss.remove(obj)
+        raise TypeError(obj)
+
+    def discard(self, obj):
+        type, obj = VertexSetSet._conv_arg(obj)
+        if type == "vertices" or type == "vertex":
+            self._ss.discard(obj)
+        raise TypeError(obj)
+
+    def pop(self):
+        return VertexSetSet._conv_objs_to_vertices(self._ss.pop())
+
+    def clear(self):
+        return self._ss.clear()
+
     def graph_size(self, size):
         return VertexSetSet(self._ss.set_size(size))
 
