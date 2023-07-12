@@ -236,3 +236,4 @@ class VertexSetSet(object):
             return "vertices", VertexSetSet._conv_vertices_to_objs(obj)
         elif obj in VertexSetSet._vertex2obj:
             return "vertex", VertexSetSet._vertex2obj[obj]
+        raise KeyError(obj)
