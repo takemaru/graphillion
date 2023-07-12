@@ -172,8 +172,10 @@ class VertexSetSet(object):
                 return
 
     def __contains__(self, obj):
-        if isinstance(obj, VertexSetSet):
-            return obj._ss in self._ss
+        type, obj = VertexSetSet._conv_arg(obj)
+        if type == "vertex" or type == "vertices":
+            return obj in self._ss
+        raise TypeError(obj)
 
     def graph_size(self, size):
         return VertexSetSet(self._ss.set_size(size))
