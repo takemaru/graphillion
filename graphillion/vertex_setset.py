@@ -246,6 +246,43 @@ class VertexSetSet(object):
     def supergraphs(self, other):
         return VertexSetSet(self._ss.supersets(other._ss))
 
+    def non_subgraphs(self, other):
+        return VertexSetSet(self._ss.non_subsets(other._ss))
+
+    def non_supergraphs(self, other):
+        return VertexSetSet(self._ss.non_supersets(other._ss))
+
+    def including(self, obj):
+        type, obj = VertexSetSet._conv_arg(obj)
+        if type == "vertexsetset":
+            return VertexSetSet(self._ss.supersets(obj._ss))
+        elif type == "vertices":
+            return self.including(VertexSetSet([obj]))
+        elif type == "vertex":
+            return VertexSetSet(self._ss.supersets(obj))
+        else:
+            return self.including(VertexSetSet([set([e]) for e in obj]))
+
+    def excluding(self, obj):
+        type, obj = VertexSetSet._conv_arg(obj)
+        if type == "vertexsetset":
+            return self - self.including(obj)
+        elif type == "vertices":
+            return self.excluding(VertexSetSet([obj]))
+        elif type == "vertex":
+            return VertexSetSet(self._ss.non_supersets(obj))
+        else:
+            return self.excluding(VertexSetSet([set([e]) for e in obj]))
+
+    def included(self, obj):
+        type, obj = VertexSetSet._conv_arg(obj)
+        if type == "vertexsetset":
+            return VertexSetSet(self._ss.subsets(obj.ss))
+        elif type == "graph":
+            return self.included(VertexSetSet([obj]))
+        else:
+            raise TypeError(obj)
+
     @staticmethod
     # TODO: _weightsも設定できるようにする
     def set_universe(vertices=None):
