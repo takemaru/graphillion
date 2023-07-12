@@ -144,10 +144,42 @@ class VertexSetSet(object):
             except StopIteration:
                 return
 
+    def rand_iter(self):
+        for objs in self._ss.rand_iter():
+            try:
+                yield VertexSetSet._conv_objs_to_vertices(objs)
+            except StopIteration:
+                return
+
+    def min_iter(self, weights=None):
+        if weights is None:
+            weights = VertexSetSet._weights
+        weights = {VertexSetSet._vertex2obj[vertex]: weight for vertex, weight in weights.items()}
+        for objs in self._ss.min_iter(weights):
+            try:
+                yield VertexSetSet._conv_objs_to_vertices(objs)
+            except StopIteration:
+                return
+
+    def max_iter(self, weights=None):
+        if weights is None:
+            weights = VertexSetSet._weights
+        weights = {VertexSetSet._vertex2obj[vertex]: weight for vertex, weight in weights.items()}
+        for objs in self._ss.max_iter(weights):
+            try:
+                yield VertexSetSet._conv_objs_to_vertices(objs)
+            except StopIteration:
+                return
+
+    def __contains__(self, obj):
+        if isinstance(obj, VertexSetSet):
+            return obj._ss in self._ss
+
     def graph_size(self, size):
         return VertexSetSet(self._ss.set_size(size))
 
     @staticmethod
+    # TODO: _weightsも設定できるようにする
     def set_universe(vertices=None):
         if vertices is None: # adopt the vertex set of GraphSet's underlying graph
             # TODO: 実装する
@@ -184,12 +216,23 @@ class VertexSetSet(object):
     _vertex2obj = {}
     _obj2vertex = {}
     _obj2str = {}
-
-    # _edges = set()
-    # _edge2vertex = {}
-    # _edge2int = {}
-    # _int2edge = [None]
+    _weights = {}
 
     @staticmethod
-    def _conv_objs_to_vertices(obj_list):
-        return [VertexSetSet._obj2vertex[obj] for obj in obj_list]
+    def _conv_objs_to_vertices(objs):
+        return [VertexSetSet._obj2vertex[obj] for obj in objs]
+
+    @staticmethod
+    def _conv_vertices_to_objs(vertices):
+        return [VertexSetSet._vertex2obj[vertex] for vertex in vertices]
+
+    @staticmethod
+    # NOTE: GraphSet._conv_arg()よりは機能が少ない
+    # NOTE: 必要に応じて拡張
+    def _conv_arg(obj):
+        if isinstance(obj, VertexSetSet):
+            return "vertexsetset", obj
+        elif isinstance(obj, list):
+            return "vertices", VertexSetSet._conv_vertices_to_objs(obj)
+        elif obj in VertexSetSet._vertex2obj:
+            return "vertex", VertexSetSet._vertex2obj[obj]
