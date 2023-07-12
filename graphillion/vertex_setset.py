@@ -292,6 +292,36 @@ class VertexSetSet(object):
         probabilities = {VertexSetSet._vertex2obj[v]: p for v, p in probabilities.viewitems()}
         return self._ss.probability(probabilities)
 
+    def dump(self, fp):
+        return self._ss.dump(fp)
+
+    def dumps(self):
+        return self._ss.dumps()
+
+    def cost_le(self, costs, cost_bound):
+        assert costs.keys() == VertexSetSet._vertex2obj.keys()
+        costs = {VertexSetSet._vertex2obj[v]: c for v, c in costs.viewitems()}
+        for obj in setset._int2obj[len(VertexSetSet._universe_vertices) + 1:]:
+            costs[obj] = 0
+        return VertexSetSet(self._ss.cost_le(costs, cost_bound))
+
+    def cost_ge(self, costs, cost_bound):
+        assert costs.keys() == VertexSetSet._vertex2obj.keys()
+        inv_costs = {VertexSetSet._vertex2obj[v]: -c for v, c in costs.viewitems()}
+        for obj in setset._int2obj[len(VertexSetSet._universe_vertices) + 1:]:
+            inv_costs[obj] = 0
+        return VertexSetSet(self._ss.cost_le(costs=inv_costs, cost_bound=-cost_bound))
+
+    # TODO: rename the argument as their names are almost the same
+    def cost_eq(self, costs, cost):
+        assert costs.keys() == VertexSetSet._vertex2obj.keys()
+        costs = {VertexSetSet._vertex2obj[v]: c for v, c in costs.viewitems()}
+        for obj in setset._int2obj[len(VertexSetSet._universe_vertices) + 1:]:
+            costs[obj] = 0
+        le_ss = self._ss.cost_le(costs=costs, cost_bound=cost)
+        lt_ss = self._ss.cost_le(costs=costs, cost_bound=cost - 1)
+        return GraphSet(le_ss.difference(lt_ss))
+
     @staticmethod
     # TODO: _weightsも設定できるようにする
     def set_universe(vertices=None):
