@@ -228,6 +228,24 @@ class VertexSetSet(object):
     def graph_size(self, size):
         return VertexSetSet(self._ss.set_size(size))
 
+    def complement(self):
+        ss = self._ss.copy()
+        for obj in VertexSetSet._obj2vertex:
+            ss.flip(obj)
+        return VertexSetSet(ss)
+
+    def join(self, other):
+        return VertexSetSet(self._ss.join(other._ss))
+
+    def meet(self, other):
+        return VertexSetSet(self._ss.meet(other._ss))
+
+    def subgraphs(self, other):
+        return VertexSetSet(self._ss.subsets(other._ss))
+
+    def supergraphs(self, other):
+        return VertexSetSet(self._ss.supersets(other._ss))
+
     @staticmethod
     # TODO: _weightsも設定できるようにする
     def set_universe(vertices=None):
