@@ -201,6 +201,30 @@ class VertexSetSet(object):
     def clear(self):
         return self._ss.clear()
 
+    def flip(self, vertices):
+        type, obj = VertexSetSet._conv_arg(vertices)
+        if type == "vertex":
+            self._ss.flip(obj)
+        else:
+            raise TypeError(vertices)
+
+    def minimal(self):
+        return VertexSetSet(self._ss.minimal())
+
+    def maximal(self):
+        return VertexSetSet(self._ss.maximal())
+
+    def blocking(self):
+        return VertexSetSet(self._ss.hitting())
+
+    hitting = blocking
+
+    def smaller(self, size):
+        return VertexSetSet(self._ss.smaller(size))
+
+    def larger(self, size):
+        return VertexSetSet(self._ss.larger(size))
+
     def graph_size(self, size):
         return VertexSetSet(self._ss.set_size(size))
 
