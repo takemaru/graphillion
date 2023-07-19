@@ -7,6 +7,10 @@ e1 = (1,2)
 e2 = (1,3)
 e3 = (2,4)
 e4 = (3,4)
+e5 = (5,6)
+e6 = (5,7)
+e7 = (5,8)
+e8 = (5,9)
 
 v1 = 1
 v2 = 2
@@ -34,7 +38,7 @@ vs1234 = [v1, v2, v3, v4]
 class TestGraphSet(unittest.TestCase):
 
     def setUp(self):
-        setset.set_universe([e1 + (.1,), e2 + (-.2,), e3 + (-.3,), e4 + (.4,)])
+        setset.set_universe([e1 + (.1,), e2 + (-.2,), e3 + (-.3,), e4 + (.4,), e5, e6, e7, e8])
         VertexSetSet.set_universe([(1, .3), (2, -.2), (3, -.2), (4, .4)])
 
     def tearDown(self):
@@ -50,7 +54,9 @@ class TestGraphSet(unittest.TestCase):
         VertexSetSet.set_universe([1, (3, 100), 2])
         self.assertEqual(VertexSetSet.universe(), [1, (3, 100), 2])
 
-        self.assertRaises(AssertionError, VertexSetSet.set_universe, ["i", "ii", "iii", "iv", "v"])
+        self.assertRaises(AssertionError,
+                          VertexSetSet.set_universe,
+                          ["i", "ii", "iii", "iv", "v", "vi", "vii", "viii", "ix"])
         self.assertRaises(ValueError, VertexSetSet.set_universe, ["i", "i"])
 
     def test_constructors(self):
@@ -97,144 +103,9 @@ class TestGraphSet(unittest.TestCase):
             repr(vss),
             "VertexSetSet([[], ['1'], ['2'], ['3'], ['4'], ['1', '2'], ['1', '3'], ['2',  ...")
 
-#     def test_graphs(self):
-#         GraphSet.set_universe([(1, 2), (1, 4), (2, 3), (2, 5), (3, 6), (4, 5),
-#                                (5, 6)])
-
-#         # any subgraph
-#         gs = GraphSet.graphs()
-#         self.assertTrue(isinstance(gs, GraphSet))
-#         self.assertEqual(len(gs), 2**7)
-#         self.assertTrue([(1, 2)] in gs)
-
-#         # subgraphs separating [1, 5] and [2]
-#         gs = GraphSet.graphs(vertex_groups=[[1, 5], [2]])
-#         self.assertEqual(len(gs), 6)
-#         self.assertTrue([(1, 4), (4, 5)] in gs)
-#         self.assertTrue([(1, 2), (1, 4), (4, 5)] not in gs)
-
-#         # matching
-#         dc = {}
-#         for v in range(1, 7):
-#             dc[v] = range(0, 2)
-#         gs = GraphSet.graphs(degree_constraints=dc)
-#         self.assertEqual(len(gs), 22)
-#         self.assertTrue([(1, 2), (3, 6)] in gs)
-#         self.assertTrue([(1, 2), (2, 3), (3, 6)] not in gs)
-#         for g in gs:
-#             self.assertTrue(len(g) < 4)
-
-#         # subgraphs with 1 or 2 edges
-#         gs = GraphSet.graphs(num_edges=range(1, 3))
-#         self.assertEqual(len(gs), 28)
-#         for g in gs:
-#             self.assertTrue(1 <= len(g) and len(g) < 3)
-
-#         # single connected component and vertex islands
-#         gs = GraphSet.graphs(vertex_groups=[[]])
-#         self.assertEqual(len(gs), 80)
-#         self.assertTrue([(1, 2), (2, 3)] in gs)
-#         self.assertTrue([(1, 2), (2, 3), (4, 5)] not in gs)
-
-#         # any forest
-#         gs = GraphSet.graphs(no_loop=True)
-#         self.assertEqual(len(gs), 112)
-#         self.assertTrue([(1, 2), (1, 4), (2, 5)] in gs)
-#         self.assertTrue([(1, 2), (1, 4), (2, 5), (4, 5)] not in gs)
-#         for g in gs:
-#             self.assertTrue(len(g) < 6)
-
-#         # constrained by GraphSet
-#         gs = GraphSet.graphs(no_loop=True)
-#         gs = gs.graphs(vertex_groups=[[]])
-#         self.assertEqual(len(gs), 66)
-#         self.assertTrue([(1, 2), (1, 4), (2, 5)] in gs)
-#         self.assertTrue([(1, 2), (1, 4), (2, 5), (4, 5)] not in gs)
-
-#         # single connected components across 1, 3, and 5
-#         gs = GraphSet.connected_components([1, 3, 5])
-#         self.assertEqual(len(gs), 35)
-#         self.assertTrue([(1, 2), (2, 3), (2, 5)] in gs)
-#         self.assertTrue([(1, 2), (2, 3), (5, 6)] not in gs)
-
-#         GraphSet.set_universe([(1, 2), (1, 3), (1, 4), (1, 5), (2, 3), (2, 4),
-#                                (2, 5), (3, 4), (3, 5), (4, 5)])
-
-#         # cliques with 4 vertices
-#         gs = GraphSet.cliques(4)
-#         self.assertEqual(len(gs), 5)
-#         self.assertTrue([(1, 2), (1, 3), (1, 4), (2, 3), (2, 4), (3, 4)] in gs)
-#         self.assertTrue([(1, 2), (1, 3), (1, 4), (2, 3), (2, 4), (3, 5)] not in gs)
-
-#         GraphSet.set_universe([(1, 2), (1, 4), (2, 3), (2, 5), (3, 6), (4, 5),
-#                                (5, 6)])
-
-#         # trees rooted at 1
-#         gs = GraphSet.trees(1)
-#         self.assertEqual(len(gs), 45)
-#         self.assertTrue([] in gs)
-#         self.assertTrue([(1, 2), (1, 4), (2, 5), (4, 5)] not in gs)
-
-#         # spanning trees
-#         gs = GraphSet.trees(is_spanning=True)
-#         self.assertEqual(len(gs), 15)
-#         self.assertTrue([(1, 2), (1, 4), (2, 3), (2, 5), (3, 6)] in gs)
-#         self.assertTrue([(1, 2), (1, 4), (2, 3), (2, 5), (4, 5)] not in gs)
-#         for g in gs:
-#             self.assertEqual(len(g), 5)
-
-#         # forests rooted at 1 and 3
-#         gs = GraphSet.forests([1, 3])
-#         self.assertEqual(len(gs), 54)
-#         self.assertTrue([] in gs)
-#         self.assertTrue([(1, 2), (2, 3)] not in gs)
-
-#         # spanning forests rooted at 1 and 3
-#         gs = GraphSet.forests([1, 3], is_spanning=True)
-#         self.assertEqual(len(gs), 20)
-#         self.assertTrue([(1, 2), (1, 4), (2, 5), (3, 6)] in gs)
-#         self.assertTrue([(1, 2), (1, 4), (2, 3), (2, 5)] not in gs)
-#         for g in gs:
-#             self.assertEqual(len(g), 4)
-
-#         # cycles
-#         gs = GraphSet.cycles()
-#         self.assertEqual(len(gs), 3)
-#         self.assertTrue([(1, 2), (1, 4), (2, 5), (4, 5)] in gs)
-#         self.assertTrue([] not in gs)
-
-#         # hamilton cycles
-#         gs = GraphSet.cycles(is_hamilton=True)
-#         self.assertEqual(len(gs), 1)
-#         self.assertTrue([(1, 2), (1, 4), (2, 3), (3, 6), (4, 5), (5, 6)] in gs)
-
-#         # paths between 1 and 6
-#         gs = GraphSet.paths(1, 6)
-#         self.assertEqual(len(gs), 4)
-#         self.assertTrue([(1, 2), (2, 3), (3, 6)] in gs)
-#         self.assertTrue([(1, 2), (2, 3), (5, 6)] not in gs)
-
-#         # hamilton paths between 1 and 6
-#         gs = GraphSet.paths(1, 6, is_hamilton=True)
-#         self.assertEqual(len(gs), 1)
-#         self.assertTrue([(1, 4), (2, 3), (2, 5), (3, 6), (4, 5)] in gs)
-
-#         # called as instance methods
-#         gs = GraphSet.graphs(no_loop=True)
-#         _ = gs.connected_components([1, 3, 5])
-#         _ = gs.cliques(4)
-#         _ = gs.trees(1)
-#         _ = gs.forests([1, 3])
-#         _ = gs.cycles()
-#         _ = gs.paths(1, 6)
-
-#         # exceptions
-#         self.assertRaises(KeyError, GraphSet.graphs, vertex_groups=[[7]])
-#         self.assertRaises(KeyError, GraphSet.graphs, degree_constraints={7: 1})
-
-#     def test_linear_constraints(self):
-#         GraphSet.set_universe([(1, 2), (1, 4), (2, 3), (2, 5), (3, 6), (4, 5),
-#                                (5, 6)])
+    def test_linear_constraints(self):
+        GraphSet.set_universe([(1, 2), (1, 4), (2, 3), (2, 5), (3, 6), (4, 5),
+                               (5, 6)])
 
 #         gs = GraphSet.graphs(linear_constraints=[([(2, 3)], (2, 1))])
 #         self.assertEqual(gs, GraphSet())
