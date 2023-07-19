@@ -1,5 +1,6 @@
 from future.utils import viewitems
 
+import _graphillion
 from graphillion import GraphSet
 from graphillion import setset
 
@@ -370,11 +371,9 @@ class VertexSetSet(object):
                 vertices.append(v)
         return vertices
 
-    _universe_vertices = set() # TODO: listかsetか考える
-    _vertex2obj = {}
-    _obj2vertex = {}
-    _obj2str = {}
-    _weights = {}
+    @staticmethod
+    def show_messages(flag=True):
+        return _graphillion._show_messages(flag)
 
     @staticmethod
     def _conv_objs_to_vertices(objs):
@@ -395,3 +394,9 @@ class VertexSetSet(object):
         elif obj in VertexSetSet._vertex2obj:
             return "vertex", VertexSetSet._vertex2obj[obj]
         raise KeyError(obj)
+
+    _universe_vertices = set() # TODO: listかsetか考える
+    _vertex2obj = {}
+    _obj2vertex = {}
+    _obj2str = {}
+    _weights = {}
