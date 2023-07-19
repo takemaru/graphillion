@@ -109,33 +109,33 @@ class TestGraphSet(unittest.TestCase):
         d = VertexSetSet.show_messages(a)
         self.assertFalse(d)
 
-#     def test_comparison(self):
-#         gs = GraphSet([g12])
-#         self.assertEqual(gs, GraphSet([g12]))
-#         self.assertNotEqual(gs, GraphSet([g13]))
+    def test_comparison(self):
+        vss = VertexSetSet([vs12])
+        self.assertEqual(vss, VertexSetSet([vs12]))
+        self.assertNotEqual(vss, VertexSetSet([vs13]))
 
-#         # __nonzero__
-#         self.assertTrue(gs)
-#         self.assertFalse(GraphSet())
+        # __nonzero__
+        self.assertTrue(vss)
+        self.assertFalse(VertexSetSet())
 
-#         v = [g0, g12, g13]
-#         gs = GraphSet(v)
-#         self.assertTrue(gs.isdisjoint(GraphSet([g1, g123])))
-#         self.assertFalse(gs.isdisjoint(GraphSet([g1, g12])))
+        v = [vs0, vs12, vs13]
+        vss = VertexSetSet(v)
+        self.assertTrue(vss.isdisjoint(VertexSetSet([vs1, vs123])))
+        self.assertFalse(vss.isdisjoint(VertexSetSet([vs1, vs12])))
 
-#         self.assertTrue(gs.issubset(GraphSet(v)))
-#         self.assertFalse(gs.issubset(GraphSet([g0, g12])))
-#         self.assertTrue(gs <= GraphSet(v))
-#         self.assertFalse(gs <= GraphSet([g0, g12]))
-#         self.assertTrue(gs < GraphSet([g0, g1, g12, g13]))
-#         self.assertFalse(gs < GraphSet(v))
+        self.assertTrue(vss.issubset(VertexSetSet(v)))
+        self.assertFalse(vss.issubset(VertexSetSet([vs0, vs12])))
+        self.assertTrue(vss <= VertexSetSet(v))
+        self.assertFalse(vss <= VertexSetSet([vs0, vs12]))
+        self.assertTrue(vss < VertexSetSet([vs0, vs1, vs12, vs13]))
+        self.assertFalse(vss < VertexSetSet(v))
 
-#         self.assertTrue(gs.issuperset(GraphSet(v)))
-#         self.assertFalse(gs.issuperset(GraphSet([g1, g12])))
-#         self.assertTrue(gs >= GraphSet(v))
-#         self.assertFalse(gs >= GraphSet([g1, g12]))
-#         self.assertTrue(gs > GraphSet([[], g12]))
-#         self.assertFalse(gs > GraphSet(v))
+        self.assertTrue(vss.issuperset(VertexSetSet(v)))
+        self.assertFalse(vss.issuperset(VertexSetSet([vs1, vs12])))
+        self.assertTrue(vss >= VertexSetSet(v))
+        self.assertFalse(vss >= VertexSetSet([vs1, vs12]))
+        self.assertTrue(vss > VertexSetSet([[], vs12]))
+        self.assertFalse(vss > VertexSetSet(v))
 
 #     def test_unary_operators(self):
 #         gs = GraphSet([g0, g1, g12, g123, g1234, g134, g14, g4])
