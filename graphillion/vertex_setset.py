@@ -331,7 +331,6 @@ class VertexSetSet(object):
         return VertexSetSet(setset.loads(fp))
 
     @staticmethod
-    # TODO: _weightsも設定できるようにする
     def set_universe(vertices=None):
         if vertices is None: # adopt the vertex set of GraphSet's underlying graph
             # TODO: 実装する
@@ -345,24 +344,30 @@ class VertexSetSet(object):
             raise ValueError("duplicated elements found")
 
         VertexSetSet._universe_vertices = set(vertices)
-
+        VertexSetSet._weights = {}
         low_level_objs = setset._int2obj[:vertex_num + 1]
-        # TODO: 内包表記に書き換え
         for i, vertex in enumerate(vertices):
+            if hasattr(vertex, "__len__"):
+                if len(vertex) == 2:
+                    vertex, weight = vertex
+                    VertexSetSet._weights[low_level_objs[i + 1]] = weight
+                elif len(vertex) == 1:
+                    vertex = vertex[0]
+                else:
+                    raise TypeError(vertex)
             VertexSetSet._vertex2obj[vertex] = low_level_objs[i + 1]
             VertexSetSet._obj2vertex[low_level_objs[i + 1]] = vertex
             VertexSetSet._obj2str[low_level_objs[i + 1]] = str(vertex)
 
-        # VertexSetSet._universe_vertices = GraphSet._vertices
-        # vertex_num = len(VertexSetSet._universe_vertices)
-
-
-        # VertexSetSet._edges = GraphSet.universe()
-
-        # VertexSetSet._int2edge = setset._int2obj[:vertex_num + 1]
-        # vertex_iter = iter(VertexSetSet._universe_vertices)
-        # for edge in VertexSetSet._int2edge[1:]:
-        #     VertexSetSet._edge2vertex[edge] = next(vertex_iter)
+    @staticmethod
+    def universe():
+        vertices = []
+        for v in VertexSetSet._universe_vertices:
+            if v in VertexSetSet._weights:
+                vertices.append((v, VertexSetSet._weights[v]))
+            else:
+                vertices.append(v)
+        return vertices
 
     _universe_vertices = set() # TODO: listかsetか考える
     _vertex2obj = {}
