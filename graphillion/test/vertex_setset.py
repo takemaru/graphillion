@@ -34,7 +34,8 @@ vs1234 = [v1, v2, v3, v4]
 class TestGraphSet(unittest.TestCase):
 
     def setUp(self):
-        setset.set_universe([e1 + (.3,), e2 + (-.2,), e3 + (-.2,), e4 + (.4,)])
+        setset.set_universe([e1 + (.1,), e2 + (-.2,), e3 + (-.3,), e4 + (.4,)])
+        VertexSetSet.set_universe([(1, .3), (2, -.2), (3, -.2), (4, .4)])
 
     def tearDown(self):
         pass
@@ -52,49 +53,49 @@ class TestGraphSet(unittest.TestCase):
         self.assertRaises(AssertionError, VertexSetSet.set_universe, ["i", "ii", "iii", "iv", "v"])
         self.assertRaises(ValueError, VertexSetSet.set_universe, ["i", "i"])
 
-#     def test_constructors(self):
-#         gs = GraphSet()
-#         self.assertTrue(isinstance(gs, GraphSet))
-#         self.assertEqual(len(gs), 0)
+    def test_constructors(self):
+        vss = VertexSetSet()
+        self.assertTrue(isinstance(vss, VertexSetSet))
+        self.assertEqual(len(vss), 0)
 
-#         gs = GraphSet([])
-#         self.assertEqual(len(gs), 0)
+        vss = VertexSetSet([])
+        self.assertEqual(len(vss), 0)
 
-#         gs = GraphSet([g1, [(3,1)]])
-#         self.assertEqual(len(gs), 2)
-#         self.assertTrue(g1 in gs)
-#         self.assertTrue(g2 in gs)
+        vss = VertexSetSet([vs1, [2]])
+        self.assertEqual(len(vss), 2)
+        self.assertTrue(vs1 in vss)
+        self.assertTrue(vs2 in vss)
 
-#         gs = GraphSet({})
-#         self.assertEqual(len(gs), 2**4)
+        vss = VertexSetSet({})
+        self.assertEqual(len(vss), 2**4)
 
-#         gs = GraphSet({'include': [e1, e2], 'exclude': [(4,3)]})
-#         self.assertEqual(len(gs), 2)
-#         self.assertTrue(g12 in gs)
-#         self.assertTrue(g123 in gs)
+        vss = VertexSetSet({'include': [v1, v2], 'exclude': [v3]})
+        self.assertEqual(len(vss), 2)
+        self.assertTrue(vs12 in vss)
+        self.assertTrue(vs124 in vss)
 
-#         self.assertRaises(KeyError, GraphSet, [(1,4)])
-#         self.assertRaises(KeyError, GraphSet, [[(1,4)]])
-#         self.assertRaises(KeyError, GraphSet, {'include': [(1,4)]})
+        self.assertRaises(TypeError, VertexSetSet, [5])
+        self.assertRaises(KeyError, VertexSetSet, [[(5)]])
+        self.assertRaises(KeyError, VertexSetSet, {'include': [5]})
 
-#         # copy constructor
-#         gs1 = GraphSet([g0, g12, g13])
-#         gs2 = gs1.copy()
-#         self.assertTrue(isinstance(gs2, GraphSet))
-#         gs1.clear()
-#         self.assertEqual(gs1, GraphSet())
-#         self.assertEqual(gs2, GraphSet([g0, g12, g13]))
+        # copy constructor
+        vss1 = VertexSetSet([vs0, vs12, vs13])
+        vss2 = vss1.copy()
+        self.assertTrue(isinstance(vss2, VertexSetSet))
+        vss1.clear()
+        self.assertEqual(vss1, VertexSetSet())
+        self.assertEqual(vss2, VertexSetSet([vs0, vs12, vs13]))
 
-#         # repr
-#         gs = GraphSet([g0, g12, g13])
-#         self.assertEqual(
-#             repr(gs),
-#             "GraphSet([[], [(1, 2), (1, 3)], [(1, 2), (2, 4)]])")
+        # # repr
+        vss = VertexSetSet([vs0, vs12, vs13])
+        self.assertEqual(
+            repr(vss),
+            "VertexSetSet([[], ['1', '2'], ['1', '3']])")
 
-#         gs = GraphSet({})
-#         self.assertEqual(
-#             repr(gs),
-#             "GraphSet([[], [(1, 2)], [(1, 3)], [(2, 4)], [(3, 4)], [(1, 2), (1, 3)], [(1, ...")
+        vss = VertexSetSet({})
+        self.assertEqual(
+            repr(vss),
+            "VertexSetSet([[], ['1'], ['2'], ['3'], ['4'], ['1', '2'], ['1', '3'], ['2',  ...")
 
 #     def test_graphs(self):
 #         GraphSet.set_universe([(1, 2), (1, 4), (2, 3), (2, 5), (3, 6), (4, 5),

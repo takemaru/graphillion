@@ -19,12 +19,17 @@ class VertexSetSet(object):
                 for vertices in obj:
                     for vertex in vertices:
                         if vertex not in VertexSetSet._universe_vertices:
-                            raise ValueError("invalid vertex:", vertex)
+                            raise KeyError("invalid vertex:", vertex)
 
                 l = []
                 for vertices in obj:
                     l.append([VertexSetSet._vertex2obj[vertex] for vertex in vertices])
                 obj = l
+            elif isinstance(obj, dict): # constraints
+                d = {}
+                for k, l in viewitems(obj):
+                    d[k] = VertexSetSet._conv_vertices_to_objs(l)
+                obj = d
             self._ss = setset(obj)
 
     def copy(self):
@@ -383,7 +388,7 @@ class VertexSetSet(object):
 
     @staticmethod
     def _conv_vertices_to_objs(vertices):
-        return [VertexSetSet._vertex2obj[vertex] for vertex in vertices]
+        return set(VertexSetSet._vertex2obj[vertex] for vertex in vertices)
 
     @staticmethod
     # NOTE: GraphSet._conv_arg()よりは機能が少ない
