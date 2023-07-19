@@ -8,9 +8,6 @@ e2 = (1,3)
 e3 = (2,4)
 e4 = (3,4)
 e5 = (5,6)
-e6 = (5,7)
-e7 = (5,8)
-e8 = (5,9)
 
 v1 = 1
 v2 = 2
@@ -38,7 +35,7 @@ vs1234 = [v1, v2, v3, v4]
 class TestGraphSet(unittest.TestCase):
 
     def setUp(self):
-        setset.set_universe([e1 + (.1,), e2 + (-.2,), e3 + (-.3,), e4 + (.4,), e5, e6, e7, e8])
+        setset.set_universe([e1 + (.1,), e2 + (-.2,), e3 + (-.3,), e4 + (.4,)])
         VertexSetSet.set_universe([(1, .3), (2, -.2), (3, -.2), (4, .4)])
 
     def tearDown(self):
@@ -103,57 +100,14 @@ class TestGraphSet(unittest.TestCase):
             repr(vss),
             "VertexSetSet([[], ['1'], ['2'], ['3'], ['4'], ['1', '2'], ['1', '3'], ['2',  ...")
 
-    def test_linear_constraints(self):
-        GraphSet.set_universe([(1, 2), (1, 4), (2, 3), (2, 5), (3, 6), (4, 5),
-                               (5, 6)])
-
-#         gs = GraphSet.graphs(linear_constraints=[([(2, 3)], (2, 1))])
-#         self.assertEqual(gs, GraphSet())
-
-#         gs = GraphSet.graphs(linear_constraints=[([], (1, 2))])
-#         self.assertEqual(gs, GraphSet())
-
-#         gs = GraphSet.graphs(linear_constraints=[([(5, 6, -1.5)], (-1.5, 0))])
-#         self.assertEqual(gs, GraphSet.graphs())
-
-#         gs = GraphSet.graphs(linear_constraints=[([(1, 2, 3.14)], (0, float("inf")))])
-#         self.assertEqual(gs, GraphSet.graphs())
-
-#         gs = GraphSet.graphs(linear_constraints=[(GraphSet.universe(), (0, float("inf")))])
-#         self.assertEqual(gs, GraphSet.graphs())
-
-#         gs = GraphSet.graphs(linear_constraints=[(GraphSet.universe(), (7, 7))])
-#         self.assertEqual(gs, GraphSet([GraphSet.universe()]))
-
-#         gs = GraphSet.graphs(linear_constraints=[(GraphSet.universe(), (1, 7))])
-#         self.assertEqual(gs, GraphSet.graphs() - GraphSet([[]]))
-
-#         gs = GraphSet.graphs(linear_constraints=[([(2, 3, -1), (2, 5, 10), (4, 1),
-#                                                    (3, 6), (4, 5, -1), (5, 6)],
-#                                                   (10, 100))])
-#         self.assertEqual(len(gs), 52)
-
-#         gs = GraphSet.graphs(linear_constraints=[([(2, 3), (2, 5, -10), (4, 1, -1),
-#                                                    (3, 6, -1), (4, 5), (5, 6, -1)],
-#                                                   (-100, -10))])
-#         self.assertEqual(len(gs), 52)
-
-#         gs = GraphSet.graphs(linear_constraints=[([(1, 2)], (1, 1)),
-#                                                  ([(1, 4)], (1, 2)),
-#                                                  ([(2, 3)], (1, 3)),
-#                                                  ([(2, 5)], (1, 4)),
-#                                                  ([(4, 5)], (1, 6)),
-#                                                  ([(5, 6)], (1, 7))])
-#         self.assertEqual(len(gs), 2)
-
-#     def test_show_messages(self):
-#         a = GraphSet.show_messages()
-#         b = GraphSet.show_messages(True)
-#         self.assertTrue(b)
-#         c = GraphSet.show_messages(False)
-#         self.assertTrue(c)
-#         d = GraphSet.show_messages(a)
-#         self.assertFalse(d)
+    def test_show_messages(self):
+        a = VertexSetSet.show_messages()
+        b = VertexSetSet.show_messages(True)
+        self.assertTrue(b)
+        c = VertexSetSet.show_messages(False)
+        self.assertTrue(c)
+        d = VertexSetSet.show_messages(a)
+        self.assertFalse(d)
 
 #     def test_comparison(self):
 #         gs = GraphSet([g12])
