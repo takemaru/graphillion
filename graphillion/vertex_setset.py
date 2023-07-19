@@ -280,7 +280,7 @@ class VertexSetSet(object):
     def included(self, obj):
         type, obj = VertexSetSet._conv_arg(obj)
         if type == "vertexsetset":
-            return VertexSetSet(self._ss.subsets(obj.ss))
+            return VertexSetSet(self._ss.subsets(obj._ss))
         elif type == "graph":
             return self.included(VertexSetSet([obj]))
         else:
