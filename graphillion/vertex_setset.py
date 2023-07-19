@@ -156,7 +156,7 @@ class VertexSetSet(object):
 
     def min_iter(self, weights=None):
         if weights is None:
-            weights = VertexSetSet._weights
+            weights = VertexSetSet._obj2weight
         weights = {VertexSetSet._vertex2obj[vertex]: weight for vertex, weight in weights.items()}
         for objs in self._ss.min_iter(weights):
             try:
@@ -166,7 +166,7 @@ class VertexSetSet(object):
 
     def max_iter(self, weights=None):
         if weights is None:
-            weights = VertexSetSet._weights
+            weights = VertexSetSet._obj2weight
         weights = {VertexSetSet._vertex2obj[vertex]: weight for vertex, weight in weights.items()}
         for objs in self._ss.max_iter(weights):
             try:
@@ -345,19 +345,19 @@ class VertexSetSet(object):
         if vertex_num != len(set(vertices)):
             raise ValueError("duplicated elements found")
 
-        VertexSetSet._universe_vertices = set()
-        VertexSetSet._weights = {}
+        VertexSetSet._universe_vertices = []
+        VertexSetSet._obj2weight = {}
         low_level_objs = setset._int2obj[:vertex_num + 1]
         for i, vertex in enumerate(vertices):
-            if hasattr(vertex, "__len__"):
+            if isinstance(vertex, tuple):
                 if len(vertex) == 2:
                     vertex, weight = vertex
-                    VertexSetSet._weights[low_level_objs[i + 1]] = weight
+                    VertexSetSet._obj2weight[low_level_objs[i + 1]] = weight
                 elif len(vertex) == 1:
                     vertex = vertex[0]
                 else:
                     raise TypeError(vertex)
-            VertexSetSet._universe_vertices.add(vertex)
+            VertexSetSet._universe_vertices.append(vertex)
             VertexSetSet._vertex2obj[vertex] = low_level_objs[i + 1]
             VertexSetSet._obj2vertex[low_level_objs[i + 1]] = vertex
             VertexSetSet._obj2str[low_level_objs[i + 1]] = str(vertex)
@@ -366,8 +366,9 @@ class VertexSetSet(object):
     def universe():
         vertices = []
         for v in VertexSetSet._universe_vertices:
-            if v in VertexSetSet._weights:
-                vertices.append((v, VertexSetSet._weights[v]))
+            obj = VertexSetSet._vertex2obj[v]
+            if obj in VertexSetSet._obj2weight:
+                vertices.append((v, VertexSetSet._obj2weight[obj]))
             else:
                 vertices.append(v)
         return vertices
@@ -396,8 +397,8 @@ class VertexSetSet(object):
             return "vertex", VertexSetSet._vertex2obj[obj]
         raise KeyError(obj)
 
-    _universe_vertices = set() # TODO: listかsetか考える
+    _universe_vertices = [] # TODO: listかsetか考える
     _vertex2obj = {}
     _obj2vertex = {}
     _obj2str = {}
-    _weights = {}
+    _obj2weight = {}
