@@ -345,7 +345,7 @@ class VertexSetSet(object):
         if vertex_num != len(set(vertices)):
             raise ValueError("duplicated elements found")
 
-        VertexSetSet._universe_vertices = set(vertices)
+        VertexSetSet._universe_vertices = set()
         VertexSetSet._weights = {}
         low_level_objs = setset._int2obj[:vertex_num + 1]
         for i, vertex in enumerate(vertices):
@@ -357,6 +357,7 @@ class VertexSetSet(object):
                     vertex = vertex[0]
                 else:
                     raise TypeError(vertex)
+            VertexSetSet._universe_vertices.add(vertex)
             VertexSetSet._vertex2obj[vertex] = low_level_objs[i + 1]
             VertexSetSet._obj2vertex[low_level_objs[i + 1]] = vertex
             VertexSetSet._obj2str[low_level_objs[i + 1]] = str(vertex)
