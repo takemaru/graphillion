@@ -331,6 +331,7 @@ class VertexSetSet(object):
         return VertexSetSet(setset.loads(fp))
 
     @staticmethod
+    # TODO: Add optional erguments "traversal" and "source" as in GraphSet class
     def set_universe(vertices=None):
         if vertices is None: # adopt the vertex set of GraphSet's underlying graph
             # TODO: 実装する
