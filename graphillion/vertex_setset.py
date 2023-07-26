@@ -162,7 +162,8 @@ class VertexSetSet(object):
     def min_iter(self, weights=None):
         if weights is None:
             weights = VertexSetSet._obj2weight
-        weights = {VertexSetSet._vertex2obj[vertex]: weight for vertex, weight in weights.items()}
+        else:
+            weights = {VertexSetSet._vertex2obj[vertex]: weight for vertex, weight in weights.items()}
         for objs in self._ss.min_iter(weights):
             try:
                 yield VertexSetSet._conv_objs_to_vertices(objs)
@@ -171,8 +172,11 @@ class VertexSetSet(object):
 
     def max_iter(self, weights=None):
         if weights is None:
+            print(f"{VertexSetSet._vertex2obj=}")
+            print(f"{VertexSetSet._obj2weight=}")
             weights = VertexSetSet._obj2weight
-        weights = {VertexSetSet._vertex2obj[vertex]: weight for vertex, weight in weights.items()}
+        else:
+            weights = {VertexSetSet._vertex2obj[vertex]: weight for vertex, weight in weights.items()}
         for objs in self._ss.max_iter(weights):
             try:
                 yield VertexSetSet._conv_objs_to_vertices(objs)
@@ -361,6 +365,9 @@ class VertexSetSet(object):
             raise ValueError("duplicated elements found")
 
         VertexSetSet._universe_vertices = []
+        VertexSetSet._vertex2obj = {}
+        VertexSetSet._obj2vertex = {}
+        VertexSetSet._obj2str = {}
         VertexSetSet._obj2weight = {}
         low_level_objs = setset._int2obj[:vertex_num + 1]
         for i, vertex in enumerate(vertices):
