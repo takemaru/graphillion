@@ -554,35 +554,32 @@ class TestVertexSetSet(unittest.TestCase):
         self.assertNotIn(vs234, equal_cost_vss) # cost: 25
         self.assertNotIn(vs1234, equal_cost_vss) # cost: 27
 
-#     def test_io(self):
-#         vss = VertexSetSet()
-#         st = vss.dumps()
-#         self.assertEqual(st, "B\n.\n")
-#         vss = VertexSetSet.loads(st)
-#         self.assertEqual(vss, VertexSetSet())
+    def test_io(self):
+        vss = VertexSetSet()
+        st = vss.dumps()
+        self.assertEqual(st, "B\n.\n")
+        vss = VertexSetSet.loads(st)
+        self.assertEqual(vss, VertexSetSet())
 
-#         vss = VertexSetSet([g0])
-#         st = vss.dumps()
-#         self.assertEqual(st, "T\n.\n")
-#         vss = VertexSetSet.loads(st)
-#         self.assertEqual(vss, VertexSetSet([g0]))
+        vss = VertexSetSet([vs0])
+        st = vss.dumps()
+        self.assertEqual(st, "T\n.\n")
+        vss = VertexSetSet.loads(st)
+        self.assertEqual(vss, VertexSetSet([vs0]))
 
-#         v = [g0, g1, g12, g123, g1234, g134, g14, g4]
-#         vss = VertexSetSet(v)
-#         st = vss.dumps()
-#         vss = VertexSetSet.loads(st)
-#         self.assertEqual(vss, VertexSetSet(v))
+        v = [vs0, vs1, vs12, vs123, vs1234, vs134, vs14, vs4]
+        vss = VertexSetSet(v)
+        st = vss.dumps()
+        vss = VertexSetSet.loads(st)
+        self.assertEqual(vss, VertexSetSet(v))
 
-#         # skip this test, becasue string is treated as an element
-# #        vss = VertexSetSet(st)
-# #        self.assertEqual(vss, VertexSetSet(v))
+        with tempfile.TemporaryFile() as f:
+            vss.dump(f)
+            f.seek(0)
+            vss = VertexSetSet.load(f)
+            self.assertEqual(vss, VertexSetSet(v))
 
-#         with tempfile.TemporaryFile() as f:
-#             vss.dump(f)
-#             f.seek(0)
-#             vss = VertexSetSet.load(f)
-#             self.assertEqual(vss, VertexSetSet(v))
-
+#     skip tests below because networkx cannot used with VertexSetSet class now
 #     def test_networkx(self):
 #         try:
 #             import networkx as nx
