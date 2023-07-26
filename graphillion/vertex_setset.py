@@ -310,7 +310,7 @@ class VertexSetSet(object):
         return VertexSetSet._conv_objs_to_vertices(self._ss.choice())
 
     def probability(self, probabilities):
-        probabilities = {VertexSetSet._vertex2obj[v]: p for v, p in probabilities.viewitems()}
+        probabilities = {VertexSetSet._vertex2obj[v]: p for v, p in viewitems(probabilities)}
         return self._ss.probability(probabilities)
 
     def dump(self, fp):
@@ -321,14 +321,14 @@ class VertexSetSet(object):
 
     def cost_le(self, costs, cost_bound):
         assert costs.keys() == VertexSetSet._vertex2obj.keys()
-        costs = {VertexSetSet._vertex2obj[v]: c for v, c in costs.viewitems()}
+        costs = {VertexSetSet._vertex2obj[v]: c for v, c in viewitems(costs)}
         for obj in setset._int2obj[len(VertexSetSet._universe_vertices) + 1:]:
             costs[obj] = 0
         return VertexSetSet(self._ss.cost_le(costs, cost_bound))
 
     def cost_ge(self, costs, cost_bound):
         assert costs.keys() == VertexSetSet._vertex2obj.keys()
-        inv_costs = {VertexSetSet._vertex2obj[v]: -c for v, c in costs.viewitems()}
+        inv_costs = {VertexSetSet._vertex2obj[v]: -c for v, c in viewitems(costs)}
         for obj in setset._int2obj[len(VertexSetSet._universe_vertices) + 1:]:
             inv_costs[obj] = 0
         return VertexSetSet(self._ss.cost_le(costs=inv_costs, cost_bound=-cost_bound))
@@ -336,7 +336,7 @@ class VertexSetSet(object):
     # TODO: rename the argument as their names are almost the same
     def cost_eq(self, costs, cost):
         assert costs.keys() == VertexSetSet._vertex2obj.keys()
-        costs = {VertexSetSet._vertex2obj[v]: c for v, c in costs.viewitems()}
+        costs = {VertexSetSet._vertex2obj[v]: c for v, c in viewitems(costs)}
         for obj in setset._int2obj[len(VertexSetSet._universe_vertices) + 1:]:
             costs[obj] = 0
         le_ss = self._ss.cost_le(costs=costs, cost_bound=cost)

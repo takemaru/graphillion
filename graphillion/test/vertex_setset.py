@@ -473,29 +473,29 @@ class TestVertexSetSet(unittest.TestCase):
         vss.flip(v1)
         self.assertEqual(vss, VertexSetSet([vs0, vs1, vs14, vs2, vs23, vs234, vs34, vs4]))
 
-#     def test_probability(self):
-#         p = {e1: .9, e2: .8, e3: .7, e4: .6}
+    def test_probability(self):
+        p = {v1: .9, v2: .8, v3: .7, v4: .6}
 
-#         vss = VertexSetSet()
-#         self.assertEqual(vss.probability(p), 0)
+        vss = VertexSetSet()
+        self.assertEqual(vss.probability(p), 0)
 
-#         vss = VertexSetSet([g0])
-#         self.assertAlmostEqual(vss.probability(p), .0024)
+        vss = VertexSetSet([vs0])
+        self.assertAlmostEqual(vss.probability(p), .0024)
 
-#         vss = VertexSetSet([g1])
-#         self.assertAlmostEqual(vss.probability(p), .0216)
+        vss = VertexSetSet([vs1])
+        self.assertAlmostEqual(vss.probability(p), .0216)
 
-#         vss = VertexSetSet([g2])
-#         self.assertAlmostEqual(vss.probability(p), .0096)
+        vss = VertexSetSet([vs2])
+        self.assertAlmostEqual(vss.probability(p), .0096)
 
-#         vss = VertexSetSet([g12, g13])
-#         self.assertAlmostEqual(vss.probability(p), .1368)
+        vss = VertexSetSet([vs12, vs13])
+        self.assertAlmostEqual(vss.probability(p), .1368)
 
-#         vss = VertexSetSet([g1234])
-#         self.assertAlmostEqual(vss.probability(p), .3024)
+        vss = VertexSetSet([vs1234])
+        self.assertAlmostEqual(vss.probability(p), .3024)
 
-#         vss = VertexSetSet([g0, g1, g2, g12, g13, g1234])
-#         self.assertAlmostEqual(vss.probability(p), .4728)
+        vss = VertexSetSet([vs0, vs1, vs2, vs12, vs13, vs1234])
+        self.assertAlmostEqual(vss.probability(p), .4728)
 
 #     def test_cost_le(self):
 #         VertexSetSet.set_universe([e1, e2, e3, e4])
