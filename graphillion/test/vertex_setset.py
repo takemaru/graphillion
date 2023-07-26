@@ -410,15 +410,13 @@ class TestVertexSetSet(unittest.TestCase):
         vss = VertexSetSet([[]])
         self.assertEqual(list(vss.min_iter()), [[]])
 
-#     def test_lookup(self):
-#         vss1 = VertexSetSet([g1, g12])
+    def test_lookup(self):
+        vss1 = VertexSetSet([vs1, vs12])
 
-#         self.assertTrue(g12 in vss1)
-#         self.assertTrue(g2 not in vss1)
-#         self.assertTrue(e1 in vss1)
-#         self.assertTrue(e4 not in vss1)
-#         self.assertTrue(1 in vss1)
-#         self.assertTrue(4 not in vss1)
+        self.assertTrue(vs12 in vss1)
+        self.assertTrue(vs2 not in vss1)
+        self.assertTrue(v1 in vss1)
+        self.assertTrue(v4 not in vss1)
 
 #     def test_modifiers(self):
 #         v = [g0, g12, g13]
