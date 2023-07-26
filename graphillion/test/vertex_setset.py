@@ -333,15 +333,15 @@ class TestVertexSetSet(unittest.TestCase):
         self.assertTrue(isinstance(vss, VertexSetSet))
         self.assertEqual(vss, VertexSetSet([vs0, vs1, vs12]))
 
-#     def capacity(self):
-#         vss = VertexSetSet()
-#         self.assertFalse(vss)
+    def test_capacity(self):
+        vss = VertexSetSet()
+        self.assertFalse(vss)
 
-#         vss = VertexSetSet([g0, g12, g13])
-#         self.assertTrue(vss)
+        vss = VertexSetSet([vs0, vs12, vs13])
+        self.assertTrue(vss)
 
-#         self.assertEqual(len(vss), 3)
-#         self.assertEqual(vss.len(), 3)
+        self.assertEqual(len(vss), 3)
+        self.assertEqual(vss.len(), 3)
 
 #     def test_iterators(self):
 #         vss1 = VertexSetSet([g0, g12, g13])
