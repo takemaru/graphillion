@@ -497,62 +497,62 @@ class TestVertexSetSet(unittest.TestCase):
         vss = VertexSetSet([vs0, vs1, vs2, vs12, vs13, vs1234])
         self.assertAlmostEqual(vss.probability(p), .4728)
 
-#     def test_cost_le(self):
-#         VertexSetSet.set_universe([e1, e2, e3, e4])
-#         vss = VertexSetSet([g0, g1, g2, g3, g4, g12, g14, g134, g234, g1234])
+    def test_cost_le(self):
+        VertexSetSet.set_universe([v1, v2, v3, v4])
+        vss = VertexSetSet([vs0, vs1, vs2, vs3, vs4, vs12, vs14, vs134, vs234, vs1234])
 
-#         costs = {e1: 2, e2: 14, e3: 4, e4: 7}
-#         cost_bound = 13
+        costs = {v1: 2, v2: 14, v3: 4, v4: 7}
+        cost_bound = 13
 
-#         small_cost_vss = vss.cost_le(costs, cost_bound)
-#         self.assertIn(g0, small_cost_vss) # cost: 0
-#         self.assertIn(g1, small_cost_vss) # cost: 2
-#         self.assertNotIn(g2, small_cost_vss) # cost: 14
-#         self.assertIn(g3, small_cost_vss) # cost: 4
-#         self.assertIn(g4, small_cost_vss) # cost: 7
-#         self.assertNotIn(g12, small_cost_vss) # cost: 16
-#         self.assertIn(g14, small_cost_vss) # cost: 9
-#         self.assertIn(g134, small_cost_vss) # cost: 13
-#         self.assertNotIn(g234, small_cost_vss) # cost: 25
-#         self.assertNotIn(g1234, small_cost_vss) # cost: 27
+        small_cost_vss = vss.cost_le(costs, cost_bound)
+        self.assertIn(vs0, small_cost_vss) # cost: 0
+        self.assertIn(vs1, small_cost_vss) # cost: 2
+        self.assertNotIn(vs2, small_cost_vss) # cost: 14
+        self.assertIn(vs3, small_cost_vss) # cost: 4
+        self.assertIn(vs4, small_cost_vss) # cost: 7
+        self.assertNotIn(vs12, small_cost_vss) # cost: 16
+        self.assertIn(vs14, small_cost_vss) # cost: 9
+        self.assertIn(vs134, small_cost_vss) # cost: 13
+        self.assertNotIn(vs234, small_cost_vss) # cost: 25
+        self.assertNotIn(vs1234, small_cost_vss) # cost: 27
 
-#     def test_cost_ge(self):
-#         VertexSetSet.set_universe([e1, e2, e3, e4])
-#         vss = VertexSetSet([g0, g1, g2, g3, g4, g12, g14, g134, g234, g1234])
+    def test_cost_ge(self):
+        VertexSetSet.set_universe([v1, v2, v3, v4])
+        vss = VertexSetSet([vs0, vs1, vs2, vs3, vs4, vs12, vs14, vs134, vs234, vs1234])
 
-#         costs = {e1: 2, e2: 14, e3: 4, e4: 7}
-#         cost_bound = 13
+        costs = {v1: 2, v2: 14, v3: 4, v4: 7}
+        cost_bound = 13
 
-#         small_cost_vss = vss.cost_ge(costs, cost_bound)
-#         self.assertNotIn(g0, small_cost_vss) # cost: 0
-#         self.assertNotIn(g1, small_cost_vss) # cost: 2
-#         self.assertIn(g2, small_cost_vss) # cost: 14
-#         self.assertNotIn(g3, small_cost_vss) # cost: 4
-#         self.assertNotIn(g4, small_cost_vss) # cost: 7
-#         self.assertIn(g12, small_cost_vss) # cost: 16
-#         self.assertNotIn(g14, small_cost_vss) # cost: 9
-#         self.assertIn(g134, small_cost_vss) # cost: 13
-#         self.assertIn(g234, small_cost_vss) # cost: 25
-#         self.assertIn(g1234, small_cost_vss) # cost: 27
+        large_cost_vss = vss.cost_ge(costs, cost_bound)
+        self.assertNotIn(vs0, large_cost_vss) # cost: 0
+        self.assertNotIn(vs1, large_cost_vss) # cost: 2
+        self.assertIn(vs2, large_cost_vss) # cost: 14
+        self.assertNotIn(vs3, large_cost_vss) # cost: 4
+        self.assertNotIn(vs4, large_cost_vss) # cost: 7
+        self.assertIn(vs12, large_cost_vss) # cost: 16
+        self.assertNotIn(vs14, large_cost_vss) # cost: 9
+        self.assertIn(vs134, large_cost_vss) # cost: 13
+        self.assertIn(vs234, large_cost_vss) # cost: 25
+        self.assertIn(vs1234, large_cost_vss) # cost: 27
 
-#     def test_cost_eq(self):
-#         VertexSetSet.set_universe([e1, e2, e3, e4])
-#         vss = VertexSetSet([g0, g1, g2, g3, g4, g12, g14, g134, g234, g1234])
+    def test_cost_eq(self):
+        VertexSetSet.set_universe([v1, v2, v3, v4])
+        vss = VertexSetSet([vs0, vs1, vs2, vs3, vs4, vs12, vs14, vs134, vs234, vs1234])
 
-#         costs = {e1: 2, e2: 14, e3: 4, e4: 7}
-#         cost = 13
+        costs = {v1: 2, v2: 14, v3: 4, v4: 7}
+        cost = 13
 
-#         small_cost_vss = vss.cost_eq(costs, cost)
-#         self.assertNotIn(g0, small_cost_vss) # cost: 0
-#         self.assertNotIn(g1, small_cost_vss) # cost: 2
-#         self.assertNotIn(g2, small_cost_vss) # cost: 14
-#         self.assertNotIn(g3, small_cost_vss) # cost: 4
-#         self.assertNotIn(g4, small_cost_vss) # cost: 7
-#         self.assertNotIn(g12, small_cost_vss) # cost: 16
-#         self.assertNotIn(g14, small_cost_vss) # cost: 9
-#         self.assertIn(g134, small_cost_vss) # cost: 13
-#         self.assertNotIn(g234, small_cost_vss) # cost: 25
-#         self.assertNotIn(g1234, small_cost_vss) # cost: 27
+        equal_cost_vss = vss.cost_eq(costs, cost)
+        self.assertNotIn(vs0, equal_cost_vss) # cost: 0
+        self.assertNotIn(vs1, equal_cost_vss) # cost: 2
+        self.assertNotIn(vs2, equal_cost_vss) # cost: 14
+        self.assertNotIn(vs3, equal_cost_vss) # cost: 4
+        self.assertNotIn(vs4, equal_cost_vss) # cost: 7
+        self.assertNotIn(vs12, equal_cost_vss) # cost: 16
+        self.assertNotIn(vs14, equal_cost_vss) # cost: 9
+        self.assertIn(vs134, equal_cost_vss) # cost: 13
+        self.assertNotIn(vs234, equal_cost_vss) # cost: 25
+        self.assertNotIn(vs1234, equal_cost_vss) # cost: 27
 
 #     def test_io(self):
 #         vss = VertexSetSet()

@@ -341,7 +341,7 @@ class VertexSetSet(object):
             costs[obj] = 0
         le_ss = self._ss.cost_le(costs=costs, cost_bound=cost)
         lt_ss = self._ss.cost_le(costs=costs, cost_bound=cost - 1)
-        return GraphSet(le_ss.difference(lt_ss))
+        return VertexSetSet(le_ss.difference(lt_ss))
 
     @staticmethod
     def load(fp):
