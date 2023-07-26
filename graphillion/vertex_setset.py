@@ -172,8 +172,6 @@ class VertexSetSet(object):
 
     def max_iter(self, weights=None):
         if weights is None:
-            print(f"{VertexSetSet._vertex2obj=}")
-            print(f"{VertexSetSet._obj2weight=}")
             weights = VertexSetSet._obj2weight
         else:
             weights = {VertexSetSet._vertex2obj[vertex]: weight for vertex, weight in weights.items()}
