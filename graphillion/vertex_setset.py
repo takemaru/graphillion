@@ -191,19 +191,22 @@ class VertexSetSet(object):
         type, obj = VertexSetSet._conv_arg(vertices_or_vertex)
         if type == "vertices" or type == "vertex":
             self._ss.add(obj)
-        raise TypeError(obj)
+        else:
+            raise TypeError(obj)
 
     def remove(self, obj):
         type, obj = VertexSetSet._conv_arg(obj)
         if type == "vertices" or type == "vertex":
             self._ss.remove(obj)
-        raise TypeError(obj)
+        else:
+            raise TypeError(obj)
 
     def discard(self, obj):
         type, obj = VertexSetSet._conv_arg(obj)
         if type == "vertices" or type == "vertex":
             self._ss.discard(obj)
-        raise TypeError(obj)
+        else:
+            raise TypeError(obj)
 
     def pop(self):
         return VertexSetSet._conv_objs_to_vertices(self._ss.pop())

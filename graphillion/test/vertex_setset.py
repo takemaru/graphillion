@@ -418,60 +418,60 @@ class TestVertexSetSet(unittest.TestCase):
         self.assertTrue(v1 in vss1)
         self.assertTrue(v4 not in vss1)
 
-#     def test_modifiers(self):
-#         v = [g0, g12, g13]
-#         vss = VertexSetSet(v)
-#         vss.add(g1)
-#         self.assertTrue(g1 in vss)
+    def test_modifiers(self):
+        v = [vs0, vs12, vs13]
+        vss = VertexSetSet(v)
+        vss.add(vs1)
+        self.assertTrue(vs1 in vss)
 
-#         vss.remove(g1)
-#         self.assertTrue(g1 not in vss)
-#         self.assertRaises(KeyError, vss.remove, g1)
+        vss.remove(vs1)
+        self.assertTrue(vs1 not in vss)
+        self.assertRaises(KeyError, vss.remove, vs1)
 
-#         vss.add(g0)
-#         vss.discard(g0)
-#         self.assertTrue(g0 not in vss)
-#         vss.discard(g0)  # no exception raised
+        vss.add(vs0)
+        vss.discard(vs0)
+        self.assertTrue(vs0 not in vss)
+        vss.discard(vs0)  # no exception raised
 
-#         vss = VertexSetSet(v)
-#         vss.add(e2)
-#         self.assertEqual(vss, VertexSetSet([g12, g123, g2]))
+        vss = VertexSetSet(v)
+        vss.add(v2)
+        self.assertEqual(vss, VertexSetSet([vs12, vs123, vs2]))
 
-#         vss = VertexSetSet(v)
-#         vss.remove(e2)
-#         self.assertEqual(vss, VertexSetSet([g0, g1, g13]))
-#         self.assertRaises(KeyError, vss.remove, e4)
+        vss = VertexSetSet(v)
+        vss.remove(v2)
+        self.assertEqual(vss, VertexSetSet([vs0, vs1, vs13]))
+        self.assertRaises(KeyError, vss.remove, v4)
 
-#         vss = VertexSetSet(v)
-#         vss.discard(e2)
-#         self.assertEqual(vss, VertexSetSet([g0, g1, g13]))
-#         vss.discard(e4)  # no exception raised
+        vss = VertexSetSet(v)
+        vss.discard(v2)
+        self.assertEqual(vss, VertexSetSet([vs0, vs1, vs13]))
+        vss.discard(v4)  # no exception raised
 
-#         v = [g1, g12, g13]
-#         vss = VertexSetSet(v)
-#         g = vss.pop()
-#         self.assertTrue(isinstance(g, list))
-#         self.assertTrue(g not in vss)
-#         self.assertEqual(vss | VertexSetSet([g]), VertexSetSet(v))
+        v = [vs1, vs12, vs13]
+        vss = VertexSetSet(v)
+        g = vss.pop()
+        self.assertTrue(isinstance(g, list))
+        self.assertTrue(g not in vss)
+        self.assertEqual(vss | VertexSetSet([g]), VertexSetSet(v))
 
-#         self.assertTrue(vss)
-#         vss.clear()
-#         self.assertFalse(vss)
+        self.assertTrue(vss)
+        vss.clear()
+        self.assertFalse(vss)
 
-#         self.assertRaises(KeyError, vss.pop)
+        self.assertRaises(KeyError, vss.pop)
 
-#         self.assertRaises(KeyError, vss.add, [(1,4)])
-#         self.assertRaises(KeyError, vss.remove, [(1,4)])
-#         self.assertRaises(KeyError, vss.discard, [(1,4)])
+        self.assertRaises(KeyError, vss.add, [5])
+        self.assertRaises(KeyError, vss.remove, [5])
+        self.assertRaises(KeyError, vss.discard, [5])
 
-#         self.assertRaises(KeyError, vss.add, (1,4))
-#         self.assertRaises(KeyError, vss.remove, (1,4))
-#         self.assertRaises(KeyError, vss.discard, (1,4))
+        self.assertRaises(KeyError, vss.add, 5)
+        self.assertRaises(KeyError, vss.remove, 5)
+        self.assertRaises(KeyError, vss.discard, 5)
 
-#         u = [g0, g1, g12, g123, g1234, g134, g14, g4]
-#         vss = VertexSetSet(u)
-#         vss.flip(e1)
-#         self.assertEqual(vss, VertexSetSet([g0, g1, g14, g2, g23, g234, g34, g4]))
+        u = [vs0, vs1, vs12, vs123, vs1234, vs134, vs14, vs4]
+        vss = VertexSetSet(u)
+        vss.flip(v1)
+        self.assertEqual(vss, VertexSetSet([vs0, vs1, vs14, vs2, vs23, vs234, vs34, vs4]))
 
 #     def test_probability(self):
 #         p = {e1: .9, e2: .8, e3: .7, e4: .6}
