@@ -148,14 +148,14 @@ class VertexSetSet(object):
     def __iter__(self):
         for objs in self._ss.__iter__():
             try:
-                yield VertexSetSet._conv_objs_to_vertices(objs)
+                yield VertexSetSet._sort_vertices(VertexSetSet._conv_objs_to_vertices(objs))
             except StopIteration:
                 return
 
     def rand_iter(self):
         for objs in self._ss.rand_iter():
             try:
-                yield VertexSetSet._conv_objs_to_vertices(objs)
+                yield VertexSetSet._sort_vertices(VertexSetSet._conv_objs_to_vertices(objs))
             except StopIteration:
                 return
 
@@ -166,7 +166,7 @@ class VertexSetSet(object):
             weights = {VertexSetSet._vertex2obj[vertex]: weight for vertex, weight in weights.items()}
         for objs in self._ss.min_iter(weights):
             try:
-                yield VertexSetSet._conv_objs_to_vertices(objs)
+                yield VertexSetSet._sort_vertices(VertexSetSet._conv_objs_to_vertices(objs))
             except StopIteration:
                 return
 
@@ -177,7 +177,7 @@ class VertexSetSet(object):
             weights = {VertexSetSet._vertex2obj[vertex]: weight for vertex, weight in weights.items()}
         for objs in self._ss.max_iter(weights):
             try:
-                yield VertexSetSet._conv_objs_to_vertices(objs)
+                yield VertexSetSet._sort_vertices(VertexSetSet._conv_objs_to_vertices(objs))
             except StopIteration:
                 return
 
@@ -363,6 +363,7 @@ class VertexSetSet(object):
             raise ValueError("duplicated elements found")
 
         VertexSetSet._universe_vertices = []
+        VertexSetSet._vertex2id = {}
         VertexSetSet._vertex2obj = {}
         VertexSetSet._obj2vertex = {}
         VertexSetSet._obj2str = {}
@@ -378,6 +379,7 @@ class VertexSetSet(object):
                 else:
                     raise TypeError(vertex)
             VertexSetSet._universe_vertices.append(vertex)
+            VertexSetSet._vertex2id[vertex] = i
             VertexSetSet._vertex2obj[vertex] = low_level_objs[i + 1]
             VertexSetSet._obj2vertex[low_level_objs[i + 1]] = vertex
             VertexSetSet._obj2str[low_level_objs[i + 1]] = str(vertex)
@@ -417,7 +419,12 @@ class VertexSetSet(object):
             return "vertex", VertexSetSet._vertex2obj[obj]
         raise KeyError(obj)
 
+    @staticmethod
+    def _sort_vertices(obj):
+        return (sorted(list(obj), key=lambda x : VertexSetSet._vertex2id[x]))
+
     _universe_vertices = [] # TODO: listかsetか考える
+    _vertex2id = {}
     _vertex2obj = {}
     _obj2vertex = {}
     _obj2str = {}

@@ -1,4 +1,4 @@
-from graphillion import setset, VertexSetSet
+from graphillion import GraphSet, setset, VertexSetSet
 import tempfile
 import unittest
 
@@ -35,8 +35,8 @@ vs1234 = [v1, v2, v3, v4]
 class TestVertexSetSet(unittest.TestCase):
 
     def setUp(self):
-        setset.set_universe([e1 + (.1,), e2 + (-.2,), e3 + (-.3,), e4 + (.4,)])
-        VertexSetSet.set_universe([(1, .3), (2, -.2), (3, -.2), (4, .4)])
+        GraphSet.set_universe([e1 + (.1,), e2 + (-.2,), e3 + (-.3,), e4 + (.4,)])
+        VertexSetSet.set_universe([(1, .3), (2, -.2), (3, -.3), (4, .4)])
 
     def tearDown(self):
         pass
@@ -343,70 +343,72 @@ class TestVertexSetSet(unittest.TestCase):
         self.assertEqual(len(vss), 3)
         self.assertEqual(vss.len(), 3)
 
-#     def test_iterators(self):
-#         vss1 = VertexSetSet([g0, g12, g13])
-#         vss2 = VertexSetSet()
-#         for g in vss1:
-#             self.assertTrue(isinstance(g, list))
-#             vss2 = vss2 | VertexSetSet([g])
-#         self.assertEqual(vss1, VertexSetSet([g0, g12, g13]))
-#         self.assertEqual(vss1, vss2)
+    def test_iterators(self):
+        vss1 = VertexSetSet([vs0, vs12, vs13])
+        vss2 = VertexSetSet()
+        for g in vss1:
+            self.assertTrue(isinstance(g, list))
+            vss2 = vss2 | VertexSetSet([g])
+        self.assertEqual(vss1, VertexSetSet([vs0, vs12, vs13]))
+        self.assertEqual(vss1, vss2)
 
-#         vss2 = VertexSetSet()
-#         for g in vss1:
-#             self.assertTrue(isinstance(g, list))
-#             vss2 = vss2 | VertexSetSet([g])
-#         self.assertEqual(vss1, vss2)
+        vss2 = VertexSetSet()
+        for g in vss1:
+            self.assertTrue(isinstance(g, list))
+            vss2 = vss2 | VertexSetSet([g])
+        self.assertEqual(vss1, vss2)
 
-#         vss1 = VertexSetSet([g0, g12, g13])
-#         vss2 = VertexSetSet()
-#         for g in vss1.rand_iter():
-#             self.assertTrue(isinstance(g, list))
-#             vss2 = vss2 | VertexSetSet([g])
-#         self.assertEqual(vss1, vss2)
+        vss1 = VertexSetSet([vs0, vs12, vs13])
+        vss2 = VertexSetSet()
+        for g in vss1.rand_iter():
+            self.assertTrue(isinstance(g, list))
+            vss2 = vss2 | VertexSetSet([g])
+        self.assertEqual(vss1, vss2)
 
-#         gen = vss1.rand_iter()
-#         self.assertTrue(isinstance(next(gen), list))
+        gen = vss1.rand_iter()
+        self.assertTrue(isinstance(next(gen), list))
 
-#         vss = VertexSetSet([g0, g1, g12, g123, g1234, g134, g14, g4])
-#         r = []
-#         for g in vss.max_iter():
-#             self.assertTrue(isinstance(g, list))
-#             r.append(g)
-#         self.assertEqual(len(r), 8)
-#         self.assertEqual(r[0], g14)
-#         self.assertEqual(r[1], g134)
-#         self.assertEqual(r[2], g4)
+        # copy from setUp()
+        # VertexSetSet.set_universe([(1, .3), (2, -.2), (3, -.3), (4, .4)])
+        vss = VertexSetSet([vs0, vs1, vs12, vs123, vs1234, vs134, vs14, vs4])
+        r = []
+        for g in vss.max_iter():
+            self.assertTrue(isinstance(g, list))
+            r.append(g)
+        self.assertEqual(len(r), 8)
+        self.assertEqual(r[0], vs14)
+        self.assertEqual(r[1], vs4)
+        self.assertEqual(r[2], vs134)
 
-#         r = []
-#         for g in vss.max_iter({e1: -.3, e2: .2, e3: .2, e4: -.4}):
-#             self.assertTrue(isinstance(g, list))
-#             r.append(g)
-#         self.assertEqual(len(r), 8)
-#         self.assertEqual(r[0], g123)
-#         self.assertEqual(r[1], g0)
-#         self.assertEqual(r[2], g12)
+        r = []
+        for g in vss.max_iter({v1: -.3, v2: .2, v3: .2, v4: -.4}):
+            self.assertTrue(isinstance(g, list))
+            r.append(g)
+        self.assertEqual(len(r), 8)
+        self.assertEqual(r[0], vs123)
+        self.assertEqual(r[1], vs0)
+        self.assertEqual(r[2], vs12)
 
-#         r = []
-#         for g in vss.min_iter():
-#             self.assertTrue(isinstance(g, list))
-#             r.append(g)
-#         self.assertEqual(len(r), 8)
-#         self.assertEqual(r[0], g123)
-#         self.assertEqual(r[1], g0)
-#         self.assertEqual(r[2], g12)
+        r = []
+        for g in vss.min_iter():
+            self.assertTrue(isinstance(g, list))
+            r.append(g)
+        self.assertEqual(len(r), 8)
+        self.assertEqual(r[0], vs123)
+        self.assertEqual(r[1], vs0)
+        self.assertEqual(r[2], vs12)
 
-#         r = []
-#         for g in vss.min_iter({e1: -.3, e2: .2, e3: .2, e4: -.4}):
-#             self.assertTrue(isinstance(g, list))
-#             r.append(g)
-#         self.assertEqual(len(r), 8)
-#         self.assertEqual(r[0], g14)
-#         self.assertEqual(r[1], g134)
-#         self.assertEqual(r[2], g4)
+        r = []
+        for g in vss.min_iter({v1: -.3, v2: .2, v3: .2, v4: -.4}):
+            self.assertTrue(isinstance(g, list))
+            r.append(g)
+        self.assertEqual(len(r), 8)
+        self.assertEqual(r[0], vs14)
+        self.assertEqual(r[1], vs134)
+        self.assertEqual(r[2], vs4)
 
-#         vss = VertexSetSet([[]])
-#         self.assertEqual(list(vss.min_iter()), [[]])
+        vss = VertexSetSet([[]])
+        self.assertEqual(list(vss.min_iter()), [[]])
 
 #     def test_lookup(self):
 #         vss1 = VertexSetSet([g1, g12])
