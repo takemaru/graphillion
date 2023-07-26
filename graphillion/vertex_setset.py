@@ -265,6 +265,12 @@ class VertexSetSet(object):
         if type == "vertexsetset":
             return VertexSetSet(self._ss.supersets(obj._ss))
         elif type == "vertices":
+            # originally the argument "obj" is a list of vertices,
+            # and VertexSetSet._conv_arg(obj) converts it to a list of
+            # "object," which consists of the edges in setset.universe.
+            # but VertexSetSet.__init__ doesn't accept the list of objects,
+            # so convert the list back to the original form.
+            obj = VertexSetSet._conv_objs_to_vertices(obj)
             return self.including(VertexSetSet([obj]))
         elif type == "vertex":
             return VertexSetSet(self._ss.supersets(obj))
@@ -276,6 +282,8 @@ class VertexSetSet(object):
         if type == "vertexsetset":
             return self - self.including(obj)
         elif type == "vertices":
+            # the same conversion as in including()
+            obj = VertexSetSet._conv_objs_to_vertices(obj)
             return self.excluding(VertexSetSet([obj]))
         elif type == "vertex":
             return VertexSetSet(self._ss.non_supersets(obj))
@@ -286,7 +294,9 @@ class VertexSetSet(object):
         type, obj = VertexSetSet._conv_arg(obj)
         if type == "vertexsetset":
             return VertexSetSet(self._ss.subsets(obj._ss))
-        elif type == "graph":
+        elif type == "vertices":
+            # the same conversion as in including()
+            obj = VertexSetSet._conv_objs_to_vertices(obj)
             return self.included(VertexSetSet([obj]))
         else:
             raise TypeError(obj)
