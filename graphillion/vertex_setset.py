@@ -17,13 +17,71 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+"""Module for a family of sets of vertices.
+"""
+
 from future.utils import viewitems
 
 import _graphillion
-from graphillion import GraphSet
 from graphillion import setset
 
 class VertexSetSet(object):
+    # ? Is "universal vertices" a meaningful expression?
+    """Represents and manipulates a family of sets of vertices.
+
+    A VertexSetSet object stores a family of sets of vertices.  A set of
+    vertices stored must be a subset of the universal vertices, and is
+    represented by a list of vertices in the universal vertices.
+    A vertex can be any hashable object like a number, a text string, and a tuple.
+
+    The universal vertices must be defined before creating VertexSetSet
+    objects by `VertexSetSet.set_universe()` method.
+    Furthermore, for a technical reason, `GraphSet.set_universe()` or
+    `setset.set_universe()` must be called before the first call of
+    `VertexSetSet.set_universet()` and the size of the universe of GraphSet
+    or setset must not be smaller than that of the universe of VertexSetSet.
+    By the limitation above, currently a forest graph and its vertex set
+    as the universal graph and the univarsal vertices simultaneously.
+
+    Like Python set types, VertexSetSet supports `graph in vertexsetset`,
+    `len(vertexsetset)`, and `for graph in vertexsetset`.  It also supports
+    all set methods and operators,
+    * isdisjoint(), issubset(), issuperset(), union(), intersection(),
+      difference(), symmetric_difference(), copy(), update(),
+      intersection_update(), difference_update(),
+      symmetric_difference_update(), add(), remove(), discard(),
+      pop(), clear(),
+    * ==, !=, <=, <, >=, >, |, &, -, ^, |=, &=, -=, ^=.
+
+    Examples:
+      >>> from graphillion import GraphSet, VertexSetSet
+
+      We assume the set {1, 2, 3, 4, 5} as the universal vertices.
+      As shown below, the universe graph of the GraphSet does not have to do
+      with the universal vertices, and what only matters is their size.
+
+      >>> dummy_universe = [("foo", "bar"), ("foo", "baz"), ("foo", "foobar"),
+                            ("bar", "baz"), ("bar", "foobar")]
+      >>> GraphSet.set_universe(dummy_universe)
+      >>> universe = [1, 2, 3, 4, 5]
+      >>> VertexSetSet.set_universe(universe)
+
+      Make an VertexSetSet instance representing {{1, 2}, {2, 3, 4}, {2, 5}, {3, 5}}.
+
+      >>> vss = VertexSetSet([[1, 2], [2, 3, 4], [2, 5], [3, 5]])
+      >>> len(vss)
+      4
+
+      Give constraints in which vertex 1 must not be passed but 2 must
+      be passed, and show the famuly of sets of vertices that meet the constraints.
+
+      >>> vss2 = vss.excluding(1).including(2)
+      >>> for vs in vss2:
+      ...   vs
+      [2, 3, 4]
+      [2, 5]
+
+    """
     # TODO: 引数に入れられる値の種類を増やす
     def __init__(self, vertex_setset_or_constraints=None):
         obj = vertex_setset_or_constraints
