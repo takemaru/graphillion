@@ -17,7 +17,7 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-"""Module for a family of sets of vertices.
+"""Module for a family of vertex sets.
 """
 
 from future.utils import viewitems
@@ -27,9 +27,9 @@ from graphillion import setset
 
 class VertexSetSet(object):
     # ? Is "universal vertices" a meaningful expression?
-    """Represents and manipulates a family of sets of vertices.
+    """Represents and manipulates a family of vertex sets.
 
-    A VertexSetSet object stores a family of sets of vertices.  A set of
+    A VertexSetSet object stores a family of vertex sets.  A set of
     vertices stored must be a subset of the universal vertices, and is
     represented by a list of vertices in the universal vertices.
     A vertex can be any hashable object like a number, a text string, and a tuple.
@@ -73,7 +73,7 @@ class VertexSetSet(object):
       4
 
       Give constraints in which vertex 1 must not be passed but 2 must
-      be passed, and show the famuly of sets of vertices that meet the constraints.
+      be passed, and show the famuly of vertex sets.
 
       >>> vss2 = vss.excluding(1).including(2)
       >>> for vs in vss2:
@@ -84,6 +84,40 @@ class VertexSetSet(object):
     """
     # TODO: 引数に入れられる値の種類を増やす
     def __init__(self, vertex_setset_or_constraints=None):
+        """Initializes a VertexSetSet object with a set of graphs or constraints.
+
+        Examples:
+          >>> vertex_set1 = [1, 4]
+          >>> vertex_set2 = [2, 3]
+          >>> VertexSetSet([vertex_set1, vertex_set2])
+          VertexSetSet([['2', '3'], ['1', '4']])
+          >>> VertexSetSet({"include": vertex_set1, "exclude": vertex_set2})
+          VertexSetSet([['1', '4'], ['1', '4', '5']])
+
+        Args:
+          vertex_setset_or_constraints: A family of vertex sets represented by a
+            list of list of vertices:
+
+            [[1, 4], [2, 3]]
+
+            Or constraints represented by a dict of included or
+            excluded vertices (not-specified vertices are not cared):
+
+            {"include": [1, 4], "exclude": [2, 3]}
+
+            If no argument is given, it is treated as an empty list
+            `[]` and an empty VertexSetSet is returned.  An empty dict
+            `{}` means that no constraint is specified, and so a
+            VertexSetSet including all possible vertex sets in the universe is
+            returned (let N the number of vertices in the universe, 2^N
+            graphs are stored in the new object).
+
+        Raises:
+          KeyError: If given vertices are not found in the universe.
+
+        See Also:
+          copy()
+        """
         obj = vertex_setset_or_constraints
         if isinstance(obj, VertexSetSet):
             self._ss = obj._ss.copy()
