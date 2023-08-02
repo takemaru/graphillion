@@ -144,6 +144,20 @@ class VertexSetSet(object):
             self._ss = setset(obj)
 
     def copy(self):
+        """Returns a new VertexSetSet with a shallow copy of `self`.
+
+        Examples:
+          >>> vss2 = vss1.copy()
+          >>> vss1 -= vss2
+          >>> vss1 == vss2
+          False
+
+        Returns:
+          A new VertexSetSet object.
+
+        See Also:
+          __init__()
+        """
         return VertexSetSet(self)
 
     def __nonzero__(self):
@@ -158,21 +172,149 @@ class VertexSetSet(object):
                             obj_to_str=VertexSetSet._obj2str)
 
     def union(self, *others):
+        """Returns a new VertexSetSet with vertex sets from `self` and all others.
+
+        The `self` is not changed.
+
+        Examples:
+          >>> vertex_set1 = []
+          >>> vertex_set2 = [1]
+          >>> vertex_set3 = [1, 2]
+          >>> vss1 = VertexSetSet([vertex_set1, vertex_set2])
+          >>> vss2 = VertexSetSet([vertex_set2, vertex_set3])
+          >>> vss1 | vss2
+          VertexSetSet([[], ['1'], ['1', '2']])
+
+        Returns:
+          A new VertexSetSet object.
+
+        See Also:
+          intersection(), difference(), symmetric_difference(),
+          update()
+        """
         return VertexSetSet(self._ss.union(*[vss._ss for vss in others]))
 
     def intersection(self, *others):
+        """Returns a new VertexSetSet with vertex sets common to `self` and all others.
+
+        The `self` is not changed.
+
+        Examples:
+          >>> vertex_set1 = []
+          >>> vertex_set2 = [1]
+          >>> vertex_set3 = [1, 2]
+          >>> vss1 = VertexSetSet([vertex_set1, vertex_set2])
+          >>> vss2 = VertexSetSet([vertex_set2, vertex_set3])
+          >>> vss1 & vss2
+          VertexSetSet([['1']])
+
+        Returns:
+          A new VertexSetSet object.
+
+        See Also:
+          union(), difference(), symmetric_difference(),
+          intersection_update()
+        """
         return VertexSetSet(self._ss.intersection(*[vss._ss for vss in others]))
 
     def difference(self, *others):
+        """Returns a new VertexSetSet with vertex sets in `self` that are not in the others.
+
+        The `self` is not changed.
+
+        Examples:
+          >>> vertex_set1 = []
+          >>> vertex_set2 = [1]
+          >>> vertex_set3 = [1, 2]
+          >>> vss1 = VertexSetSet([vertex_set1, vertex_set2])
+          >>> vss2 = VertexSetSet([vertex_set2, vertex_set3])
+          >>> print(vss1 - vss2)
+          VertexSetSet([])
+
+        Returns:
+          A new VertexSetSet object.
+
+        See Also:
+          union(), intersection(), symmetric_difference(),
+          difference_update()
+        """
         return VertexSetSet(self._ss.difference(*[vss._ss for vss in others]))
 
     def symmetric_difference(self, *others):
+        """Returns a new VertexSetSet with vertex sets in either `self` or `other` but not both.
+
+        The `self` is not changed.
+
+        Examples:
+          >>> vertex_set1 = []
+          >>> vertex_set2 = [1]
+          >>> vertex_set3 = [1, 2]
+          >>> vss1 = VertexSetSet([vertex_set1, vertex_set2])
+          >>> vss2 = VertexSetSet([vertex_set2, vertex_set3])
+          >>> vss1 ^ vss2
+          VertexSetSet([[], ['1', '2']])
+
+        Returns:
+          A new VertexSetSet object.
+
+        See Also:
+          union(), intersection(), difference(),
+          symmetric_difference_update()
+        """
         return VertexSetSet(self._ss.symmetric_difference(*[vss._ss for vss in others]))
 
     def quotient(self, other):
+        """Returns a new VertexSetSet of quotient.
+
+        The quotient is defined by,
+          vsss1 / vss2 = {a | a \\cup b \\in vss1 and a \\cap b = \\empty, \\forall b \\in vss2}.
+        D. Knuth, Exercise 204, The art of computer programming,
+        Sect.7.1.4.
+
+        The `self` is not changed.
+
+        Examples:
+          >>> vertex_set1 = [1, 2]
+          >>> vertex_set2 = [3, 4]
+          >>> vertex_set3 = [2]
+          >>> vss = VertexSetSet([vertex_set1, vertex_set2])
+          >>> vss / VertexSetSet([vertex_set3])
+          VertexSetSet([['1']])
+
+        Returns:
+          A new GraphSet object.
+
+        See Also:
+          remainder(), quotient_update()
+        """
         return VertexSetSet(self._ss.quotient(other._ss))
 
     def remainder(self, other):
+        # ? Is the definition correct?
+        # ? gs1 - (gs1 \\sqcup ~) seems to be an emptyset
+        """Returns a new GraphSet of remainder.
+
+        The remainder is defined by,
+          gs1 % gs2 = gs1 - (gs1 \\sqcup (gs1 / gs2)).
+        D. Knuth, Exercise 204, The art of computer programming,
+        Sect.7.1.4.
+
+        The `self` is not changed.
+
+        Examples:
+          >>> vertex_set1 = [1, 2]
+          >>> vertex_set2 = [3, 4]
+          >>> vertex_set3 = [2]
+          >>> vss = VertexSetSet([vertex_set1, vertex_set2])
+          >>> vss % VertexSetSet([vertex_set3])
+          VertexSetSet([['3', '4']])
+
+        Returns:
+          A new GraphSet object.
+
+        See Also:
+          quotient(), remainder_update()
+        """
         return VertexSetSet(self._ss.remainder(other._ss))
 
     def update(self, *others):
