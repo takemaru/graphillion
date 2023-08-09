@@ -228,7 +228,7 @@ class VertexSetSet(object):
           >>> vertex_set3 = [1, 2]
           >>> vss1 = VertexSetSet([vertex_set1, vertex_set2])
           >>> vss2 = VertexSetSet([vertex_set2, vertex_set3])
-          >>> print(vss1 - vss2)
+          >>> vss1 - vss2
           VertexSetSet([])
 
         Returns:
@@ -267,7 +267,7 @@ class VertexSetSet(object):
         """Returns a new VertexSetSet of quotient.
 
         The quotient is defined by,
-          vsss1 / vss2 = {a | a \\cup b \\in vss1 and a \\cap b = \\empty, \\forall b \\in vss2}.
+          vss1 / vss2 = {a | a \\cup b \\in vss1 and a \\cap b = \\empty, \\forall b \\in vss2}.
         D. Knuth, Exercise 204, The art of computer programming,
         Sect.7.1.4.
 
@@ -293,7 +293,7 @@ class VertexSetSet(object):
         """Returns a new VertexSetSet of remainder.
 
         The remainder is defined by,
-          gs1 % gs2 = gs1 - (gs2 \\sqcup (gs1 / gs2)).
+          vss1 % vss2 = vss1 - (vss2 \\sqcup (vss1 / vss2)).
         D. Knuth, Exercise 204, The art of computer programming,
         Sect.7.1.4.
 
@@ -713,7 +713,7 @@ class VertexSetSet(object):
           >>> vss = VertexSetSet([vertex_set1, vertex_set2])
           >>> weights = {1: 2.0, 2: -3.0} # 3: 1.0
           >>> for vs in vss.min_iter(weights):
-          ...     print(vs)
+          ...     vs
           [1, 2]
           [3]
 
@@ -919,48 +919,307 @@ class VertexSetSet(object):
             raise TypeError(obj)
 
     def pop(self):
+        """Removes and returns an arbitrary vertex set from `self`.
+
+        The `self` will be changed.
+
+        Examples:
+          >>> vertex_set1 = [1, 2]
+          >>> vertex_set2 = [3]
+          >>> vss = VertexSetSet([vertex_set1, vertex_set2])
+          >>> vss.pop()
+          [2, 1]
+          >>> vss
+          VertexSetSet([['3']])
+
+        Returns:
+          A vertex set.
+
+        Raises:
+          KeyError: If `self` is empty.
+
+        See Also:
+          remove(), discard(), choice()
+        """
         return VertexSetSet._conv_objs_to_vertices(self._ss.pop())
 
     def clear(self):
+        """Removes all vertex sets from `self`.
+
+        Examples:
+          >>> vertex_set1 = [1, 2]
+          >>> vertex_set2 = [3]
+          >>> vss = VertexSetSet([vertex_set1, vertex_set2])
+          >>> vss.clear()
+          >>> vss
+          VertexSetSet([])
+        """
         return self._ss.clear()
 
-    def flip(self, vertices):
-        type, obj = VertexSetSet._conv_arg(vertices)
+    def flip(self, vertex):
+        """Flips the state of a given vertex over all vertex sets in `self`.
+
+        If a vertex set in `self` includes the given vertex, the edge is
+        removed from the vertex set.  If a vertex set in `self` does not include
+        the given vertex, the vertex is added to the vertex set.
+
+        The `self` will be changed.
+
+        Examples:
+          >>> vertex_set1 = [1, 2]
+          >>> vertex_set2 = [3]
+          >>> vss = VertexSetSet([vertex_set1, vertex_set2])
+          >>> vertex = 1
+          >>> vss.flip(vertex)
+          >>> vss
+          VertexSetSet([['2'], ['1', '3']])
+
+        Args:
+          vertex: An vertex in the universe.
+
+        Returns:
+          A new VertexSetSet object.
+
+        Raises:
+          KeyError: If a given edge is not found in the universe.
+        """
+        type, obj = VertexSetSet._conv_arg(vertex)
         if type == "vertex":
             self._ss.flip(obj)
         else:
-            raise TypeError(vertices)
+            raise TypeError(vertex)
 
     def minimal(self):
+        """Returns a new VertexSetSet of minimal vertex sets.
+
+        The minimal sets are defined by,
+          vss.minimal() = {a \\in vss | b \\in vss and a \\supseteq b -> a = b}.
+        D. Knuth, Exercise 236, The art of computer programming,
+        Sect.7.1.4.
+
+        The `self` is not changed.
+
+        Examples:
+          >>> vertex_set1 = [1]
+          >>> vertex_set2 = [1, 2]
+          >>> vertex_set3 = [2, 3]
+          >>> vss = VertexSetSet([vertex_set1, vertex_set2, vertex_set3])
+          >>> vss.minimal()
+          VertexSetSet([['1'], ['2', '3']])
+
+        Returns:
+          A new VertexSetSet object.
+
+        See Also:
+          maximal(), blocking()
+        """
         return VertexSetSet(self._ss.minimal())
 
     def maximal(self):
+        """Returns a new VertexSetSet of maximal vertex sets.
+
+        The maximal sets are defined by,
+          vss.maximal() = {a \\in vss | b \\in vss and a \\subseteq b -> a = b}.
+        D. Knuth, Exercise 236, The art of computer programming,
+        Sect.7.1.4.
+
+        The `self` is not changed.
+
+        Examples:
+          >>> vertex_set1 = [1]
+          >>> vertex_set2 = [1, 2]
+          >>> vertex_set3 = [2, 3]
+          >>> vss = VertexSetSet([vertex_set1, vertex_set2, vertex_set3])
+          >>> vss.maximal()
+          VertexSetSet([['1', '2'], ['2', '3']])
+
+        Returns:
+          A new VertexSetSet object.
+
+        See Also:
+          minimal()
+        """
         return VertexSetSet(self._ss.maximal())
 
     def blocking(self):
+        """Returns a new VertexSetSet of all blocking (hitting) sets.
+
+        A blocking set is often called a hitting set; all vertex sets in
+        `self` contain at least one vertex in the set.  This implies
+        that all the vertex sets are destroyed by removing vertices in the
+        set.
+
+        The blocking sets are defined by,
+          vss.blocking() = {a | b \\in vss -> a \\cap b \\neq \\empty}.
+        T. Toda, Hypergraph Dualization Algorithm Based on Binary
+        Decision Diagrams.
+
+        The `self` is not changed.
+
+        Examples:
+          >>> vertex_set1 = [1, 2]
+          >>> vertex_set2 = [2, 3]
+          >>> vss = VertexSetSet([vertex_set1, vertex_set2])
+          >>> vss.blocking().minimal()
+          VertexSetSet([['2'], ['1', '3']])
+
+        Returns:
+          A new VertexSetSet object.
+
+        See Also:
+          minimal()
+        """
         return VertexSetSet(self._ss.hitting())
 
     hitting = blocking
 
     def smaller(self, size):
+        """Returns a new VertexSetSet with vertex sets that have less than `size` vertices.
+
+        The `self` is not changed.
+
+        Examples:
+          >>> vertex_set1 = [1]
+          >>> vertex_set2 = [1, 2]
+          >>> vertex_set3 = [1, 2, 3]
+          >>> vss = VertexSetSet([vertex_set1, vertex_set2, vertex_set3])
+          >>> vss.smaller(2)
+          VertexSetSet([['1']])
+
+        Args:
+          size: The number of vertices in a vertex set.
+
+        Returns:
+          A new VertexSetSet object.
+
+        See Also:
+          larger(), graph_size()
+        """
         return VertexSetSet(self._ss.smaller(size))
 
     def larger(self, size):
+        """Returns a new VertexSetSet with vertex sets that have more than `size` vertices.
+
+        The `self` is not changed.
+
+        Examples:
+          >>> vertex_set1 = [1]
+          >>> vertex_set2 = [1, 2]
+          >>> vertex_set3 = [1, 2, 3]
+          >>> vss = VertexSetSet([vertex_set1, vertex_set2, vertex_set3])
+          >>> vss.larger(2)
+          VertexSetSet([['1', '2', '3']])
+
+        Args:
+          size: The number of vertices in a vertex set.
+
+        Returns:
+          A new VertexSetSet object.
+
+        See Also:
+          smaller(), graph_size()
+        """
         return VertexSetSet(self._ss.larger(size))
 
     def graph_size(self, size):
+        """Returns a new VertexSetSet with `size` vertices.
+
+        This method returns a new VertexSetSet with vertex sets that have
+        `size` vertices.
+
+        Examples:
+          >>> vertex_set1 = [1]
+          >>> vertex_set2 = [1, 2]
+          >>> vertex_set3 = [1, 2, 3]
+          >>> vss = VertexSetSet([vertex_set1, vertex_set2, vertex_set3])
+          >>> vss.graph_size(2)
+          VertexSetSet([['1', '2']])
+
+        Args:
+          size: The number of vertices in a vertex set.
+
+        Returns:
+          A new VertexSetSet object.
+
+        See Also:
+          smaller(), larger()
+
+        """
         return VertexSetSet(self._ss.set_size(size))
 
     def complement(self):
+        """Returns a new VertexSetSet with complement vertex sets of `self`.
+
+        The `self` is not changed.
+
+        Examples:
+          >>> VertexSetSet.set_universe([1, 2])
+          >>> vertex_set1 = [1]
+          >>> vertex_set2 = [1, 2]
+          >>> vss = VertexSetSet([vertex_set1, vertex_set2])
+          >>> vss.complement()
+          VertexSetSet([[], ['2']])
+
+        Returns:
+          A new VertexSetSet object.
+        """
         ss = self._ss.copy()
         for obj in VertexSetSet._obj2vertex:
             ss.flip(obj)
         return VertexSetSet(ss)
 
     def join(self, other):
+        """Returns a new VertexSetSet of join between `self` and `other`.
+
+        The join operation is defined by,
+          vss1 \\sqcup vss2 = {a \\cup b | a \\in vss1 and b \\in vss2}.
+        D. Knuth, Exercise 203, The art of computer programming,
+        Sect.7.1.4.
+
+        The `self` is not changed.
+
+        Examples:
+          >>> vertex_set1 = [1]
+          >>> vertex_set2 = [1, 2]
+          >>> vertex_set3 = [3]
+          >>> vss1 = VertexSetSet([vertex_set1, vertex_set2])
+          >>> vss2 = VertexSetSet([vertex_set3])
+          >>> vss1.join(vss2)
+          VertexSetSet([['1', '3'], ['1', '2', '3']])
+
+        Returns:
+          A new VertexSetSet object.
+
+        See Also:
+          meet()
+        """
         return VertexSetSet(self._ss.join(other._ss))
 
     def meet(self, other):
+        """Returns a new VertexSetSet of meet between `self` and `other`.
+
+        The meet operation is defined by,
+          vss1 \\sqcap vss2 = {a \\cap b | a \\in vss1 and b \\in vss2}.
+        D. Knuth, Exercise 203, The art of computer programming,
+        Sect.7.1.4.
+
+        The `self` is not changed.
+
+        Examples:
+          >>> vertex_set1 = [1, 2]
+          >>> vertex_set2 = [1, 3]
+          >>> vertex_set3 = [2, 3]
+          >>> vss1 = VertexSetSet([vertex_set1, vertex_set2])
+          >>> vss2 = VertexSetSet([vertex_set3])
+          >>> vss1.meet(vss2)
+          VertexSetSet([['2'], ['3']])
+
+        Returns:
+          A new GraphSet object.
+
+        See Also:
+          join()
+        """
         return VertexSetSet(self._ss.meet(other._ss))
 
     def subgraphs(self, other):
