@@ -536,9 +536,39 @@ class VertexSetSet(object):
     __ge__ = issuperset
 
     def __lt__(self, other):
+        """Tests if `self` is a true subset of `other`.
+
+        This method returns False when `self` == `other`, unlike
+        issubset.
+
+        Examples:
+          >>> vss < vss
+          False
+
+        Returns:
+          True or False.
+
+        See Also:
+          issubset(), issuperset(), isdisjoint()
+        """
         return self._ss < other._ss
 
     def __gt__(self, other):
+        """Test if `self` is a true superset of `other`.
+
+        This method returns False when `self` == `other`, unlike
+        issuperset.
+
+        Examples:
+          >>> vss > vss
+          False
+
+        Returns:
+          True or False.
+
+        See Also:
+          issubset(), issuperset(), isdisjoint()
+        """
         return self._ss > other._ss
 
     def __eq__(self, other):
@@ -548,9 +578,59 @@ class VertexSetSet(object):
         return self._ss != other._ss
 
     def __len__(self):
+        """Returns the number of vertex sets in `self`.
+
+        Use gs.len() if OverflowError raised.
+
+        Examples:
+          >>> vss = VertexSetSet([vertex_set1, vertex_set2])
+          >>> len(vss)
+          2
+
+        Returns:
+          The number of vertex sets.
+
+        Raises:
+          OverflowError
+
+        See Also:
+          len()
+        """
         return len(self._ss)
 
     def len(self, size=None):
+        """Returns the number of vertex sets, or a new VertexSetSet with `size` vertices.
+
+        If no argument is given, this method returns the number of
+        vertex sets in `self`.  Otherwise, this method returns a new
+        VertexSetSet with vertex sets that have `size` vertices; this usage of
+        `len(size)` is obsoleted, and use `graph_size(size)` instead.
+
+        This method never raises OverflowError unlike built-in len(gs).
+
+        Examples:
+          >>> vss = VertexSetSet([vertex_set1, vertex_set2])
+          >>> vss.len()
+          2
+
+        Examples:
+          >>> vertex_set1 = [1]
+          >>> vertex_set2 = [1, 2]
+          >>> vertex_set3 = [1, 2, 3]
+          >>> vss = VertexSetSet([vertex_set1, vertex_set2, vertex_set3])
+          >>> vss.len(2)
+          VertexSetSet([['1', '2']])
+
+        Args:
+          size: Optional.  The number of vertices in a vertex set.
+
+        Returns:
+          The number of vertex sets, or a new VertexSetSet object.
+
+        See Also:
+          __len__(), smaller(), larger(), graph_size()
+
+        """
         if size is None:
             return self._ss.len()
         else:
