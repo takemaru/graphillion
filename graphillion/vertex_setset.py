@@ -828,7 +828,7 @@ class VertexSetSet(object):
           VertexSetSet([['1', '2'], ['1', '3']])
 
         Args:
-          vertices_or_vertex: A vertex set (a vertex list) or an edge in the
+          vertices_or_vertex: A vertex set (a vertex list) or a vertex in the
             universe.
 
         Returns:
@@ -959,7 +959,7 @@ class VertexSetSet(object):
     def flip(self, vertex):
         """Flips the state of a given vertex over all vertex sets in `self`.
 
-        If a vertex set in `self` includes the given vertex, the edge is
+        If a vertex set in `self` includes the given vertex, the vertex is
         removed from the vertex set.  If a vertex set in `self` does not include
         the given vertex, the vertex is added to the vertex set.
 
@@ -981,7 +981,7 @@ class VertexSetSet(object):
           A new VertexSetSet object.
 
         Raises:
-          KeyError: If a given edge is not found in the universe.
+          KeyError: If a given vertex is not found in the universe.
         """
         type, obj = VertexSetSet._conv_arg(vertex)
         if type == "vertex":
@@ -1482,7 +1482,7 @@ class VertexSetSet(object):
           >>> vertex_set2 = [3]
           >>> vss = VertexSetSet([vertex_set1, vertex_set2])
           >>> probabilities = {1: .9, 2: .8, 3: .7}
-          >>> print(vss.probability(probabilities))
+          >>> vss.probability(probabilities)
           0.23000000000000004
 
         Args:
@@ -1501,12 +1501,72 @@ class VertexSetSet(object):
         return self._ss.probability(probabilities)
 
     def dump(self, fp):
+        """Serialize `self` to a file `fp`.
+
+        This method does not serialize the universe, which should be
+        saved separately by pickle.
+
+        Examples:
+          >>> import pickle
+          >>> fp = open('/path/to/vertexsetset', 'wb')
+          >>> vss.dump(fp)
+          >>> fp = open('/path/to/universe', 'wb')
+          >>> pickle.dump(VertexSetSet.universe(), fp)
+
+        Args:
+          fp: A write-supporting file-like object.
+
+        See Also:
+          dumps(), load()
+        """
         return self._ss.dump(fp)
 
     def dumps(self):
+        """Returns a serialized `self`.
+
+        This method does not serialize the universe, which should be
+        saved separately by pickle.
+
+        Examples:
+          >>> import pickle
+          >>> vertexsetset_str = vss.dumps()
+          >>> universe_str = pickle.dumps(VertexSetSet.universe())
+
+        See Also:
+          dump(), loads()
+        """
         return self._ss.dumps()
 
     def cost_le(self, costs, cost_bound):
+        """Returns a new VertexSetSet with subsets whose cost is less than or equal to the cost bound.
+
+        This method constructs a VertexSetSet of subsets in which each vertex set's
+        cost is less than or equal to the cost bound
+        given `costs` of each vertex and the `cost_bound`.
+
+        Examples:
+          >>> vertex_set1 = [1, 3]
+          >>> vertex_set2 = [4]
+          >>> vertex_set3 = [1, 2, 4]
+          >>> vss = VertexSetSet([vertex_set1, vertex_set2, vertex_set3])
+          >>> costs = {1: 2, 2: 3, 3: 1, 4: 7}
+          >>> cost_bound = 7
+          >>> vss.cost_le(costs, cost_bound)
+          VertexSetSet([['4'], ['1', '3']])
+
+        Args:
+          costs: A dictionary of cost of each vertex.
+          cost_bound: The upper limit of cost of each graph. 32 bit signed integer.
+
+        Returns:
+          A new VertexSetSet object.
+
+        Raises:
+          KeyError: If a given vertex is not found in the universe.
+          AssertionError: If the cost of at least one vertex is not given, or outside the range of 32 bit signed integer.
+          TypeError: If at least one cost is not integer.
+
+        """
         assert costs.keys() == VertexSetSet._vertex2obj.keys()
         costs = {VertexSetSet._vertex2obj[v]: c for v, c in viewitems(costs)}
         for obj in setset._int2obj[len(VertexSetSet._universe_vertices) + 1:]:
@@ -1514,6 +1574,35 @@ class VertexSetSet(object):
         return VertexSetSet(self._ss.cost_le(costs, cost_bound))
 
     def cost_ge(self, costs, cost_bound):
+        """Returns a new VertexSetSet with subsets whose cost is greater than or equal to the cost bound.
+
+        This method constructs a VertexSetSet of subsets in which each graph's
+        cost is greater than or equal to the cost bound
+        given `costs` of each vertex and the `cost_bound`.
+
+        Examples:
+          >>> vertex_set1 = [1, 3]
+          >>> vertex_set2 = [4]
+          >>> vertex_set3 = [1, 2, 4]
+          >>> vss = VertexSetSet([vertex_set1, vertex_set2, vertex_set3])
+          >>> costs = {1: 2, 2: 3, 3: 1, 4: 7}
+          >>> cost_bound = 7
+          >>> vss.cost_ge(costs, cost_bound)
+          VertexSetSet([['4'], ['1', '2', '4']])
+
+        Args:
+          costs: A dictionary of cost of each vertex.
+          cost_bound: The upper limit of cost of each vertex set. 32 bit signed integer.
+
+        Returns:
+          A new VertexSetSet object.
+
+        Raises:
+          KeyError: If a given vertex is not found in the universe.
+          AssertionError: If the cost of at least one vertex is not given, or outside the range of 32 bit signed integer.
+          TypeError: If at least one cost is not integer.
+
+        """
         assert costs.keys() == VertexSetSet._vertex2obj.keys()
         inv_costs = {VertexSetSet._vertex2obj[v]: -c for v, c in viewitems(costs)}
         for obj in setset._int2obj[len(VertexSetSet._universe_vertices) + 1:]:
@@ -1522,6 +1611,35 @@ class VertexSetSet(object):
 
     # TODO: rename the argument as their names are almost the same
     def cost_eq(self, costs, cost):
+        """Returns a new VertexSetSet with subsets whose cost is equal to the cost bound.
+
+        This method constructs a VertexSetSet of subsets in which each graph's
+        cost is equal to the cost bound
+        given `costs` of each vertex and the `cost`.
+
+        Examples:
+          >>> vertex_set1 = [1, 3]
+          >>> vertex_set2 = [4]
+          >>> vertex_set3 = [1, 2, 4]
+          >>> vss = VertexSetSet([vertex_set1, vertex_set2, vertex_set3])
+          >>> costs = {1: 2, 2: 3, 3: 1, 4: 7}
+          >>> cost_bound = 7
+          >>> vss.cost_eq(costs, cost_bound)
+          VertexSetSet([['4']])
+
+        Args:
+          costs: A dictionary of cost of each vertex.
+          cost: The upper limit of cost of each vertex set. 32 bit signed integer.
+
+        Returns:
+          A new VertexSetSet object.
+
+        Raises:
+          KeyError: If a given vertex is not found in the universe.
+          AssertionError: If the cost of at least one vertex is not given, or outside the range of 32 bit signed integer.
+          TypeError: If at least one cost is not integer.
+
+        """
         assert costs.keys() == VertexSetSet._vertex2obj.keys()
         costs = {VertexSetSet._vertex2obj[v]: c for v, c in viewitems(costs)}
         for obj in setset._int2obj[len(VertexSetSet._universe_vertices) + 1:]:
