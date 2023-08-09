@@ -110,7 +110,7 @@ class VertexSetSet(object):
             `{}` means that no constraint is specified, and so a
             VertexSetSet including all possible vertex sets in the universe is
             returned (let N the number of vertices in the universe, 2^N
-            graphs are stored in the new object).
+            vertex sets are stored in the new object).
 
         Raises:
           KeyError: If given vertices are not found in the universe.
@@ -637,6 +637,29 @@ class VertexSetSet(object):
             return self.graph_size(size)
 
     def __iter__(self):
+        """Iterates over vertex sets.
+
+        This is the fastest iterator among VertexSetSet iterators, such as
+        rand_iter() and max_iter().
+
+        Examples:
+          >>> vertex_set1 = [1]
+          >>> vertex_set2 = [1, 2]
+          >>> vss = VertexSetSet([vertex_set1, vertex_set2])
+          >>> for vs in vss:
+          ...     vs
+          [1, 2]
+          [1]
+
+        Returns:
+          A generator.
+
+        Yields:
+          A vertex set.
+
+        See Also:
+          rand_iter(), max_iter(), min_iter()
+        """
         for objs in self._ss.__iter__():
             try:
                 yield VertexSetSet._sort_vertices(VertexSetSet._conv_objs_to_vertices(objs))
@@ -644,6 +667,30 @@ class VertexSetSet(object):
                 return
 
     def rand_iter(self):
+        """Iterates over vertex sets uniformly randomly.
+
+        This method relies on its own random number generator, doesn't
+        rely on Python random module.
+
+        Examples:
+          >>> vertex_set1 = [1]
+          >>> vertex_set2 = [1, 2]
+          >>> vss = VertexSetSet([vertex_set1, vertex_set2])
+          >>> for vs in vss.rand_iter():
+          ...     vs
+          [1]
+          [1, 2]
+
+
+        Returns:
+          A generator.
+
+        Yields:
+          A vertex set.
+
+        See Also:
+          __iter__(), max_iter(), min_iter()
+        """
         for objs in self._ss.rand_iter():
             try:
                 yield VertexSetSet._sort_vertices(VertexSetSet._conv_objs_to_vertices(objs))
@@ -651,6 +698,40 @@ class VertexSetSet(object):
                 return
 
     def min_iter(self, weights=None):
+        """Iterates over vertex sets in the ascending order of weights.
+
+        Returns a generator that iterates over vertex sets in `self`
+        VertexSetSet.  The vertex sets are selected in the ascending order of
+        vertex weights, which are specified by the argument `weights` or
+        those set as the universe (1.0 for unspecified vertices).  The
+        `weights` does not overwrite the weights of the universe.
+
+        Examples:
+          >>> VertexSetSet.set_universe([1, 2, 3, 4, 5])
+          >>> vertex_set1 = [1, 2]
+          >>> vertex_set2 = [3]
+          >>> vss = VertexSetSet([vertex_set1, vertex_set2])
+          >>> weights = {1: 2.0, 2: -3.0} # 3: 1.0
+          >>> for vs in vss.min_iter(weights):
+          ...     print(vs)
+          [1, 2]
+          [3]
+
+
+        Args:
+          weights: Optional.  A dictionary of vertices to the weight
+            values.
+
+        Returns:
+          A generator.
+
+        Yields:
+          A vertex set.
+
+        See Also:
+          __iter__(), rand_iter(), max_iter()
+
+        """
         if weights is None:
             weights = VertexSetSet._obj2weight
         else:
@@ -662,6 +743,37 @@ class VertexSetSet(object):
                 return
 
     def max_iter(self, weights=None):
+        """Iterates over vertex sets in the descending order of weights.
+
+        Returns a generator that iterates over vertex sets in `self`
+        VertexSetSet.  The vertex sets are selected in the descending order of
+        vertex weights, which are specified by the argument `weights` or
+        those set as the universe (1.0 for unspecified vertices).  The
+        `weights` does not overwrite the weights of the universe.
+
+        Examples:
+          >>> vertex_set1 = [1, 2]
+          >>> vertex_set2 = [3]
+          >>> vss = VertexSetSet([vertex_set1, vertex_set2])
+          >>> weights = {1: 2.0, 2: -3.0} # 3: 1.0
+          >>> for vs in vss.max_iter(weights):
+          ...     vs
+          [3]
+          [1, 2]
+
+        Args:
+          weights: Optional.  A dictionary of vertices to the weight
+            values.
+
+        Returns:
+          A generator.
+
+        Yields:
+          A vertex set.
+
+        See Also:
+          __iter__(), rand_iter(), min_iter()
+        """
         if weights is None:
             weights = VertexSetSet._obj2weight
         else:
@@ -673,12 +785,62 @@ class VertexSetSet(object):
                 return
 
     def __contains__(self, obj):
+        """Returns True if `obj` is in the `self`, False otherwise.
+
+        Use the expression `obj in gs`.
+
+        Examples:
+          >>> vertex_set1 = [1, 2]
+          >>> vertex_set2 = [3]
+          >>> vss = VertexSetSet([vertex_set1, vertex_set2])
+          >>> vertex_set1 in vss
+          True
+
+        Args:
+          obj: A vertex set (a vertex list) or a vertex in the
+            universe.
+
+        Returns:
+          True or False.
+
+        Raises:
+          KeyError: If the given object is not found in the universe.
+        """
         type, obj = VertexSetSet._conv_arg(obj)
         if type == "vertex" or type == "vertices":
             return obj in self._ss
         raise TypeError(obj)
 
     def add(self, vertices_or_vertex):
+        """Adds a given vertex set or vertex to `self`.
+
+        If a vertex set is given, the vertex set is just added to `self`
+        VertexSetSet.  If an vertex is given, the vertex is grafted to all the
+        vertex sets in `self`.  The `self` will be changed.
+
+        Examples:
+          >>> vertex_set1 = [1, 2]
+          >>> vertex_set2 = [3]
+          >>> vss = VertexSetSet([vertex_set1, vertex_set2])
+          >>> vertex = 1
+          >>> vss.add(vertex)
+          >>> vss
+          VertexSetSet([['1', '2'], ['1', '3']])
+
+        Args:
+          vertices_or_vertex: A vertex set (a vertex list) or an edge in the
+            universe.
+
+        Returns:
+          None.
+
+        Raises:
+          KeyError: If a given vertex is not found in the
+            universe.
+
+        See Also:
+          remove(), discard()
+        """
         type, obj = VertexSetSet._conv_arg(vertices_or_vertex)
         if type == "vertices" or type == "vertex":
             self._ss.add(obj)
@@ -686,6 +848,35 @@ class VertexSetSet(object):
             raise TypeError(obj)
 
     def remove(self, obj):
+        """Removes a given vertex set or vertex from `self`.
+
+        If a vertex set is given, the vertex set is just removed from `self`
+        VertexSetSet.  If an vertex is given, the vertex is removed from all
+        the vertex sets in `self`.  The `self` will be changed.
+
+        Examples:
+          >>> vertex_set1 = [1, 2]
+          >>> vertex_set2 = [3]
+          >>> vss = VertexSetSet([vertex_set1, vertex_set2])
+          >>> vertex = 1
+          >>> vss.remove(vertex)
+          >>> vss
+          VertexSetSet([['2'], ['3']])
+
+        Args:
+          obj: A vertex set (an vertex list) or a vertex in the
+            universe.
+
+        Returns:
+          None.
+
+        Raises:
+          KeyError: If a given vertex is not found in the
+            universe, or if the given vertex set is not stored in `self`.
+
+        See Also:
+          add(), discard(), pop()
+        """
         type, obj = VertexSetSet._conv_arg(obj)
         if type == "vertices" or type == "vertex":
             self._ss.remove(obj)
@@ -693,6 +884,34 @@ class VertexSetSet(object):
             raise TypeError(obj)
 
     def discard(self, obj):
+        """Removes a given vertex set or vertex from `self`.
+
+        If a vertex set is given, the vertex set is just removed from `self`
+        VertexSetSet.  If an vertex is given, the vertex is removed from all
+        the vertex sets in `self`.  The `self` will be changed.
+
+        Examples:
+          >>> vertex_set1 = [1, 2]
+          >>> vertex_set2 = [3]
+          >>> vss = VertexSetSet([vertex_set1, vertex_set2])
+          >>> vertex = 1
+          >>> vss.discard(vertex)
+          VertexSetSet([['2'], ['3']])
+
+        Args:
+          obj: A vertex set (an vertex list) or a vertex in the
+            universe.
+
+        Returns:
+          None.
+
+        Raises:
+          KeyError: If a given vertex is not found in the
+            universe.
+
+        See Also:
+          add(), remove(), pop()
+        """
         type, obj = VertexSetSet._conv_arg(obj)
         if type == "vertices" or type == "vertex":
             self._ss.discard(obj)
