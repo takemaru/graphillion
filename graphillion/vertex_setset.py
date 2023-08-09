@@ -1223,15 +1223,105 @@ class VertexSetSet(object):
         return VertexSetSet(self._ss.meet(other._ss))
 
     def subgraphs(self, other):
+        """Returns a new VertexSetSet with subsets of a vertex set in `other`.
+
+        The `self` is not changed.
+
+        Examples:
+          >>> vertex_set1 = [1]
+          >>> vertex_set2 = [1, 2]
+          >>> vertex_set3 = vertex_set1 + [3]
+          >>> vertex_set4 = [2, 3]
+          >>> vss1 = VertexSetSet([vertex_set1, vertex_set2])
+          >>> vss2 = VertexSetSet([vertex_set3, vertex_set4])
+          >>> vss1.subgraphs(vss2)
+          VertexSetSet([['1']])
+
+        Returns:
+          A new VertexSetSet object.
+
+        See Also:
+          supersets(), non_subsets()
+        """
         return VertexSetSet(self._ss.subsets(other._ss))
 
     def supergraphs(self, other):
+        """Returns a new VertexSetSet with supersets of a vertex set in `other`.
+
+        The `self` is not changed.
+
+        Examples:
+          >>> vertex_set1 = [1, 3]
+          >>> vertex_set2 = [2, 3]
+          >>> vertex_set3 = [1]    # vertex_set1 - 3
+          >>> vertex_set4 = [1, 2]
+          >>> vss1 = VertexSetSet([vertex_set1, vertex_set2])
+          >>> vss2 = VertexSetSet([vertex_set3, vertex_set4])
+          >>> print(vss1.supergraphs(vss2))
+          VertexSetSet([['1', '3']])
+
+        Returns:
+          A new VertexSetSet object.
+
+        See Also:
+          subsets(), non_supersets()
+        """
         return VertexSetSet(self._ss.supersets(other._ss))
 
     def non_subgraphs(self, other):
+        """Returns a new VertexSetSet with vertex sets that aren't subsets of any graph in `other`.
+
+        The `self` is not changed.
+
+        The non_subsets are defined by,
+          vss1.non_subsets(vss2) = {a \\in vss1 | b \\in vss2 -> a \\not\\subseteq b}.
+        D. Knuth, Exercise 236, The art of computer programming,
+        Sect.7.1.4.
+
+        Examples:
+          >>> vertex_set1 = [1]
+          >>> vertex_set2 = [1, 2]
+          >>> vertex_set3 = [1, 3]
+          >>> vertex_set4 = [2, 3]
+          >>> vss1 = VertexSetSet([vertex_set1, vertex_set2])
+          >>> vss2 = VertexSetSet([vertex_set3, vertex_set4])
+          >>> vss1.non_subgraphs(vss2)
+          VertexSetSet([['1', '2']])
+
+        Returns:
+          A new VertexSetSet object.
+
+        See Also:
+          non_supersets(), subsets()
+        """
         return VertexSetSet(self._ss.non_subsets(other._ss))
 
     def non_supergraphs(self, other):
+        """Returns a new VertexSetSet with graphs that aren't supersets of any graph in `other`.
+
+        The `self` is not changed.
+
+        The non_supersets are defined by,
+          vss1.non_supersets(vss2) = {a \\in vss1 | b \\in vss2 -> a \\not\\superseteq b}.
+        D. Knuth, Exercise 236, The art of computer programming,
+        Sect.7.1.4.
+
+        Examples:
+          >>> vertex_set1 = [1, 3]
+          >>> vertex_set2 = [2, 3]
+          >>> vertex_set3 = [1]
+          >>> vertex_set4 = [1, 2]
+          >>> vss1 = VertexSetSet([vertex_set1, vertex_set2])
+          >>> vss2 = VertexSetSet([vertex_set3, vertex_set4])
+          >>> vss1.non_supergraphs(vss2)
+          VertexSetSet([['2', '3']])
+
+        Returns:
+          A new VertexSetSet object.
+
+        See Also:
+          non_subsets(), supersets()
+        """
         return VertexSetSet(self._ss.non_supersets(other._ss))
 
     def including(self, obj):
