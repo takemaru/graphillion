@@ -282,7 +282,7 @@ class VertexSetSet(object):
           VertexSetSet([['1']])
 
         Returns:
-          A new GraphSet object.
+          A new VertexSetSet object.
 
         See Also:
           remainder(), quotient_update()
@@ -290,12 +290,10 @@ class VertexSetSet(object):
         return VertexSetSet(self._ss.quotient(other._ss))
 
     def remainder(self, other):
-        # ? Is the definition correct?
-        # ? gs1 - (gs1 \\sqcup ~) seems to be an emptyset
-        """Returns a new GraphSet of remainder.
+        """Returns a new VertexSetSet of remainder.
 
         The remainder is defined by,
-          gs1 % gs2 = gs1 - (gs1 \\sqcup (gs1 / gs2)).
+          gs1 % gs2 = gs1 - (gs2 \\sqcup (gs1 / gs2)).
         D. Knuth, Exercise 204, The art of computer programming,
         Sect.7.1.4.
 
@@ -310,7 +308,7 @@ class VertexSetSet(object):
           VertexSetSet([['3', '4']])
 
         Returns:
-          A new GraphSet object.
+          A new VertexSetSet object.
 
         See Also:
           quotient(), remainder_update()
@@ -318,30 +316,148 @@ class VertexSetSet(object):
         return VertexSetSet(self._ss.remainder(other._ss))
 
     def update(self, *others):
+        """Updates `self`, adding vertex sets from all others.
+
+        Examples:
+          >>> vertex_set1 = []
+          >>> vertex_set2 = [1]
+          >>> vertex_set3 = [1, 2]
+          >>> vss1 = VertexSetSet([vertex_set1, vertex_set2])
+          >>> vss2 = VertexSetSet([vertex_set2, vertex_set3])
+          >>> vss1 |= vss2
+          >>> vss1
+          VertexSetSet([[], ['1'], ['1', '2']])
+
+        Returns:
+          A new VertexSetSet object.
+
+        See Also:
+          union()
+        """
         self._ss.update(*[vss._ss for vss in others])
         return self
 
     def intersection_update(self, *others):
+        """Updates `self`, keeping only vertex sets found in it and all others.
+
+        Examples:
+          >>> vertex_set1 = []
+          >>> vertex_set2 = [1]
+          >>> vertex_set3 = [1, 2]
+          >>> vss1 = VertexSetSet([vertex_set1, vertex_set2])
+          >>> vss2 = VertexSetSet([vertex_set2, vertex_set3])
+          >>> vss1 |= vss2
+          >>> vss1
+          VertexSetSet([['1']])
+
+        Returns:
+          A new VertexSetSet object.
+
+        See Also:
+          intersection()
+        """
         self._ss.intersection_update(*[vss._ss for vss in others])
         return self
 
     def difference_update(self, *others):
+        """Update `self`, removing vertex sets found in others.
+
+        Examples:
+          >>> vertex_set1 = []
+          >>> vertex_set2 = [1]
+          >>> vertex_set3 = [1, 2]
+          >>> vss1 = VertexSetSet([vertex_set1, vertex_set2])
+          >>> vss2 = VertexSetSet([vertex_set2, vertex_set3])
+          >>> vss1 -= vss2
+          >>> vss1
+          VertexSetSet([[]])
+
+        Returns:
+          A new VertexSetSet object.
+
+        See Also:
+          difference()
+        """
         self._ss.difference_update(*[vss._ss for vss in others])
         return self
 
     def symmetric_difference_update(self, *others):
+        """Update `self`, keeping only vertex sets in either VertexSetSet, but not in both.
+
+        Examples:
+          >>> vertex_set1 = []
+          >>> vertex_set2 = [1]
+          >>> vertex_set3 = [1, 2]
+          >>> vss1 = VertexSetSet([vertex_set1, vertex_set2])
+          >>> vss2 = VertexSetSet([vertex_set2, vertex_set3])
+          >>> vss1 ^= vss2
+          >>> vss1
+          VertexSetSet([[], ['1', '2']])
+
+        Returns:
+          A new VertexSetSet object.
+
+        See Also:
+          symmetric_difference()
+        """
         self._ss.symmetric_difference_update(*[vss._ss for vss in others])
         return self
 
     def quotient_update(self, other):
+        """Updates `self` by the quotient.
+
+        Examples:
+          >>> vertex_set1 = [1, 2]
+          >>> vertex_set2 = [3, 4]
+          >>> vertex_set3 = [2]
+          >>> vss = VertexSetSet([vertex_set1, vertex_set2])
+          >>> vss /= VertexSetSet([vertex_set3])
+          >>> vss
+          VertexSetSet([['1']])
+
+        Returns:
+          A new VertexSetSet object.
+
+        See Also:
+          quotient()
+        """
         self._ss.quotient_update(other._ss)
         return self
 
     def remainder_update(self, other):
+        """Updates `self` by the remainder.
+
+        Examples:
+          >>> vertex_set1 = [1, 2]
+          >>> vertex_set2 = [3, 4]
+          >>> vertex_set3 = [2]
+          >>> vss = VertexSetSet([vertex_set1, vertex_set2])
+          >>> vss %= VertexSetSet([vertex_set3])
+          >>> vss
+          VertexSetSet([['3', '4']])
+
+        Returns:
+          A new VertexSetSet object.
+
+        See Also:
+          remainder()
+        """
         self._ss.remainder_update(other._ss)
         return self
 
     def __invert__(self):
+        """Returns a new VertexSetSet with vertex sets not stored in `self`.
+
+        Examples:
+          >>> VertexSetSet.set_universe([1, 2])
+          >>> vertex_set = [1]
+          >>> vss = VertexSetSet([vertex_set])
+          >>> ~vss
+          VertexSetSet([[], ['2'], ['1', '2']])
+
+        Returns:
+          A new VertexSetSet object.
+        """
         invert_ss = ~self._ss
         for obj in setset._int2obj[len(VertexSetSet._universe_vertices) + 1:]:
             invert_ss = invert_ss.non_supersets(obj)
@@ -366,12 +482,54 @@ class VertexSetSet(object):
     __imod__ = remainder_update
 
     def isdisjoint(self, other):
+        """Returns True if `self` has no vertex sets in common with `other`.
+
+        Examples:
+          >>> vss1 = VertexSetSet([vertex_set1, vertex_set2])
+          >>> vss2 = VertexSetSet([vertex_set3, vertex_set4, vertex_set5])
+          >>> vss1.isdisjoint(vss2)
+          True
+
+        Returns:
+          True or False.
+
+        See Also:
+          issubset(), issuperset()
+        """
         return self._ss.isdisjoint(other._ss)
 
     def issubset(self, other):
+        """Tests if every vertex set in `self` is in `other`.
+
+        Examples:
+          >>> vss1 = VertexSetSet([vertex_set1, vertex_set2])
+          >>> vss2 = VertexSetSet([vertex_set1, vertex_set2, vertex_set3])
+          >>> vss1 <= vss2
+          True
+
+        Returns:
+          True or False.
+
+        See Also:
+          issuperset(), isdisjoint()
+        """
         return self._ss.issubset(other._ss)
 
     def issuperset(self, other):
+        """Tests if every vertex set in `other` is in `self`.
+
+        Examples:
+          >>> vss1 = VertexSetSet([vertex_set1, vertex_set2, vertex_set3])
+          >>> vss2 = VertexSetSet([vertex_set1, vertex_set2])
+          >>> vss1 >= vss2
+          True
+
+        Returns:
+          True or False.
+
+        See Also:
+          issubset(), isdisjoint()
+        """
         return self._ss.issuperset(other._ss)
 
     __le__ = issubset
