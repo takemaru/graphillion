@@ -1257,7 +1257,7 @@ class VertexSetSet(object):
           >>> vertex_set4 = [1, 2]
           >>> vss1 = VertexSetSet([vertex_set1, vertex_set2])
           >>> vss2 = VertexSetSet([vertex_set3, vertex_set4])
-          >>> print(vss1.supergraphs(vss2))
+          >>> vss1.supergraphs(vss2)
           VertexSetSet([['1', '3']])
 
         Returns:
@@ -1325,6 +1325,36 @@ class VertexSetSet(object):
         return VertexSetSet(self._ss.non_supersets(other._ss))
 
     def including(self, obj):
+        """Returns a new VertexSetSet that includes supersets of `obj`.
+
+        Returns a new family of vertex sets that include `obj`, which can be a
+        VertexSetSet, a vertex set, or a vertex.  If `obj` is a
+        VertexSetSet, a vertex set returned includes *one of* vertex sets in the
+        given VertexSetSet.
+
+        The vertex sets stored in the new VertexSetSet are selected from `self`
+        VertexSetSet.  The `self` is not changed.
+
+        Examples:
+          >>> vertex_set1 = [1, 2]
+          >>> vertex_set2 = [3]
+          >>> vss = VertexSetSet([vertex_set1, vertex_set2])
+          >>> vertex = 2
+          >>> vss.including(vertex)
+          VertexSetSet([['1', '2']])
+
+        Args:
+          obj: A VertexSetSet, a vertex set (a vertex list), or a vertex.
+
+        Returns:
+          A new VertexSetSet object.
+
+        Raises:
+          KeyError: If a given vertex is not found in the universe.
+
+        See Also:
+          excluding()
+        """
         type, obj = VertexSetSet._conv_arg(obj)
         if type == "vertexsetset":
             return VertexSetSet(self._ss.supersets(obj._ss))
@@ -1342,6 +1372,36 @@ class VertexSetSet(object):
             return self.including(VertexSetSet([set([e]) for e in obj]))
 
     def excluding(self, obj):
+        """Returns a new VertexSetSet that doesn't include `obj`.
+
+        Returns a new family of vertex sets that don't include `obj`, which
+        can be a VertexSetSet, a vertex set, or a vertex.  If `obj` is
+        a VertexSetSet, a vertex set returned doesn't include *any of* vertex sets
+        in the given VertexSetSet.
+
+        The vertex sets stored in the new VertexSetSet are selected from `self`
+        VertexSetSet.  The `self` is not changed.
+
+        Examples:
+          >>> vertex_set1 = [1, 2]
+          >>> vertex_set2 = [3]
+          >>> vss = VertexSetSet([vertex_set1, vertex_set2])
+          >>> vertex = 2
+          >>> vss.excluding(vertex)
+          VertexSetSet([['3']])
+
+        Args:
+          obj: A VertexSetSet, a vertex set (a vertex list), or a vertex.
+
+        Returns:
+          A new VertexSetSet object.
+
+        Raises:
+          KeyError: If a given vertex is not found in the universe.
+
+        See Also:
+          including()
+        """
         type, obj = VertexSetSet._conv_arg(obj)
         if type == "vertexsetset":
             return self - self.including(obj)
@@ -1355,6 +1415,29 @@ class VertexSetSet(object):
             return self.excluding(VertexSetSet([set([e]) for e in obj]))
 
     def included(self, obj):
+        """Returns a new VertexSetSet with subsets of a vertex set in `obj`.
+
+        The `self` is not changed.
+
+        Examples:
+          >>> vertex_set1 = [1]
+          >>> vertex_set2 = [1, 2]
+          >>> vertex_set3 = vertex_set1 + [3]
+          >>> vertex_set4 = [2, ]
+          >>> vss1 = VertexSetSet([vertex_set1, vertex_set2])
+          >>> vss2 = VertexSetSet([vertex_set3, vertex_set4])
+          >>> vss1.included(vss2)
+          VertexSetSet([['1']])
+
+        Args:
+          obj: A VertexSetSet or a vertex set (a vertex list).
+
+        Returns:
+          A new VertexSetSet object.
+
+        See Also:
+          including()
+        """
         type, obj = VertexSetSet._conv_arg(obj)
         if type == "vertexsetset":
             return VertexSetSet(self._ss.subsets(obj._ss))
@@ -1366,10 +1449,55 @@ class VertexSetSet(object):
             raise TypeError(obj)
 
     def choice(self):
+        """Returns an arbitrary graph from `self`.
+
+        The `self` is not changed.
+
+        Examples:
+          >>> vertex_set1 = [1, 2]
+          >>> vertex_set2 = [3]
+          >>> vss = VertexSetSet([vertex_set1, vertex_set2])
+          >>> vss.choice()
+          [1, 2]
+
+        Returns:
+          A vertex set.
+
+        Raises:
+          KeyError: If `self` is empty.
+
+        See Also:
+          pop()
+        """
         return VertexSetSet._conv_objs_to_vertices(self._ss.choice())
 
     def probability(self, probabilities):
+        """Returns the probability of `self` with vertex `probabilities`.
+
+        This method calculates the probability of occurrence of any
+        vertex set in `self` given `probabilities` of each vertex.
+
+        Examples:
+          >>> vertex_set1 = [1, 2]
+          >>> vertex_set2 = [3]
+          >>> vss = VertexSetSet([vertex_set1, vertex_set2])
+          >>> probabilities = {1: .9, 2: .8, 3: .7}
+          >>> print(vss.probability(probabilities))
+          0.23000000000000004
+
+        Args:
+          probabilities: A dictionary of probabilities of each vertex.
+
+        Returns:
+          Probability.
+
+        Raises:
+          AssertionError: If at least one vertex's probability is not set.
+          KeyError: If a given vertex is not found in the universe.
+        """
         probabilities = {VertexSetSet._vertex2obj[v]: p for v, p in viewitems(probabilities)}
+        for obj in setset._int2obj[len(VertexSetSet._universe_vertices) + 1:]:
+            probabilities[obj] = 0
         return self._ss.probability(probabilities)
 
     def dump(self, fp):
