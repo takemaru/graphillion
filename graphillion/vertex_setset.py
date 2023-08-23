@@ -1650,24 +1650,81 @@ class VertexSetSet(object):
 
     @staticmethod
     def load(fp):
+        """Deserialize a file `fp` to `self`.
+
+        This method does not deserialize the universe, which should be
+        loaded separately by pickle.
+        The universe of GraphSet does not need to be the same as the universe
+        at the time of `fp` is written.
+
+        Args:
+          fp: A read-supporting file-like object.
+
+        Examples:
+          >>> import pickle
+          >>> GraphSet.set_universe(some_universe)
+          >>> fp = open('/path/to/universe', 'rb')
+          >>> VertexSetSet.set_universe(pickle.load(fp))
+          >>> fp = open('/path/to/vertexsetset', 'rb)
+          >>> vss = VertexSetSet.load(fp)
+
+        See Also:
+          loads(), dump()
+        """
         return VertexSetSet(setset.load(fp))
 
     @staticmethod
     def loads(fp):
+        """Deserialize `s` to `self`.
+
+        This method does not deserialize the universe, which should be
+        loaded separately by pickle.
+        The universe of GraphSet does not need to be the same as the universe
+        at the time of `s` is defined.
+
+        Args:
+          s: A string instance.
+
+        Examples:
+          >>> import pickle
+          >>> GraphSet.set_universe(some_universe)
+          >>> VertexSetSet.set_universe(pickle.loads(universe_str))
+          >>> vss = VertexSetSet.load(vertexsetset_str)
+
+        See Also:
+          load(), dumps()
+        """
         return VertexSetSet(setset.loads(fp))
 
     @staticmethod
     # TODO: Add optional erguments "traversal" and "source" as in GraphSet class
-    def set_universe(vertices=None):
-        if vertices is None: # adopt the vertex set of GraphSet's underlying graph
-            # TODO: 実装する
-            return
+    def set_universe(universe=None):
+        """Registers the new universe.
 
-        assert len(vertices) <= len(setset.universe()), \
-               f"the universe is too small, which has at least {len(vertices)} elements"
+        Examples:
+          >>> # This example sets the universe as a vertex set {1, 2, 3},
+          >>> # with the vertex 3 having a weight of 10.
+          >>> VertexSetSet.set_universe([1, (2), (3, 10)])
 
-        vertex_num = len(vertices)
-        if vertex_num != len(set(vertices)):
+        Args:
+          universe: A list of vertices that represents the new universe.
+            A vertex may come along with an vertex weight, which can be
+            positive as well as negative (or 1.0 if not specified).
+            If a vertex is weighted, it must be given in a list as a tuple of vertex and weight.
+            If a vertex is not weighted, it must be given as a tuple of size one or single value.
+
+        See Also:
+          universe()
+        """
+        if universe is None: # adopt the vertex set of GraphSet's underlying graph
+            # TODO: Implement
+            raise NotImplementedError
+
+        assert len(universe) <= len(setset.universe()), \
+               f"the universe is too small, which has at least {len(universe)} elements"
+
+        vertex_num = len(universe)
+        if vertex_num != len(set(universe)):
             raise ValueError("duplicated elements found")
 
         VertexSetSet._universe_vertices = []
@@ -1677,7 +1734,7 @@ class VertexSetSet(object):
         VertexSetSet._obj2str = {}
         VertexSetSet._obj2weight = {}
         low_level_objs = setset._int2obj[:vertex_num + 1]
-        for i, vertex in enumerate(vertices):
+        for i, vertex in enumerate(universe):
             if isinstance(vertex, tuple):
                 if len(vertex) == 2:
                     vertex, weight = vertex
@@ -1694,6 +1751,21 @@ class VertexSetSet(object):
 
     @staticmethod
     def universe():
+        """Returns the current universe.
+
+        The list of vertices that represents the current universe is
+        returned.
+
+        Examples:
+          >>> VertexSetSet.universe()
+          [1, 2, (3, 10)]
+
+        Returns:
+          The universe of VertexSetSet class.
+
+        See Also:
+          set_universe()
+        """
         vertices = []
         for v in VertexSetSet._universe_vertices:
             obj = VertexSetSet._vertex2obj[v]
@@ -1705,6 +1777,16 @@ class VertexSetSet(object):
 
     @staticmethod
     def show_messages(flag=True):
+        """Enables/disables status messages.
+
+        Args:
+          flag: Optional.  True or False.  If True, status messages are
+          enabled.  If False, they are disabled (initial setting).
+
+        Returns:
+          The setting before the method call.  True (enabled) or
+          False (disabled).
+        """
         return _graphillion._show_messages(flag)
 
     @staticmethod
