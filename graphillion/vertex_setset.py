@@ -1780,6 +1780,42 @@ class VertexSetSet(object):
         return vertices
 
     @staticmethod
+    def independent_sets(edges):
+        '''Returns the family of independent sets.
+
+        Examples:
+        >>> VertexSetSet.set_universe([1, 2, 3, 4])
+        >>> edges = [(1, 2), (2, 3), (3, 4), (4, 1), (1, 3)]
+        >>> vss = VertexSetSet.independent_sets(edges)
+        >>> iss
+        VertexSetSet([[], ['1'], ['2'], ['3'], ['4'], ['2', '4']])
+
+        Args:
+          edges: edges of the graph
+
+        Returns:
+          A new VertexSetSet object.
+
+        Raises:
+          ValueError: if edge's name or format is wrong.
+        '''
+        for edge in edges:
+            if len(edge) != 2:
+                raise ValueError(f"invalid edge format: {edge}")
+            if edge[0] not in VertexSetSet._universe_vertices \
+               or edge[1] not in VertexSetSet._universe_vertices:
+                raise ValueError(f"invalid vertex in edge {edge}")
+
+        p = VertexSetSet({})
+        f = p.copy()
+        for u, v in edges:
+            u0 = p.non_supergraphs(VertexSetSet([[u]]))
+            v0 = p.non_supergraphs(VertexSetSet([[v]]))
+            f &= u0 | v0
+
+        return f
+
+    @staticmethod
     def show_messages(flag=True):
         """Enables/disables status messages.
 
