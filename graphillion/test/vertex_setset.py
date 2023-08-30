@@ -600,7 +600,7 @@ class TestVertexSetSet(unittest.TestCase):
 
     def test_independent_sets(self):
         GraphSet.set_universe([(1, 2), (1, 3), (1, 4),
-                               (1, 5), (1, 6)])
+                               (1, 5), (1, 6), (1, 7)])
         VertexSetSet.set_universe([1, 2, 3, 4, 5])
         edges = [(1, 2), (2, 3), (3, 4), (4, 5), (5, 1), (1, 4)]
         vss = VertexSetSet.independent_sets(edges)
@@ -609,6 +609,15 @@ class TestVertexSetSet(unittest.TestCase):
         self.assertTrue([1] in vss)
         self.assertTrue([2, 5] in vss)
         self.assertTrue([1, 4] not in vss)
+
+        VertexSetSet.set_universe([1, 2, 3, 4, 5, 6])
+        edges = [(1, 2), (2, 3), (3, 4), (4, 5), (5, 6), (6, 1), (1, 4)]
+        vss = VertexSetSet.independent_sets(edges, 2)
+
+        self.assertEqual(len(vss), 9)
+        self.assertTrue([1] in vss)
+        self.assertTrue([2, 5] in vss)
+        self.assertTrue([1, 5] not in vss)
 
 
 #     skip tests below because networkx cannot used with VertexSetSet class now

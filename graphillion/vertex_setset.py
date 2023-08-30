@@ -1780,18 +1780,19 @@ class VertexSetSet(object):
         return vertices
 
     @staticmethod
-    def independent_sets(edges):
+    def independent_sets(edges, distance=1):
         '''Returns the family of independent sets.
 
         Examples:
         >>> VertexSetSet.set_universe([1, 2, 3, 4])
         >>> edges = [(1, 2), (2, 3), (3, 4), (4, 1), (1, 3)]
         >>> vss = VertexSetSet.independent_sets(edges)
-        >>> iss
+        >>> vss
         VertexSetSet([[], ['1'], ['2'], ['3'], ['4'], ['2', '4']])
 
         Args:
           edges: edges of the graph
+          distance: value of k in distance-k independent set problem
 
         Returns:
           A new VertexSetSet object.
@@ -1806,12 +1807,40 @@ class VertexSetSet(object):
                or edge[1] not in VertexSetSet._universe_vertices:
                 raise ValueError(f"invalid vertex in edge {edge}")
 
+        underlying_graph = {v: [] for v in VertexSetSet._universe_vertices}
+        for u, v in edges:
+            underlying_graph[u].append(v)
+            underlying_graph[v].append(u)
+
+        if distance > 1:
+            vertices_within_k = {v: [] for v in VertexSetSet._universe_vertices}
+            for v in VertexSetSet._universe_vertices:
+                dist = {v: -1 for v in VertexSetSet._universe_vertices}
+                dist[v] = 0
+                qu = deque()
+                for adj in underlying_graph[v]:
+                    dist[adj] = 1
+                    vertices_within_k[v].append(adj)
+                    qu.append(adj)
+                while len(qu) > 0:
+                    now = qu.popleft()
+                    for adj in underlying_graph[now]:
+                        if dist[adj] != -1: continue
+                        dist[adj] = dist[now] + 1
+                        vertices_within_k[v].append(adj)
+                        if (dist[adj] < distance):
+                            qu.append(adj)
+            underlying_graph = vertices_within_k
+
         p = VertexSetSet({})
         f = p.copy()
-        for u, v in edges:
-            u0 = p.non_supergraphs(VertexSetSet([[u]]))
-            v0 = p.non_supergraphs(VertexSetSet([[v]]))
-            f &= u0 | v0
+        for v in VertexSetSet._universe_vertices:
+            for u in underlying_graph[v]:
+                assert v != u
+                if hash(v) > hash(u): continue
+                u0 = p.non_supergraphs(VertexSetSet([[u]]))
+                v0 = p.non_supergraphs(VertexSetSet([[v]]))
+                f &= u0 | v0
 
         return f
 
