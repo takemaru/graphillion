@@ -140,6 +140,9 @@ class VertexSetSet(object):
                 d = {}
                 for k, l in viewitems(obj):
                     d[k] = VertexSetSet._conv_vertices_to_objs(l)
+                if "exclude" not in d: d["exclude"] = []
+                for obj in setset._int2obj[VertexSetSet._vertex_num + 1:]:
+                    d["exclude"].append(obj)
                 obj = d
             self._ss = setset(obj)
 
@@ -459,7 +462,7 @@ class VertexSetSet(object):
           A new VertexSetSet object.
         """
         invert_ss = ~self._ss
-        for obj in setset._int2obj[len(VertexSetSet._universe_vertices) + 1:]:
+        for obj in setset._int2obj[VertexSetSet._vertex_num + 1:]:
             invert_ss = invert_ss.non_supersets(obj)
         return VertexSetSet(invert_ss)
 
@@ -1496,7 +1499,7 @@ class VertexSetSet(object):
           KeyError: If a given vertex is not found in the universe.
         """
         probabilities = {VertexSetSet._vertex2obj[v]: p for v, p in viewitems(probabilities)}
-        for obj in setset._int2obj[len(VertexSetSet._universe_vertices) + 1:]:
+        for obj in setset._int2obj[VertexSetSet._vertex_num + 1:]:
             probabilities[obj] = 0
         return self._ss.probability(probabilities)
 
@@ -1569,7 +1572,7 @@ class VertexSetSet(object):
         """
         assert costs.keys() == VertexSetSet._vertex2obj.keys()
         costs = {VertexSetSet._vertex2obj[v]: c for v, c in viewitems(costs)}
-        for obj in setset._int2obj[len(VertexSetSet._universe_vertices) + 1:]:
+        for obj in setset._int2obj[VertexSetSet._vertex_num + 1:]:
             costs[obj] = 0
         return VertexSetSet(self._ss.cost_le(costs, cost_bound))
 
@@ -1605,7 +1608,7 @@ class VertexSetSet(object):
         """
         assert costs.keys() == VertexSetSet._vertex2obj.keys()
         inv_costs = {VertexSetSet._vertex2obj[v]: -c for v, c in viewitems(costs)}
-        for obj in setset._int2obj[len(VertexSetSet._universe_vertices) + 1:]:
+        for obj in setset._int2obj[VertexSetSet._vertex_num + 1:]:
             inv_costs[obj] = 0
         return VertexSetSet(self._ss.cost_le(costs=inv_costs, cost_bound=-cost_bound))
 
@@ -1642,7 +1645,7 @@ class VertexSetSet(object):
         """
         assert costs.keys() == VertexSetSet._vertex2obj.keys()
         costs = {VertexSetSet._vertex2obj[v]: c for v, c in viewitems(costs)}
-        for obj in setset._int2obj[len(VertexSetSet._universe_vertices) + 1:]:
+        for obj in setset._int2obj[VertexSetSet._vertex_num + 1:]:
             costs[obj] = 0
         le_ss = self._ss.cost_le(costs=costs, cost_bound=cost)
         lt_ss = self._ss.cost_le(costs=costs, cost_bound=cost - 1)
@@ -1748,6 +1751,7 @@ class VertexSetSet(object):
             VertexSetSet._vertex2obj[vertex] = low_level_objs[i + 1]
             VertexSetSet._obj2vertex[low_level_objs[i + 1]] = vertex
             VertexSetSet._obj2str[low_level_objs[i + 1]] = str(vertex)
+        VertexSetSet._vertex_num = len(VertexSetSet._universe_vertices)
 
     @staticmethod
     def universe():
@@ -1819,3 +1823,4 @@ class VertexSetSet(object):
     _obj2vertex = {}
     _obj2str = {}
     _obj2weight = {}
+    _vertex_num = 0
