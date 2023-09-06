@@ -1938,6 +1938,42 @@ class VertexSetSet(object):
         return VertexSetSet.independent_sets(edges).complement()
 
     @staticmethod
+    def cliques(edges):
+        '''Returns the family of vertex covers.
+
+        Examples:
+        >>> VertexSetSet.set_universe([1, 2, 3, 4, 5])
+        >>> edges = [(1, 2), (2, 3), (3, 4), (4, 1), (1, 3), (3, 5)]
+        >>> vss = VertexSetSet.vertex_covers(edges)
+        >>> vss.minimal()
+        VertexSetSet([['1', '3'], ['2', '3', '4'], ['1', '2', '4', '5']])
+
+        Args:
+          edges: edges of the graph
+
+        Returns:
+          A new VertexSetSet object.
+
+        Raises:
+          ValueError: if edge's name or format is wrong.
+        '''
+        for edge in edges:
+            if len(edge) != 2:
+                raise ValueError(f"invalid edge format: {edge}")
+            if edge[0] not in VertexSetSet._universe_vertices \
+               or edge[1] not in VertexSetSet._universe_vertices:
+                raise ValueError(f"invalid vertex in edge {edge}")
+
+        edges = set(edges)
+        complement_edges = []
+        for u in VertexSetSet._universe_vertices:
+            for v in VertexSetSet._universe_vertices:
+                if u != v and (u, v) not in edges and (v, u) not in edges:
+                    complement_edges.append((u, v))
+
+        return VertexSetSet.independent_sets(complement_edges)
+
+    @staticmethod
     def show_messages(flag=True):
         """Enables/disables status messages.
 
