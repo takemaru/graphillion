@@ -639,6 +639,18 @@ class TestVertexSetSet(unittest.TestCase):
         self.assertTrue([2, 5] in vss.minimal())
         self.assertTrue([2, 4, 6] not in vss.minimal())
 
+    def test_vertex_covers(self):
+        GraphSet.set_universe([(1, 2), (1, 3), (1, 4),
+                               (1, 5), (1, 6)])
+        VertexSetSet.set_universe([1, 2, 3, 4, 5])
+        edges = [(1, 2), (2, 3), (3, 4), (4, 1), (1, 3), (3, 5)]
+        vss = VertexSetSet.vertex_covers(edges)
+
+        self.assertEqual(len(vss), 11)
+        self.assertTrue([1, 3] in vss)
+        self.assertTrue([2, 3, 4] in vss.minimal())
+        self.assertTrue([2, 3, 5] not in vss)
+
 #     skip tests below because networkx cannot used with VertexSetSet class now
 #     def test_networkx(self):
 #         try:

@@ -1909,6 +1909,42 @@ class VertexSetSet(object):
         return f
 
     @staticmethod
+    def vertex_covers(edges):
+        '''Returns the family of vertex covers.
+
+        Examples:
+        >>> VertexSetSet.set_universe([1, 2, 3, 4, 5])
+        >>> edges = [(1, 2), (2, 3), (3, 4), (4, 1), (1, 3), (3, 5)]
+        >>> vss = VertexSetSet.vertex_covers(edges)
+        >>> vss.minimal()
+        VertexSetSet([['1', '3'], ['2', '3', '4'], ['1', '2', '4', '5']])
+
+        Args:
+          edges: edges of the graph
+
+        Returns:
+          A new VertexSetSet object.
+
+        Raises:
+          ValueError: if edge's name or format is wrong.
+        '''
+        for edge in edges:
+            if len(edge) != 2:
+                raise ValueError(f"invalid edge format: {edge}")
+            if edge[0] not in VertexSetSet._universe_vertices \
+               or edge[1] not in VertexSetSet._universe_vertices:
+                raise ValueError(f"invalid vertex in edge {edge}")
+
+        p = VertexSetSet({})
+        f = p.copy()
+        for u, v in edges:
+            g = p.supergraphs(VertexSetSet([[u]]))
+            g |= p.supergraphs(VertexSetSet([[v]]))
+            f &= g
+
+        return f
+
+    @staticmethod
     def show_messages(flag=True):
         """Enables/disables status messages.
 
