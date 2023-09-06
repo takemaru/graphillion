@@ -633,7 +633,7 @@ class TestVertexSetSet(unittest.TestCase):
 
         VertexSetSet.set_universe([1, 2, 3, 4, 5, 6])
         edges = [(1, 2), (2, 3), (3, 4), (4, 5), (5, 6), (6, 1), (1, 4)]
-        vss = VertexSetSet.independent_sets(edges, 2)
+        vss = VertexSetSet.dominating_sets(edges, 2)
         self.assertEqual(len(vss), 59)
         self.assertTrue([1] in vss)
         self.assertTrue([2, 5] in vss.minimal())
