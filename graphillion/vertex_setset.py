@@ -1935,14 +1935,7 @@ class VertexSetSet(object):
                or edge[1] not in VertexSetSet._universe_vertices:
                 raise ValueError(f"invalid vertex in edge {edge}")
 
-        p = VertexSetSet({})
-        f = p.copy()
-        for u, v in edges:
-            g = p.supergraphs(VertexSetSet([[u]]))
-            g |= p.supergraphs(VertexSetSet([[v]]))
-            f &= g
-
-        return f
+        return VertexSetSet.independent_sets(edges).complement()
 
     @staticmethod
     def show_messages(flag=True):
