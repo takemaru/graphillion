@@ -1608,10 +1608,8 @@ class VertexSetSet(object):
 
         """
         assert costs.keys() == VertexSetSet._vertex2obj.keys()
-        inv_costs = {VertexSetSet._vertex2obj[v]: -c for v, c in viewitems(costs)}
-        for obj in setset._int2obj[VertexSetSet._vertex_num + 1:]:
-            inv_costs[obj] = 0
-        return VertexSetSet(self._ss.cost_le(costs=inv_costs, cost_bound=-cost_bound))
+        inv_costs = {k: -v for k, v in costs.items()}
+        return self.cost_le(inv_costs, -cost_bound)
 
     # TODO: rename the argument as their names are almost the same
     def cost_eq(self, costs, cost):
@@ -1645,12 +1643,7 @@ class VertexSetSet(object):
 
         """
         assert costs.keys() == VertexSetSet._vertex2obj.keys()
-        costs = {VertexSetSet._vertex2obj[v]: c for v, c in viewitems(costs)}
-        for obj in setset._int2obj[VertexSetSet._vertex_num + 1:]:
-            costs[obj] = 0
-        le_ss = self._ss.cost_le(costs=costs, cost_bound=cost)
-        lt_ss = self._ss.cost_le(costs=costs, cost_bound=cost - 1)
-        return VertexSetSet(le_ss.difference(lt_ss))
+        return self.cost_le(costs, cost) - self.cost_le(costs, cost - 1)
 
     @staticmethod
     def load(fp):
