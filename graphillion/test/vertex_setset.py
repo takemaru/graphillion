@@ -27,6 +27,7 @@ e2 = (1,3)
 e3 = (2,4)
 e4 = (3,4)
 e5 = (5,6)
+e6 = (6,7)
 
 v1 = 1
 v2 = 2
@@ -54,7 +55,7 @@ vs1234 = [v1, v2, v3, v4]
 class TestVertexSetSet(unittest.TestCase):
 
     def setUp(self):
-        GraphSet.set_universe([e1 + (.1,), e2 + (-.2,), e3 + (-.3,), e4 + (.4,)])
+        GraphSet.set_universe([e1 + (.1,), e2 + (-.2,), e3 + (-.3,), e4 + (.4,), e5])
         VertexSetSet.set_universe([(1, .3), (2, -.2), (3, -.3), (4, .4)])
 
     def tearDown(self):

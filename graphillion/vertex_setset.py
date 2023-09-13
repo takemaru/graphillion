@@ -140,7 +140,7 @@ class VertexSetSet(object):
             elif isinstance(obj, dict): # constraints
                 d = {}
                 for k, l in viewitems(obj):
-                    d[k] = VertexSetSet._conv_vertices_to_objs(l)
+                    d[k] = list(VertexSetSet._conv_vertices_to_objs(l))
                 if "exclude" not in d: d["exclude"] = []
                 for obj in setset._int2obj[VertexSetSet._vertex_num + 1:]:
                     d["exclude"].append(obj)
@@ -1073,7 +1073,10 @@ class VertexSetSet(object):
         See Also:
           minimal()
         """
-        return VertexSetSet(self._ss.hitting())
+        h = self._ss.hitting()
+        for obj in setset._int2obj[VertexSetSet._vertex_num + 1:]:
+            h = h.non_supersets(setset([[obj]]))
+        return VertexSetSet(h)
 
     hitting = blocking
 
@@ -1575,7 +1578,10 @@ class VertexSetSet(object):
         costs = {VertexSetSet._vertex2obj[v]: c for v, c in viewitems(costs)}
         for obj in setset._int2obj[VertexSetSet._vertex_num + 1:]:
             costs[obj] = 0
-        return VertexSetSet(self._ss.cost_le(costs, cost_bound))
+        le = self._ss.cost_le(costs, cost_bound)
+        for obj in setset._int2obj[VertexSetSet._vertex_num + 1:]:
+            le = le.non_supersets(setset([[obj]]))
+        return VertexSetSet(le)
 
     def cost_ge(self, costs, cost_bound):
         """Returns a new VertexSetSet with subsets whose cost is greater than or equal to the cost bound.
