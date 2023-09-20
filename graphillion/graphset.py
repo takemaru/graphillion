@@ -24,7 +24,7 @@ from functools import partial
 from builtins import range, int
 from future.utils import viewitems
 import _graphillion
-from graphillion import setset
+from graphillion import setset, VertexSetSet
 import pickle
 import heapq
 
@@ -1630,6 +1630,9 @@ class GraphSet(object):
         lt_ss = self._ss.cost_le(costs=costs, cost_bound=cost - 1)
         return GraphSet(le_ss.difference(lt_ss))
 
+    # def toVSS():
+        
+
     @staticmethod
     def load(fp):
         """Deserialize a file `fp` to `self`.
@@ -1716,10 +1719,30 @@ class GraphSet(object):
                 for e in sorted_edges:
                     source = min(e[0], e[1], source)
             sorted_edges = GraphSet._traverse(indexed_edges, traversal, source)
+        degrees = {}
         for u, v in sorted_edges:
             GraphSet._vertices.add(u)
             GraphSet._vertices.add(v)
+            if u not in degrees:
+                degrees[u] = 1
+            else: degrees[u] += 1
+            if v not in degrees:
+                degrees[v] = 1
+            else: degrees[v] += 1
+        # Set the variable ordering of vertices from top to bottom.
+        ordered_vertices = []
+        for u, v in sorted_edges[::-1]:
+            degrees[u] -= 1
+            degrees[v] -= 1
+            if degrees[u] == 0:
+                ordered_vertices.append(u)
+            if degrees[v] == 0:
+                ordered_vertices.append(v)
+        # Reverse the variable ordering since setset.set_universe()
+        # takes as the argument the variables ordered from bottom to top.
+        ordered_vertices = ordered_vertices[::-1]
         setset.set_universe(sorted_edges)
+        VertexSetSet.set_universe(ordered_vertices)
 
     @staticmethod
     def universe():
