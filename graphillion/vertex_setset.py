@@ -1736,21 +1736,21 @@ class VertexSetSet(object):
         VertexSetSet._obj2vertex = {}
         VertexSetSet._obj2str = {}
         VertexSetSet._obj2weight = {}
-        low_level_objs = setset._int2obj[:vertex_num + 1]
+        low_level_objs = setset._int2obj[-vertex_num:]
         for i, vertex in enumerate(universe):
             if isinstance(vertex, tuple):
                 if len(vertex) == 2:
                     vertex, weight = vertex
-                    VertexSetSet._obj2weight[low_level_objs[i + 1]] = weight
+                    VertexSetSet._obj2weight[low_level_objs[i]] = weight
                 elif len(vertex) == 1:
                     vertex = vertex[0]
                 else:
                     raise TypeError(vertex)
             VertexSetSet._universe_vertices.append(vertex)
             VertexSetSet._vertex2id[vertex] = i
-            VertexSetSet._vertex2obj[vertex] = low_level_objs[i + 1]
-            VertexSetSet._obj2vertex[low_level_objs[i + 1]] = vertex
-            VertexSetSet._obj2str[low_level_objs[i + 1]] = str(vertex)
+            VertexSetSet._vertex2obj[vertex] = low_level_objs[i]
+            VertexSetSet._obj2vertex[low_level_objs[i]] = vertex
+            VertexSetSet._obj2str[low_level_objs[i]] = repr(vertex)
         VertexSetSet._vertex_num = len(VertexSetSet._universe_vertices)
 
     @staticmethod

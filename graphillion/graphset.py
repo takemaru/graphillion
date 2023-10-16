@@ -1630,8 +1630,8 @@ class GraphSet(object):
         lt_ss = self._ss.cost_le(costs=costs, cost_bound=cost - 1)
         return GraphSet(le_ss.difference(lt_ss))
 
-    # def toVSS():
-        
+    def e_to_v(self):
+        return VertexSetSet(self._ss.e_to_v())
 
     @staticmethod
     def load(fp):
@@ -1730,18 +1730,8 @@ class GraphSet(object):
                 degrees[v] = 1
             else: degrees[v] += 1
         # Set the variable ordering of vertices from top to bottom.
-        ordered_vertices = []
-        for u, v in sorted_edges[::-1]:
-            degrees[u] -= 1
-            degrees[v] -= 1
-            if degrees[u] == 0:
-                ordered_vertices.append(u)
-            if degrees[v] == 0:
-                ordered_vertices.append(v)
-        # Reverse the variable ordering since setset.set_universe()
-        # takes as the argument the variables ordered from bottom to top.
-        ordered_vertices = ordered_vertices[::-1]
         setset.set_universe(sorted_edges)
+        ordered_vertices = [eval(v) for v in setset.get_vertices_from_top()]
         VertexSetSet.set_universe(ordered_vertices)
 
     @staticmethod
