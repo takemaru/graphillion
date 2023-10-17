@@ -33,6 +33,9 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include "graphillion/zdd.h"
 
+#include "subsetting/spec/SapporoZdd.hpp"
+#include "SAPPOROBDD/ZBDD.h"
+
 namespace graphillion {
 
 using std::istream;
@@ -431,6 +434,38 @@ setset setset::cost_le(const std::vector<bddcost> costs, const bddcost cost_boun
   }
   zdd_t valid_cost_zdd = bddct.ZBDD_CostLE(this->zdd_, cost_bound);
   return setset(valid_cost_zdd);
+}
+
+// TODO: Move to ConvEVDD.hpp?
+std::pair<tdzdd::Graph, ConvEVDD::VariableList> setset::construct_graph_and_vlist(
+  const std::vector<std::vector<std::string>> &edges_from_top
+) const {
+  tdzdd::Graph graph;
+  for (std::vector<std::string> edge : edges_from_top) graph.addEdge(edge[0], edge[1]);
+  graph.update();
+  ConvEVDD::VariableList vlist(graph);
+  return {graph, vlist};
+}
+
+std::vector<std::string> setset::get_vertices_from_top(
+  const std::vector<std::vector<std::string>> &edges_from_top
+) const {
+  auto [graph, vlist] = construct_graph_and_vlist(edges_from_top);
+  std::vector<std::string> vertices_from_top(graph.vertexSize());
+  for (int i = 1; i <= graph.vertexSize(); ++i) {
+    int v = vlist.newVToV(i);
+    *(rbegin(vertices_from_top) + i - 1) = graph.vertexName(v);
+  }
+  return vertices_from_top;
+}
+
+setset setset::e_to_v_setset(const std::vector<std::vector<std::string>> &edges_from_top) const {
+  auto [graph, vlist] = construct_graph_and_vlist(edges_from_top);
+  SapporoZdd dd_e_spec(this->zdd_);
+  tdzdd::DdStructure<2> dd_e(dd_e_spec);
+  dd_e.zddReduce();
+  zdd_t dd_v = ConvEVDD::eToVZdd(dd_e, graph, vlist);
+  return setset(dd_v);
 }
 
 double setset::probability(const vector<double>& probabilities) const {

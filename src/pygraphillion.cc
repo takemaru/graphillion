@@ -981,6 +981,47 @@ static PyObject* setset_cost_le(PySetsetObject* self, PyObject* args, PyObject* 
   return reinterpret_cast<PyObject*>(ret);
 }
 
+std::vector<std::vector<std::string>> parse_args_to_edges(PyObject* args) {
+  std::vector<std::vector<std::string>> edges;
+  assert(edges.size() == 0);
+  PyObject* edges_obj = NULL;
+  std::vector<std::vector<std::string>> empty_edges;
+  if (!PyArg_ParseTuple(args, "O!", &PyList_Type, &edges_obj))
+    return empty_edges;
+  if (edges_obj == NULL || edges_obj == Py_None) {
+    PyErr_SetString(PyExc_ValueError, "no edges");
+    return empty_edges;
+  }
+
+  int edge_num = PyList_Size(edges_obj);
+  edges.reserve(edge_num);
+  for (int i = 0; i < edge_num; ++i) {
+    PyObject *edge_obj = PyList_GetItem(edges_obj, i);
+    if (!PyList_Check(edge_obj) || PyList_Size(edge_obj) != 2) {
+      PyErr_SetString(PyExc_ValueError, "invalid edge");
+      return empty_edges;
+    }
+    std::vector<std::string> edge(2);
+    for (int j = 0; j < 2; ++j) {
+      PyObject *v_obj = PyList_GetItem(edge_obj, j);
+      PyObject *v_repr = PyObject_Repr(v_obj);
+      const char *v = PyString_AsString(v_repr);
+      edge[j] = v;
+    }
+    edges.push_back(std::move(edge));
+  }
+  return edges;
+}
+
+static PyObject* setset_e_to_v(PySetsetObject* self, PyObject* args) {
+  std::vector<std::vector<std::string>> edges = parse_args_to_edges(args);
+  PySetsetObject* ret = reinterpret_cast<PySetsetObject*>
+      (PySetset_Type.tp_alloc(&PySetset_Type, 0));
+  auto ss = self->ss->e_to_v_setset(edges);
+  ret->ss = new setset(ss);
+  return reinterpret_cast<PyObject*>(ret);
+}
+
 static PyMemberDef setset_members[] = {
   {NULL}  /* Sentinel */
 };
@@ -1033,6 +1074,7 @@ static PyMethodDef setset_methods[] = {
   {"_enum", reinterpret_cast<PyCFunction>(setset_enum), METH_O, ""},
   {"_enums", reinterpret_cast<PyCFunction>(setset_enums), METH_NOARGS, ""},
   {"cost_le", reinterpret_cast<PyCFunction>(setset_cost_le), METH_VARARGS | METH_KEYWORDS, ""},
+  {"e_to_v", reinterpret_cast<PyCFunction>(setset_e_to_v), METH_VARARGS, ""},
   {NULL}  /* Sentinel */
 };
 
@@ -1365,6 +1407,18 @@ static PyObject* graphset_show_messages(PySetsetObject* self, PyObject* obj) {
   else Py_RETURN_FALSE;
 }
 
+static PyObject* setset_get_vertices_from_top(PySetsetObject* self, PyObject* args) {
+  std::vector<std::vector<std::string>> edges = parse_args_to_edges(args);
+  std::vector<std::string> v_order_from_top = self->ss->get_vertices_from_top(edges);
+  int n = v_order_from_top.size();
+  PyObject* ret = PyList_New(n);
+  for (int i = 0; i < n; ++i) {
+    PyObject* v = PyStr_FromString(v_order_from_top[i].c_str());
+    PyList_SetItem(ret, i, v);
+  }
+  return ret;
+}
+
 static PyMethodDef module_methods[] = {
   {"load", reinterpret_cast<PyCFunction>(setset_load), METH_O, ""},
   {"loads", reinterpret_cast<PyCFunction>(setset_loads), METH_O, ""},
@@ -1372,6 +1426,7 @@ static PyMethodDef module_methods[] = {
   {"_num_elems", setset_num_elems, METH_VARARGS, ""},
   {"_graphs", reinterpret_cast<PyCFunction>(graphset_graphs), METH_VARARGS | METH_KEYWORDS, ""},
   {"_show_messages", reinterpret_cast<PyCFunction>(graphset_show_messages), METH_O, ""},
+  {"_get_vertices_from_top", reinterpret_cast<PyCFunction>(setset_get_vertices_from_top), METH_VARARGS, ""},
   {NULL}  /* Sentinel */
 };
 

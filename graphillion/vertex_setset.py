@@ -142,7 +142,7 @@ class VertexSetSet(object):
                 for k, l in viewitems(obj):
                     d[k] = list(VertexSetSet._conv_vertices_to_objs(l))
                 if "exclude" not in d: d["exclude"] = []
-                for obj in setset._int2obj[VertexSetSet._vertex_num + 1:]:
+                for obj in setset._int2obj[1 : -VertexSetSet._vertex_num]:
                     d["exclude"].append(obj)
                 obj = d
             self._ss = setset(obj)
@@ -463,7 +463,7 @@ class VertexSetSet(object):
           A new VertexSetSet object.
         """
         invert_ss = ~self._ss
-        for obj in setset._int2obj[VertexSetSet._vertex_num + 1:]:
+        for obj in setset._int2obj[1 : -VertexSetSet._vertex_num]:
             invert_ss = invert_ss.non_supersets(obj)
         return VertexSetSet(invert_ss)
 
@@ -1074,7 +1074,7 @@ class VertexSetSet(object):
           minimal()
         """
         h = self._ss.hitting()
-        for obj in setset._int2obj[VertexSetSet._vertex_num + 1:]:
+        for obj in setset._int2obj[1 : -VertexSetSet._vertex_num]:
             h = h.non_supersets(setset([[obj]]))
         return VertexSetSet(h)
 
@@ -1503,7 +1503,7 @@ class VertexSetSet(object):
           KeyError: If a given vertex is not found in the universe.
         """
         probabilities = {VertexSetSet._vertex2obj[v]: p for v, p in viewitems(probabilities)}
-        for obj in setset._int2obj[VertexSetSet._vertex_num + 1:]:
+        for obj in setset._int2obj[1: -VertexSetSet._vertex_num]:
             probabilities[obj] = 0
         return self._ss.probability(probabilities)
 
@@ -1576,10 +1576,10 @@ class VertexSetSet(object):
         """
         assert costs.keys() == VertexSetSet._vertex2obj.keys()
         costs = {VertexSetSet._vertex2obj[v]: c for v, c in viewitems(costs)}
-        for obj in setset._int2obj[VertexSetSet._vertex_num + 1:]:
+        for obj in setset._int2obj[1: -VertexSetSet._vertex_num]:
             costs[obj] = 0
         le = self._ss.cost_le(costs, cost_bound)
-        for obj in setset._int2obj[VertexSetSet._vertex_num + 1:]:
+        for obj in setset._int2obj[1: -VertexSetSet._vertex_num]:
             le = le.non_supersets(setset([[obj]]))
         return VertexSetSet(le)
 
