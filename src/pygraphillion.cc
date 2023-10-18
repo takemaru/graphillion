@@ -41,6 +41,10 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include "graphillion/graphset.h"
 
+// TODO: remove
+#include <iostream>
+using namespace std;
+
 using graphillion::setset;
 using graphillion::Range;
 using graphillion::vertex_t;
@@ -973,6 +977,11 @@ static PyObject* setset_cost_le(PySetsetObject* self, PyObject* args, PyObject* 
     }
   }
   Py_DECREF(cost_iter);
+
+  cout << "costs size: " << costs.size() << endl;
+  cout << "costs: ";
+  for (auto a : costs) cout << a << " ";
+  cout << endl;
 
   PySetsetObject* ret = reinterpret_cast<PySetsetObject*>
       (PySetset_Type.tp_alloc(&PySetset_Type, 0));

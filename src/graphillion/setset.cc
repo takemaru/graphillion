@@ -36,6 +36,11 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "subsetting/spec/SapporoZdd.hpp"
 #include "SAPPOROBDD/ZBDD.h"
 
+// TODO: remove
+#include <iostream>
+using namespace std;
+#include "SAPPOROBDD/SBDD_helper.h"
+
 namespace graphillion {
 
 using std::istream;
@@ -428,11 +433,22 @@ setset setset::non_supersets(elem_t e) const {
 setset setset::cost_le(const std::vector<bddcost> costs, const bddcost cost_bound) const {
   assert(costs.size() == num_elems() + 1);
   BDDCT bddct;
-  bddct.Alloc(costs.size());
-  for (int var = 0; var < costs.size(); ++var) {
-    bddct.SetCost(var, costs[var]);
+  cout << "costs.size(): " << costs.size() << endl;
+  bddct.Alloc(max_elem(), 0);
+  cout << "bddvarused: " << BDD_VarUsed() << endl;
+  for (int i = 1; i <= num_elems(); ++i) {
+    cout << "i: " << i - 1 << " cost: " << costs[i] << endl;
+    bddct.SetCost(i - 1, costs[i]);
   }
   zdd_t valid_cost_zdd = bddct.ZBDD_CostLE(this->zdd_, cost_bound);
+  cout << "top: " << this->zdd_.Top() << endl;
+  cout << "Enum Original" << endl;
+  this->zdd_.Print();
+  sbddh::printZBDDElements(cout, this->zdd_);
+  cout << endl;
+  cout << "Enum small" << endl;
+  valid_cost_zdd.Print();
+  sbddh::printZBDDElements(cout, valid_cost_zdd);
   return setset(valid_cost_zdd);
 }
 
