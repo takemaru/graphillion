@@ -1731,8 +1731,8 @@ class GraphSet(object):
             else: degrees[v] += 1
         # Set the variable ordering of vertices from top to bottom.
         setset.set_universe(sorted_edges)
-        ordered_vertices = [eval(v) for v in setset.get_vertices_from_top()]
-        VertexSetSet.set_universe(ordered_vertices)
+        # ordered_vertices = [eval(v) for v in setset.get_vertices_from_top()]
+        # VertexSetSet.set_universe(ordered_vertices)
 
     @staticmethod
     def universe():
