@@ -1576,14 +1576,10 @@ class VertexSetSet(object):
         """
         assert costs.keys() == VertexSetSet._vertex2obj.keys()
         costs = {VertexSetSet._vertex2obj[v]: c for v, c in viewitems(costs)}
-        print(f"COST LE {costs=}")
         for obj in setset._int2obj[1: -VertexSetSet._vertex_num]:
             costs[obj] = 0
         le = self._ss.cost_le(costs, cost_bound)
-        print()
-        print(f"COST LE: original le len: {len(le)}")
         for obj in setset._int2obj[1: -VertexSetSet._vertex_num]:
-            print(f"COST LE: {obj=}")
             le = le.non_supersets(setset([[obj]]))
         return VertexSetSet(le)
 

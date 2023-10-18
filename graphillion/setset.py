@@ -182,12 +182,9 @@ class setset(_graphillion.setset):
         return _graphillion.setset.probability(self, ps)
 
     def cost_le(self, costs, cost_bound):
-        print(f"SETSET {costs=}, {cost_bound=}")
-        print(f"SETSET {setset.universe()}")
         cs = [-1] * (_graphillion._num_elems() + 1)
         for e, c in viewitems(costs):
             i = setset._obj2int[e]
-            print(f"SETSET {e=}, {i=}, {c=}")
             cs[i] = c
         # Each cost must be in the range of 32 bit signed integer
         # due to the implementation of BDDCT class of SAPPOROBDD.
