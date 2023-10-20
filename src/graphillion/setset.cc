@@ -478,27 +478,31 @@ setset setset::e_to_v_setset(const std::vector<std::vector<std::string>> &edges_
   cout << "e_to_v_setset start" << endl;
   auto [graph, vlist] = construct_graph_and_vlist(edges_from_top);
 
-  bool use_offset = false;
+  bool use_offset = true;
   if (use_offset) {
-    cout << "max_elem: " << max_elem() << ", edge size: " << graph.edgeSize() << endl;
-    SapporoZdd dd_e_spec(this->zdd_);
+    // setsetのzdd_は上位の（辺数）個の変数のみ使用しているので，DdStructureにする際にはoffsetを設定する
+    // 辺数 >= 頂点数となるようにGraphSetやVertexSetSetのuniverseを設定するという実装方針のままなら以下の行でよい
+    // const int offset = max_elem() - graph.edgeSize();
+    // 実装方針が変わっても動くように，念のため次の行のようにoffsetを定義する．
+    const int offset = max_elem() - std::max(graph.edgeSize(), graph.vertexSize());
+    SapporoZdd dd_e_spec(this->zdd_, offset);
     this->zdd_.Print();
-    cout << "top var of e zdd: " << this->zdd_.Top() << endl;
-    cout << "top level of e zdd: " << BDD_LevOfVar(this->zdd_.Top()) << endl;
+    // cout << "top var of e zdd: " << this->zdd_.Top() << endl;
+    // cout << "top level of e zdd: " << BDD_LevOfVar(this->zdd_.Top()) << endl;
     ofstream ofs("e_zbdd.dot");
     dd_e_spec.dumpDot(ofs);
     tdzdd::DdStructure<2> dd_e(dd_e_spec);
     dd_e.zddReduce();
     cout << "offset: " << max_elem() - graph.edgeSize() << endl;
-    zdd_t dd_v = ConvEVDD::eToVZdd(dd_e, graph, vlist, max_elem() - graph.edgeSize());
+    zdd_t dd_v = ConvEVDD::eToVZdd(dd_e, graph, vlist, offset);
     dd_v.Print();
-    cout << "top var of v zdd: " << dd_v.Top() << endl;
-    cout << "top level of v zdd: " << BDD_LevOfVar(dd_v.Top()) << endl;
-    ofstream ofs_v("v_zbdd.dot");
-    sbddh::writeZBDDForGraphviz(ofs_v, dd_v);
-    cout << "e_to_v_setset end" << endl;
-    cout << "n: " << graph.vertexSize() << ", m: " << graph.edgeSize() << endl;
-    cout << "max_elem: " << max_elem() << endl;
+    // cout << "top var of v zdd: " << dd_v.Top() << endl;
+    // cout << "top level of v zdd: " << BDD_LevOfVar(dd_v.Top()) << endl;
+    // ofstream ofs_v("v_zbdd.dot");
+    // sbddh::writeZBDDForGraphviz(ofs_v, dd_v);
+    // cout << "e_to_v_setset end" << endl;
+    // cout << "n: " << graph.vertexSize() << ", m: " << graph.edgeSize() << endl;
+    // cout << "max_elem: " << max_elem() << endl;
     return setset(dd_v);
   } else {
     cout << "max_elem: " << max_elem() << ", edge size: " << graph.edgeSize() << endl;

@@ -15,6 +15,7 @@
 
 // TODO: remove
 #include <iostream>
+#include <ostream>
 using namespace std;
 
 class ConvEVDD {
@@ -106,6 +107,8 @@ public:
     {
         ConvEVDD::ZDDEVSpec spec(dd, graph, vlist);
         tdzdd::DdStructure<2> out_dd(spec);
+        ofstream ofs("evdd.dot");
+        out_dd.dumpDot(ofs);
         return out_dd;
     }
 
@@ -253,8 +256,8 @@ public:
                 zbdd = z0 + z1;
             } else {
                 assert(vlist_.getKind(level) == VariableList::Kind::VERTEX);
-                // cout << "original level: " << BDD_VarOfLev(vlist_.evToNewV(level)) << endl;
-                // cout << "new level: " << BDD_VarOfLev(vlist_.evToNewV(level) + offset_) << endl;
+                cout << "original level: " << BDD_VarOfLev(vlist_.evToNewV(level)) << endl;
+                cout << "new level: " << BDD_VarOfLev(vlist_.evToNewV(level) + offset_) << endl;
                 zbdd = z0 + z1.Change(BDD_VarOfLev(vlist_.evToNewV(level) + offset_));
             }
         }
