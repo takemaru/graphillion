@@ -21,6 +21,9 @@ from graphillion import GraphSet, setset, VertexSetSet
 import tempfile
 import unittest
 
+# TODO: remove
+from graphillion.tutorial_util import draw_zdd
+
 
 e1 = (1,2)
 e2 = (1,3)
@@ -661,6 +664,21 @@ class TestVertexSetSet(unittest.TestCase):
 
         self.assertEqual(len(vss), 20)
         self.assertEqual(vss.maximal(), VertexSetSet([[1, 2, 3], [1, 2, 4, 5]]))
+
+    def test_e_to_v(self):
+        e1 = (1, 2)
+        e2 = (3, 4)
+        e3 = (2, 3)
+        e4 = (2, 4)
+        GraphSet.set_universe([e1, e2, e3, e4], "as-is")
+        ordered_vertices = [eval(v) for v in setset.get_vertices_from_top()]
+        VertexSetSet.set_universe(ordered_vertices)
+        g1 = [e2]
+        vss1 = GraphSet([g1]).e_to_v()
+        self.assertEqual(vss1, VertexSetSet([[3, 4]]))
+        g2 = [e2, e3]
+        vss2 = GraphSet([g2]).e_to_v()
+        self.assertEqual(vss2, VertexSetSet([[2, 3, 4]]))
 
 #     skip tests below because networkx cannot used with VertexSetSet class now
 #     def test_networkx(self):
