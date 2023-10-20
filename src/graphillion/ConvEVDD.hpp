@@ -13,6 +13,10 @@
 #include "subsetting/util/Graph.hpp"
 // added
 
+// TODO: remove
+#include <iostream>
+using namespace std;
+
 class ConvEVDD {
 private:
     struct ZDDEVSpecConf {
@@ -114,10 +118,11 @@ public:
 
     static ZBDD eToVZdd(const tdzdd::DdStructure<2>& dd,
                         const tdzdd::Graph& graph,
-                        const VariableList& vlist)
+                        const VariableList& vlist,
+                        const int offset=0)
     {
         tdzdd::DdStructure<2> ev_dd = ConvEVDD::eToEvZdd(dd, graph, vlist);
-        return ev_dd.evaluate(EVToVEval(vlist));
+        return ev_dd.evaluate(EVToVEval(vlist, offset));
     }
 
     class ZDDEVSpec : public tdzdd::PodHybridDdSpec<ZDDEVSpec, ZDDEVSpecConf,
@@ -227,9 +232,11 @@ public:
     class EVToVEval : public tdzdd::DdEval<EVToVEval, ZBDD> {
     private:
         const VariableList& vlist_;
+        const int offset_;
 
     public:
-        EVToVEval(const VariableList& vlist) : vlist_(vlist) { }
+        EVToVEval(const VariableList& vlist, const int offset)
+            : vlist_(vlist), offset_(offset) { }
 
         void evalTerminal(ZBDD& zbdd, int id) const
         {
@@ -246,7 +253,9 @@ public:
                 zbdd = z0 + z1;
             } else {
                 assert(vlist_.getKind(level) == VariableList::Kind::VERTEX);
-                zbdd = z0 + z1.Change(BDD_VarOfLev(vlist_.evToNewV(level)));
+                // cout << "original level: " << BDD_VarOfLev(vlist_.evToNewV(level)) << endl;
+                // cout << "new level: " << BDD_VarOfLev(vlist_.evToNewV(level) + offset_) << endl;
+                zbdd = z0 + z1.Change(BDD_VarOfLev(vlist_.evToNewV(level) + offset_));
             }
         }
     };

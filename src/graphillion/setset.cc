@@ -36,6 +36,12 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "subsetting/spec/SapporoZdd.hpp"
 #include "SAPPOROBDD/ZBDD.h"
 
+// TODO: remove
+#include <iostream>
+#include <ostream>
+#include "SAPPOROBDD/SBDD_helper.h"
+using namespace std;
+
 namespace graphillion {
 
 using std::istream;
@@ -440,32 +446,81 @@ setset setset::cost_le(const std::vector<bddcost> costs, const bddcost cost_boun
 std::pair<tdzdd::Graph, ConvEVDD::VariableList> setset::construct_graph_and_vlist(
   const std::vector<std::vector<std::string>> &edges_from_top
 ) const {
+  cout << "construct_graph_and_vlist start" << endl;
   tdzdd::Graph graph;
   for (std::vector<std::string> edge : edges_from_top) graph.addEdge(edge[0], edge[1]);
   graph.update();
   ConvEVDD::VariableList vlist(graph);
+  cout << "construct_graph_and_vlist end" << endl;
+
+  // const int n = graph.vertexSize(), m = graph.edgeSize();
+  
+
+  cout << "right before return of construct_graph_and_vlist" << endl;
   return {graph, vlist};
 }
 
 std::vector<std::string> setset::get_vertices_from_top(
   const std::vector<std::vector<std::string>> &edges_from_top
 ) const {
+  cout << "get_vertices_from_top start" << endl;
   auto [graph, vlist] = construct_graph_and_vlist(edges_from_top);
   std::vector<std::string> vertices_from_top(graph.vertexSize());
   for (int i = 1; i <= graph.vertexSize(); ++i) {
     int v = vlist.newVToV(i);
     *(rbegin(vertices_from_top) + i - 1) = graph.vertexName(v);
   }
+  cout << "get_vertices_from_top end" << endl;
   return vertices_from_top;
 }
 
 setset setset::e_to_v_setset(const std::vector<std::vector<std::string>> &edges_from_top) const {
+  cout << "e_to_v_setset start" << endl;
   auto [graph, vlist] = construct_graph_and_vlist(edges_from_top);
-  SapporoZdd dd_e_spec(this->zdd_);
-  tdzdd::DdStructure<2> dd_e(dd_e_spec);
-  dd_e.zddReduce();
-  zdd_t dd_v = ConvEVDD::eToVZdd(dd_e, graph, vlist);
-  return setset(dd_v);
+
+  bool use_offset = false;
+  if (use_offset) {
+    cout << "max_elem: " << max_elem() << ", edge size: " << graph.edgeSize() << endl;
+    SapporoZdd dd_e_spec(this->zdd_);
+    this->zdd_.Print();
+    cout << "top var of e zdd: " << this->zdd_.Top() << endl;
+    cout << "top level of e zdd: " << BDD_LevOfVar(this->zdd_.Top()) << endl;
+    ofstream ofs("e_zbdd.dot");
+    dd_e_spec.dumpDot(ofs);
+    tdzdd::DdStructure<2> dd_e(dd_e_spec);
+    dd_e.zddReduce();
+    cout << "offset: " << max_elem() - graph.edgeSize() << endl;
+    zdd_t dd_v = ConvEVDD::eToVZdd(dd_e, graph, vlist, max_elem() - graph.edgeSize());
+    dd_v.Print();
+    cout << "top var of v zdd: " << dd_v.Top() << endl;
+    cout << "top level of v zdd: " << BDD_LevOfVar(dd_v.Top()) << endl;
+    ofstream ofs_v("v_zbdd.dot");
+    sbddh::writeZBDDForGraphviz(ofs_v, dd_v);
+    cout << "e_to_v_setset end" << endl;
+    cout << "n: " << graph.vertexSize() << ", m: " << graph.edgeSize() << endl;
+    cout << "max_elem: " << max_elem() << endl;
+    return setset(dd_v);
+  } else {
+    cout << "max_elem: " << max_elem() << ", edge size: " << graph.edgeSize() << endl;
+    SapporoZdd dd_e_spec(this->zdd_ >> (max_elem() - graph.edgeSize()));
+    (this->zdd_ >> (max_elem() - graph.edgeSize())).Print();
+    cout << "top var of e zdd: " << (this->zdd_ >> (max_elem() - graph.edgeSize())).Top() << endl;
+    cout << "top level of e zdd: " << BDD_LevOfVar((this->zdd_ >> (max_elem() - graph.edgeSize())).Top()) << endl;
+    ofstream ofs("e_zbdd.dot");
+    dd_e_spec.dumpDot(ofs);
+    tdzdd::DdStructure<2> dd_e(dd_e_spec);
+    dd_e.zddReduce();
+    zdd_t dd_v = ConvEVDD::eToVZdd(dd_e, graph, vlist);
+    dd_v.Print();
+    cout << "top var of v zdd: " << dd_v.Top() << endl;
+    cout << "top level of v zdd: " << BDD_LevOfVar(dd_v.Top()) << endl;
+    ofstream ofs_v("v_zbdd.dot");
+    sbddh::writeZBDDForGraphviz(ofs_v, dd_v);
+    cout << "e_to_v_setset end" << endl;
+    cout << "n: " << graph.vertexSize() << ", m: " << graph.edgeSize() << endl;
+    cout << "max_elem: " << max_elem() << endl;
+    return setset(dd_v << (max_elem() - graph.vertexSize()));
+  }
 }
 
 double setset::probability(const vector<double>& probabilities) const {
