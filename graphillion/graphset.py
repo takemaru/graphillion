@@ -1631,6 +1631,25 @@ class GraphSet(object):
         return GraphSet(le_ss.difference(lt_ss))
 
     def e_to_v(self):
+        """Returns a new VertexSetSet with vertices of each graph in `self`.
+
+        Examples:
+          >>> e1 = (1, 2)
+          >>> e2 = (3, 4)
+          >>> e3 = (2, 3)
+          >>> e4 = (2, 4)
+          >>> GraphSet.set_universe([e1, e2, e3, e4], "as-is")
+          >>> ordered_vertices = [eval(v) for v in setset.get_vertices_from_top()]
+          >>> VertexSetSet.set_universe(ordered_vertices)
+          >>> g1 = [e2]
+          >>> vss1 = GraphSet([[e1]]).e_to_v()
+          >>> vss1
+          VertexSetSet([['1', '2']])
+
+        Returns:
+          A new VertexSetSet object.
+
+        """
         return VertexSetSet(self._ss.e_to_v())
 
     @staticmethod
