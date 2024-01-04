@@ -653,15 +653,17 @@ generated during the operation.
 
 Creation methods specifying graph types also work as selection methods.
 
-| Method                                        | Description                                            |
-| :-------------------------------------------- | :----------------------------------------------------- |
-| `gs.graphs(constraints)`                      | Returns a GraphSet with graphs under given constraints |
-| `gs.connected_components(vertices)`           | Returns a GraphSet of connected components             |
-| `gs.cliques(k)`                               | Returns a GraphSet of k-cliques                        |
-| `gs.trees(root, is_spanning)`                 | Returns a GraphSet of trees                            |
-| `gs.forests(roots, is_spanning)`              | Returns a GraphSet of forests, sets of trees           |
-| `gs.cycles(is_hamilton)`                      | Returns a GraphSet of cycles                           |
-| `gs.paths(terminal1, terminal2, is_hamilton)` | Returns a GraphSet of paths                            |
+| Method                                                                | Description                                            |
+| :-------------------------------------------------------------------- | :----------------------------------------------------- |
+| `gs.graphs(constraints)`                                              | Returns a GraphSet with graphs under given constraints |
+| `gs.connected_components(vertices)`                                   | Returns a GraphSet of connected components             |
+| `gs.cliques(k)`                                                       | Returns a GraphSet of k-cliques                        |
+| `gs.trees(root, is_spanning)`                                         | Returns a GraphSet of trees                            |
+| `gs.forests(roots, is_spanning)`                                      | Returns a GraphSet of forests, sets of trees           |
+| `gs.cycles(is_hamilton)`                                              | Returns a GraphSet of cycles                           |
+| `gs.paths(terminal1, terminal2, is_hamilton)`                         | Returns a GraphSet of paths                            |
+| `gs.partitions(num_comp_lb, num_comp_ub)`                             | Returns a GraphSet of partitions                       |
+| `gs.balanced_partitions(weight_list, ratio, lower, upper, num_comps)` | Returns a GraphSet of balanced_partitions                    |
 
 ### Modification or generation methods
 
