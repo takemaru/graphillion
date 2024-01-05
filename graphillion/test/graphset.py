@@ -247,6 +247,17 @@ class TestGraphSet(unittest.TestCase):
         self.assertEqual(len(gs), 1)
         self.assertTrue([(1, 4), (2, 3), (2, 5), (3, 6), (4, 5)] in gs)
 
+        # perfect matchings
+        gs = GraphSet.perfect_matchings()
+        self.assertEqual(len(gs), 3)
+        self.assertTrue([(1, 2), (3, 6), (4, 5)] in gs)
+        self.assertTrue([(1, 4), (2, 3), (5, 6)] in gs)
+        self.assertTrue([(1, 4), (2, 5), (3, 6)] in gs)
+        
+        gs = GraphSet.perfect_matchings(graphset=GraphSet.forests(roots=[1, 2, 3]))
+        self.assertEqual(len(gs), 1)
+        self.assertTrue([(1, 4), (2, 5), (3, 6)] in gs)
+
         # called as instance methods
         gs = GraphSet.graphs(no_loop=True)
         _ = gs.connected_components([1, 3, 5])
@@ -255,6 +266,7 @@ class TestGraphSet(unittest.TestCase):
         _ = gs.forests([1, 3])
         _ = gs.cycles()
         _ = gs.paths(1, 6)
+        _ = gs.perfect_matchings()
 
         # exceptions
         self.assertRaises(KeyError, GraphSet.graphs, vertex_groups=[[7]])
