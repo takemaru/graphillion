@@ -5,8 +5,7 @@
 #include "subsetting/eval/ToZBDD.hpp"
 
 tdzdd::DdStructure<2> constructInducedGraphs(const tdzdd::Graph &g) {
-  constexpr bool is_noloop = false;
-  ConnectedInducedSubgraphSpec scspec(g, !is_noloop);
+  ConnectedInducedSubgraphSpec scspec(g);
 
 #ifdef _OPENMP
   bool use_mp = (omp_get_num_procs() >= 2);
