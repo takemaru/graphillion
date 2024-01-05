@@ -666,6 +666,7 @@ Creation methods specifying graph types also work as selection methods.
 | `gs.perfect_matchings()`                                              | Returns a GraphSet of perfect matchings                |
 | `gs.partitions(num_comp_lb, num_comp_ub)`                             | Returns a GraphSet of partitions                       |
 | `gs.balanced_partitions(weight_list, ratio, lower, upper, num_comps)` | Returns a GraphSet of balanced_partitions              |
+| `gs.induced_graphs()`                                                 | Returns a GraphSet of induced graphs                   |
 
 ### Modification or generation methods
 
@@ -778,6 +779,7 @@ Currently, the following methods can be parallelized:
 - `GraphSet.paths(terminal1, terminal2, is_hamilton)`
 - `GraphSet.matchings()`
 - `GraphSet.perfect_matchings()`
+- `GraphSet.induced_graphs()`
 
 Working with NetworkX
 --------------------------------------------------------------------------------

@@ -462,6 +462,27 @@ class TestGraphSet(unittest.TestCase):
         probabilities = {}
         reliability = GraphSet.reliability(probabilities=probabilities)
         self.assertEqual(reliability, 1.0)
+    def test_induced_graphs(self):
+        GraphSet.set_universe([(1, 2), (1, 4), (2, 3), (2, 5), (3, 6), (4, 5),
+                               (5, 6)])
+
+        gs = GraphSet.induced_graphs()
+
+        self.assertEqual(len(gs), 34)  # 1 + 6 + 10 + 10 + 7 + 0
+
+        self.assertTrue([(3, 6)] in gs)
+
+        self.assertTrue([(1, 2), (2, 3)] in gs)
+        self.assertTrue([(1, 2), (3, 6)] not in gs)
+
+        self.assertTrue([(2, 3), (2, 5), (3, 6), (5, 6)] in gs)
+        self.assertTrue([(1, 2), (2, 3), (4, 5), (5, 6)] not in gs)
+
+        self.assertTrue([(1, 2), (1, 4), (2, 3), (3, 6)] in gs)
+        self.assertTrue([(1, 2), (2, 3), (3, 6), (5, 6)] not in gs)
+
+        self.assertTrue([(1, 2), (1, 4), (2, 3), (2, 5),
+                         (3, 6), (4, 5), (5, 6)] in gs)
 
     def test_comparison(self):
         gs = GraphSet([g12])
