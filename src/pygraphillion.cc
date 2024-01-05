@@ -1637,7 +1637,7 @@ static PyObject* weighted_induced_graphs(PyObject*, PyObject* args,
     return NULL;
   }
   if (upper < lower) {
-    PyErr_SetString(PyExc_TypeError, "lower bound is larger than upper bount");
+    PyErr_SetString(PyExc_TypeError, "lower bound is larger than upper bound");
     return NULL;
   }
 

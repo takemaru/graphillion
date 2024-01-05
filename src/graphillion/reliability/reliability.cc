@@ -36,7 +36,7 @@ double reliability(const std::vector<edge_t>& edges,
   }
   g.update();
 
-  for (const auto v : terminals) {
+  for (const auto& v : terminals) {
     g.setColor(v, 1);
   }
   g.update();
