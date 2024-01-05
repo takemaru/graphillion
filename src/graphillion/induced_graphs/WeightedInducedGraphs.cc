@@ -21,6 +21,7 @@ setset SearchWeightedInducedGraphs(
                                      lower, upper);
   dd.zddSubset(cwispec);
   dd.zddReduce();
+  dd.useMultiProcessors(false);
 
   auto f = dd.evaluate(ToZBDD(setset::max_elem() - setset::num_elems()));
   return setset(f);
