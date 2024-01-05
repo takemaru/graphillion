@@ -662,6 +662,7 @@ Creation methods specifying graph types also work as selection methods.
 | `gs.forests(roots, is_spanning)`                                      | Returns a GraphSet of forests, sets of trees           |
 | `gs.cycles(is_hamilton)`                                              | Returns a GraphSet of cycles                           |
 | `gs.paths(terminal1, terminal2, is_hamilton)`                         | Returns a GraphSet of paths                            |
+| `gs.matchings()`                                                      | Returns a GraphSet of matchings                        |
 | `gs.partitions(num_comp_lb, num_comp_ub)`                             | Returns a GraphSet of partitions                       |
 | `gs.balanced_partitions(weight_list, ratio, lower, upper, num_comps)` | Returns a GraphSet of balanced_partitions                    |
 
@@ -774,6 +775,7 @@ Currently, the following methods can be parallelized:
 - `GraphSet.forests(roots, is_spanning)`
 - `GraphSet.cycles(is_hamilton)`
 - `GraphSet.paths(terminal1, terminal2, is_hamilton)`
+- `GraphSet.matchings()`
 
 Working with NetworkX
 --------------------------------------------------------------------------------
