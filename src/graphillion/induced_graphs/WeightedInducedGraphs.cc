@@ -2,16 +2,7 @@
 #include "InducedGraphs.h"
 #include "WeightedInducedGraphs.h"
 #include "subsetting/eval/ToZBDD.hpp"
-
-std::vector<uint32_t> convert_weight_list(
-    const tdzdd::Graph &g,
-    const std::map<std::string, uint32_t> &_weight_list) {
-  std::vector<uint32_t> weight_list(g.vertexSize(), 1);
-  for (const auto &p : _weight_list) {
-    weight_list[g.getVertex(p.first) - 1] = p.second;
-  }
-  return weight_list;
-}
+#include "graphillion/convert_weight_list.h"
 
 namespace graphillion {
 setset SearchWeightedInducedGraphs(
@@ -26,7 +17,7 @@ setset SearchWeightedInducedGraphs(
   auto dd = constructInducedGraphs(g);
   dd.zddReduce();
 
-  ComponentWeightInducedSpec cwispec(g, convert_weight_list(g, weight_list),
+  ComponentWeightInducedSpec cwispec(g, convert_weight_list<uint32_t>(g, weight_list),
                                      lower, upper);
   dd.zddSubset(cwispec);
   dd.zddReduce();

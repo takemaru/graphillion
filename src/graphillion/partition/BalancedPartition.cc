@@ -8,16 +8,7 @@
 #include "subsetting/DdStructure.hpp"
 #include "subsetting/eval/ToZBDD.hpp"
 #include "subsetting/util/Graph.hpp"
-
-std::vector<weight_t> convert_weight_list(
-    const tdzdd::Graph &g,
-    const std::map<std::string, weight_t> &_weight_list) {
-  std::vector<weight_t> weight_list(g.vertexSize(), 1);
-  for (const auto &p : _weight_list) {
-    weight_list[g.getVertex(p.first) - 1] = p.second;
-  }
-  return weight_list;
-}
+#include "graphillion/convert_weight_list.h"
 
 /**
  * @param g:           input graph.
@@ -93,7 +84,7 @@ setset SearchRatioPartitions(const std::vector<edge_t> &edges,
   }
   g.update();
 
-  auto dd = constructRatioDd(g, convert_weight_list(g, weight_list), ratio,
+  auto dd = constructRatioDd(g, convert_weight_list<weight_t>(g, weight_list), ratio,
                              lower, upper, k);
   dd.useMultiProcessors(false);
   zdd_t f = dd.evaluate(ToZBDD(setset::max_elem() - setset::num_elems()));
@@ -110,7 +101,7 @@ setset SearchWeightPartitions(
   }
   g.update();
 
-  auto dd = constructWeightDd(g, convert_weight_list(g, weight_list), lower,
+  auto dd = constructWeightDd(g, convert_weight_list<weight_t>(g, weight_list), lower,
                               upper, k);
   dd.useMultiProcessors(false);
   zdd_t f = dd.evaluate(ToZBDD(setset::max_elem() - setset::num_elems()));
