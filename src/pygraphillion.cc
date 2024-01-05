@@ -44,7 +44,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "graphillion/graphset.h"
 #include "graphillion/reliability/reliability.h"
 #include "graphillion/induced_graphs/InducedGraphs.h"
-#include "graphillion/induced_graphs/WeightedInducedGreaphs.h"
+#include "graphillion/induced_graphs/WeightedInducedGraphs.h"
 
 using graphillion::setset;
 using graphillion::Range;

@@ -1,6 +1,6 @@
 #include "ComponentWeightInducedSpec.h"
 #include "InducedGraphs.h"
-#include "WeightedInducedGreaphs.h"
+#include "WeightedInducedGraphs.h"
 #include "subsetting/eval/ToZBDD.hpp"
 
 std::vector<uint32_t> convert_weight_list(
