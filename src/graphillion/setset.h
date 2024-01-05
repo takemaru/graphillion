@@ -220,6 +220,10 @@ class setset {
       const std::map<std::string, uint32_t>& weight_list, double ratio,
       uint32_t lower, uint32_t upper, int k);
   friend setset SearchInducedGraphs(const std::vector<edge_t>& edges);
+  friend setset SearchWeightedInducedGraphs(
+      const std::vector<edge_t> &edges,
+      const std::map<std::string, uint32_t> &weight_list, uint32_t lower,
+      uint32_t upper);
 };
 
 }  // namespace graphillion

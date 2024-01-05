@@ -667,6 +667,7 @@ Creation methods specifying graph types also work as selection methods.
 | `gs.partitions(num_comp_lb, num_comp_ub)`                             | Returns a GraphSet of partitions                       |
 | `gs.balanced_partitions(weight_list, ratio, lower, upper, num_comps)` | Returns a GraphSet of balanced_partitions              |
 | `gs.induced_graphs()`                                                 | Returns a GraphSet of induced graphs                   |
+| `gs.weighted_induced_graphs(weight_list, lower, upper)`               | Returns a GraphSet of induced graphs with weight_list  |
 
 ### Modification or generation methods
 
