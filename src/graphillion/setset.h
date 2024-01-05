@@ -207,7 +207,7 @@ class setset {
       const std::vector<linear_constraint_t>* linear_constraints);
   friend setset SearchPartitions(const std::vector<graphillion::edge_t>& edges,
                                  int16_t comp_lb, int16_t comp_ub);
-  friend setset SearchRatioPatitions(
+  friend setset SearchRatioPartitions(
       const std::vector<edge_t>& edges,
       const std::map<std::string, uint32_t>& weight_list, double ratio,
       uint32_t lower, uint32_t upper, int k);

@@ -5,10 +5,10 @@ using weight_t = uint32_t;
 
 namespace graphillion {
 
-setset SearchRatioPatitions(const std::vector<edge_t> &edges,
-                            const std::map<std::string, weight_t> &weight_list,
-                            double ratio, uint32_t lower, uint32_t upper,
-                            int k);
+setset SearchRatioPartitions(const std::vector<edge_t> &edges,
+                             const std::map<std::string, weight_t> &weight_list,
+                             double ratio, uint32_t lower, uint32_t upper,
+                             int k);
 
 setset SearchWeightPartitions(
     const std::vector<edge_t> &edges,

@@ -83,10 +83,10 @@ tdzdd::DdStructure<2> constructWeightDd(
 
 namespace graphillion {
 
-setset SearchRatioPatitions(const std::vector<edge_t> &edges,
-                            const std::map<std::string, weight_t> &weight_list,
-                            double ratio, weight_t lower, weight_t upper,
-                            int k) {
+setset SearchRatioPartitions(const std::vector<edge_t> &edges,
+                             const std::map<std::string, weight_t> &weight_list,
+                             double ratio, weight_t lower, weight_t upper,
+                             int k) {
   tdzdd::Graph g;
   for (const auto &e : edges) {
     g.addEdge(e.first, e.second);
@@ -124,7 +124,7 @@ setset SearchBalancedPartitions(const std::vector<edge_t> &edges,
   if (ratio < 1.0) {
     return SearchWeightPartitions(edges, weight_list, lower, upper, k);
   }
-  return SearchRatioPatitions(edges, weight_list, ratio, lower, upper, k);
+  return SearchRatioPartitions(edges, weight_list, ratio, lower, upper, k);
 }
 
 }  // namespace graphillion
