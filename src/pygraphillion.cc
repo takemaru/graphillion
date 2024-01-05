@@ -28,7 +28,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "structmember.h"
 
 #include "graphillion/partition/Partition.h"
-#include "graphillion/balanced_partitions/BalancedPartitions.h"
+#include "graphillion/partition/BalancedPartition.h"
 #include "pygraphillion.h"
 
 #include <cstdlib>

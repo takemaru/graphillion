@@ -665,7 +665,7 @@ Creation methods specifying graph types also work as selection methods.
 | `gs.matchings()`                                                      | Returns a GraphSet of matchings                        |
 | `gs.perfect_matchings()`                                              | Returns a GraphSet of perfect matchings                |
 | `gs.partitions(num_comp_lb, num_comp_ub)`                             | Returns a GraphSet of partitions                       |
-| `gs.balanced_partitions(weight_list, ratio, lower, upper, num_comps)` | Returns a GraphSet of balanced_partitions                    |
+| `gs.balanced_partitions(weight_list, ratio, lower, upper, num_comps)` | Returns a GraphSet of balanced_partitions              |
 
 ### Modification or generation methods
 

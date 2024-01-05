@@ -1,4 +1,4 @@
-#include "BalancedPartitions.h"
+#include "BalancedPartition.h"
 
 #include <numeric>
 
