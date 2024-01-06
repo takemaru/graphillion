@@ -10,7 +10,7 @@
 
 #include "graphillion/setset.h"
 
-ZBDD constructChadalGraphs(const tdzdd::Graph &graph, const uint32_t k) {
+ZBDD constructChordalGraphs(const tdzdd::Graph &graph, const uint32_t k) {
   const int m = graph.edgeSize();
 
 #ifdef _OPENMP
@@ -59,7 +59,7 @@ setset SearchChordals(const std::vector<edge_t> &edges, const uint32_t k) {
   }
   g.update();
 
-  auto dd = constructChadalGraphs(g, k);
+  auto dd = constructChordalGraphs(g, k);
   return setset(dd);
 }
 }  // namespace graphillion
