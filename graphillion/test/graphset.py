@@ -551,6 +551,32 @@ class TestGraphSet(unittest.TestCase):
         self.assertEqual(len(gs), 617675)
         self.assertTrue([(2, 3), (2, 5), (3, 4), (4, 5)] not in gs)
         self.assertTrue([(3, 4), (3, 5), (3, 6), (4, 5), (5, 6)] in gs)
+    def test_bipartite_graphs(self):
+        GraphSet.set_universe([(1, 2), (1, 3), (2, 3), (3, 4)])
+        """
+        1 --- 2
+        |  /
+        3 --- 4
+        """
+        gs = GraphSet.bipartite_graphs()
+        self.assertEqual(len(gs), 2 ** 4 - 2)
+        self.assertTrue([(1, 2), (2, 3), (3, 4)] in gs)
+        self.assertTrue([] in gs)
+        self.assertTrue([(1, 2), (1, 3), (2, 3)] not in gs)
+        self.assertTrue([(1, 2), (1, 3), (2, 3), (3, 4)] not in gs)
+
+        graphset = GraphSet(
+            [[(1, 2), (1, 3), (2, 3)], [(1, 2), (2, 3), (3, 4)]])
+        gs = GraphSet.bipartite_graphs(graphset=graphset)
+        self.assertTrue([(1, 2), (2, 3), (3, 4)] in gs)
+        self.assertTrue([(1, 2), (1, 3), (3, 4)] not in gs)
+
+        GraphSet.set_universe([(1, 2), (2, 3), (3, 4), (4, 5)])
+        """
+        1 --- 2 --- 3 --- 4 --- 5
+        """
+        gs = GraphSet.bipartite_graphs()
+        self.assertEqual(len(gs), 16)
 
     def test_comparison(self):
         gs = GraphSet([g12])

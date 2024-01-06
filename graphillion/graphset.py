@@ -2108,6 +2108,35 @@ class GraphSet(object):
         return GraphSet(ss)
 
     @staticmethod
+    def bipartite_graphs(graphset=None):
+        """Returns a GraphSet of bipartite subgraphs.
+
+        Example:
+          >>> GraphSet.bipartite_graphs()
+          GraphSet([[], [(1, 4)], [(4, 5)], [(1, 2)], [(2, 5)], [(2, 3)], [(3, 6)], [( ...
+
+        Args:
+          graphset: Optional. A GraphSet object. Subgraphs to be stored
+            are selected from this object.
+
+        Returns:
+          A new GraphSet object.
+        """
+        graph = []
+        for e in setset.universe():
+            assert e[0] in GraphSet._vertices and e[1] in GraphSet._vertices
+            graph.append(
+                (pickle.dumps(e[0], protocol=0), pickle.dumps(e[1], protocol=0)))
+
+        odd_gs = GraphSet(_graphillion._odd_edges_subgraphs(graph))
+        odd_cycle_gs = odd_gs.cycles()
+
+        if graphset is None:
+            return GraphSet({}).non_supergraphs(odd_cycle_gs)
+
+        return graphset.non_supergraphs(odd_cycle_gs)
+
+    @staticmethod
     def show_messages(flag=True):
         """Enables/disables status messages.
 

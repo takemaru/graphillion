@@ -79,7 +79,8 @@ sources_list = [os.path.join('src', 'pygraphillion.cc'),
                 os.path.join('src', 'graphillion', 'reliability', 'reliability.cc'),
                 os.path.join('src', 'graphillion', 'induced_graphs', 'InducedGraphs.cc'),
                 os.path.join('src', 'graphillion', 'induced_graphs', 'WeightedInducedGraphs.cc'),
-                os.path.join('src', 'graphillion', 'chordal', 'chordal.cc')]
+                os.path.join('src', 'graphillion', 'chordal', 'chordal.cc'),
+                os.path.join('src', 'graphillion', 'odd_edges_subgraphs', 'OddEdgeSubgraphs.cc')]
 
 if sys.platform == 'win32':
     sources_list.append(os.path.join('src', 'mingw32', 'RpWinResource.c'))
