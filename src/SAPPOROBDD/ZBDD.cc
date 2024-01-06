@@ -717,7 +717,7 @@ ZBDD ZBDDV::GetZBDD(int index) const
   while(level > 0)
   {
     if(f == 0) return f;
-    if((index & (1<<level-1)) != 0) f = f.OnSet0(level);
+    if((index & ((1 << level)-1)) != 0) f = f.OnSet0(level);
     else f = f.OffSet(level);
     level--;
   }
@@ -853,20 +853,20 @@ ZBDDV ZBDDV_Import(FILE *strm)
   bddword *hash1;
   ZBDD *hash2;
 
-  if(fscanf(strm, "%s", &s) == EOF) return ZBDDV(-1);
+  if(fscanf(strm, "%s", s) == EOF) return ZBDDV(-1);
   if(strcmp(s, "_i") != 0) return ZBDDV(-1);
-  if(fscanf(strm, "%s", &s) == EOF) return ZBDDV(-1);
+  if(fscanf(strm, "%s", s) == EOF) return ZBDDV(-1);
   int n = strtol(s, NULL, 10);
   while(n > BDD_TopLev()) BDD_NewVar();
 
-  if(fscanf(strm, "%s", &s) == EOF) return ZBDDV(-1);
+  if(fscanf(strm, "%s", s) == EOF) return ZBDDV(-1);
   if(strcmp(s, "_o") != 0) return ZBDDV(-1);
-  if(fscanf(strm, "%s", &s) == EOF) return ZBDDV(-1);
+  if(fscanf(strm, "%s", s) == EOF) return ZBDDV(-1);
   int m = strtol(s, NULL, 10);
 
-  if(fscanf(strm, "%s", &s) == EOF) return ZBDDV(-1);
+  if(fscanf(strm, "%s", s) == EOF) return ZBDDV(-1);
   if(strcmp(s, "_n") != 0) return ZBDDV(-1);
-  if(fscanf(strm, "%s", &s) == EOF) return ZBDDV(-1);
+  if(fscanf(strm, "%s", s) == EOF) return ZBDDV(-1);
   bddword n_nd = B_STRTOI(s, NULL, 10);
 
   for(hashsize = 1; hashsize < (n_nd<<1); hashsize <<= 1)
@@ -884,14 +884,14 @@ ZBDDV ZBDDV_Import(FILE *strm)
   e = 0;
   for(bddword ix=0; ix<n_nd; ix++)
   {
-    if(fscanf(strm, "%s", &s) == EOF) { e = 1; break; }
+    if(fscanf(strm, "%s", s) == EOF) { e = 1; break; }
     bddword nd = B_STRTOI(s, NULL, 10);
     
-    if(fscanf(strm, "%s", &s) == EOF) { e = 1; break; }
+    if(fscanf(strm, "%s", s) == EOF) { e = 1; break; }
     int lev = strtol(s, NULL, 10);
     int var = bddvaroflev(lev);
 
-    if(fscanf(strm, "%s", &s) == EOF) { e = 1; break; }
+    if(fscanf(strm, "%s", s) == EOF) { e = 1; break; }
     if(strcmp(s, "F") == 0) f0 = 0;
     else if(strcmp(s, "T") == 0) f0 = 1;
     else
@@ -909,7 +909,7 @@ ZBDDV ZBDDV_Import(FILE *strm)
       f0 = hash2[ixx];
     }
 
-    if(fscanf(strm, "%s", &s) == EOF) { e = 1; break; }
+    if(fscanf(strm, "%s", s) == EOF) { e = 1; break; }
     if(strcmp(s, "F") == 0) f1 = 0;
     else if(strcmp(s, "T") == 0) f1 = 1;
     else
@@ -954,7 +954,7 @@ ZBDDV ZBDDV_Import(FILE *strm)
   ZBDDV v = ZBDDV();
   for(int i=0; i<m; i++)
   {
-    if(fscanf(strm, "%s", &s) == EOF)
+    if(fscanf(strm, "%s", s) == EOF)
     {
       delete[] hash2;
       delete[] hash1;
@@ -986,10 +986,10 @@ ZBDDV ZBDDV_Import(FILE *strm)
 }
 
 #define ZLevNum(n) \
-  (n-((n&2)?(n&1)? (n<512)?(n<64)?(n<16)?4:8:(n<128)?32:(n<256)?64:128:(n<4096)?(n<1024)?256:(n<2048)?512:1024:(n<8192)?2048:(n<32768)?4096:8192 \
-  : (n<512)?(n<64)?4:(n<256)?16:32:(n<4096)?(n<1024)?64:128:(n<32768)?512:1024 \
-  :(n&1)? (n<512)?(n<16)?4:8:(n<2048)?(n<1024)?16:32:(n<32768)?64:128 \
-  : (n<1024)?4:(n<32768)?8:16 \
+  ((n)-(((n)&2)?((n)&1)? ((n)<512)?((n)<64)?((n)<16)?4:8:((n)<128)?32:((n)<256)?64:128:((n)<4096)?((n)<1024)?256:((n)<2048)?512:1024:((n)<8192)?2048:((n)<32768)?4096:8192 \
+  : ((n)<512)?((n)<64)?4:((n)<256)?16:32:((n)<4096)?((n)<1024)?64:128:((n)<32768)?512:1024 \
+  :((n)&1)? ((n)<512)?((n)<16)?4:8:((n)<2048)?((n)<1024)?16:32:((n)<32768)?64:128 \
+  : ((n)<1024)?4:((n)<32768)?8:16 \
   ))
 
 ZBDD ZBDD::ZLev(int lev, int last) const
