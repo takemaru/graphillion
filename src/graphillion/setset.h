@@ -224,6 +224,7 @@ class setset {
       const std::vector<edge_t> &edges,
       const std::map<std::string, uint32_t> &weight_list, uint32_t lower,
       uint32_t upper);
+  friend setset SearchChordals(const std::vector<edge_t> &edges, const uint32_t k);
 };
 
 }  // namespace graphillion
