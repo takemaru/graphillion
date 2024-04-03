@@ -176,6 +176,16 @@ class setset(_graphillion.setset):
         assert len([p for p in ps[1:] if p < 0 or 1 < p]) == 0
         return _graphillion.setset.probability(self, ps)
 
+    def cost_le(self, costs, cost_bound):
+        cs = [-1] * (_graphillion._num_elems() + 1)
+        for e, c in viewitems(costs):
+            i = setset._obj2int[e]
+            cs[i] = c
+        # Each cost must be in the range of 32 bit signed integer
+        # due to the implementation of BDDCT class of SAPPOROBDD.
+        assert len([c for c in cs[1:] if c < -(1 << 31) or (1 << 31) <= c]) == 0
+        return _graphillion.setset.cost_le(self, costs=cs, cost_bound=cost_bound)
+
     @staticmethod
     def load(fp):
         """Deserialize a file `fp` to `self`.

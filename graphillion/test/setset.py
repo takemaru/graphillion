@@ -51,7 +51,7 @@ class TestSetset(unittest.TestCase):
 
     def test_init(self):
         import _graphillion
-        self.assertEqual(_graphillion._elem_limit(), 2**20 - 1)
+        self.assertEqual(_graphillion._elem_limit(), 2**16 - 1)
 
         setset.set_universe([])
 

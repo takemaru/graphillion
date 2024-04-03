@@ -1,35 +1,12 @@
-/*********************************************************************
-Copyright 2013  JST ERATO Minato project and other contributors
-http://www-erato.ist.hokudai.ac.jp/?language=en
-
-Permission is hereby granted, free of charge, to any person obtaining
-a copy of this software and associated documentation files (the
-"Software"), to deal in the Software without restriction, including
-without limitation the rights to use, copy, modify, merge, publish,
-distribute, sublicense, and/or sell copies of the Software, and to
-permit persons to whom the Software is furnished to do so, subject to
-the following conditions:
-
-The above copyright notice and this permission notice shall be
-included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-**********************************************************************/
 /*****************************************
-*  BDD Package (SAPPORO-1.57)   - Body   *
-*  (C) Shin-ichi MINATO  (June 14, 2013) *
+*  BDD Package (SAPPORO-1.94)   - Body   *
+*  (C) Shin-ichi MINATO  (Apr. 19, 2022)   *
 ******************************************/
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "SAPPOROBDD/bddc.h"
+#include "bddc.h"
 
 /* ----------------- MACRO Definitions ---------------- */
 /* Operation IDs in Cache */
@@ -52,6 +29,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #define BC_CARD       16
 #define BC_LIT        17
 #define BC_LEN        18
+#define BC_CARD2      19
 
 /* Macros for malloc, realloc */
 #define B_MALLOC(type, size) \
@@ -132,7 +110,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
     ((p)->varrfc -= B_RFC_UNIT, 0))
 
 /* ----------- Stack overflow limitter ------------ */
-const int BDD_RecurLimit = 65536;
+const int BDD_RecurLimit = 8192;
 int BDD_RecurCount = 0;
 #define BDD_RECUR_INC \
   {if(++BDD_RecurCount >= BDD_RecurLimit) \
@@ -144,19 +122,26 @@ int BDD_RecurCount = 0;
 
 /* Hash Functions */
 #define B_HASHKEY(f0, f1, hashSpc) \
-  (((B_CST(f0)? (f0): (f0)+2U) \
-   ^(B_NEG(f0)? ~((f0)>>1U): ((f0)>>1U)) \
-   ^(B_CST(f1)? (f1)<<1U: ((f1)+2U)<<1U) \
-   ^(B_NEG(f1)? ~((f1)>>1U): ((f1)>>1U)) )\
+  (((B_CST(f0)? (f0): ((f0)+2U)) \
+   ^(B_NEG(f0)? ~((f0)>>1U): ((f0)>>1U))\
+   ^((B_CST(f1)? (f1): ((f1)+2U))) \
+   ^((B_NEG(f1)? ~((f1)>>1U):((f1)>>1U))<<4U))\
   & (hashSpc-1U))
-/*  (((f0)^((f0)>>10)^((f0)>>31)^(f1)^((f1)>>8)^((f1)>>31)) \*/
 #define B_CACHEKEY(op, f, g) \
-  ((((bddp)(op)<<2U) \
-   ^(B_CST(f)? (f): (f)+2U) \
-   ^(B_NEG(f)? ~((f)>>1U): ((f)>>1U)) \
-   ^(B_CST(g)? (g)<<3U: ((g)+2U)<<3U) \
-   ^(B_NEG(g)? ~((g)>>1U): ((g)>>1U)) )\
-  & (CacheSpc-1U))
+  ((((bddp)(op)<<4U)\
+   ^((B_CST(f)? (f):((f)+2U)))\
+   ^((B_NEG(f)? ~((f)>>1U): ((f)>>1U))) \
+   ^((B_CST(g)? (g):((g)+2U))) \
+   ^((B_NEG(g)? ~((g)>>1U):((g)>>1U))*4369U) )\
+   & (CacheSpc-1U))
+
+/* Multi-Precision Count */
+#define B_MP_LWID 4U
+#define B_MP_LPOS (B_MSB_POS - B_MP_LWID)
+#define B_MP_LMAX (1U<<B_MP_LWID)
+#define B_MP_NULL (B_CST_MASK + B_VAL_MASK)
+#define B_MP_LEN(f) (B_CST(f)? (B_VAL(f)>>B_MP_LPOS)+1: 0)
+#define B_MP_VAL(f) ((f) & (B_VAL_MASK>>B_MP_LWID))
 
 /* ------- Declaration of static (internal) data ------- */
 /* typedef of bddp field in the tables */
@@ -230,6 +215,21 @@ static struct B_RFC_Table *RFCT = 0; /* RFC-Table */
 static bddp RFCT_Spc;   /* Current RFC-table size */
 static bddp RFCT_Used;  /* Current RFC-table used entries */
 
+/* Declaration of MP-Count */
+struct B_MPTable
+{
+  bddp size;  /* Table size */
+  bddp used;  /* Used entries */
+  bddp* word; /* Table head */
+};
+static struct B_MPTable mptable[B_MP_LMAX] = {0}; /* MP-Count Table */
+
+struct B_MP
+{
+  int len;
+  bddp word[B_MP_LMAX];
+};
+
 /* ----- Declaration of static (internal) functions ------ */
 /* Private procedure */
 static int  err B_ARG((char *msg, bddp num));
@@ -250,6 +250,7 @@ static void export B_ARG((FILE *strm, bddp f));
 static int import B_ARG((FILE *strm, bddp *p, int lim, int z));
 static int andfalse B_ARG((bddp f, bddp g));
 
+static int mp_add B_ARG((struct B_MP *p, bddp ix));
 
 /* ------------------ Body of program -------------------- */
 /* ----------------- External functions ------------------ */
@@ -262,7 +263,7 @@ bddp limitsize;
   bddvar i;
 
   /* Check dupulicate initialization */
-  if(Node) free(Node);
+  if(Node){ free(Node); Node = 0; }
   if(Var)
   {
     for(i=0; i<VarSpc; i++)
@@ -272,11 +273,10 @@ bddp limitsize;
       if(Var[i].hash_h8) free(Var[i].hash_h8);
 #endif
     }
-    free(Var);
+    free(Var); Var = 0;
   }
-  if(VarID) free(VarID);
-  if(Cache) free(Cache);
-  if(RFCT) free(RFCT);
+  if(VarID){ free(VarID); VarID = 0; }
+  if(Cache){ free(Cache); Cache = 0; }
 
   /* Set NodeLimit */
   if(limitsize < B_NODE_SPC0) NodeLimit = B_NODE_SPC0;
@@ -338,8 +338,18 @@ bddp limitsize;
 
   for(ix=0; ix<CacheSpc; ix++) Cache[ix].op = BC_NULL;
 
+  /* Init RFC Table */
+  if(RFCT){ free(RFCT); RFCT = 0; }
   RFCT_Spc = 0;
   RFCT_Used = 0;
+
+  /* Init MP-Count Table */
+  for(i=0; i<B_MP_LMAX; i++)
+  {
+    mptable[i].size = 0;
+    mptable[i].used = 0;
+    if(mptable[i].word) { free(mptable[i].word); mptable[i].word = 0; }
+  }
 
   return 0;
 }
@@ -450,11 +460,26 @@ int bddgc()
         cachep->op = BC_NULL;
         break;
       }
+      f = B_GET_BDDP(cachep->h);
+      if(f > bddnull)
+      {
+        cachep->op = BC_NULL;
+        break;
+      }
       break;
     default:
       cachep->op = BC_NULL;
       break;
     }
+  }
+
+  /* MP-Count table clear */
+  for(i=0; i<B_MP_LMAX; i++)
+  {
+    mptable[i].size = 0;
+    mptable[i].used = 0;
+    free(mptable[i].word);
+    mptable[i].word = 0;
   }
 
   /* Hash-table packing */
@@ -474,6 +499,8 @@ int bddgc()
 
     /* Reduce space */
 #ifdef B_64
+    newhash_32 = 0;
+    newhash_h8 = 0;
     newhash_32 = B_MALLOC(bddp_32, newSpc);
     newhash_h8 = B_MALLOC(bddp_h8, newSpc);
     if(!newhash_32 || !newhash_h8)
@@ -483,6 +510,7 @@ int bddgc()
       break; /* Not enough memory */
     }
 #else
+    newhash_32 = 0;
     newhash_32 = B_MALLOC(bddp_32, newSpc);
     if(!newhash_32) break; /* Not enough memory */
 #endif
@@ -1242,13 +1270,13 @@ bddp f;
   struct B_NodeTable *fp;
 
   if(f == bddnull) return 0;
-  if(B_CST(f)) return (f == bddempty)? 0: 1;
+  if(B_CST(f)) return (f == bddfalse)? 0: 1;
   fp = B_NP(f);
   if(fp>=Node+NodeSpc || !fp->varrfc)
     err("bddcard: Invalid bddp", f);
   if(!B_Z_NP(fp)) err("bddcard: applying non-ZBDD node", f);
 
-  return apply(f, bddempty, BC_CARD, 0);
+  return apply(f, bddfalse, BC_CARD, 0);
 }
 
 bddp bddlit(f)
@@ -1263,7 +1291,7 @@ bddp f;
     err("bddlit: Invalid bddp", f);
   if(!B_Z_NP(fp)) err("bddlit: applying non-ZBDD node", f);
 
-  return apply(f, bddempty, BC_LIT, 0);
+  return apply(f, bddfalse, BC_LIT, 0);
 }
 
 bddp bddlen(f)
@@ -1278,10 +1306,117 @@ bddp f;
     err("bddlen: Invalid bddp", f);
   if(!B_Z_NP(fp)) err("bddlen: applying non-ZBDD node", f);
 
-  return apply(f, bddempty, BC_LEN, 0);
+  return apply(f, bddfalse, BC_LEN, 0);
 }
 
+char *bddcardmp16(f, s)
+bddp f;
+char *s;
+{
+  struct B_NodeTable *fp;
+  int i, j, k, nz;
+  struct B_MP mp;
+  bddp h, d;
 
+  mp.len = 1;
+  if(f == bddnull) mp.word[0] = 0; 
+  else if(B_CST(f)) mp.word[0] = (f == bddtrue)? 1: 0;
+  else
+  {
+    fp = B_NP(f);
+    if(fp>=Node+NodeSpc || !fp->varrfc)
+      err("bddcardmp16: Invalid bddp", f);
+    if(!B_Z_NP(fp)) err("bddcardmp16: applying non-ZBDD node", f);
+    h = apply(B_ABS(f), bddfalse, BC_CARD2, 0);
+    if(h == B_MP_NULL) mp.len = 0;
+    else
+    {
+      mp.word[0] = B_NEG(f)? 1: 0;
+      mp_add(&mp, h);
+    }
+  }
+  if(!s) s = B_MALLOC(char, mp.len*sizeof(bddp)*2+1);
+  if(!s) return s;
+  k = 0;
+  nz = 0;
+  for(i=mp.len-1; i>=0; i--)
+    for(j=sizeof(bddp)*2-1; j>=0; j--)
+    {
+      d = (mp.word[i] >> (j*4) ) & 15;
+      if(d) nz = 1;
+      if(nz) s[k++] = "0123456789ABCDEF"[d];
+    }
+  if(!nz && mp.len) s[k++] = '0';
+  s[k++] = 0;
+
+#ifdef DEBUG
+  for(i=0; i<B_MP_LMAX; i++)
+  {
+    printf("%d: ", i);
+    printf(B_BDDP_FD, mptable[i].size);
+    printf("\n");
+  }
+#endif 
+
+  return s;
+}
+
+int bddimport(strm, p, lim)
+FILE *strm;
+bddp *p;
+int lim;
+{
+  return import(strm, p, lim, 0);
+}
+
+int bddimportz(strm, p, lim)
+FILE *strm;
+bddp *p;
+int lim;
+{
+  return import(strm, p, lim, 1);
+}
+
+int bddisbdd(f)
+bddp f;
+{
+  struct B_NodeTable* fp;
+
+  if(f == bddnull) return 0;
+  if(B_CST(f)) return 1;
+  if((fp=B_NP(f))>=Node+NodeSpc || !fp->varrfc)
+    err("bddisbdd: Invalid bddp", f);
+
+  return (B_NEG(B_GET_BDDP(fp->f0)) ? 0 : 1);
+}
+
+int bddiszbdd(f)
+bddp f;
+{
+  struct B_NodeTable* fp;
+
+  if(f == bddnull) return 0;
+  if(B_CST(f)) return 1;
+  if((fp=B_NP(f))>=Node+NodeSpc || !fp->varrfc)
+    err("bddiszbdd: Invalid bddp", f);
+
+  return (B_NEG(B_GET_BDDP(fp->f0)) ? 1 : 0);
+}
+
+bddp    bddpush(f, v)
+bddp    f;
+bddvar 	v;
+/* Returns bddnull if not enough memory */
+{
+  struct B_NodeTable *fp;
+
+  /* Check operands */
+  if(v > VarUsed || v == 0) err("bddpush: Invalid VarID", v);
+  if(f == bddnull) return bddnull;
+
+  if(!B_CST(f)) { fp = B_NP(f); B_RFC_INC_NP(fp); }
+  return getzbddp(v, bddfalse, f);
+}
 
 /* ----------------- Internal functions ------------------ */
 static void var_enlarge()
@@ -1297,6 +1432,8 @@ static void var_enlarge()
   if(newSpc > bddvarmax+1) newSpc = bddvarmax+1U;
 
   /* Enlarge space */
+  newVar = 0;
+  newVarID = 0;
   newVar = B_MALLOC(struct B_VarTable, newSpc);
   newVarID = B_MALLOC(unsigned int, newSpc);
   if(newVar && newVarID)
@@ -1352,6 +1489,7 @@ static int node_enlarge()
   if(newSpc > NodeLimit) newSpc = NodeLimit;
 
   /* Enlarge space */
+  newNode = 0;
   newNode = B_MALLOC(struct B_NodeTable, newSpc);
   if(newNode)
   {
@@ -1386,6 +1524,7 @@ static int node_enlarge()
   /* Realloc Cache */
   for(newSpc=CacheSpc; newSpc<NodeSpc>>1U; newSpc<<=1U)
     ; /* empty */
+  newCache = 0;
   newCache = B_MALLOC(struct B_CacheTable, newSpc);
   if(newCache)
   {
@@ -1439,6 +1578,8 @@ bddvar v;
 
   /* Enlarge space */
 #ifdef B_64
+  newhash_32 = 0;
+  newhash_h8 = 0;
   newhash_32 = B_MALLOC(bddp_32, newSpc);
   newhash_h8 = B_MALLOC(bddp_h8, newSpc);
   if(newhash_32 && newhash_h8)
@@ -1460,6 +1601,7 @@ bddvar v;
     return 1;
   }
 #else
+  newhash_32 = 0;
   newhash_32 = B_MALLOC(bddp_32, newSpc);
   if(newhash_32)
   {
@@ -1524,9 +1666,11 @@ bddp    f0, f1;
   if(varp->hashSpc == 0)
   /* Create hash-table */
   {
+    varp->hash_32 = 0;
     varp->hash_32 = B_MALLOC(bddp_32, B_HASH_SPC0);
     if(!varp->hash_32) return bddnull;
 #ifdef B_64
+    varp->hash_h8 = 0;
     varp->hash_h8 = B_MALLOC(bddp_h8, B_HASH_SPC0);
     if(!varp->hash_h8)
     {
@@ -1829,8 +1973,16 @@ unsigned char op, skip;
     break;
 
   case BC_CARD:
-    if(B_CST(f)) return (f == bddempty)? 0: 1;
-    if(B_NEG(f)) return apply(B_NOT(f), bddempty, op, 1) + 1;
+    if(B_CST(f)) return (f == bddfalse)? 0: 1;
+    if(B_NEG(f)) 
+    {
+      h = apply(B_NOT(f), bddfalse, op, 1);
+      return (h >= bddnull)? bddnull: h+1;
+    }
+    break;
+
+  case BC_CARD2:
+    if(B_CST(f)) return (f == bddfalse)? 0: 1;
     break;
 
   case BC_LIT:
@@ -1958,14 +2110,37 @@ unsigned char op, skip;
     else
     {
       /* Checking Cache */
-      key = B_CACHEKEY(op, f, bddempty);
+      key = B_CACHEKEY(op, f, bddfalse);
       cachep = Cache + key;
       if(cachep->op == op &&
          f == B_GET_BDDP(cachep->f) &&
-         bddempty == B_GET_BDDP(cachep->g))
+         bddfalse == B_GET_BDDP(cachep->g))
       {
         /* Hit */
         return B_GET_BDDP(cachep->h);
+      }
+    }
+    /* Get (f0, f1)*/
+    f0 = B_GET_BDDP(fp->f0);
+    f1 = B_GET_BDDP(fp->f1);
+    if(B_NEG(f)^B_NEG(f0)) f0 = B_NOT(f0);
+    break;
+
+  case BC_CARD2:
+    fp = B_NP(f);
+    if(B_RFC_ONE_NP(fp)) key = bddnull;
+    else
+    {
+      /* Checking Cache */
+      key = B_CACHEKEY(BC_CARD, f, bddfalse);
+      cachep = Cache + key;
+      if(cachep->op == BC_CARD &&
+         f == B_GET_BDDP(cachep->f) &&
+         bddfalse == B_GET_BDDP(cachep->g))
+      {
+        /* Hit */
+        h = B_GET_BDDP(cachep->h);
+	if(h != bddnull) return h;
       }
     }
     /* Get (f0, f1)*/
@@ -2070,7 +2245,7 @@ unsigned char op, skip;
   case BC_RSHIFT:
     /* Get VarID of new level */
     {
-      bddvar flev, newlev; 
+      bddvar newlev; 
   
       flev = bddlevofvar(v);
       if(op == BC_LSHIFT)
@@ -2096,22 +2271,69 @@ unsigned char op, skip;
     break;
     
   case BC_CARD:
-    h = apply(f0, bddempty, op, 0)
-      + apply(f1, bddempty, op, 0);
-    if(h >= bddnull) h = bddnull - 1;
+    h0 = apply(f0, bddfalse, op, 0);
+    if(h0 == bddnull) { h = h0; break; }
+    h1 = apply(f1, bddfalse, op, 0);
+    if(h1 == bddnull) { h = h1; break; }
+    h = h0 + h1;
+    if(h >= bddnull) h = bddnull;
     break;
 
+  case BC_CARD2:
+    h0 = apply(B_ABS(f0), bddfalse, op, 0);
+    if(h0 == B_MP_NULL) { h = h0; break; }
+    h1 = apply(B_ABS(f1), bddfalse, op, 0);
+    if(h1 == B_MP_NULL) { h = h1; break; }
+    {
+      struct B_MP mp;
+      struct B_MPTable *mpt;
+      bddp i, size2;
+      bddp *wp;
+
+      mp.len = 1;
+      mp.word[0] = 0;
+      if(B_NEG(f0)) mp.word[0]++;
+      if(B_NEG(f1)) mp.word[0]++;
+      mp_add(&mp, h0);
+      mp_add(&mp, h1);
+      if(mp.len == 1 && mp.word[0] <= bddnull)
+        { h = mp.word[0]; break; }
+      mpt = mptable + mp.len-1;
+      if(mpt->word == 0)
+      {
+        mpt->size = 16;
+        mpt->used = 0;
+        mpt->word = B_MALLOC(bddp, mp.len * mpt->size);
+      }
+      if(mpt->size == mpt->used)
+      {
+        size2 = mpt->size << 1;
+	if(size2 > (B_CST_MASK>>B_MP_LWID)) { h = B_MP_NULL; break; }
+	wp = 0;
+        wp = B_MALLOC(bddp, mp.len * size2);
+	if(!wp) { h = B_MP_NULL; break; }
+	for(i=0; i<mp.len*(mpt->size); i++) wp[i] = mpt->word[i];
+        mpt->size = size2;
+	free(mpt->word);
+	mpt->word = wp;
+      }
+      wp = mpt->word;
+        
+      for(i=0; i<(bddp)mp.len; i++) wp[mp.len*(mpt->used)+i] = mp.word[i];
+      h = (((bddp)mp.len-1)<<B_MP_LPOS) + B_CST_MASK + (mpt->used++);
+      break;
+    }
   case BC_LIT:
-    h = apply(f0, bddempty, op, 0)
-      + apply(f1, bddempty, op, 0);
-    if(h >= bddnull) h = bddnull - 1;
-    h += apply(f1, bddempty, BC_CARD, 0);
-    if(h >= bddnull) h = bddnull - 1;
+    h = apply(f0, bddfalse, op, 0)
+      + apply(f1, bddfalse, op, 0);
+    if(h >= bddnull) h = bddnull;
+    h += apply(f1, bddfalse, BC_CARD, 0);
+    if(h >= bddnull) h = bddnull;
     break;
 
   case BC_LEN:
-    h0 = apply(f0, bddempty, op, 0);
-    h1 = apply(f1, bddempty, op, 0) + 1;
+    h0 = apply(f0, bddfalse, op, 0);
+    h1 = apply(f1, bddfalse, op, 0) + 1;
     h = (h0 < h1)? h1: h0;
     break;
 
@@ -2124,10 +2346,11 @@ unsigned char op, skip;
   BDD_RECUR_DEC;
 
   /* Saving to Cache */
-  if(key != bddnull && h != bddnull)
+  if(key != bddnull)
   {
     cachep = Cache + key;
     cachep->op = op;
+    if(op == BC_CARD2) cachep->op = BC_CARD;
     B_SET_BDDP(cachep->f, f);
     B_SET_BDDP(cachep->g, g);
     B_SET_BDDP(cachep->h, h);
@@ -2506,6 +2729,7 @@ struct B_NodeTable *np;
   if(RFCT_Spc == 0)
   {
     /* Create RFC-table */
+    RFCT = 0;
     RFCT = B_MALLOC(struct B_RFC_Table, B_RFCT_SPC0);
     if(!RFCT)
     {
@@ -2553,6 +2777,7 @@ struct B_NodeTable *np;
     RFCT_Spc <<= 2;
 
     oldRFCT = RFCT;
+    RFCT = 0;
     RFCT = B_MALLOC(struct B_RFC_Table, RFCT_Spc);
     if(!RFCT)
     {
@@ -2613,7 +2838,7 @@ struct B_NodeTable *np;
   return 0;
 }
 
-#define IMPORTHASH(x) (((x >> 1) ^ (x >> 16)) & (hashsize - 1))
+#define IMPORTHASH(x) ((((x)>>1)^((x)<<8)^((x)<<16)) & (hashsize-1))
 
 int import(strm, p, lim, z)
 FILE *strm;
@@ -2640,19 +2865,21 @@ int z;
   if(strcmp(s, "_o") != 0) return 1;
   v = fscanf(strm, "%s", s);
   if(v == EOF) return 1;
-  m = strtol(s, NULL, 10);
+  m = strtol(s, 0, 10);
 
   v = fscanf(strm, "%s", s);
   if(v == EOF) return 1;
   if(strcmp(s, "_n") != 0) return 1;
   v = fscanf(strm, "%s", s);
   if(v == EOF) return 1;
-  n_nd = B_STRTOI(s, NULL, 10);
+  n_nd = B_STRTOI(s, 0, 10);
 
   for(hashsize = 1; hashsize < (n_nd<<1); hashsize <<= 1)
     ; /* empty */
+  hash1 = 0;
   hash1 = B_MALLOC(bddp, hashsize);
   if(hash1 == 0) return 1;
+  hash2 = 0;
   hash2 = B_MALLOC(bddp, hashsize);
   if(hash2 == 0)
   {
@@ -2666,11 +2893,11 @@ int z;
   {
     v = fscanf(strm, "%s", s);
     if(v == EOF) { e = 1; break; }
-    nd = B_STRTOI(s, NULL, 10);
+    nd = B_STRTOI(s, 0, 10);
     
     v = fscanf(strm, "%s", s);
     if(v == EOF) { e = 1; break; }
-    lev = strtol(s, NULL, 10);
+    lev = strtol(s, 0, 10);
     var = bddvaroflev(lev);
 
     v = fscanf(strm, "%s", s);
@@ -2679,7 +2906,7 @@ int z;
     else if(strcmp(s, "T") == 0) f0 = bddtrue;
     else
     {
-      nd0 = B_STRTOI(s, NULL, 10);
+      nd0 = B_STRTOI(s, 0, 10);
 
       ixx = IMPORTHASH(nd0);
       while(hash1[ixx] != nd0)
@@ -2701,7 +2928,7 @@ int z;
     else if(strcmp(s, "T") == 0) f1 = bddtrue;
     else
     {
-      nd1 = B_STRTOI(s, NULL, 10);
+      nd1 = B_STRTOI(s, 0, 10);
       if(nd1 & 1) { inv = 1; nd1 ^= 1; }
       else inv = 0;
   
@@ -2765,7 +2992,7 @@ int z;
       free(hash1);
       return 1;
     }
-    nd = B_STRTOI(s, NULL, 10);
+    nd = B_STRTOI(s, 0, 10);
     if(strcmp(s, "F") == 0) p[i] = bddfalse;
     else if(strcmp(s, "T") == 0) p[i] = bddtrue;
     else
@@ -2798,34 +3025,39 @@ int z;
   return 0;
 }
 
-int bddimport(strm, p, lim)
-FILE *strm;
-bddp *p;
-int lim;
+int mp_add(p, ix)
+struct B_MP *p;
+bddp ix;
 {
-  return import(strm, p, lim, 0);
-}
+  int len, i;
+  bddp c, *wp;
 
-int bddimportz(strm, p, lim)
-FILE *strm;
-bddp *p;
-int lim;
-{
-  return import(strm, p, lim, 1);
-}
+  if(ix == B_MP_NULL) return 1;
+  len = B_MP_LEN(ix);
+  if(len) wp = mptable[len-1].word+(B_MP_VAL(ix)*len);
+  else { wp = &ix; len = 1; }
+  while(p->len < len) p->word[p->len++] = 0;
 
-bddp    bddpush(f, v)
-bddp    f;
-bddvar 	v;
-/* Returns bddnull if not enough memory */
-{
-  struct B_NodeTable *fp;
-
-  /* Check operands */
-  if(v > VarUsed || v == 0) err("bddpush: Invalid VarID", v);
-  if(f == bddnull) return bddnull;
-
-  if(!B_CST(f)) { fp = B_NP(f); B_RFC_INC_NP(fp); }
-  return getzbddp(v, bddfalse, f);
+  c = 0;
+  for(i=0; i<p->len; i++)
+  {
+    p->word[i] += c;
+    c = (p->word[i] >= c)? 0: 1;
+    if(i < len)
+    {
+      p->word[i] += wp[i];
+      c = (p->word[i] >= wp[i])? c: 1;
+    }
+  }
+  if(c)
+  {
+    if(p->len == B_MP_LMAX)
+    {
+      for(i=0; i<p->len; i++) p->word[i] = ~((bddp)0);
+      return 1;
+    }
+    p->word[p->len++] = c;
+  }
+  return 0;
 }
 
