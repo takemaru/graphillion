@@ -422,12 +422,15 @@ setset setset::non_supersets(elem_t e) const {
   return setset(this->zdd_ % setset(s).zdd_);
 }
 
-setset setset::cost_le(const std::vector<bddcost> costs, const bddcost cost_bound) const {
-  assert(costs.size() == num_elems() + 1);
+setset setset::cost_le(const std::vector<bddcost>& costs, const bddcost cost_bound) const {
+  //assert(costs.size() == num_elems() + 1);
+  assert(costs.size() == num_elems());
   BDDCT bddct;
-  bddct.Alloc(costs.size());
-  for (int var = 0; var < costs.size(); ++var) {
-    bddct.SetCost(var, costs[var]);
+  //bddct.Alloc(costs.size());
+  bddct.Alloc(BDD_VarUsed()); // We should set n to be the number of used vars.
+  for (size_t i = 0; i < costs.size(); ++i) {
+    bddvar var = i + 1;
+    bddct.SetCostOfLev(BDD_LevOfVar(var), costs[i]);
   }
   zdd_t valid_cost_zdd = bddct.ZBDD_CostLE(this->zdd_, cost_bound);
   return setset(valid_cost_zdd);

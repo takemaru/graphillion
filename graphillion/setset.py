@@ -184,7 +184,7 @@ class setset(_graphillion.setset):
         # Each cost must be in the range of 32 bit signed integer
         # due to the implementation of BDDCT class of SAPPOROBDD.
         assert len([c for c in cs[1:] if c < -(1 << 31) or (1 << 31) <= c]) == 0
-        return _graphillion.setset.cost_le(self, costs=cs, cost_bound=cost_bound)
+        return _graphillion.setset.cost_le(self, costs=cs[1:], cost_bound=cost_bound)
 
     @staticmethod
     def load(fp):

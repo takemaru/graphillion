@@ -1776,7 +1776,7 @@ unsigned char op, skip;
   struct B_CacheTable *cachep;
   bddp key, f0, f1, g0, g1, h0, h1, h;
   bddvar v, flev, glev;
-  char z = 0; /* flag to check ZBDD node */
+  char z; /* flag to check ZBDD node */
 
   /* Check terminal case */
   if(!skip) switch(op)
@@ -2857,8 +2857,8 @@ int z;
   if(strcmp(s, "_i") != 0) return 1;
   v = fscanf(strm, "%s", s);
   if(v == EOF) return 1;
-  n = strtol(s, NULL, 10);
-  while((bddvar)n > bddvarused()) bddnewvar();
+  n = strtol(s, 0, 10);
+  while(n > (int)bddvarused()) bddnewvar();
 
   v = fscanf(strm, "%s", s);
   if(v == EOF) return 1;

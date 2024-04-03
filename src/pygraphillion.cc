@@ -955,23 +955,23 @@ static PyObject* setset_cost_le(PySetsetObject* self, PyObject* args, PyObject* 
   static char s2[] = "cost_bound";
   static char* kwlist[3] = {s1, s2, NULL};
   PyObject* costs_obj = NULL;
-  bddcost cost_bound = NULL;
+  bddcost cost_bound = 0;
   if (!PyArg_ParseTupleAndKeywords(args, kwds, "Oi", kwlist, &costs_obj, &cost_bound))
     return NULL;
   if (costs_obj == NULL || costs_obj == Py_None) {
     PyErr_SetString(PyExc_ValueError, "no costs");
     return NULL;
   }
-  if (cost_bound == NULL) {
-    PyErr_SetString(PyExc_ValueError, "no cost bound");
-    return NULL;
-  }
+  //if (cost_bound == 0) {
+  //  PyErr_SetString(PyExc_ValueError, "no cost bound");
+  //  return NULL;
+  //}
 
   PyObject* cost_iter = PyObject_GetIter(costs_obj);
   if (cost_iter == NULL) return NULL;
   vector<bddcost> costs;
   PyObject* cost;
-  while (cost = PyIter_Next(cost_iter)) {
+  while ((cost = PyIter_Next(cost_iter))) {
     if (PyLong_Check(cost)) {
       costs.push_back(static_cast<int>(PyLong_AsLong(cost)));
     } else {
@@ -1582,7 +1582,7 @@ static PyObject* reliability(PyObject*, PyObject* args, PyObject* kwds) {
     PyObject* i = PyObject_GetIter(prob_list_obj);
     if (i == NULL) return NULL;
     PyObject* p;
-    while (p = PyIter_Next(i)) {
+    while ((p = PyIter_Next(i))) {
       if (!PyFloat_Check(p)) {
         PyErr_SetString(PyExc_TypeError, "invalid probability");
         Py_DECREF(p);
@@ -1603,7 +1603,7 @@ static PyObject* reliability(PyObject*, PyObject* args, PyObject* kwds) {
     PyObject* i = PyObject_GetIter(terminals_obj);
     if (i == NULL) return NULL;
     PyObject* term;
-    while (term = PyIter_Next(i)) {
+    while ((term = PyIter_Next(i))) {
       if (!PyBytes_Check(term)) {
         PyErr_SetString(PyExc_TypeError, "invalid terminals");
         Py_DECREF(term);

@@ -1524,9 +1524,9 @@ class GraphSet(object):
     def cost_le(self, costs, cost_bound):
         """Returns a new GraphSet with subgraphs whose cost is less than or equal to the cost bound.
 
-        This method constructs a Graphset of subgraphs in which each graph's
-        cost is less than or equal to the cost bound
-        given `costs` of each edge and the `cost_bound`.
+        This method constructs a Graphset of subgraphs
+        whose cost is less than or equal to the cost bound,
+        where `costs` of each edge and the `cost_bound` are given as arguments.
 
         Examples:
           >>> universe = [(1, 2), (1, 4), (2, 3), (3, 4)]
@@ -1542,8 +1542,8 @@ class GraphSet(object):
           GraphSet([[(3, 4)], [(1, 2), (2, 3)]])
 
         Args:
-          costs: A dictionary of cost of each edge.
-          cost_bound: The upper limit of cost of each graph. 32 bit signed integer.
+          costs: A dictionary of the cost of each edge.
+          cost_bound: The upper limit of the cost of each graph. 32 bit signed integer.
 
         Returns:
           A new GraphSet object.
@@ -1559,9 +1559,9 @@ class GraphSet(object):
     def cost_ge(self, costs, cost_bound):
         """Returns a new GraphSet with subgraphs whose cost is greater than or equal to the cost bound.
 
-        This method constructs a Graphset of subgraphs in which each graph's
-        cost is greater than or equal to the cost bound
-        given `costs` of each edge and the `cost_bound`.
+        This method constructs a Graphset of subgraphs
+        whose cost is greater than or equal to the cost bound,
+        where `costs` of each edge and the `cost_bound` are given as arguments.
 
         Examples:
           >>> universe = [(1, 2), (1, 4), (2, 3), (3, 4)]
@@ -1577,8 +1577,8 @@ class GraphSet(object):
           GraphSet([[(3, 4)], [(1, 2), (1, 4), (3, 4)]])
 
         Args:
-          costs: A dictionary of cost of each edge.
-          cost_bound: The upper limit of cost of each graph. 32 bit signed integer.
+          costs: A dictionary of the cost of each edge.
+          cost_bound: The upper limit of the cost of each graph. 32 bit signed integer.
 
         Returns:
           A new GraphSet object.
@@ -1595,9 +1595,9 @@ class GraphSet(object):
     def cost_eq(self, costs, cost_bound):
         """Returns a new GraphSet with subgraphs whose cost is equal to the cost bound.
 
-        This method constructs a Graphset of subgraphs in which each graph's
-        cost is equal to the cost bound
-        given `costs` of each edge and the `cost_bound`.
+        This method constructs a Graphset of subgraphs
+        whose cost is equal to the cost bound,
+        where `costs` of each edge and the `cost_bound` are given as arguments.
 
         Examples:
           >>> universe = [(1, 2), (1, 4), (2, 3), (3, 4)]
@@ -1613,8 +1613,8 @@ class GraphSet(object):
           GraphSet([[(3, 4)]])
 
         Args:
-          costs: A dictionary of cost of each edge.
-          cost_bound: The upper limit of cost of each graph. 32 bit signed integer.
+          costs: A dictionary of the cost of each edge.
+          cost_bound: The limit of the cost of each graph. 32 bit signed integer.
 
         Returns:
           A new GraphSet object.
