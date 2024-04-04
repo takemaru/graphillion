@@ -2259,10 +2259,10 @@ class GraphSet(object):
         return _graphillion._show_messages(flag)
 
     @staticmethod
-    def reliability(probabilities=None, terminals=None):
+    def reliability(probabilities, terminals):
         """Returns the reliability of the graph with edge `probabilities` and `terminals`.
         This method calculates the reliability of the graph with `probabilities` of each edge
-        and terminals. If  the probability is not assigned, it is considered to be 1.0
+        and terminals.
 
         Examples:
           >>> probabilities = {(1, 2): 0.5, (1, 4): 0.5}
@@ -2272,8 +2272,8 @@ class GraphSet(object):
           0.75
 
         Args:
-          probabilities: Optional. A dictionary of probabilities of each edge.
-          terminals: Optional. terminal vertices.
+          probabilities: a dictionary of probabilities of each edge.
+          terminals: terminal vertices.
 
         Returns:
           Reliability.

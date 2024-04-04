@@ -452,15 +452,15 @@ class TestGraphSet(unittest.TestCase):
         reliability = GraphSet.reliability(probabilities, terminals)
         self.assertTrue(abs(0.1479680 - reliability) < 1e-9)
 
-        reliability = GraphSet.reliability()
+        reliability = GraphSet.reliability(None, None)
         self.assertEqual(reliability, 1.0)
 
         terminals = []
-        reliability = GraphSet.reliability(terminals=terminals)
+        reliability = GraphSet.reliability(None, terminals)
         self.assertEqual(reliability, 1.0)
 
         probabilities = {}
-        reliability = GraphSet.reliability(probabilities=probabilities)
+        reliability = GraphSet.reliability(probabilities, None)
         self.assertEqual(reliability, 1.0)
     def test_induced_graphs(self):
         GraphSet.set_universe([(1, 2), (1, 4), (2, 3), (2, 5), (3, 6), (4, 5),
