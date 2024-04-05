@@ -989,6 +989,18 @@ static PyObject* setset_cost_le(PySetsetObject* self, PyObject* args, PyObject* 
   return reinterpret_cast<PyObject*>(ret);
 }
 
+static PyObject* setset_remove_some_element(PySetsetObject* self) {
+  RETURN_NEW_SETSET(self, self->ss->remove_some_element());
+}
+
+static PyObject* setset_add_some_element(PySetsetObject* self) {
+  RETURN_NEW_SETSET(self, self->ss->add_some_element(setset::max_elem(), setset::max_elem() - setset::num_elems() + 1));
+}
+
+static PyObject* setset_remove_add_some_elements(PySetsetObject* self) {
+  RETURN_NEW_SETSET(self, self->ss->remove_add_some_elements(setset::max_elem(), setset::max_elem() - setset::num_elems() + 1));
+}
+
 static PyMemberDef setset_members[] = {
   {NULL}  /* Sentinel */
 };
@@ -1041,6 +1053,9 @@ static PyMethodDef setset_methods[] = {
   {"_enum", reinterpret_cast<PyCFunction>(setset_enum), METH_O, ""},
   {"_enums", reinterpret_cast<PyCFunction>(setset_enums), METH_NOARGS, ""},
   {"cost_le", reinterpret_cast<PyCFunction>(setset_cost_le), METH_VARARGS | METH_KEYWORDS, ""},
+  {"remove_some_element", reinterpret_cast<PyCFunction>(setset_remove_some_element), METH_NOARGS, ""},
+  {"add_some_element", reinterpret_cast<PyCFunction>(setset_add_some_element), METH_NOARGS, ""},
+  {"remove_add_some_elements", reinterpret_cast<PyCFunction>(setset_remove_add_some_elements), METH_NOARGS, ""},
   {NULL}  /* Sentinel */
 };
 

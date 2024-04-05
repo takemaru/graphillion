@@ -165,6 +165,9 @@ class setset {
   setset non_supersets(const setset& ss) const;
   setset non_supersets(elem_t e) const;
   setset cost_le(const std::vector<bddcost>& costs, const bddcost cost_bound) const;
+  setset remove_some_element() const;
+  setset add_some_element(int n, int lower) const;
+  setset remove_add_some_elements(int n, int lower) const;
 
   double probability(const std::vector<double>& probabilities) const;
 

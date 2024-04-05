@@ -436,6 +436,18 @@ setset setset::cost_le(const std::vector<bddcost>& costs, const bddcost cost_bou
   return setset(valid_cost_zdd);
 }
 
+setset setset::remove_some_element() const {
+  return setset(graphillion::remove_some_element(this->zdd_));
+}
+
+setset setset::add_some_element(int n, int lower) const {
+  return setset(graphillion::add_some_element(this->zdd_, n, lower));
+}
+
+setset setset::remove_add_some_elements(int n, int lower) const {
+  return setset(graphillion::remove_add_some_elements(this->zdd_, n, lower));
+}
+
 double setset::probability(const vector<double>& probabilities) const {
   assert(probabilities.size() == num_elems() + 1);
   if (this->zdd_ == bot()) {  // this->empty()

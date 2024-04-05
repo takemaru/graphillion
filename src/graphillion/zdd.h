@@ -33,6 +33,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include "graphillion/type.h"
 #include "graphillion/util.h"
+#include "graphillion/reconf.h"
 
 namespace graphillion {
 
@@ -100,6 +101,15 @@ void sort_zdd(zdd_t f, std::vector<std::vector<zdd_t> >* stacks,
               std::set<word_t>* visited, elem_t* max_elem = NULL);
 inline std::pair<word_t, word_t> make_key(zdd_t f, zdd_t g) {
   return std::make_pair(id(f), id(g));
+}
+inline zdd_t remove_some_element(zdd_t f) {
+  return reconf::removeSomeElement(f);
+}
+inline zdd_t add_some_element(zdd_t f, int n, int lower) {
+  return reconf::addSomeElement(f, n, lower);
+}
+inline zdd_t remove_add_some_elements(zdd_t f, int n, int lower) {
+  return reconf::removeAddSomeElements(f, n, lower);
 }
 
 }  // namespace graphillion

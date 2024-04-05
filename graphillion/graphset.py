@@ -1629,6 +1629,60 @@ class GraphSet(object):
         lt_ss = self._ss.cost_le(costs=costs, cost_bound=cost_bound - 1)
         return GraphSet(le_ss.difference(lt_ss))
 
+    def remove_some_edge(self):
+        """Returns a new GraphSet with graphs that are obtained by removing some edge from a graph in `self`.
+
+        The `self` is not changed.
+
+        Examples:
+          >>> GraphSet.set_universe([(1, 2), (1, 4), (2, 3)])
+          >>> graph1 = [(1, 2), (1, 4)]
+          >>> graph2 = [(2, 3)]
+          >>> gs = GraphSet([graph1, graph2])
+          >>> gs.remove_some_edge()
+          GraphSet([[], [(1, 4)], [(1, 2)]])
+
+        Returns:
+          A new GraphSet object.
+        """
+        return GraphSet(self._ss.remove_some_element())
+
+    def add_some_edge(self):
+        """Returns a new GraphSet with graphs that are obtained by adding some edge to a graph in `self`.
+
+        The `self` is not changed.
+
+        Examples:
+          >>> GraphSet.set_universe([(1, 2), (1, 4), (2, 3)])
+          >>> graph1 = [(1, 2), (1, 4)]
+          >>> graph2 = [(2, 3)]
+          >>> gs = GraphSet([graph1, graph2])
+          >>> gs.add_some_edge()
+          GraphSet([[(1, 4), (2, 3)], [(1, 2), (2, 3)], [(1, 2), (1, 4), (2, 3)]])
+
+        Returns:
+          A new GraphSet object.
+        """
+        return GraphSet(self._ss.add_some_element())
+    
+    def remove_add_some_edges(self):
+        """Returns a new GraphSet with graphs that are obtained by removing some edge from a graph in `self` and adding another edge to the graph.
+
+        The `self` is not changed.
+
+        Examples:
+          >>> GraphSet.set_universe([(1, 2), (1, 4), (2, 3)])
+          >>> graph1 = [(1, 2), (1, 4)]
+          >>> graph2 = [(2, 3)]
+          >>> gs = GraphSet([graph1, graph2])
+          >>> gs.remove_add_some_edges()
+          GraphSet([[(1, 4)], [(1, 2)], [(1, 4), (2, 3)], [(1, 2), (2, 3)]])
+
+        Returns:
+          A new GraphSet object.
+        """
+        return GraphSet(self._ss.remove_add_some_elements())
+
     @staticmethod
     def load(fp):
         """Deserialize a file `fp` to `self`.
