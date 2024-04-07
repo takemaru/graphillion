@@ -472,6 +472,74 @@ class TestSetset(unittest.TestCase):
         ss = setset([s0, s1, s2, s12, s13, s1234])
         self.assertAlmostEqual(ss.probability(p), .4728)
 
+    def test_remove_some_element(self):
+
+        ss = setset([])
+        self.assertEqual(ss.remove_some_element(), setset())
+
+        ss = setset([s0])
+        self.assertEqual(ss.remove_some_element(), setset())
+
+        ss = setset([s1])
+        self.assertEqual(ss.remove_some_element(), setset([s0]))
+
+        ss = setset([s0, s1])
+        self.assertEqual(ss.remove_some_element(), setset([s0]))
+
+        ss = setset([s1, s12])
+        self.assertEqual(ss.remove_some_element(), setset([s0, s1, s2]))
+
+        ss1 = setset([s0, s4, s12, s234])
+        ss2 = setset([s0, s1, s2, s23, s24, s34])
+        self.assertEqual(ss1.remove_some_element(), ss2)
+
+    def test_add_some_element(self):
+
+        ss = setset([])
+        self.assertEqual(ss.add_some_element(), setset())
+
+        ss = setset([s0])
+        self.assertEqual(ss.add_some_element(), setset([s1, s2, s3, s4]))
+
+        ss = setset([s1])
+        self.assertEqual(ss.add_some_element(), setset([s12, s13, s14]))
+
+        ss = setset([s0, s1])
+        self.assertEqual(ss.add_some_element(),
+                         setset([s1, s2, s3, s4, s12, s13, s14]))
+
+        ss = setset([s1, s12])
+        self.assertEqual(ss.add_some_element(),
+                         setset([s12, s13, s14, s123, s124]))
+
+        ss1 = setset([s0, s4, s12, s234])
+        ss2 = setset([s1, s2, s3, s4, s14, s24, s34, s123, s124, s1234])
+        self.assertEqual(ss1.add_some_element(), ss2)
+
+    def test_remove_add_some_elements(self):
+
+        ss = setset([])
+        self.assertEqual(ss.remove_add_some_elements(), setset())
+
+        ss = setset([s0])
+        self.assertEqual(ss.remove_add_some_elements(), setset())
+
+        ss = setset([s1])
+        self.assertEqual(ss.remove_add_some_elements(),
+                         setset([s2, s3, s4]))
+
+        ss = setset([s0, s1])
+        self.assertEqual(ss.remove_add_some_elements(),
+                         setset([s2, s3, s4]))
+
+        ss = setset([s1, s12])
+        self.assertEqual(ss.remove_add_some_elements(),
+                         setset([s2, s3, s4, s13, s14, s23, s24]))
+
+        ss1 = setset([s0, s4, s12, s234])
+        ss2 = setset([s1, s2, s3, s13, s14, s23, s24, s123, s124, s134])
+        self.assertEqual(ss1.remove_add_some_elements(), ss2)
+
     def test_io(self):
         ss = setset()
         st = ss.dumps()

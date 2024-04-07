@@ -1037,6 +1037,74 @@ class TestGraphSet(unittest.TestCase):
         self.assertNotIn(g234, small_cost_gs) # cost: 25
         self.assertNotIn(g1234, small_cost_gs) # cost: 27
 
+    def test_remove_some_edge(self):
+
+        gs = GraphSet([])
+        self.assertEqual(gs.remove_some_edge(), GraphSet())
+
+        gs = GraphSet([g0])
+        self.assertEqual(gs.remove_some_edge(), GraphSet())
+
+        gs = GraphSet([g1])
+        self.assertEqual(gs.remove_some_edge(), GraphSet([g0]))
+
+        gs = GraphSet([g0, g1])
+        self.assertEqual(gs.remove_some_edge(), GraphSet([g0]))
+
+        gs = GraphSet([g1, g12])
+        self.assertEqual(gs.remove_some_edge(), GraphSet([g0, g1, g2]))
+
+        gs1 = GraphSet([g0, g4, g12, g234])
+        gs2 = GraphSet([g0, g1, g2, g23, g24, g34])
+        self.assertEqual(gs1.remove_some_edge(), gs2)
+
+    def test_add_some_edge(self):
+
+        gs = GraphSet([])
+        self.assertEqual(gs.add_some_edge(), GraphSet())
+
+        gs = GraphSet([g0])
+        self.assertEqual(gs.add_some_edge(), GraphSet([g1, g2, g3, g4]))
+
+        gs = GraphSet([g1])
+        self.assertEqual(gs.add_some_edge(), GraphSet([g12, g13, g14]))
+
+        gs = GraphSet([g0, g1])
+        self.assertEqual(gs.add_some_edge(),
+                         GraphSet([g1, g2, g3, g4, g12, g13, g14]))
+
+        gs = GraphSet([g1, g12])
+        self.assertEqual(gs.add_some_edge(),
+                         GraphSet([g12, g13, g14, g123, g124]))
+
+        gs1 = GraphSet([g0, g4, g12, g234])
+        gs2 = GraphSet([g1, g2, g3, g4, g14, g24, g34, g123, g124, g1234])
+        self.assertEqual(gs1.add_some_edge(), gs2)
+
+    def test_remove_add_some_edges(self):
+
+        gs = GraphSet([])
+        self.assertEqual(gs.remove_add_some_edges(), GraphSet())
+
+        gs = GraphSet([g0])
+        self.assertEqual(gs.remove_add_some_edges(), GraphSet())
+
+        gs = GraphSet([g1])
+        self.assertEqual(gs.remove_add_some_edges(),
+                         GraphSet([g2, g3, g4]))
+
+        gs = GraphSet([g0, g1])
+        self.assertEqual(gs.remove_add_some_edges(),
+                         GraphSet([g2, g3, g4]))
+
+        gs = GraphSet([g1, g12])
+        self.assertEqual(gs.remove_add_some_edges(),
+                         GraphSet([g2, g3, g4, g13, g14, g23, g24]))
+
+        gs1 = GraphSet([g0, g4, g12, g234])
+        gs2 = GraphSet([g1, g2, g3, g13, g14, g23, g24, g123, g124, g134])
+        self.assertEqual(gs1.remove_add_some_edges(), gs2)
+
     def test_io(self):
         gs = GraphSet()
         st = gs.dumps()
