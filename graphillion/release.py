@@ -20,10 +20,12 @@
 """Release data for Graphillion.
 """
 
-version = '1.6rc0'
+version = '1.7'
 date = ''
 license = 'MIT'
 authors = (('Takeru Inoue', 'takeru.inoue@gmail.com'),
            ('Hiroaki Iwashita', 'iwashita@erato.ist.hokudai.ac.jp'),
-           ('Jun Kawahara', 'jkawahara@is.naist.jp'),
-           ('Shin-ichi Minato', 'minato@i.kyoto-u.ac.jp'))
+           ('Jun Kawahara', 'jkawahara@i.kyoto-u.ac.jp'),
+           ('Shin-ichi Minato', 'minato@i.kyoto-u.ac.jp'),
+           ('Hiroki Yamazaki', ''),
+           ('Takeshi Konishi', ''))
