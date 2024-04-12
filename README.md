@@ -25,7 +25,7 @@ News
   - [Parallel computing] is enabled with [OpenMP],
   - More efficient configuration (i.e., the edge order) is introduced, and
   - Advanced set operations (e.g., join, meet, quotient) are introduced.
-- Graphillion [book] is published in April 2015 (sorry, written in
+- Graphillion [book] was published in April 2015 (sorry, written in
   Japanese).
 - Graphillion was used in the lecture by Prof. Jun Kawahara at Nara
   Institute of Science and Technology in January and February 2015.
@@ -76,7 +76,7 @@ subgraphs cut from the graph; e.g., considering possible driving
 routes on a road map, examining feasible electric flows on a power
 grid, or evaluating the structure of chemical reaction networks.  The
 number of such subgraphs can be trillions even in a graph with just a
-few hundreds of edges, since subgraphs increase exponentially with the
+few hundred edges, since subgraphs increase exponentially with the
 graph size.  It takes millions of years to examine all subgraphs with
 a naive approach as demonstrated in the fun movie above; Graphillion
 is our answer to resolve this issue.
@@ -85,14 +85,14 @@ Graphillion allows you to exhaustively but efficiently search a
 graphset with complex, even nonconvex, constraints.  In addition, you
 can find top-k optimal graphs from the complex graphset, and can also
 extract common properties among all graphs in the set.  Thanks to
-these features, Graphillion has a variety of applications including
-graph database, combinatorial optimization, and a graph structure
+these features, Graphillion has a variety of applications, including
+graph database, combinatorial optimization, and graph structure
 analysis.  We will show some practical use cases in the following
-[tutorial], including evaluation of power distribution networks.
+[tutorial], including the evaluation of power distribution networks.
 
 Graphillion can be used freely under the MIT license.  It is mainly
-developed by [JST ERATO Minato project].  We would really appreciate
-if you would refer to our paper and address our contribution on the
+developed by [JST ERATO Minato project].  We would really appreciate it
+if you would refer to our paper and address our contribution to the
 use of Graphillion in your paper.
 
 > Takeru Inoue, Hiroaki Iwashita, Jun Kawahara, and Shin-ichi Minato:
@@ -100,7 +100,7 @@ use of Graphillion in your paper.
   Labeled Graphs," International Journal on Software Tools for
   Technology Transfer, Springer, vol.18, issue 1, pp.57-66, February 2016. ([pdf](http://dx.doi.org/10.1007/s10009-014-0352-z))
 
-Graphillion is still under the development.  We really appreciate any
+Graphillion is still under development.  We really appreciate any
 pull request and patch if you add some changes that benefit a wide
 variety of people.
 
@@ -158,7 +158,7 @@ Ports](http://www.freshports.org/math/py-graphillion/).
 
 ### Installing from source
 
-You can install from source by downloading a source archive file
+You can install from the source by downloading a source archive file
 (tar.gz or zip) or by checking out the source files from the GitHub
 source code repository.
 
@@ -166,7 +166,7 @@ source code repository.
 
 1. Download the source (tar.gz or zip file) from
    https://github.com/takemaru/graphillion
-2. Unpack and change directory to the source directory (it should have
+2. Unpack and change the directory to the source directory (it should have
    the file setup.py)
 3. Run `python setup.py build` to build
 4. (optional) Run `python setup.py test -q` to execute the tests
@@ -176,13 +176,13 @@ source code repository.
 
 1. Clone the Graphillion repository
    `git clone https://github.com/takemaru/graphillion.git`
-2. Change directory to "graphillion"
+2. Change the directory to "graphillion"
 3. Run `python setup.py build` to build
 4. (optional) Run `python setup.py test -q` to execute the tests
 5. Run `sudo python setup.py install` to install
 
 If you don't have permission to install software on your system, you
-can install into another directory using the `-user`, `-prefix`, or
+can install it into another directory using the `-user`, `-prefix`, or
 `-home` flags to setup.py.  For example:
 
 ```bash
@@ -216,7 +216,7 @@ We believe that you enjoyed the movies and understood the necessity
 and features of Graphillion.  Now, let's see Graphillion in more
 detail.
 
-We first introduce terminology used in Graphillion, as follows:
+We first introduce the terminology used in Graphillion, as follows:
 
 | Term          | Description                   | Example                                          |
 |:--------------|:------------------------------|:-------------------------------------------------|
@@ -243,7 +243,7 @@ $ python
 
 ### Paths on a grid graph
 
-At the beginning, we define our *universe*.  The universe can be any
+In the beginning, we define our *universe*.  The universe can be any
 graph, and a graph handled by Graphillion must be a subgraph of this
 graph.  In this tutorial, we use the 8x8 grid graph as our universe
 (the graph size should be regarded as 9x9, but we follow the
@@ -349,16 +349,16 @@ provided by Graphillion.
 ```
 
 As an application of path enumeration, you'll find [Ekillion] very
-interesting, which enumerates all JR train paths in Japan metropolitan
+interesting, which enumerates all JR train paths in Japan's metropolitan
 and suburbs from startpoint to endpoint.
 
 ### Power flows on a distribution network
 
 Graphillion works on any graphs other than square grids, and handles
 other subgraphs than simple paths.  Next, we consider a power
-distribution network in the figure.  In this network, we asuume that a
+distribution network in the figure.  In this network, we assume that a
 vertex is a house and an edge is a power line with a switch.  The
-power is provided from the four generators at corners.
+power is provided by the four generators at the corners.
 
 ```python
 >>> universe = tl.grid(8, 8, 0.37)  # 37 % of edges are randomly removed from 8x8 grid
@@ -373,7 +373,7 @@ The power flow is determined by configuring switches, which are placed
 on each line.  If a switch is closed (an edge exists on a graph), the
 power is transmitted on the line; otherwise, not.  The power must be
 transmitted to all houses, while the flow must not have a loop to
-protect against short circuit.  The power flow, hence, must form a
+protect against short circuits.  The power flow, hence, must form a
 *forest*, a set of trees, rooted at generators.  We find all of such
 forests as follows: (note that the number, 54060425088, can be
 different since the network was randomly generated in `tl.grid()`)
@@ -452,7 +452,7 @@ required from the terrible unsafe configuration to a safe one.
 
 ![Similar but safe configuration](https://github.com/takemaru/graphillion/blob/master/doc/fig10.png?raw=true)
 
-Finally, we investigate serious failures that prevent the safe power
+Finally, we investigate serious failures that prevent safe power
 delivery.  We search for minimal blocking sets, or minimal hitting
 sets more generally, to study such failures.  A hitting set is roughly
 defined such that all the given sets are *hit* by at least one element
@@ -489,7 +489,7 @@ which should be investigated carefully.
 Though actual power distribution networks are much more complicated,
 we basically rely on the same idea in the study of power distribution
 networks.  Our power loss minimization tool, which optimizes a
-network with nonlinear objective function with nonconvex constraints,
+network with a nonlinear objective function with nonconvex constraints,
 is available online at [DNET].
 
 
@@ -511,7 +511,7 @@ section.
 
 ### Graph list
 
-This is the most straight-forward way to create a GraphSet object.
+This is the most straightforward way to create a GraphSet object.
 Specify a list of graphs and get an object with the graphs.
 
 In the following example, two graphs, one has a single edge and the
@@ -606,9 +606,9 @@ with `paths(1, 6)`.
 GraphSet([[(1, 2), (2, 3), (3, 6)], [(1, 2), (2, 5), (5, 6)], [(1, 4), (4, 5 ...
 ```
 
-If these methods are called as object methods, like `gs.paths(1, 6)`,
+If these methods are called object methods, like `gs.paths(1, 6)`,
 graphs are selected only from the GraphSet object.  Please see the
-library reference for more detail.  The internal implementation of
+library reference for more details.  The internal implementation of
 `graphs()` is independently available as [TdZdd].
 
 Manipulating graphsets
@@ -672,6 +672,8 @@ Creation methods specifying graph types also work as selection methods.
 | `gs.induced_graphs()`                                                 | Returns a GraphSet of induced graphs                   |
 | `gs.weighted_induced_graphs(weight_list, lower, upper)`               | Returns a GraphSet of induced graphs with weight_list  |
 | `gs.chordal_graphs()`                                                 | Returns a GraphSet of chordal graphs                   |
+| `gs.bipartite_graphs()`                                                 | Returns a GraphSet of bipartite graphs                   |
+
 
 ### Modification or generation methods
 
@@ -767,7 +769,7 @@ Parallel computing
 Graphillion runs in parallel using [OpenMP], an API supporting
 multi-platform shared memory multiprocessing.  To enjoy parallel
 computing, specify the number of CPU cores to use by the environmental
-variable `OMP_NUM_THREADS`.  An example to use four cores is:
+variable `OMP_NUM_THREADS`.  An example of using four cores is:
 
 ```bash
 $ OMP_NUM_THREADS=4 python your_graphillion_script.py
@@ -847,10 +849,10 @@ Or in HTML:
 $ pydoc -w graphillion.GraphSet
 ```
 
-Example codes
+Example code
 --------------------------------------------------------------------------------
 
-Example codes are found [here](http://github.com/takemaru/graphillion/wiki/Example-codes).
+Example code is found [here](http://github.com/takemaru/graphillion/wiki/Example-codes).
 
 Future work
 --------------------------------------------------------------------------------
@@ -905,7 +907,6 @@ References
   Presentation, October 2013.  ([html](http://www2.infonets.hiroshima-u.ac.jp/sasimi/program/R4_abst.html#R4-6))
 - Takeru Inoue, "Graphillion: Python module for very large sets of graphs,"
   PyCon APAC, September 2013.
-
     [![][pycon-thumbnail]][PyCon]
 - Takeru Inoue, "[Invited Talk] Graphillion: Software Library for Very
   Large Sets of Graphs," Technical Report of IEICE, vol.113, no.140,
