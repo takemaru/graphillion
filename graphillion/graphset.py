@@ -1630,7 +1630,7 @@ class GraphSet(object):
         lt_ss = self._ss.cost_le(costs=costs, cost_bound=cost - 1)
         return GraphSet(le_ss.difference(lt_ss))
 
-    def e_to_v(self):
+    def to_vertexsetset(self):
         """Returns a new VertexSetSet with vertices of each graph in `self`.
 
         Examples:
@@ -1642,7 +1642,7 @@ class GraphSet(object):
           >>> ordered_vertices = [eval(v) for v in setset.get_vertices_from_top()]
           >>> VertexSetSet.set_universe(ordered_vertices)
           >>> g1 = [e2]
-          >>> vss1 = GraphSet([[e1]]).e_to_v()
+          >>> vss1 = GraphSet([[e1]]).to_vertexsetset()
           >>> vss1
           VertexSetSet([['1', '2']])
 
@@ -1650,7 +1650,7 @@ class GraphSet(object):
           A new VertexSetSet object.
 
         """
-        return VertexSetSet(self._ss.e_to_v())
+        return VertexSetSet(self._ss.to_vertexsetset())
 
     @staticmethod
     def load(fp):

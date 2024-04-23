@@ -665,7 +665,7 @@ class TestVertexSetSet(unittest.TestCase):
         self.assertEqual(len(vss), 20)
         self.assertEqual(vss.maximal(), VertexSetSet([[1, 2, 3], [1, 2, 4, 5]]))
 
-    def test_e_to_v(self):
+    def test_to_vertexsetset(self):
         e1 = (1, 2)
         e2 = (3, 4)
         e3 = (2, 3)
@@ -674,10 +674,10 @@ class TestVertexSetSet(unittest.TestCase):
         ordered_vertices = [eval(v) for v in setset.get_vertices_from_top()]
         VertexSetSet.set_universe(ordered_vertices)
         g1 = [e2]
-        vss1 = GraphSet([g1]).e_to_v()
+        vss1 = GraphSet([g1]).to_vertexsetset()
         self.assertEqual(vss1, VertexSetSet([[3, 4]]))
         g2 = [e2, e3]
-        vss2 = GraphSet([g2]).e_to_v()
+        vss2 = GraphSet([g2]).to_vertexsetset()
         self.assertEqual(vss2, VertexSetSet([[2, 3, 4]]))
 
 #     skip tests below because networkx cannot used with VertexSetSet class now

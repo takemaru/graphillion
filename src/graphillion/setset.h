@@ -175,7 +175,7 @@ class setset {
   std::vector<std::string> get_vertices_from_top(
     const std::vector<std::vector<std::string>> &edges_from_top
   ) const;
-  setset e_to_v_setset(const std::vector<std::vector<std::string>> &edges_from_top) const;
+  setset to_vertexsetset_setset(const std::vector<std::vector<std::string>> &edges_from_top) const;
 
   double probability(const std::vector<double>& probabilities) const;
 

@@ -191,9 +191,9 @@ class setset(_graphillion.setset):
         assert len([c for c in cs[1:] if c < -(1 << 31) or (1 << 31) <= c]) == 0
         return _graphillion.setset.cost_le(self, costs=cs, cost_bound=cost_bound)
 
-    def e_to_v(self):
+    def to_vertexsetset(self):
         edges_from_top = [list(e) for e in setset._int2obj[1:]]
-        return _graphillion.setset.e_to_v(self, edges_from_top)
+        return _graphillion.setset.to_vertexsetset(self, edges_from_top)
 
     @staticmethod
     def get_vertices_from_top():

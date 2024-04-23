@@ -459,7 +459,7 @@ std::vector<std::string> setset::get_vertices_from_top(
   return vertices_from_top;
 }
 
-setset setset::e_to_v_setset(const std::vector<std::vector<std::string>> &edges_from_top) const {
+setset setset::to_vertexsetset_setset(const std::vector<std::vector<std::string>> &edges_from_top) const {
   auto [graph, vlist] = construct_graph_and_vlist(edges_from_top);
 
   // setsetのzdd_は上位の（辺数）個の変数のみ使用しているので，DdStructureにする際にはoffsetを設定する
