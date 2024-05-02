@@ -1592,13 +1592,12 @@ class GraphSet(object):
         inv_costs = {e: -cost for e, cost in costs.items()}
         return GraphSet(self._ss.cost_le(costs=inv_costs, cost_bound=-cost_bound))
 
-    # TODO: rename the argument as their names are almost the same
-    def cost_eq(self, costs, cost):
+    def cost_eq(self, costs, cost_bound):
         """Returns a new GraphSet with subgraphs whose cost is equal to the cost bound.
 
         This method constructs a Graphset of subgraphs in which each graph's
         cost is equal to the cost bound
-        given `costs` of each edge and the `cost`.
+        given `costs` of each edge and the `cost_bound`.
 
         Examples:
           >>> universe = [(1, 2), (1, 4), (2, 3), (3, 4)]
@@ -1609,13 +1608,13 @@ class GraphSet(object):
           >>> graph3 = [(1, 2), (1, 4), (3, 4)]
           >>> gs = GraphSet([graph1, graph2, graph3])
           >>> costs = {(1, 2): 2, (1, 4): 3, (2, 3): 1, (3, 4): 7}
-          >>> cost = 7
-          >>> print(gs.cost_eq(costs, cost))
+          >>> cost_bound = 7
+          >>> print(gs.cost_eq(costs, cost_bound))
           GraphSet([[(3, 4)]])
 
         Args:
           costs: A dictionary of cost of each edge.
-          cost: The upper limit of cost of each graph. 32 bit signed integer.
+          cost_bound: The upper limit of cost of each graph. 32 bit signed integer.
 
         Returns:
           A new GraphSet object.
@@ -1626,8 +1625,8 @@ class GraphSet(object):
           TypeError: If at least one cost is not integer.
 
         """
-        le_ss = self._ss.cost_le(costs=costs, cost_bound=cost)
-        lt_ss = self._ss.cost_le(costs=costs, cost_bound=cost - 1)
+        le_ss = self._ss.cost_le(costs=costs, cost_bound=cost_bound)
+        lt_ss = self._ss.cost_le(costs=costs, cost_bound=cost_bound - 1)
         return GraphSet(le_ss.difference(lt_ss))
 
     def to_vertexsetset(self):
@@ -1738,20 +1737,10 @@ class GraphSet(object):
                 for e in sorted_edges:
                     source = min(e[0], e[1], source)
             sorted_edges = GraphSet._traverse(indexed_edges, traversal, source)
-        degrees = {}
         for u, v in sorted_edges:
             GraphSet._vertices.add(u)
             GraphSet._vertices.add(v)
-            if u not in degrees:
-                degrees[u] = 1
-            else: degrees[u] += 1
-            if v not in degrees:
-                degrees[v] = 1
-            else: degrees[v] += 1
-        # Set the variable ordering of vertices from top to bottom.
         setset.set_universe(sorted_edges)
-        # ordered_vertices = [eval(v) for v in setset.get_vertices_from_top()]
-        # VertexSetSet.set_universe(ordered_vertices)
 
     @staticmethod
     def universe():

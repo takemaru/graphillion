@@ -436,7 +436,6 @@ setset setset::cost_le(const std::vector<bddcost> costs, const bddcost cost_boun
   return setset(valid_cost_zdd);
 }
 
-// TODO: Move to ConvEVDD.hpp?
 std::pair<tdzdd::Graph, ConvEVDD::VariableList> setset::construct_graph_and_vlist(
   const std::vector<std::vector<std::string>> &edges_from_top
 ) const {
@@ -462,10 +461,6 @@ std::vector<std::string> setset::get_vertices_from_top(
 setset setset::to_vertexsetset_setset(const std::vector<std::vector<std::string>> &edges_from_top) const {
   auto [graph, vlist] = construct_graph_and_vlist(edges_from_top);
 
-  // setsetのzdd_は上位の（辺数）個の変数のみ使用しているので，DdStructureにする際にはoffsetを設定する
-  // 辺数 >= 頂点数となるようにGraphSetやVertexSetSetのuniverseを設定するという実装方針のままなら以下の行でよい
-  // const int offset = max_elem() - graph.edgeSize();
-  // 実装方針が変わっても動くように，念のため次の行のようにoffsetを定義する．
   const int offset = max_elem() - std::max(graph.edgeSize(), graph.vertexSize());
   SapporoZdd dd_e_spec(this->zdd_, offset);
   tdzdd::DdStructure<2> dd_e(dd_e_spec);

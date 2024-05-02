@@ -27,25 +27,24 @@ import _graphillion
 from graphillion import setset
 
 class VertexSetSet(object):
-    # ? Is "universal vertices" a meaningful expression?
     """Represents and manipulates a family of vertex sets.
 
     A VertexSetSet object stores a family of vertex sets.  A set of
-    vertices stored must be a subset of the universal vertices, and is
-    represented by a list of vertices in the universal vertices.
+    vertices stored must be a subset of the vertices of the universal graph, and is
+    represented by a list of the vertices of the universal graph.
     A vertex can be any hashable object like a number, a text string, and a tuple.
 
-    The universal vertices must be defined before creating VertexSetSet
+    The universal graph must be defined before creating VertexSetSet
     objects by `VertexSetSet.set_universe()` method.
     Furthermore, for a technical reason, `GraphSet.set_universe()` or
     `setset.set_universe()` must be called before the first call of
     `VertexSetSet.set_universet()` and the size of the universe of GraphSet
     or setset must not be smaller than that of the universe of VertexSetSet.
-    By the limitation above, currently a forest graph and its vertex set
-    as the universal graph and the univarsal vertices simultaneously.
+    By the limitation above, for example, if the universe graph is a forest,
+    GraphSet and VertexSetSet cannot be used simultaneously.
 
-    Like Python set types, VertexSetSet supports `graph in vertexsetset`,
-    `len(vertexsetset)`, and `for graph in vertexsetset`.  It also supports
+    Like Python set types, VertexSetSet supports `vertexset in vertexsetset`,
+    `len(vertexsetset)`, and `for vertexset in vertexsetset`.  It also supports
     all set methods and operators,
     * isdisjoint(), issubset(), issuperset(), union(), intersection(),
       difference(), symmetric_difference(), copy(), update(),
@@ -57,15 +56,11 @@ class VertexSetSet(object):
     Examples:
       >>> from graphillion import GraphSet, VertexSetSet
 
-      We assume the set {1, 2, 3, 4, 5} as the universal vertices.
-      As shown below, the universe graph of the GraphSet does not have to do
-      with the universal vertices, and what only matters is their size.
-
-      >>> dummy_universe = [("foo", "bar"), ("foo", "baz"), ("foo", "foobar"),
-                            ("bar", "baz"), ("bar", "foobar")]
-      >>> GraphSet.set_universe(dummy_universe)
-      >>> universe = [1, 2, 3, 4, 5]
-      >>> VertexSetSet.set_universe(universe)
+      >>> universe_graph = [(1, 2), (1, 3), (1, 4),
+                            (2, 5), (3, 5)]
+      >>> GraphSet.set_universe(universe_graph)
+      >>> universe_vertices = [1, 2, 3, 4, 5]
+      >>> VertexSetSet.set_universe(universe_vertices)
 
       Make an VertexSetSet instance representing {{1, 2}, {2, 3, 4}, {2, 5}, {3, 5}}.
 
@@ -83,7 +78,6 @@ class VertexSetSet(object):
       [2, 5]
 
     """
-    # TODO: 引数に入れられる値の種類を増やす
     def __init__(self, vertex_setset_or_constraints=None):
         """Initializes a VertexSetSet object with a set of graphs or constraints.
 
@@ -1617,13 +1611,12 @@ class VertexSetSet(object):
         inv_costs = {k: -v for k, v in costs.items()}
         return self.cost_le(inv_costs, -cost_bound)
 
-    # TODO: rename the argument as their names are almost the same
-    def cost_eq(self, costs, cost):
+    def cost_eq(self, costs, cost_bound):
         """Returns a new VertexSetSet with subsets whose cost is equal to the cost bound.
 
         This method constructs a VertexSetSet of subsets in which each graph's
         cost is equal to the cost bound
-        given `costs` of each vertex and the `cost`.
+        given `costs` of each vertex and the `cost_bound`.
 
         Examples:
           >>> vertex_set1 = [1, 3]
@@ -1637,7 +1630,7 @@ class VertexSetSet(object):
 
         Args:
           costs: A dictionary of cost of each vertex.
-          cost: The upper limit of cost of each vertex set. 32 bit signed integer.
+          cost_bound: The upper limit of cost of each vertex set. 32 bit signed integer.
 
         Returns:
           A new VertexSetSet object.
@@ -1649,7 +1642,7 @@ class VertexSetSet(object):
 
         """
         assert costs.keys() == VertexSetSet._vertex2obj.keys()
-        return self.cost_le(costs, cost) - self.cost_le(costs, cost - 1)
+        return self.cost_le(costs, cost_bound) - self.cost_le(costs, cost_bound - 1)
 
     @staticmethod
     def load(fp):
@@ -1700,7 +1693,7 @@ class VertexSetSet(object):
         return VertexSetSet(setset.loads(fp))
 
     @staticmethod
-    # TODO: Add optional erguments "traversal" and "source" as in GraphSet class
+    # TODO: Add optional arguments "traversal" and "source" as in GraphSet class
     def set_universe(universe=None):
         """Registers the new universe.
 
@@ -1995,8 +1988,7 @@ class VertexSetSet(object):
         return set(VertexSetSet._vertex2obj[vertex] for vertex in vertices)
 
     @staticmethod
-    # NOTE: GraphSet._conv_arg()よりは機能が少ない
-    # NOTE: 必要に応じて拡張
+    # NOTE: need to support further types as in GraphSet._conv_arg()
     def _conv_arg(obj):
         if isinstance(obj, VertexSetSet):
             return "vertexsetset", obj
@@ -2010,7 +2002,7 @@ class VertexSetSet(object):
     def _sort_vertices(obj):
         return (sorted(list(obj), key=lambda x : VertexSetSet._vertex2id[x]))
 
-    _universe_vertices = [] # TODO: listかsetか考える
+    _universe_vertices = [] # TODO: consider that is should be a list or set.
     _vertex2id = {}
     _vertex2obj = {}
     _obj2vertex = {}

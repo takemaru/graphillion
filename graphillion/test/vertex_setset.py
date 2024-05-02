@@ -680,7 +680,7 @@ class TestVertexSetSet(unittest.TestCase):
         vss2 = GraphSet([g2]).to_vertexsetset()
         self.assertEqual(vss2, VertexSetSet([[2, 3, 4]]))
 
-#     skip tests below because networkx cannot used with VertexSetSet class now
+#     skip tests below because networkx cannot be used with VertexSetSet class now
 #     def test_networkx(self):
 #         try:
 #             import networkx as nx

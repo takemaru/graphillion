@@ -73,7 +73,6 @@ class setset(_graphillion.setset):
         return self._repr((name + '([', '])'), ('set([', '])'))
 
     # obj_to_str: dict[tuple, str]
-    # TODO: _reprのテスト
     def _repr(self, outer_braces=('[', ']'), inner_braces=('[', ']'), obj_to_str=None):
         n = _graphillion._num_elems()
         w = {}
