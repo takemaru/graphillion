@@ -36,6 +36,9 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "graphillion/type.h"
 
 #include "SAPPOROBDD/BDDCT.h"
+#include "subsetting/DdStructure.hpp"
+#include "subsetting/util/Graph.hpp"
+#include "graphillion/ConvEVDD.hpp"
 
 namespace graphillion {
 
@@ -168,6 +171,14 @@ class setset {
   setset remove_some_element() const;
   setset add_some_element(int n, int lower) const;
   setset remove_add_some_elements(int n, int lower) const;
+
+  std::pair<tdzdd::Graph, ConvEVDD::VariableList> construct_graph_and_vlist(
+    const std::vector<std::vector<std::string>> &edges_from_top
+  ) const;
+  std::vector<std::string> get_vertices_from_top(
+    const std::vector<std::vector<std::string>> &edges_from_top
+  ) const;
+  setset to_vertexsetset_setset(const std::vector<std::vector<std::string>> &edges_from_top) const;
 
   double probability(const std::vector<double>& probabilities) const;
 

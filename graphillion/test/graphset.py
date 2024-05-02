@@ -1006,17 +1006,17 @@ class TestGraphSet(unittest.TestCase):
         costs = {e1: 2, e2: 14, e3: 4, e4: 7}
         cost_bound = 13
 
-        small_cost_gs = gs.cost_ge(costs, cost_bound)
-        self.assertNotIn(g0, small_cost_gs) # cost: 0
-        self.assertNotIn(g1, small_cost_gs) # cost: 2
-        self.assertIn(g2, small_cost_gs) # cost: 14
-        self.assertNotIn(g3, small_cost_gs) # cost: 4
-        self.assertNotIn(g4, small_cost_gs) # cost: 7
-        self.assertIn(g12, small_cost_gs) # cost: 16
-        self.assertNotIn(g14, small_cost_gs) # cost: 9
-        self.assertIn(g134, small_cost_gs) # cost: 13
-        self.assertIn(g234, small_cost_gs) # cost: 25
-        self.assertIn(g1234, small_cost_gs) # cost: 27
+        large_cost_gs = gs.cost_ge(costs, cost_bound)
+        self.assertNotIn(g0, large_cost_gs) # cost: 0
+        self.assertNotIn(g1, large_cost_gs) # cost: 2
+        self.assertIn(g2, large_cost_gs) # cost: 14
+        self.assertNotIn(g3, large_cost_gs) # cost: 4
+        self.assertNotIn(g4, large_cost_gs) # cost: 7
+        self.assertIn(g12, large_cost_gs) # cost: 16
+        self.assertNotIn(g14, large_cost_gs) # cost: 9
+        self.assertIn(g134, large_cost_gs) # cost: 13
+        self.assertIn(g234, large_cost_gs) # cost: 25
+        self.assertIn(g1234, large_cost_gs) # cost: 27
 
     def test_cost_eq(self):
         GraphSet.set_universe([e1, e2, e3, e4])
@@ -1025,17 +1025,17 @@ class TestGraphSet(unittest.TestCase):
         costs = {e1: 2, e2: 14, e3: 4, e4: 7}
         cost_bound = 13
 
-        small_cost_gs = gs.cost_eq(costs, cost_bound)
-        self.assertNotIn(g0, small_cost_gs) # cost: 0
-        self.assertNotIn(g1, small_cost_gs) # cost: 2
-        self.assertNotIn(g2, small_cost_gs) # cost: 14
-        self.assertNotIn(g3, small_cost_gs) # cost: 4
-        self.assertNotIn(g4, small_cost_gs) # cost: 7
-        self.assertNotIn(g12, small_cost_gs) # cost: 16
-        self.assertNotIn(g14, small_cost_gs) # cost: 9
-        self.assertIn(g134, small_cost_gs) # cost: 13
-        self.assertNotIn(g234, small_cost_gs) # cost: 25
-        self.assertNotIn(g1234, small_cost_gs) # cost: 27
+        equal_cost_gs = gs.cost_eq(costs, cost_bound)
+        self.assertNotIn(g0, equal_cost_gs) # cost: 0
+        self.assertNotIn(g1, equal_cost_gs) # cost: 2
+        self.assertNotIn(g2, equal_cost_gs) # cost: 14
+        self.assertNotIn(g3, equal_cost_gs) # cost: 4
+        self.assertNotIn(g4, equal_cost_gs) # cost: 7
+        self.assertNotIn(g12, equal_cost_gs) # cost: 16
+        self.assertNotIn(g14, equal_cost_gs) # cost: 9
+        self.assertIn(g134, equal_cost_gs) # cost: 13
+        self.assertNotIn(g234, equal_cost_gs) # cost: 25
+        self.assertNotIn(g1234, equal_cost_gs) # cost: 27
 
     def test_remove_some_edge(self):
 

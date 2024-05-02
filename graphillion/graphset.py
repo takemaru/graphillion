@@ -24,7 +24,7 @@ from functools import partial
 from builtins import range, int
 from future.utils import viewitems
 import _graphillion
-from graphillion import setset
+from graphillion import setset, VertexSetSet
 import pickle
 import heapq
 
@@ -1682,6 +1682,28 @@ class GraphSet(object):
           A new GraphSet object.
         """
         return GraphSet(self._ss.remove_add_some_elements())
+
+    def to_vertexsetset(self):
+        """Returns a new VertexSetSet with vertices of each graph in `self`.
+
+        Examples:
+          >>> e1 = (1, 2)
+          >>> e2 = (3, 4)
+          >>> e3 = (2, 3)
+          >>> e4 = (2, 4)
+          >>> GraphSet.set_universe([e1, e2, e3, e4], "as-is")
+          >>> ordered_vertices = [eval(v) for v in setset.get_vertices_from_top()]
+          >>> VertexSetSet.set_universe(ordered_vertices)
+          >>> g1 = [e2]
+          >>> vss1 = GraphSet([[e1]]).to_vertexsetset()
+          >>> vss1
+          VertexSetSet([['1', '2']])
+
+        Returns:
+          A new VertexSetSet object.
+
+        """
+        return VertexSetSet(self._ss.to_vertexsetset())
 
     @staticmethod
     def load(fp):

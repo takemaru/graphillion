@@ -25,6 +25,7 @@ See README for details.
 """
 
 from graphillion.setset import setset
+from graphillion.vertex_setset import VertexSetSet
 from graphillion.graphset import GraphSet
 import graphillion.release
 

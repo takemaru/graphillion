@@ -72,7 +72,8 @@ class setset(_graphillion.setset):
         name = self.__class__.__name__
         return self._repr((name + '([', '])'), ('set([', '])'))
 
-    def _repr(self, outer_braces=('[', ']'), inner_braces=('[', ']')):
+    # obj_to_str: dict[tuple, str]
+    def _repr(self, outer_braces=('[', ']'), inner_braces=('[', ']'), obj_to_str=None):
         n = _graphillion._num_elems()
         w = {}
         for i in range(1, n + 1):
@@ -86,7 +87,10 @@ class setset(_graphillion.setset):
                 no_comma = False
             else:
                 ret += ', '
-            ret += inner_braces[0] + str(sorted(list(s)))[1:-1] + inner_braces[1]
+            if obj_to_str is None:
+                ret += inner_braces[0] + str(sorted(list(s)))[1:-1] + inner_braces[1]
+            else:
+                ret += inner_braces[0] + str(sorted([obj_to_str[tuple(obj)] for obj in s]))[1:-1] + inner_braces[1]
             if len(ret) > maxchar - 2:
                 break
         if len(ret) <= maxchar - 2:
@@ -185,6 +189,15 @@ class setset(_graphillion.setset):
         # due to the implementation of BDDCT class of SAPPOROBDD.
         assert len([c for c in cs[1:] if c < -(1 << 31) or (1 << 31) <= c]) == 0
         return _graphillion.setset.cost_le(self, costs=cs[1:], cost_bound=cost_bound)
+
+    def to_vertexsetset(self):
+        edges_from_top = [list(e) for e in setset._int2obj[1:]]
+        return _graphillion.setset.to_vertexsetset(self, edges_from_top)
+
+    @staticmethod
+    def get_vertices_from_top():
+        edges_from_top = [list(e) for e in setset._int2obj[1:]]
+        return _graphillion._get_vertices_from_top(edges_from_top)
 
     @staticmethod
     def load(fp):
