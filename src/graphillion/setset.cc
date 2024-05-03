@@ -474,6 +474,9 @@ std::vector<std::string> setset::get_vertices_from_top(
 }
 
 setset setset::to_vertexsetset_setset(const std::vector<std::vector<std::string>> &edges_from_top) const {
+  if (this->zdd_ == bot()) {
+    return setset(bot());
+  }
   auto [graph, vlist] = construct_graph_and_vlist(edges_from_top);
 
   const int offset = max_elem() - std::max(graph.edgeSize(), graph.vertexSize());

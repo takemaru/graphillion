@@ -667,15 +667,29 @@ class TestVertexSetSet(unittest.TestCase):
         e2 = (3, 4)
         e3 = (2, 3)
         e4 = (2, 4)
-        GraphSet.set_universe([e1, e2, e3, e4], "as-is")
-        ordered_vertices = [eval(v) for v in setset.get_vertices_from_top()]
-        VertexSetSet.set_universe(ordered_vertices)
+        e5 = (2, 5)
+        GraphSet.set_universe([e1, e2, e3, e4, e5], "as-is")
+        VertexSetSet.set_universe()
+        self.assertEqual(VertexSetSet.universe(), [1, 3, 4, 2, 5])
+
+        vss1 = GraphSet([]).to_vertexsetset() # empty graphset
+        self.assertEqual(vss1, VertexSetSet([]))
+        # graphset consisting only of the empty graph
+        vss2 = GraphSet([[]]).to_vertexsetset()
+        self.assertEqual(vss2, VertexSetSet([[]]))
+
         g1 = [e2]
-        vss1 = GraphSet([g1]).to_vertexsetset()
-        self.assertEqual(vss1, VertexSetSet([[3, 4]]))
-        g2 = [e2, e3]
-        vss2 = GraphSet([g2]).to_vertexsetset()
-        self.assertEqual(vss2, VertexSetSet([[2, 3, 4]]))
+        vss3 = GraphSet([g1]).to_vertexsetset()
+        self.assertEqual(vss3, VertexSetSet([[3, 4]]))
+        g2 = [e1, e2]
+        vss4 = GraphSet([g1, g2]).to_vertexsetset()
+        self.assertEqual(vss4, VertexSetSet([[3, 4], [1, 2, 3, 4]]))
+        g3 = [e1, e2, e4]
+        vss5 = GraphSet([g1, g2, g3]).to_vertexsetset()
+        self.assertEqual(vss5, VertexSetSet([[3, 4], [1, 2, 3, 4]]))
+        g4 = [e2, e3]
+        vss6 = GraphSet([g4]).to_vertexsetset()
+        self.assertEqual(vss6, VertexSetSet([[2, 3, 4]]))
 
 #     skip tests below because networkx cannot be used with VertexSetSet class now
 #     def test_networkx(self):

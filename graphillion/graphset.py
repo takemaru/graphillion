@@ -1578,7 +1578,7 @@ class GraphSet(object):
 
         Args:
           costs: A dictionary of the cost of each edge.
-          cost_bound: The upper limit of the cost of each graph. 32 bit signed integer.
+          cost_bound: The lower limit of the cost of each graph. 32 bit signed integer.
 
         Returns:
           A new GraphSet object.
@@ -1691,13 +1691,15 @@ class GraphSet(object):
           >>> e2 = (3, 4)
           >>> e3 = (2, 3)
           >>> e4 = (2, 4)
-          >>> GraphSet.set_universe([e1, e2, e3, e4], "as-is")
-          >>> ordered_vertices = [eval(v) for v in setset.get_vertices_from_top()]
-          >>> VertexSetSet.set_universe(ordered_vertices)
-          >>> g1 = [e2]
-          >>> vss1 = GraphSet([[e1]]).to_vertexsetset()
+          >>> e5 = (2, 5)
+          >>> GraphSet.set_universe([e1, e2, e3, e4, e5], "as-is")
+          >>> VertexSetSet.set_universe()
+          >>> g1 = [e2]           # vertex set is {3, 4}
+          >>> g2 = [e1, e2]       # vertex set is {1, 2, 3, 4}
+          >>> g3 = [e1, e2, e4]   # vertex set is {1, 2, 3, 4}
+          >>> vss1 = GraphSet([g1, g2, g3]).to_vertexsetset()
           >>> vss1
-          VertexSetSet([['1', '2']])
+          VertexSetSet([[3, 4], [1, 2, 3, 4]])
 
         Returns:
           A new VertexSetSet object.

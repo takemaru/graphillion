@@ -1704,7 +1704,7 @@ class VertexSetSet(object):
 
         Args:
           universe: A list of vertices that represents the new universe.
-            A vertex may come along with an vertex weight, which can be
+            A vertex may come along with a vertex weight, which can be
             positive as well as negative (or 1.0 if not specified).
             If a vertex is weighted, it must be given in a list as a tuple of vertex and weight.
             If a vertex is not weighted, it must be given as a tuple of size one or single value.
@@ -1712,12 +1712,22 @@ class VertexSetSet(object):
         See Also:
           universe()
         """
-        if universe is None: # adopt the vertex set of GraphSet's underlying graph
-            # TODO: Implement
-            raise NotImplementedError
+        from graphillion import GraphSet
+        universe_edges = GraphSet.universe()
+        assert universe_edges != None and len(universe_edges) > 0, \
+                "GraphSet.set_universe must be called."
 
-        assert len(universe) <= len(setset.universe()), \
-               f"the universe is too small, which has at least {len(universe)} elements"
+        if universe is None: # adopt the vertex set of GraphSet's underlying graph
+            universe = [eval(v) for v in setset.get_vertices_from_top()]
+            assert len(universe) <= len(universe_edges), \
+                  "The number of edges of the universe graph must be " \
+                  + "larger than or equal to the number of vertices " \
+                  + "of the universe graph."
+        else:
+            assert len(universe) <= len(universe_edges), \
+                  "The size of universe must be " \
+                  + "smaller than or equal to the number of edges " \
+                  + "of the universe graph."
 
         vertex_num = len(universe)
         if vertex_num != len(set(universe)):

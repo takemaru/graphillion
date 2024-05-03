@@ -1026,7 +1026,7 @@ std::vector<std::vector<std::string>> parse_args_to_edges(PyObject* args) {
       PyObject *v_obj = PyList_GetItem(edge_obj, j);
       PyObject *v_repr = PyObject_Repr(v_obj);
       const char *v = PyString_AsString(v_repr);
-      edge[j] = v;
+      edge[j] = std::string(v);
     }
     edges.push_back(std::move(edge));
   }
