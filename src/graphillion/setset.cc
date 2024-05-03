@@ -451,13 +451,13 @@ setset setset::remove_add_some_elements(int n, int lower) const {
   return setset(graphillion::remove_add_some_elements(this->zdd_, n, lower));
 }
 
-std::pair<tdzdd::Graph, ConvEVDD::VariableList> setset::construct_graph_and_vlist(
+std::pair<tdzdd::Graph, VariableConverter::VariableList> setset::construct_graph_and_vlist(
   const std::vector<std::vector<std::string>> &edges_from_top
 ) const {
   tdzdd::Graph graph;
   for (std::vector<std::string> edge : edges_from_top) graph.addEdge(edge[0], edge[1]);
   graph.update();
-  ConvEVDD::VariableList vlist(graph);
+  VariableConverter::VariableList vlist(graph);
   return {graph, vlist};
 }
 
@@ -483,7 +483,7 @@ setset setset::to_vertexsetset_setset(const std::vector<std::vector<std::string>
   SapporoZdd dd_e_spec(this->zdd_, offset);
   tdzdd::DdStructure<2> dd_e(dd_e_spec);
   dd_e.zddReduce();
-  zdd_t dd_v = ConvEVDD::eToVZdd(dd_e, graph, vlist, offset);
+  zdd_t dd_v = VariableConverter::eToVZdd(dd_e, graph, vlist, offset);
   return setset(dd_v);
 }
 

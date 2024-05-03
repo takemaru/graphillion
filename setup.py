@@ -75,6 +75,7 @@ sources_list = [os.path.join('src', 'pygraphillion.cc'),
                 os.path.join('src', 'SAPPOROBDD', 'bddc.c'),
                 os.path.join('src', 'SAPPOROBDD', 'BDD.cc'),
                 os.path.join('src', 'SAPPOROBDD', 'ZBDD.cc'),
+                os.path.join('src', 'SAPPOROBDD', 'BDDCT.cc'),
                 os.path.join('src', 'graphillion', 'partition', 'Partition.cc'),
                 os.path.join('src', 'graphillion', 'partition', 'BalancedPartition.cc'),
                 os.path.join('src', 'graphillion', 'reliability', 'reliability.cc'),
@@ -82,7 +83,7 @@ sources_list = [os.path.join('src', 'pygraphillion.cc'),
                 os.path.join('src', 'graphillion', 'induced_graphs', 'WeightedInducedGraphs.cc'),
                 os.path.join('src', 'graphillion', 'chordal', 'chordal.cc'),
                 os.path.join('src', 'graphillion', 'odd_edges_subgraphs', 'OddEdgeSubgraphs.cc'),
-                os.path.join('src', 'SAPPOROBDD', 'BDDCT.cc')]
+                os.path.join('src', 'graphillion', 'variable_converter', 'variable_converter.cc')]
 
 if sys.platform == 'win32':
     sources_list.append(os.path.join('src', 'mingw32', 'RpWinResource.c'))
