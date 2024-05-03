@@ -113,12 +113,12 @@ class TestVertexSetSet(unittest.TestCase):
         vss = VertexSetSet([vs0, vs12, vs13])
         self.assertEqual(
             repr(vss),
-            "VertexSetSet([[], ['1', '2'], ['1', '3']])")
+            "VertexSetSet([[], [1, 2], [1, 3]])")
 
         vss = VertexSetSet({})
         self.assertEqual(
             repr(vss),
-            "VertexSetSet([[], ['1'], ['2'], ['3'], ['4'], ['1', '2'], ['1', '3'], ['2',  ...")
+            "VertexSetSet([[], [1], [2], [3], [4], [1, 2], [1, 3], [2, 3], [1, 4], [2, 4] ...")
 
     def test_show_messages(self):
         a = VertexSetSet.show_messages()

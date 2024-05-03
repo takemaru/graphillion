@@ -90,7 +90,7 @@ class setset(_graphillion.setset):
             if obj_to_str is None:
                 ret += inner_braces[0] + str(sorted(list(s)))[1:-1] + inner_braces[1]
             else:
-                ret += inner_braces[0] + str(sorted([obj_to_str[tuple(obj)] for obj in s]))[1:-1] + inner_braces[1]
+                ret += inner_braces[0] + str(sorted([eval(obj_to_str[tuple(obj)]) for obj in s]))[1:-1] + inner_braces[1]
             if len(ret) > maxchar - 2:
                 break
         if len(ret) <= maxchar - 2:
