@@ -172,12 +172,6 @@ class setset {
   setset add_some_element(int n, int lower) const;
   setset remove_add_some_elements(int n, int lower) const;
 
-  std::pair<tdzdd::Graph, VariableConverter::VariableList> construct_graph_and_vlist(
-    const std::vector<std::vector<std::string>> &edges_from_top
-  ) const;
-  std::vector<std::string> get_vertices_from_top(
-    const std::vector<std::vector<std::string>> &edges_from_top
-  ) const;
   setset to_vertexsetset_setset(const std::vector<std::vector<std::string>> &edges_from_top) const;
 
   double probability(const std::vector<double>& probabilities) const;

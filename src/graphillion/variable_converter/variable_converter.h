@@ -67,6 +67,14 @@ ZBDD eToVZdd(const tdzdd::DdStructure<2>& dd,
           const VariableList& vlist,
           const int offset = 0);
 
+std::pair<tdzdd::Graph, VariableList> construct_graph_and_vlist(
+  const std::vector<std::vector<std::string>> &edges_from_top
+);
+
+std::vector<std::string> get_vertices_from_top(
+  const std::vector<std::vector<std::string>> &edges_from_top
+);
+
 }  // namespace VariableConverter
 
 #endif  // GRAPHILLION_VARIABLE_CONVERTER_H_

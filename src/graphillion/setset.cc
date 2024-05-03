@@ -451,33 +451,11 @@ setset setset::remove_add_some_elements(int n, int lower) const {
   return setset(graphillion::remove_add_some_elements(this->zdd_, n, lower));
 }
 
-std::pair<tdzdd::Graph, VariableConverter::VariableList> setset::construct_graph_and_vlist(
-  const std::vector<std::vector<std::string>> &edges_from_top
-) const {
-  tdzdd::Graph graph;
-  for (std::vector<std::string> edge : edges_from_top) graph.addEdge(edge[0], edge[1]);
-  graph.update();
-  VariableConverter::VariableList vlist(graph);
-  return {graph, vlist};
-}
-
-std::vector<std::string> setset::get_vertices_from_top(
-  const std::vector<std::vector<std::string>> &edges_from_top
-) const {
-  auto [graph, vlist] = construct_graph_and_vlist(edges_from_top);
-  std::vector<std::string> vertices_from_top(graph.vertexSize());
-  for (int i = 1; i <= graph.vertexSize(); ++i) {
-    int v = vlist.newVToV(i);
-    *(rbegin(vertices_from_top) + i - 1) = graph.vertexName(v);
-  }
-  return vertices_from_top;
-}
-
 setset setset::to_vertexsetset_setset(const std::vector<std::vector<std::string>> &edges_from_top) const {
   if (this->zdd_ == bot()) {
     return setset(bot());
   }
-  auto [graph, vlist] = construct_graph_and_vlist(edges_from_top);
+  auto [graph, vlist] = VariableConverter::construct_graph_and_vlist(edges_from_top);
 
   const int offset = max_elem() - std::max(graph.edgeSize(), graph.vertexSize());
   SapporoZdd dd_e_spec(this->zdd_, offset);

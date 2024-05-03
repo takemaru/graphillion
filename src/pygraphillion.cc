@@ -1889,7 +1889,7 @@ static PyObject* odd_edges_subgraphs(PyObject*, PyObject* args, PyObject* kwds) 
 
 static PyObject* setset_get_vertices_from_top(PySetsetObject* self, PyObject* args) {
   std::vector<std::vector<std::string>> edges = parse_args_to_edges(args);
-  std::vector<std::string> v_order_from_top = self->ss->get_vertices_from_top(edges);
+  std::vector<std::string> v_order_from_top = VariableConverter::get_vertices_from_top(edges);
   int n = v_order_from_top.size();
   PyObject* ret = PyList_New(n);
   for (int i = 0; i < n; ++i) {
