@@ -89,7 +89,7 @@ ZBDD addSomeElement(const ZBDD& f, int n, int lower)
   }
 
   bddword fx = f.GetID();
-  ZBDD h = BDD_CacheZBDD(BC_ADDE_CPP, fx, static_cast<bddword>(n));
+  ZBDD h = BDD_CacheZBDD(BC_ADDE_CPP, fx, static_cast<bddword>((n << 16) + lower));
   if(h != -1) {
     return h;
   }
@@ -111,7 +111,7 @@ ZBDD addSomeElement(const ZBDD& f, int n, int lower)
 
   BDD_RECUR_DEC;
   if(h != -1) {
-    BDD_CacheEnt(BC_ADDE_CPP, fx, static_cast<bddword>(n), h.GetID());
+    BDD_CacheEnt(BC_ADDE_CPP, fx, static_cast<bddword>((n << 16) + lower), h.GetID());
   }
 
   return h;
@@ -129,7 +129,7 @@ ZBDD removeAddSomeElements(const ZBDD& f, int n, int lower)
   assert(flev <= n);
 
   bddword fx = f.GetID();
-  ZBDD h = BDD_CacheZBDD(BC_SWAPE_CPP, fx, static_cast<bddword>(n));
+  ZBDD h = BDD_CacheZBDD(BC_SWAPE_CPP, fx, static_cast<bddword>((n << 16) + lower));
   if(h != -1) {
     return h;
   }
@@ -155,7 +155,7 @@ ZBDD removeAddSomeElements(const ZBDD& f, int n, int lower)
 
   BDD_RECUR_DEC;
   if(h != -1) {
-    BDD_CacheEnt(BC_SWAPE_CPP, fx, static_cast<bddword>(n), h.GetID());
+    BDD_CacheEnt(BC_SWAPE_CPP, fx, static_cast<bddword>((n << 16) + lower), h.GetID());
   }
 
   return h;

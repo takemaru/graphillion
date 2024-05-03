@@ -1644,6 +1644,63 @@ class VertexSetSet(object):
         assert costs.keys() == VertexSetSet._vertex2obj.keys()
         return self.cost_le(costs, cost_bound) - self.cost_le(costs, cost_bound - 1)
 
+    def remove_some_vertex(self):
+        """Returns a new VertexSetSet with vertex sets that are obtained by removing some vertex from a vertex set in `self`.
+
+        The `self` is not changed.
+
+        Examples:
+          >>> GraphSet.set_universe([(1, 2), (1, 4), (2, 3), (1, 3)])
+          >>> VertexSetSet.set_universe()
+          >>> vs1 = [1, 2, 3]
+          >>> vs2 = [2, 4]
+          >>> vss = VertexSetSet([vs1, vs2])
+          >>> vss.remove_some_vertex()
+          VertexSetSet([[4], [2], [1, 2], [1, 3], [2, 3]])
+
+        Returns:
+          A new VertexSetSet object.
+        """
+        return VertexSetSet(self._ss.remove_some_element())
+
+    def add_some_vertex(self):
+        """Returns a new VertexSetSet with vertex sets that are obtained by adding some vertex to a vertex set in `self`.
+
+        The `self` is not changed.
+
+        Examples:
+          >>> GraphSet.set_universe([(1, 2), (1, 4), (2, 3), (1, 3)])
+          >>> VertexSetSet.set_universe()
+          >>> vs1 = [1, 2, 3]
+          >>> vs2 = [2, 4]
+          >>> vss = VertexSetSet([vs1, vs2])
+          >>> vss.add_some_vertex()
+          VertexSetSet([[1, 2, 4], [2, 3, 4], [1, 2, 3, 4]])
+
+        Returns:
+          A new VertexSetSet object.
+        """
+        return VertexSetSet(self._ss.add_some_element(len(VertexSetSet._universe_vertices)))
+
+    def remove_add_some_vertices(self):
+        """Returns a new VertexSetSet with vertex sets that are obtained by removing some vertex from a vertex set in `self` and adding another vertex to the vertex set.
+
+        The `self` is not changed.
+
+        Examples:
+          >>> GraphSet.set_universe([(1, 2), (1, 4), (2, 3), (1, 3)])
+          >>> VertexSetSet.set_universe()
+          >>> vs1 = [1, 2, 3]
+          >>> vs2 = [2, 4]
+          >>> vss = VertexSetSet([vs1, vs2])
+          >>> vss.remove_add_some_vertices()
+          VertexSetSet([[1, 4], [1, 2], [3, 4], [2, 3], [1, 2, 4], [1, 3, 4], [2, 3, 4]])
+
+        Returns:
+          A new VertexSetSet object.
+        """
+        return VertexSetSet(self._ss.remove_add_some_elements(len(VertexSetSet._universe_vertices)))
+
     @staticmethod
     def load(fp):
         """Deserialize a file `fp` to `self`.

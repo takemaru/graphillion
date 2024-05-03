@@ -993,12 +993,36 @@ static PyObject* setset_remove_some_element(PySetsetObject* self) {
   RETURN_NEW_SETSET(self, self->ss->remove_some_element());
 }
 
-static PyObject* setset_add_some_element(PySetsetObject* self) {
-  RETURN_NEW_SETSET(self, self->ss->add_some_element(setset::max_elem(), setset::max_elem() - setset::num_elems() + 1));
+static PyObject* setset_add_some_element(PySetsetObject* self, PyObject* args) {
+  int num_variables = 0;
+  if (!PyArg_ParseTuple(args, "|i", &num_variables)) {
+    return NULL;
+  }
+  if (num_variables < 0) {
+    PyErr_SetString(PyExc_TypeError, "not a positive number");
+    return NULL;
+  } else if (num_variables == 0) {
+    num_variables = setset::num_elems();
+  }
+  //RETURN_NEW_SETSET(self, self->ss->add_some_element(setset::max_elem(), setset::max_elem() - setset::num_elems() + 1));
+  RETURN_NEW_SETSET(self, self->ss->add_some_element(setset::max_elem() - setset::num_elems() + num_variables,
+    setset::max_elem() - setset::num_elems() + 1));
 }
 
-static PyObject* setset_remove_add_some_elements(PySetsetObject* self) {
-  RETURN_NEW_SETSET(self, self->ss->remove_add_some_elements(setset::max_elem(), setset::max_elem() - setset::num_elems() + 1));
+static PyObject* setset_remove_add_some_elements(PySetsetObject* self, PyObject* args) {
+  int num_variables = 0;
+  if (!PyArg_ParseTuple(args, "|i", &num_variables)) {
+    return NULL;
+  }
+  if (num_variables < 0) {
+    PyErr_SetString(PyExc_TypeError, "not a positive number");
+    return NULL;
+  } else if (num_variables == 0) {
+    num_variables = setset::num_elems();
+  }
+  //RETURN_NEW_SETSET(self, self->ss->remove_add_some_elements(setset::max_elem(), setset::max_elem() - setset::num_elems() + 1));
+  RETURN_NEW_SETSET(self, self->ss->remove_add_some_elements(setset::max_elem() - setset::num_elems() + num_variables,
+    setset::max_elem() - setset::num_elems() + 1));
 }
 
 std::vector<std::vector<std::string>> parse_args_to_edges(PyObject* args) {
@@ -1095,8 +1119,8 @@ static PyMethodDef setset_methods[] = {
   {"_enums", reinterpret_cast<PyCFunction>(setset_enums), METH_NOARGS, ""},
   {"cost_le", reinterpret_cast<PyCFunction>(setset_cost_le), METH_VARARGS | METH_KEYWORDS, ""},
   {"remove_some_element", reinterpret_cast<PyCFunction>(setset_remove_some_element), METH_NOARGS, ""},
-  {"add_some_element", reinterpret_cast<PyCFunction>(setset_add_some_element), METH_NOARGS, ""},
-  {"remove_add_some_elements", reinterpret_cast<PyCFunction>(setset_remove_add_some_elements), METH_NOARGS, ""},
+  {"add_some_element", reinterpret_cast<PyCFunction>(setset_add_some_element), METH_VARARGS, ""},
+  {"remove_add_some_elements", reinterpret_cast<PyCFunction>(setset_remove_add_some_elements), METH_VARARGS, ""},
   {"to_vertexsetset", reinterpret_cast<PyCFunction>(setset_to_vertexsetset), METH_VARARGS, ""},
   {NULL}  /* Sentinel */
 };

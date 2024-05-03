@@ -662,6 +662,81 @@ class TestVertexSetSet(unittest.TestCase):
         self.assertEqual(len(vss), 20)
         self.assertEqual(vss.maximal(), VertexSetSet([[1, 2, 3], [1, 2, 4, 5]]))
 
+    def test_remove_some_vertex(self):
+        GraphSet.set_universe([(1, 2), (1, 3), (1, 4), (2, 3), (2, 4)])
+        VertexSetSet.set_universe()
+
+        vss = VertexSetSet([])
+        self.assertEqual(vss.remove_some_vertex(), VertexSetSet())
+
+        vss = VertexSetSet([vs0])
+        self.assertEqual(vss.remove_some_vertex(), VertexSetSet())
+
+        vss = VertexSetSet([vs1])
+        self.assertEqual(vss.remove_some_vertex(), VertexSetSet([vs0]))
+
+        vss = VertexSetSet([vs0, vs1])
+        self.assertEqual(vss.remove_some_vertex(), VertexSetSet([vs0]))
+
+        vss = VertexSetSet([vs1, vs12])
+        self.assertEqual(vss.remove_some_vertex(), VertexSetSet([vs0, vs1, vs2]))
+
+        vss1 = VertexSetSet([vs0, vs4, vs12, vs234])
+        vss2 = VertexSetSet([vs0, vs1, vs2, vs23, vs24, vs34])
+        self.assertEqual(vss1.remove_some_vertex(), vss2)
+
+    def test_add_some_vertex(self):
+        GraphSet.set_universe([(1, 2), (1, 3), (1, 4), (2, 3), (2, 4)])
+        VertexSetSet.set_universe()
+
+        vss = VertexSetSet([])
+        self.assertEqual(vss.add_some_vertex(), VertexSetSet())
+
+        vss = VertexSetSet([vs0])
+        vss1 = vss.add_some_vertex()
+        self.assertEqual(vss.add_some_vertex(), VertexSetSet([vs1, vs2, vs3, vs4]))
+
+        vss = VertexSetSet([vs1])
+        self.assertEqual(vss.add_some_vertex(), VertexSetSet([vs12, vs13, vs14]))
+
+        vss = VertexSetSet([vs0, vs1])
+        self.assertEqual(vss.add_some_vertex(),
+                         VertexSetSet([vs1, vs2, vs3, vs4, vs12, vs13, vs14]))
+
+        vss = VertexSetSet([vs1, vs12])
+        self.assertEqual(vss.add_some_vertex(),
+                         VertexSetSet([vs12, vs13, vs14, vs123, vs124]))
+
+        vss1 = VertexSetSet([vs0, vs4, vs12, vs234])
+        vss2 = VertexSetSet([vs1, vs2, vs3, vs4, vs14, vs24, vs34, vs123, vs124, vs1234])
+        self.assertEqual(vss1.add_some_vertex(), vss2)
+
+    def test_remove_add_some_vertices(self):
+        GraphSet.set_universe([(1, 2), (1, 3), (1, 4), (2, 3), (2, 4)])
+        VertexSetSet.set_universe()
+
+        vss = VertexSetSet([])
+        self.assertEqual(vss.remove_add_some_vertices(), VertexSetSet())
+
+        vss = VertexSetSet([vs0])
+        self.assertEqual(vss.remove_add_some_vertices(), VertexSetSet())
+
+        vss = VertexSetSet([vs1])
+        self.assertEqual(vss.remove_add_some_vertices(),
+                         VertexSetSet([vs2, vs3, vs4]))
+
+        vss = VertexSetSet([vs0, vs1])
+        self.assertEqual(vss.remove_add_some_vertices(),
+                         VertexSetSet([vs2, vs3, vs4]))
+
+        vss = VertexSetSet([vs1, vs12])
+        self.assertEqual(vss.remove_add_some_vertices(),
+                         VertexSetSet([vs2, vs3, vs4, vs13, vs14, vs23, vs24]))
+
+        vss1 = VertexSetSet([vs0, vs4, vs12, vs234])
+        vss2 = VertexSetSet([vs1, vs2, vs3, vs13, vs14, vs23, vs24, vs123, vs124, vs134])
+        self.assertEqual(vss1.remove_add_some_vertices(), vss2)
+
     def test_to_vertexsetset(self):
         e1 = (1, 2)
         e2 = (3, 4)

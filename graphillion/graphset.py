@@ -1663,7 +1663,7 @@ class GraphSet(object):
         Returns:
           A new GraphSet object.
         """
-        return GraphSet(self._ss.add_some_element())
+        return GraphSet(self._ss.add_some_element(len(setset._int2obj) - 1))
     
     def remove_add_some_edges(self):
         """Returns a new GraphSet with graphs that are obtained by removing some edge from a graph in `self` and adding another edge to the graph.
@@ -1681,7 +1681,7 @@ class GraphSet(object):
         Returns:
           A new GraphSet object.
         """
-        return GraphSet(self._ss.remove_add_some_elements())
+        return GraphSet(self._ss.remove_add_some_elements(len(setset._int2obj) - 1))
 
     def to_vertexsetset(self):
         """Returns a new VertexSetSet with vertices of each graph in `self`.
