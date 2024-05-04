@@ -388,8 +388,8 @@ void dump(zdd_t f, FILE* fp) {
 zdd_t load(istream& in) {
   string line;
   getline(in, line);
-  if      (line == "B") return bot();
-  else if (line == "T") return top();
+  if      (line[0] == 'B' && (line.length() == 1 || is_space(line.substr(1)))) return bot();
+  else if (line[0] == 'T' && (line.length() == 1 || is_space(line.substr(1)))) return top();
   map<word_t, zdd_t> n;
   n[id(bot())] = bot();
   n[id(top())] = top();
@@ -422,8 +422,8 @@ zdd_t load(FILE* fp) {
   char buf[256];
   if (fgets(buf, sizeof(buf), fp) == NULL) return null();
   string line = buf;
-  if      (line == "B") return bot();
-  else if (line == "T") return top();
+  if      (line[0] == 'B' && (line.length() == 1 || is_space(line.substr(1)))) return bot();
+  else if (line[0] == 'T' && (line.length() == 1 || is_space(line.substr(1)))) return top();
   map<word_t, zdd_t> n;
   n[id(bot())] = bot();
   n[id(top())] = top();
