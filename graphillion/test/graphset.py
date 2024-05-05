@@ -1134,6 +1134,13 @@ class TestGraphSet(unittest.TestCase):
             gs = GraphSet.load(f)
             self.assertEqual(gs, GraphSet(v))
 
+        for gs1 in [GraphSet([]), GraphSet([g0]), GraphSet([g1])]:
+            with tempfile.TemporaryFile() as f:
+                gs1.dump(f)
+                f.seek(0)
+                gs2 = GraphSet.load(f)
+                self.assertEqual(gs1, gs2)
+
     def test_networkx(self):
         try:
             import networkx as nx
