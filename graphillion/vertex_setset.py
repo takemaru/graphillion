@@ -2059,7 +2059,7 @@ class VertexSetSet(object):
     def _conv_arg(obj):
         if isinstance(obj, VertexSetSet):
             return "vertexsetset", obj
-        elif isinstance(obj, list):
+        elif isinstance(obj, (set, frozenset, list)):
             return "vertices", VertexSetSet._conv_vertices_to_objs(obj)
         elif obj in VertexSetSet._vertex2obj:
             return "vertex", VertexSetSet._vertex2obj[obj]
