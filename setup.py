@@ -99,6 +99,11 @@ else:
         extra_compile_args_list = []
         extra_link_args_list = []
 
+if os.uname().sysname == 'Darwin': # macOS
+    dispatch_path = os.path.join(os.path.dirname(__file__),
+                                 'compile_dispatch.sh')
+    os.environ['CC'] = dispatch_path
+
 # We add this option to suppress warning when compiling bddc.c
 # in SAPPOROBDD library. It is no problem because
 # the variables that the compiler warns are actually used.
