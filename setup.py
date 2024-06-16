@@ -98,6 +98,11 @@ else:
         extra_compile_args_list = []
         extra_link_args_list = []
 
+if os.uname().sysname == 'Darwin': # macOS
+    dispatch_path = os.path.join(os.path.dirname(__file__),
+                                 'compile_dispatch.sh')
+    os.environ['CC'] = dispatch_path
+
 setup(name='Graphillion',
       version=release.version,
       description='Fast, lightweight library for a huge number of graphs',
