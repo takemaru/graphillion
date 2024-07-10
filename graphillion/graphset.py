@@ -1482,6 +1482,7 @@ class GraphSet(object):
         Raises:
           KeyError: If a given edge is not found in the universe.
         """
+        probabilities = {GraphSet._conv_edge(e): p for e, p in probabilities.items()}
         return self._ss.probability(probabilities)
 
     def dump(self, fp):
