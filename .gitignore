@@ -45,3 +45,6 @@ config.log
 config.status
 .deps
 Makefile
+
+# VSCode
+settings.json

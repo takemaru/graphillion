@@ -20,7 +20,7 @@
 """Release data for Graphillion.
 """
 
-version = '1.8'
+version = '1.9rc0'
 date = ''
 license = 'MIT'
 authors = (('Takeru Inoue', 'takeru.inoue@gmail.com'),
