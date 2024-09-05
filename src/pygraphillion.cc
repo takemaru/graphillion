@@ -982,11 +982,7 @@ static PyObject* setset_cost_le(PySetsetObject* self, PyObject* args, PyObject* 
   }
   Py_DECREF(cost_iter);
 
-  PySetsetObject* ret = reinterpret_cast<PySetsetObject*>
-      (PySetset_Type.tp_alloc(&PySetset_Type, 0));
-  auto ss = self->ss->cost_le(costs, cost_bound);
-  ret->ss = new setset(ss);
-  return reinterpret_cast<PyObject*>(ret);
+  RETURN_NEW_SETSET(self, self->ss->cost_le(costs, cost_bound));
 }
 
 static PyObject* setset_remove_some_element(PySetsetObject* self) {
