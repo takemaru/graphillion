@@ -237,6 +237,9 @@ class setset {
       uint32_t upper);
   friend setset SearchChordals(const std::vector<edge_t> &edges, const uint32_t k);
   friend setset SearchOddEdgeSubgraphs(const std::vector<edge_t>& edges);
+  friend setset SearchDegreeDistributionGraphs(const std::vector<edge_t> &edges,
+                                const std::vector<int>& degRanges,
+                                const bool is_connected);
 };
 
 }  // namespace graphillion

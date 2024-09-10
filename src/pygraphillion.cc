@@ -48,6 +48,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "graphillion/chordal/chordal.h"
 
 #include "graphillion/odd_edges_subgraphs/OddEdgeSubgraphs.h"
+#include "graphillion/degree_distribution/DegreeDistributionGraphs.h"
 
 using graphillion::setset;
 using graphillion::Range;
@@ -1744,6 +1745,61 @@ static PyObject* odd_edges_subgraphs(PyObject*, PyObject* args, PyObject* kwds) 
   return reinterpret_cast<PyObject*>(ret);
 }
 
+static PyObject* degree_distribution_graphs(PyObject*, PyObject* args, PyObject* kwds) {
+
+  static char s1[] = "graph";
+  static char s2[] = "deg_dist";
+  static char s3[] = "connected";
+  static char* kwlist[7] = {s1, s2, s3, NULL};
+
+  PyObject* graph_obj = NULL;
+  PyObject* deg_dist = NULL;
+  PyObject* connected = NULL;
+
+  if (!PyArg_ParseTupleAndKeywords(args, kwds, "OOO", kwlist, &graph_obj,
+                                   &deg_dist, &connected)) {
+    return NULL;
+  }
+
+  vector<pair<string, string> > graph;
+  if (!translate_graph(graph_obj, graph)) {
+    return NULL;
+  }
+
+  PyObject* key, *value;
+  Py_ssize_t pos = 0;
+
+  std::vector<int> deg_ranges;
+  while (PyDict_Next(deg_dist, &pos, &key, &value)) {
+    if (!PyInt_Check(key)) {
+      PyErr_SetString(PyExc_TypeError, "key must be an integer.");
+      return NULL;
+    }
+    if (PyInt_Check(value)) {
+      int k = PyInt_AsLong(key);
+      int v = PyInt_AsLong(value);
+      if (static_cast<int>(deg_ranges.size()) <= k) {
+        deg_ranges.resize(k + 1);
+        deg_ranges[k] = v;
+      }
+    } else {
+      PyErr_SetString(PyExc_TypeError, "Currently, value must be an integer.");
+      return NULL;
+    }
+  }
+
+  if (!PyBool_Check(connected)) {
+    PyErr_SetString(PyExc_TypeError, "not bool");
+    return NULL;
+  }
+
+  auto ss = graphillion::SearchDegreeDistributionGraphs(graph, deg_ranges, connected != Py_False);
+  PySetsetObject* ret = reinterpret_cast<PySetsetObject*>
+      (PySetset_Type.tp_alloc(&PySetset_Type, 0));
+  ret->ss = new setset(ss);
+  return reinterpret_cast<PyObject*>(ret);
+}
+
 static PyObject* setset_get_vertices_from_top(PySetsetObject* self, PyObject* args) {
   std::vector<std::vector<std::string>> edges = parse_args_to_edges(args);
   std::vector<std::string> v_order_from_top = VariableConverter::get_vertices_from_top(edges);
@@ -1770,6 +1826,7 @@ static PyMethodDef module_methods[] = {
   {"_weighted_induced_graphs", reinterpret_cast<PyCFunction>(weighted_induced_graphs), METH_VARARGS | METH_KEYWORDS, ""},
   {"_chordal_graphs", reinterpret_cast<PyCFunction>(chordal_graphs), METH_VARARGS | METH_KEYWORDS, ""},
   {"_odd_edges_subgraphs", reinterpret_cast<PyCFunction>(odd_edges_subgraphs), METH_VARARGS | METH_KEYWORDS, ""},
+  {"_degree_distribution_graphs", reinterpret_cast<PyCFunction>(degree_distribution_graphs), METH_VARARGS | METH_KEYWORDS, ""},
   {"_get_vertices_from_top", reinterpret_cast<PyCFunction>(setset_get_vertices_from_top), METH_VARARGS, ""},
   {NULL}  /* Sentinel */
 };

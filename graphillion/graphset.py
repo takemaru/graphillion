@@ -2529,6 +2529,60 @@ class GraphSet(object):
             graph=graph, weight_list=wl, ratio=ratio, lower=lower, upper=upper, num_comps=num_comps)
         return GraphSet(ss)
 
+    DegreeDistribution_Any = -1
+
+    @staticmethod
+    def degree_distribution_graphs(deg_dist, connected):
+        """Returns a GraphSet having specified degree distribution.
+
+        Examples:
+            >>> GraphSet.set_universe([(1, 2), (1, 4), (2, 3),
+                                        (2, 5), (3, 6), (4, 5),
+                                        (5, 6)])
+            >>> deg_dist = {0: GraphSet.DegreeDistribution_Any,
+                            1: 2, 2: 1}
+            # This means that each subgraph has 2 vertices with degree 1,
+            # 1 vertex with degree 2, and any number of vertices with
+            # degree 0.
+            >>> gs = GraphSet.degree_distribution_graphs(deg_dist, True)
+        Args:
+          deg_dist: dictionary whose key and value mean that
+                    each subgraph has 'value' number of vertices
+                    with degree 'key'. If the value is
+                    GraphSet.DegreeDistribution_Any, it means that
+                    each subgraph has any number of vertices
+                    with degree 'key'.
+          connected: Each subgraph is connected if True.
+                      Each subgraph is not necessarily connected if False.
+
+        Returns:
+            A new GraphSet object.
+        """
+        graph = []
+        for e in setset.universe():
+            assert e[0] in GraphSet._vertices and e[1] in GraphSet._vertices
+            graph.append(
+                (pickle.dumps(e[0], protocol=0), pickle.dumps(e[1], protocol=0)))
+
+        ss = _graphillion._degree_distribution_graphs(graph, deg_dist, connected)
+        return GraphSet(ss)
+
+    @staticmethod
+    def letter_P_graphs():
+        """Returns a GraphSet whose shape looks like letter 'P'.
+            That is, each subgraph has one vertex with degree 1,
+            one vertex with degree 3, and any number of vertices with
+            degree 2, and is connected.
+
+        Examples:
+            >>> gs = GraphSet.letter_P_graphs()
+
+        Returns:
+            A new GraphSet object.
+        """
+        deg_dist = {0: GraphSet.DegreeDistribution_Any, 1: 1, 2: GraphSet.DegreeDistribution_Any, 3: 1}
+        return GraphSet.degree_distribution_graphs(deg_dist, True)
+
     @staticmethod
     def _conv_arg(obj):
         if isinstance(obj, GraphSet):

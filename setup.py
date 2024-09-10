@@ -83,6 +83,7 @@ sources_list = [os.path.join('src', 'pygraphillion.cc'),
                 os.path.join('src', 'graphillion', 'induced_graphs', 'WeightedInducedGraphs.cc'),
                 os.path.join('src', 'graphillion', 'chordal', 'chordal.cc'),
                 os.path.join('src', 'graphillion', 'odd_edges_subgraphs', 'OddEdgeSubgraphs.cc'),
+                os.path.join('src', 'graphillion', 'degree_distribution', 'DegreeDistributionGraphs.cc'),
                 os.path.join('src', 'graphillion', 'variable_converter', 'variable_converter.cc')]
 
 if sys.platform == 'win32':
