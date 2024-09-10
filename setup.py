@@ -72,7 +72,7 @@ sources_list = [os.path.join('src', 'pygraphillion.cc'),
                 os.path.join('src', 'graphillion', 'util.cc'),
                 os.path.join('src', 'graphillion', 'zdd.cc'),
                 os.path.join('src', 'graphillion', 'reconf.cc'),
-                os.path.join('src', 'SAPPOROBDD', 'bddc.c'),
+                os.path.join('src', 'SAPPOROBDD', 'bddc.cc'),
                 os.path.join('src', 'SAPPOROBDD', 'BDD.cc'),
                 os.path.join('src', 'SAPPOROBDD', 'ZBDD.cc'),
                 os.path.join('src', 'SAPPOROBDD', 'BDDCT.cc'),
@@ -99,10 +99,6 @@ else:
         extra_compile_args_list = []
         extra_link_args_list = []
 
-if os.uname().sysname == 'Darwin': # macOS
-    dispatch_path = os.path.join(os.path.dirname(__file__),
-                                 'compile_dispatch.sh')
-    os.environ['CC'] = dispatch_path
 
 # We add this option to suppress warning when compiling bddc.c
 # in SAPPOROBDD library. It is no problem because

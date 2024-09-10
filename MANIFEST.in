@@ -1,5 +1,4 @@
 include CMakeLists.txt README.md LICENSE.txt \
-  compile_dispatch.sh \
   cmake/Modules/FindGMP.cmake \
   doc/fig1.png doc/fig10.png doc/fig2.png doc/fig3.png doc/fig4.png \
   doc/fig5.png doc/fig6.png doc/fig7.png doc/fig8.png doc/fig9.png

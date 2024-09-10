@@ -232,7 +232,7 @@ struct B_MP
 
 /* ----- Declaration of static (internal) functions ------ */
 /* Private procedure */
-static int  err B_ARG((char *msg, bddp num));
+static int  err B_ARG((const char *msg, bddp num));
 static int  rfc_inc_ovf B_ARG((struct B_NodeTable *np));
 static int  rfc_dec_ovf B_ARG((struct B_NodeTable *np));
 static void var_enlarge B_ARG((void));
@@ -246,7 +246,7 @@ static void gc1 B_ARG((struct B_NodeTable *np));
 static bddp count B_ARG((bddp f));
 static void dump B_ARG((bddp f));
 static void reset B_ARG((bddp f));
-static void export B_ARG((FILE *strm, bddp f));
+static void export_static B_ARG((FILE *strm, bddp f));
 static int import B_ARG((FILE *strm, bddp *p, int lim, int z));
 static int andfalse B_ARG((bddp f, bddp g));
 
@@ -254,9 +254,7 @@ static int mp_add B_ARG((struct B_MP *p, bddp ix));
 
 /* ------------------ Body of program -------------------- */
 /* ----------------- External functions ------------------ */
-int bddinit(initsize, limitsize)
-bddp initsize;
-bddp limitsize;
+int bddinit(bddp initsize, bddp limitsize)
 /* Returns 1 if not enough memory (usually 0) */
 {
   bddp   ix;
@@ -354,8 +352,7 @@ bddp limitsize;
   return 0;
 }
 
-bddp bddcopy(f)
-bddp f;
+bddp bddcopy(bddp f)
 {
   struct B_NodeTable *fp;
 
@@ -368,8 +365,7 @@ bddp f;
   return f;
 }
 
-void bddfree(f)
-bddp f;
+void bddfree(bddp f)
 {
   struct B_NodeTable *fp;
 
@@ -555,8 +551,7 @@ int bddgc()
 
 bddp bddused() { return NodeUsed; }
 
-bddp bddsize(f)
-bddp f;
+bddp bddsize(bddp f)
 /* Returns 0 for bddnull */
 {
   bddp num;
@@ -572,9 +567,7 @@ bddp f;
   return num;
 }
 
-bddp bddvsize(p, lim)
-bddp *p;
-int lim;
+bddp bddvsize(bddp *p, int lim)
 /* Returns 0 for bddnull */
 {
   bddp num;
@@ -600,10 +593,7 @@ int lim;
   return num;
 }
 
-void bddexport(strm, p, lim)
-FILE *strm;
-bddp *p;
-int lim;
+void bddexport(FILE *strm, bddp *p, int lim)
 {
   struct B_NodeTable *fp;
   int n, i, lev, lev0;
@@ -630,7 +620,7 @@ int lim;
   fprintf(strm, "\n");
 
   /* Put internal nodes */
-  for(i=0; i<n; i++) export(strm, p[i]);
+  for(i=0; i<n; i++) export_static(strm, p[i]);
   for(i=0; i<n; i++) reset(p[i]);
 
   /* Put external node */
@@ -643,8 +633,7 @@ int lim;
   }
 }
 
-void bdddump(f)
-bddp f;
+void bdddump(bddp f)
 {
   struct B_NodeTable *fp;
 
@@ -666,9 +655,7 @@ bddp f;
   printf("\n\n");
 }
 
-void bddvdump(p, n)
-bddp *p;
-int n;
+void bddvdump(bddp *p, int n)
 {
   struct B_NodeTable *fp;
   int i;
@@ -702,9 +689,7 @@ int n;
   printf("\n");
 }
 
-bddp bddrcache(op, f, g)
-unsigned char op;
-bddp f, g;
+bddp bddrcache(unsigned char op, bddp f, bddp g)
 {
   struct B_CacheTable *cachep;
 
@@ -716,9 +701,7 @@ bddp f, g;
   return bddnull;
 }
 
-void bddwcache(op, f, g, h)
-unsigned char op;
-bddp f, g, h;
+void bddwcache(unsigned char op, bddp f, bddp g, bddp h)
 {
   struct B_CacheTable *cachep;
 
@@ -731,23 +714,20 @@ bddp f, g, h;
   B_SET_BDDP(cachep->h, h);
 }
 
-bddp bddnot(f)
-bddp f;
+bddp bddnot(bddp f)
 {
   if(f == bddnull) return bddnull;
   return B_NOT(bddcopy(f));
 }
 
-bddvar bddlevofvar(v)
-bddvar v;
+bddvar bddlevofvar(bddvar v)
 {
   if(v > VarUsed)
     err("bddlevofvar: Invalid VarID", v);
   return Var[v].lev;
 }
 
-bddvar bddvaroflev(lev)
-bddvar lev;
+bddvar bddvaroflev(bddvar lev)
 {
   if(lev > VarUsed)
     err("bddvaroflev: Invalid level", lev);
@@ -765,8 +745,7 @@ bddvar bddnewvar()
   return VarUsed;
 }
 
-bddvar bddnewvaroflev(lev)
-bddvar  lev;
+bddvar bddnewvaroflev(bddvar lev)
 {
   bddvar i;
 
@@ -778,8 +757,7 @@ bddvar  lev;
   return VarUsed;
 }
 
-bddvar bddtop(f)
-bddp f;
+bddvar bddtop(bddp f)
 {
   struct B_NodeTable *fp;
 
@@ -791,8 +769,7 @@ bddp f;
   return B_VAR_NP(fp);
 }
 
-bddp    bddprime(v)
-bddvar v;
+bddp    bddprime(bddvar v)
 /* Returns bddnull if not enough memory */
 {
         if(v == 0 || v > VarUsed)
@@ -801,8 +778,7 @@ bddvar v;
 }
 
 
-bddp bddand(f, g)
-bddp f, g;
+bddp bddand(bddp f, bddp g)
 /* Returns bddnull if not enough memory */
 {
   struct B_NodeTable *fp;
@@ -832,8 +808,7 @@ bddp f, g;
   return apply(f, g, BC_AND, 0);
 }
 
-bddp bddor(f, g)
-bddp f, g;
+bddp bddor(bddp f, bddp g)
 /* Returns bddnull if not enough memory */
 {
   bddp h;
@@ -845,8 +820,7 @@ bddp f, g;
   return B_NOT(h);
 }
 
-bddp bddxor(f, g)
-bddp f, g;
+bddp bddxor(bddp f, bddp g)
 /* Returns bddnull if not enough memory */
 {
   struct B_NodeTable *fp;
@@ -876,8 +850,7 @@ bddp f, g;
   return apply(f, g, BC_XOR, 0);
 }
 
-bddp bddnand(f, g)
-bddp f, g;
+bddp bddnand(bddp f, bddp g)
 /* Returns bddnull if not enough memory */
 {
   bddp h;
@@ -887,8 +860,7 @@ bddp f, g;
   return B_NOT(h);
 }
 
-bddp bddnor(f, g)
-bddp f, g;
+bddp bddnor(bddp f, bddp g)
 /* Returns bddnull if not enough memory */
 {
   if(f == bddnull) return bddnull;
@@ -896,16 +868,14 @@ bddp f, g;
   return bddand(B_NOT(f), B_NOT(g));
 }
 
-bddp bddxnor(f, g)
-bddp f, g;
+bddp bddxnor(bddp f, bddp g)
 /* Returns bddnull if not enough memory */
 {
   if(g == bddnull) return bddnull;
   return bddxor(f, B_NOT(g));
 }
 
-bddp bddcofactor(f, g)
-bddp f, g;
+bddp bddcofactor(bddp f, bddp g)
 /* Returns bddnull if not enough memory */
 {
   struct B_NodeTable *fp;
@@ -935,8 +905,7 @@ bddp f, g;
   return apply(f, g, BC_COFACTOR, 0);
 }
 
-bddp bdduniv(f, g)
-bddp f, g;
+bddp bdduniv(bddp f, bddp g)
 /* Returns bddnull if not enough memory */
 {
   struct B_NodeTable *fp;
@@ -966,8 +935,7 @@ bddp f, g;
   return apply(f, g, BC_UNIV, 0);
 }
 
-bddp bddexist(f, g)
-bddp f, g;
+bddp bddexist(bddp f, bddp g)
 /* Returns bddnull if not enough memory */
 {
   bddp h;
@@ -979,8 +947,7 @@ bddp f, g;
   return B_NOT(h);
 }
 
-int bddimply(f, g)
-bddp f, g;
+int bddimply(bddp f, bddp g)
 {
   struct B_NodeTable *fp;
    
@@ -1009,8 +976,7 @@ bddp f, g;
   return ! andfalse(f, B_NOT(g));
 }
 
-bddp bddsupport(f)
-bddp f;
+bddp bddsupport(bddp f)
 /* Returns bddnull if not enough memory */
 {
   struct B_NodeTable *fp;
@@ -1025,9 +991,7 @@ bddp f;
   return apply(f, bddfalse, BC_SUPPORT, 0);
 }
 
-bddp bddat0(f, v)
-bddp f;
-bddvar v;
+bddp bddat0(bddp f, bddvar v)
 /* Returns bddnull if not enough memory */
 {
   struct B_NodeTable *fp;
@@ -1043,9 +1007,7 @@ bddvar v;
   return apply(f, (bddp)v, BC_AT0, 0);
 }
 
-bddp bddat1(f, v)
-bddp f;
-bddvar v;
+bddp bddat1(bddp f, bddvar v)
 /* Returns bddnull if not enough memory */
 {
   struct B_NodeTable *fp;
@@ -1061,9 +1023,7 @@ bddvar v;
   return apply(f, (bddp)v, BC_AT1, 0);
 }
 
-bddp bddlshift(f, shift)
-bddp f;
-bddvar shift;
+bddp bddlshift(bddp f, bddvar shift)
 /* Returns bddnull if not enough memory */
 {
   struct B_NodeTable *fp;
@@ -1080,9 +1040,7 @@ bddvar shift;
   return apply(f, (bddp)shift, BC_LSHIFT, 0);
 }
 
-bddp bddrshift(f, shift)
-bddp f;
-bddvar shift;
+bddp bddrshift(bddp f, bddvar shift)
 /* Returns bddnull if not enough memory */
 {
   struct B_NodeTable *fp;
@@ -1099,9 +1057,7 @@ bddvar shift;
   return apply(f, (bddp)shift, BC_RSHIFT, 0);
 }
 
-bddp    bddoffset(f, v)
-bddp    f;
-bddvar 	v;
+bddp    bddoffset(bddp f, bddvar v)
 /* Returns bddnull if not enough memory */
 {
   struct B_NodeTable *fp;
@@ -1118,9 +1074,7 @@ bddvar 	v;
   return apply(f, (bddp)v, BC_OFFSET, 0);
 }
 
-bddp    bddonset0(f, v)
-bddp    f;
-bddvar 	v;
+bddp    bddonset0(bddp f, bddvar v)
 /* Returns bddnull if not enough memory */
 {
   struct B_NodeTable *fp;
@@ -1137,9 +1091,7 @@ bddvar 	v;
   return apply(f, (bddp)v, BC_ONSET, 0);
 }
 
-bddp    bddonset(f, v)
-bddp    f;
-bddvar 	v;
+bddp    bddonset(bddp f, bddvar v)
 /* Returns bddnull if not enough memory */
 {
   bddp g, h;
@@ -1150,9 +1102,7 @@ bddvar 	v;
   return h;
 }
 
-bddp    bddchange(f, v)
-bddp    f;
-bddvar 	v;
+bddp    bddchange(bddp f, bddvar v)
 /* Returns bddnull if not enough memory */
 {
   struct B_NodeTable *fp;
@@ -1171,8 +1121,7 @@ bddvar 	v;
   return apply(f, (bddp)v, BC_CHANGE, 0);
 }
 
-bddp bddintersec(f, g)
-bddp f, g;
+bddp bddintersec(bddp f, bddp g)
 /* Returns bddnull if not enough memory */
 {
   struct B_NodeTable *fp;
@@ -1202,8 +1151,7 @@ bddp f, g;
   return apply(f, g, BC_INTERSEC, 0);
 }
 
-bddp bddunion(f, g)
-bddp f, g;
+bddp bddunion(bddp f, bddp g)
 /* Returns bddnull if not enough memory */
 {
   struct B_NodeTable *fp;
@@ -1233,8 +1181,7 @@ bddp f, g;
   return apply(f, g, BC_UNION, 0);
 }
 
-bddp bddsubtract(f, g)
-bddp f, g;
+bddp bddsubtract(bddp f, bddp g)
 /* Returns bddnull if not enough memory */
 {
   struct B_NodeTable *fp;
@@ -1264,8 +1211,7 @@ bddp f, g;
   return apply(f, g, BC_SUBTRACT, 0);
 }
 
-bddp bddcard(f)
-bddp f;
+bddp bddcard(bddp f)
 {
   struct B_NodeTable *fp;
 
@@ -1279,8 +1225,7 @@ bddp f;
   return apply(f, bddfalse, BC_CARD, 0);
 }
 
-bddp bddlit(f)
-bddp f;
+bddp bddlit(bddp f)
 {
   struct B_NodeTable *fp;
 
@@ -1294,8 +1239,7 @@ bddp f;
   return apply(f, bddfalse, BC_LIT, 0);
 }
 
-bddp bddlen(f)
-bddp f;
+bddp bddlen(bddp f)
 {
   struct B_NodeTable *fp;
 
@@ -1309,9 +1253,7 @@ bddp f;
   return apply(f, bddfalse, BC_LEN, 0);
 }
 
-char *bddcardmp16(f, s)
-bddp f;
-char *s;
+char *bddcardmp16(bddp f, char *s)
 {
   struct B_NodeTable *fp;
   int i, j, k, nz;
@@ -1361,24 +1303,17 @@ char *s;
   return s;
 }
 
-int bddimport(strm, p, lim)
-FILE *strm;
-bddp *p;
-int lim;
+int bddimport(FILE *strm, bddp *p, int lim)
 {
   return import(strm, p, lim, 0);
 }
 
-int bddimportz(strm, p, lim)
-FILE *strm;
-bddp *p;
-int lim;
+int bddimportz(FILE *strm, bddp *p, int lim)
 {
   return import(strm, p, lim, 1);
 }
 
-int bddisbdd(f)
-bddp f;
+int bddisbdd(bddp f)
 {
   struct B_NodeTable* fp;
 
@@ -1390,8 +1325,7 @@ bddp f;
   return (B_NEG(B_GET_BDDP(fp->f0)) ? 0 : 1);
 }
 
-int bddiszbdd(f)
-bddp f;
+int bddiszbdd(bddp f)
 {
   struct B_NodeTable* fp;
 
@@ -1403,9 +1337,7 @@ bddp f;
   return (B_NEG(B_GET_BDDP(fp->f0)) ? 1 : 0);
 }
 
-bddp    bddpush(f, v)
-bddp    f;
-bddvar 	v;
+bddp    bddpush(bddp f, bddvar v)
 /* Returns bddnull if not enough memory */
 {
   struct B_NodeTable *fp;
@@ -1557,8 +1489,7 @@ static int node_enlarge()
   return 0;
 }
 
-static int hash_enlarge(v)
-bddvar v;
+static int hash_enlarge(bddvar v)
 /* Returns 1 if not enough memory */
 {
   struct B_NodeTable *np, *np0;
@@ -1648,9 +1579,7 @@ bddvar v;
   return 0;
 }
 
-static bddp getnode(v, f0, f1)
-bddvar v;
-bddp    f0, f1;
+static bddp getnode(bddvar v, bddp f0, bddp f1)
 /* Returns bddnull if not enough memory */
 {
   /* After checking elimination rule & negative edge rule */
@@ -1741,9 +1670,7 @@ bddp    f0, f1;
   return B_BDDP_NP(np);
 }
 
-static bddp getbddp(v, f0, f1)
-bddvar v;
-bddp f0, f1;
+static bddp getbddp(bddvar v, bddp f0, bddp f1)
 /* Returns bddnull if not enough memory */
 {
   struct B_NodeTable *fp;
@@ -1767,9 +1694,7 @@ bddp f0, f1;
   return getnode(v, f0, f1);
 }
 
-static bddp apply(f, g, op, skip)
-bddp f, g;
-unsigned char op, skip;
+static bddp apply(bddp f, bddp g, unsigned char op, unsigned char skip)
 /* Returns bddnull if not enough memory */
 {
   struct B_NodeTable *fp, *gp;
@@ -2396,8 +2321,7 @@ unsigned char op, skip;
   return h;
 }
 
-static void gc1(np)
-struct B_NodeTable *np;
+static void gc1(struct B_NodeTable *np)
 {
   /* np is a node ptr to be collected. (refc == 0) */
   bddp key, nx1, f0, f1;
@@ -2456,8 +2380,7 @@ struct B_NodeTable *np;
   }
 }
 
-static bddp count(f)
-bddp f;
+static bddp count(bddp f)
 {
   bddp nx;
   bddp c;
@@ -2503,9 +2426,7 @@ bddp f;
   return c;
 }
 
-static void export(strm, f)
-FILE *strm;
-bddp f;
+static void export_static(FILE *strm, bddp f)
 {
   bddp nx, f0, f1;
   bddvar v;
@@ -2527,8 +2448,8 @@ bddp f;
   f0 = B_ABS(f0);
   f1 = B_GET_BDDP(fp->f1);
   BDD_RECUR_INC;
-  export(strm, f0);
-  export(strm, f1);
+  export_static(strm, f0);
+  export_static(strm, f1);
   BDD_RECUR_DEC;
 
   /* Dump this node */
@@ -2544,8 +2465,7 @@ bddp f;
   fprintf(strm, "\n");
 }
 
-static void dump(f)
-bddp f;
+static void dump(bddp f)
 {
   bddp nx, f0, f1;
   bddvar v;
@@ -2586,8 +2506,7 @@ bddp f;
   printf("\n");
 }
 
-static void reset(f)
-bddp f;
+static void reset(bddp f)
 {
   bddp nx;
   struct B_NodeTable *fp;
@@ -2608,9 +2527,7 @@ bddp f;
   }
 }
 
-static bddp getzbddp(v, f0, f1)
-bddvar v;
-bddp f0, f1;
+static bddp getzbddp(bddvar v, bddp f0, bddp f1)
 /* Returns bddnull if not enough memory */
 {
   /* Check elimination rule */
@@ -2628,8 +2545,7 @@ bddp f0, f1;
   return getnode(v, B_NOT(f0), f1);
 }
 
-static int andfalse(f, g)
-bddp f, g;
+static int andfalse(bddp f, bddp g)
 {
   struct B_NodeTable *fp, *gp;
   struct B_CacheTable *cachep;
@@ -2698,9 +2614,7 @@ bddp f, g;
   return 0;
 }
 
-static int err(msg, num)
-char *msg;
-bddp num;
+static int err(const char *msg, bddp num)
 {
   fprintf(stderr,"***** ERROR  %s ( ", msg);
   fprintf(stderr, B_BDDP_FX, num);
@@ -2719,8 +2633,7 @@ bddp num;
   return 1;
 }
 
-static int rfc_inc_ovf(np)
-struct B_NodeTable *np;
+static int rfc_inc_ovf(struct B_NodeTable *np)
 {
   bddp ix, nx, nx2, key, rfc, oldSpc;
   struct B_RFC_Table *oldRFCT;
@@ -2810,8 +2723,7 @@ struct B_NodeTable *np;
   return 0;
 }
 
-static int rfc_dec_ovf(np)
-struct B_NodeTable *np;
+static int rfc_dec_ovf(struct B_NodeTable *np)
 {
   bddp nx, key, nx2, rfc;
 
@@ -2840,11 +2752,7 @@ struct B_NodeTable *np;
 
 #define IMPORTHASH(x) ((((x)>>1)^((x)<<8)^((x)<<16)) & (hashsize-1))
 
-int import(strm, p, lim, z)
-FILE *strm;
-bddp *p;
-int lim;
-int z;
+int import(FILE *strm, bddp *p, int lim, int z)
 {
   int n, m, v, i, lev, var, inv, e;
   bddp n_nd, ix, f, f0, f1, nd, nd0, nd1, hashsize, ixx;
@@ -3025,9 +2933,7 @@ int z;
   return 0;
 }
 
-int mp_add(p, ix)
-struct B_MP *p;
-bddp ix;
+int mp_add(struct B_MP *p, bddp ix)
 {
   int len, i;
   bddp c, *wp;
