@@ -90,7 +90,7 @@ sbddextended_INLINE_FUNC ZBDD getPowerSet(const std::vector<bddvar>& vararr) {
 
   bddp f = bddgetpowerset(ar, n);
 
-  delete ar;
+  delete[] ar;
 
   return ZBDD_ID(f);
 }

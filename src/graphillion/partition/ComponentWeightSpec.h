@@ -134,7 +134,6 @@ class ComponentWeightSpec
   int const upper;
   int const mateSize;
   std::vector<Mate> initialMate;
-  bool const noLoop;
   bool const lookahead;
 
   int takable(Mate const* mate, tdzdd::Graph::EdgeInfo const& e) const {
@@ -232,7 +231,7 @@ class ComponentWeightSpec
   // m]
   ComponentWeightSpec(tdzdd::Graph const& graph,
                       const std::vector<uint32_t>& weight_list, uint32_t lower,
-                      uint32_t upper, bool noLoop = false,
+                      uint32_t upper, bool /*noLoop*/ = false,
                       bool lookahead = true)
       : graph(graph),
         m(graph.vertexSize()),
@@ -241,7 +240,6 @@ class ComponentWeightSpec
         upper(upper),
         mateSize(graph.maxFrontierSize()),
         initialMate(1 + m + mateSize),
-        noLoop(noLoop),
         lookahead(lookahead) {
     this->setArraySize(mateSize);
 

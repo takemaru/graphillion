@@ -455,7 +455,10 @@ setset setset::to_vertexsetset_setset(const std::vector<std::vector<std::string>
   if (this->zdd_ == bot()) {
     return setset(bot());
   }
-  auto [graph, vlist] = VariableConverter::construct_graph_and_vlist(edges_from_top);
+  std::pair<tdzdd::Graph, VariableConverter::VariableList> graph_and_vlist =
+    VariableConverter::construct_graph_and_vlist(edges_from_top);
+  tdzdd::Graph graph = graph_and_vlist.first;
+  VariableConverter::VariableList vlist = graph_and_vlist.second;
 
   const int offset = max_elem() - std::max(graph.edgeSize(), graph.vertexSize());
   SapporoZdd dd_e_spec(this->zdd_, offset);

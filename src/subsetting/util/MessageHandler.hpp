@@ -142,7 +142,7 @@ public:
     MessageHandler_& begin(std::string const& s) {
         if (!enabled) return *this;
         if (!name.empty()) end("aborted");
-        name = s.empty() ? "level-" + indentLevel : s;
+        name = s.empty() ? "level-" + std::to_string(indentLevel) : s;
         indent = indentLevel * INDENT_SIZE;
         *this << "\n" << capitalize(name);
         indent = ++indentLevel * INDENT_SIZE;

@@ -270,11 +270,17 @@ std::pair<tdzdd::Graph, VariableList> construct_graph_and_vlist(
 std::vector<std::string> get_vertices_from_top(
   const std::vector<std::vector<std::string>> &edges_from_top
 ) {
-  auto [graph, vlist] = construct_graph_and_vlist(edges_from_top);
+  std::pair<tdzdd::Graph, VariableList> graph_and_vlist =
+    construct_graph_and_vlist(edges_from_top);
+  tdzdd::Graph graph = graph_and_vlist.first;
+  VariableList vlist = graph_and_vlist.second;
+
   std::vector<std::string> vertices_from_top(graph.vertexSize());
+  std::vector<std::string>::reverse_iterator rev_itor =
+    vertices_from_top.rbegin();
   for (int i = 1; i <= graph.vertexSize(); ++i) {
     int v = vlist.newVToV(i);
-    *(rbegin(vertices_from_top) + i - 1) = graph.vertexName(v);
+    *(rev_itor + i - 1) = graph.vertexName(v);
   }
   return vertices_from_top;
 }

@@ -103,7 +103,10 @@ else:
 # We add this option to suppress warning when compiling bddc.c
 # in SAPPOROBDD library. It is no problem because
 # the variables that the compiler warns are actually used.
-extra_compile_args_list.append('-Wno-maybe-uninitialized')
+if os.uname().sysname == 'Darwin': # macOS
+    extra_compile_args_list.append('-std=c++11')
+else:
+    extra_compile_args_list.append('-Wno-maybe-uninitialized')
 
 setup(name='Graphillion',
       version=release.version,
