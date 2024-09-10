@@ -1267,6 +1267,39 @@ static PyObject* setset_num_elems(PyObject*, PyObject* args) {
   }
 }
 
+// return true if success
+static bool translate_graph(PyObject* graph_obj,
+                            vector<pair<string, string> >& graph) {
+  if (graph_obj == NULL || graph_obj == Py_None) {
+    PyErr_SetString(PyExc_TypeError, "no graph");
+    return false;
+  }
+  PyObject* i = PyObject_GetIter(graph_obj);
+  if (i == NULL) return false;
+  PyObject* eo;
+  while ((eo = PyIter_Next(i))) {
+    PyObject* j = PyObject_GetIter(eo);
+    if (j == NULL) return false;
+    vector<string> e;
+    PyObject* vo;
+    while ((vo = PyIter_Next(j))) {
+      if (!PyBytes_Check(vo)) {
+        PyErr_SetString(PyExc_TypeError, "invalid graph");
+        return false;
+      }
+      string v = PyBytes_AsString(vo);
+      if (v.find(',') != string::npos) {
+        PyErr_SetString(PyExc_TypeError, "invalid vertex in the graph");
+        return false;
+      }
+      e.push_back(v);
+    }
+    assert(e.size() == 2);
+    graph.push_back(make_pair(e[0], e[1]));
+  }
+  return true;
+}
+
 static PyObject* graphset_graphs(PyObject*, PyObject* args, PyObject* kwds) {
   static char s1[] = "graph";
   static char s2[] = "vertex_groups";
@@ -1291,32 +1324,8 @@ static PyObject* graphset_graphs(PyObject*, PyObject* args, PyObject* kwds) {
     return NULL;
 
   vector<pair<string, string> > graph;
-  if (graph_obj == NULL || graph_obj == Py_None) {
-    PyErr_SetString(PyExc_TypeError, "no graph");
+  if (!translate_graph(graph_obj, graph)) {
     return NULL;
-  }
-  PyObject* i = PyObject_GetIter(graph_obj);
-  if (i == NULL) return NULL;
-  PyObject* eo;
-  while ((eo = PyIter_Next(i))) {
-    PyObject* j = PyObject_GetIter(eo);
-    if (j == NULL) return NULL;
-    vector<string> e;
-    PyObject* vo;
-    while ((vo = PyIter_Next(j))) {
-      if (!PyBytes_Check(vo)) {
-        PyErr_SetString(PyExc_TypeError, "invalid graph");
-        return NULL;
-      }
-      string v = PyBytes_AsString(vo);
-      if (v.find(',') != string::npos) {
-        PyErr_SetString(PyExc_TypeError, "invalid vertex in the graph");
-        return NULL;
-      }
-      e.push_back(v);
-    }
-    assert(e.size() == 2);
-    graph.push_back(make_pair(e[0], e[1]));
   }
 
   vector<vector<string> > vertex_groups_entity;
@@ -1475,32 +1484,8 @@ static PyObject* graph_partitions(PyObject*, PyObject* args, PyObject* kwds){
   }
 
   vector<pair<string, string> > graph;
-  if (graph_obj == NULL || graph_obj == Py_None) {
-    PyErr_SetString(PyExc_TypeError, "no graph");
+  if (!translate_graph(graph_obj, graph)) {
     return NULL;
-  }
-  PyObject* i = PyObject_GetIter(graph_obj);
-  if (i == NULL) return NULL;
-  PyObject* eo;
-  while ((eo = PyIter_Next(i))) {
-    PyObject* j = PyObject_GetIter(eo);
-    if (j == NULL) return NULL;
-    vector<string> e;
-    PyObject* vo;
-    while ((vo = PyIter_Next(j))) {
-      if (!PyBytes_Check(vo)) {
-        PyErr_SetString(PyExc_TypeError, "invalid graph");
-        return NULL;
-      }
-      string v = PyBytes_AsString(vo);
-      if (v.find(',') != string::npos) {
-        PyErr_SetString(PyExc_TypeError, "invalid vertex in the graph");
-        return NULL;
-      }
-      e.push_back(v);
-    }
-    assert(e.size() == 2);
-    graph.push_back(make_pair(e[0], e[1]));
   }
 
   auto ss = graphillion::SearchPartitions(graph, num_comp_lb, num_comp_ub);
@@ -1547,36 +1532,8 @@ static PyObject* balanced_partitions(PyObject*, PyObject* args, PyObject* kwds) 
   }
 
   vector<pair<string, string> > graph;
-  if (graph_obj == NULL || graph_obj == Py_None) {
-    PyErr_SetString(PyExc_TypeError, "no graph");
+  if (!translate_graph(graph_obj, graph)) {
     return NULL;
-  }
-  PyObject* i = PyObject_GetIter(graph_obj);
-  if (i == NULL) {
-    return NULL;
-  }
-  PyObject* eo;
-  while ((eo = PyIter_Next(i))) {
-    PyObject* j = PyObject_GetIter(eo);
-    if (j == NULL) {
-      return NULL;
-    }
-    vector<string> e;
-    PyObject* vo;
-    while ((vo = PyIter_Next(j))) {
-      if (!PyBytes_Check(vo)) {
-        PyErr_SetString(PyExc_TypeError, "invalid graph");
-        return NULL;
-      }
-      string v = PyBytes_AsString(vo);
-      if (v.find(',') != string::npos) {
-        PyErr_SetString(PyExc_TypeError, "invalid vertex in the graph");
-        return NULL;
-      }
-      e.push_back(v);
-    }
-    assert(e.size() == 2);
-    graph.push_back(make_pair(e[0], e[1]));
   }
 
   map<string, uint32_t> weight_list;
@@ -1622,32 +1579,8 @@ static PyObject* reliability(PyObject*, PyObject* args, PyObject* kwds) {
   }
 
   vector<pair<string, string> > graph;
-  if (graph_obj == NULL || graph_obj == Py_None) {
-    PyErr_SetString(PyExc_TypeError, "no graph");
+  if (!translate_graph(graph_obj, graph)) {
     return NULL;
-  }
-  PyObject* i = PyObject_GetIter(graph_obj);
-  if (i == NULL) return NULL;
-  PyObject* eo;
-  while ((eo = PyIter_Next(i))) {
-    PyObject* j = PyObject_GetIter(eo);
-    if (j == NULL) return NULL;
-    vector<string> e;
-    PyObject* vo;
-    while ((vo = PyIter_Next(j))) {
-      if (!PyBytes_Check(vo)) {
-        PyErr_SetString(PyExc_TypeError, "invalid graph");
-        return NULL;
-      }
-      string v = PyBytes_AsString(vo);
-      if (v.find(',') != string::npos) {
-        PyErr_SetString(PyExc_TypeError, "invalid vertex in the graph");
-        return NULL;
-      }
-      e.push_back(v);
-    }
-    assert(e.size() == 2);
-    graph.push_back(make_pair(e[0], e[1]));
   }
 
   vector<double> probabilities;
@@ -1706,32 +1639,8 @@ static PyObject* induced_graphs(PyObject*, PyObject* args, PyObject* kwds){
   }
 
   vector<pair<string, string> > graph;
-  if (graph_obj == NULL || graph_obj == Py_None) {
-    PyErr_SetString(PyExc_TypeError, "no graph");
+  if (!translate_graph(graph_obj, graph)) {
     return NULL;
-  }
-  PyObject* i = PyObject_GetIter(graph_obj);
-  if (i == NULL) return NULL;
-  PyObject* eo;
-  while ((eo = PyIter_Next(i))) {
-    PyObject* j = PyObject_GetIter(eo);
-    if (j == NULL) return NULL;
-    vector<string> e;
-    PyObject* vo;
-    while ((vo = PyIter_Next(j))) {
-      if (!PyBytes_Check(vo)) {
-        PyErr_SetString(PyExc_TypeError, "invalid graph");
-        return NULL;
-      }
-      string v = PyBytes_AsString(vo);
-      if (v.find(',') != string::npos) {
-        PyErr_SetString(PyExc_TypeError, "invalid vertex in the graph");
-        return NULL;
-      }
-      e.push_back(v);
-    }
-    assert(e.size() == 2);
-    graph.push_back(make_pair(e[0], e[1]));
   }
 
   auto ss = graphillion::SearchInducedGraphs(graph);
@@ -1762,32 +1671,8 @@ static PyObject* weighted_induced_graphs(PyObject*, PyObject* args,
   }
 
   vector<pair<string, string> > graph;
-  if (graph_obj == NULL || graph_obj == Py_None) {
-    PyErr_SetString(PyExc_TypeError, "no graph");
+  if (!translate_graph(graph_obj, graph)) {
     return NULL;
-  }
-  PyObject* i = PyObject_GetIter(graph_obj);
-  if (i == NULL) return NULL;
-  PyObject* eo;
-  while ((eo = PyIter_Next(i))) {
-    PyObject* j = PyObject_GetIter(eo);
-    if (j == NULL) return NULL;
-    vector<string> e;
-    PyObject* vo;
-    while ((vo = PyIter_Next(j))) {
-      if (!PyBytes_Check(vo)) {
-        PyErr_SetString(PyExc_TypeError, "invalid graph");
-        return NULL;
-      }
-      string v = PyBytes_AsString(vo);
-      if (v.find(',') != string::npos) {
-        PyErr_SetString(PyExc_TypeError, "invalid vertex in the graph");
-        return NULL;
-      }
-      e.push_back(v);
-    }
-    assert(e.size() == 2);
-    graph.push_back(make_pair(e[0], e[1]));
   }
 
   std::map<std::string, uint32_t> weight_list;
@@ -1828,32 +1713,8 @@ static PyObject* chordal_graphs(PyObject*, PyObject* args, PyObject* kwds){
   }
 
   vector<pair<string, string> > graph;
-  if (graph_obj == NULL || graph_obj == Py_None) {
-    PyErr_SetString(PyExc_TypeError, "no graph");
+  if (!translate_graph(graph_obj, graph)) {
     return NULL;
-  }
-  PyObject* i = PyObject_GetIter(graph_obj);
-  if (i == NULL) return NULL;
-  PyObject* eo;
-  while ((eo = PyIter_Next(i))) {
-    PyObject* j = PyObject_GetIter(eo);
-    if (j == NULL) return NULL;
-    vector<string> e;
-    PyObject* vo;
-    while ((vo = PyIter_Next(j))) {
-      if (!PyBytes_Check(vo)) {
-        PyErr_SetString(PyExc_TypeError, "invalid graph");
-        return NULL;
-      }
-      string v = PyBytes_AsString(vo);
-      if (v.find(',') != string::npos) {
-        PyErr_SetString(PyExc_TypeError, "invalid vertex in the graph");
-        return NULL;
-      }
-      e.push_back(v);
-    }
-    assert(e.size() == 2);
-    graph.push_back(make_pair(e[0], e[1]));
   }
 
   auto ss = graphillion::SearchChordals(graph);
@@ -1872,32 +1733,8 @@ static PyObject* odd_edges_subgraphs(PyObject*, PyObject* args, PyObject* kwds) 
   }
 
   vector<pair<string, string> > graph;
-  if (graph_obj == NULL || graph_obj == Py_None) {
-    PyErr_SetString(PyExc_TypeError, "no graph");
+  if (!translate_graph(graph_obj, graph)) {
     return NULL;
-  }
-  PyObject* i = PyObject_GetIter(graph_obj);
-  if (i == NULL) return NULL;
-  PyObject* eo;
-  while ((eo = PyIter_Next(i))) {
-    PyObject* j = PyObject_GetIter(eo);
-    if (j == NULL) return NULL;
-    vector<string> e;
-    PyObject* vo;
-    while ((vo = PyIter_Next(j))) {
-      if (!PyBytes_Check(vo)) {
-        PyErr_SetString(PyExc_TypeError, "invalid graph");
-        return NULL;
-      }
-      string v = PyBytes_AsString(vo);
-      if (v.find(',') != string::npos) {
-        PyErr_SetString(PyExc_TypeError, "invalid vertex in the graph");
-        return NULL;
-      }
-      e.push_back(v);
-    }
-    assert(e.size() == 2);
-    graph.push_back(make_pair(e[0], e[1]));
   }
 
   auto ss = graphillion::SearchOddEdgeSubgraphs(graph);
