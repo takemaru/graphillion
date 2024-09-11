@@ -17,15 +17,19 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-"""Small graph classes.
+"""Graph classes.
 """
 
 from graphillion import GraphSet
 
-def claw_graphs():
-    deg_dist = {0: GraphSet.DegreeDistribution_Any, 1: 3, 3: 1}
-    gs = GraphSet.degree_distribution_graphs(deg_dist, False)
-    return gs
+class GraphClass:
 
-def claw_free_graphs():
-    return GraphSet.forbidden_induced_subgraphs(claw_graphs())
+    @staticmethod
+    def claw_graphs():
+        deg_dist = {0: GraphSet.DegreeDistribution_Any, 1: 3, 3: 1}
+        gs = GraphSet.degree_distribution_graphs(deg_dist, False)
+        return gs
+
+    @staticmethod
+    def claw_free_graphs():
+        return GraphSet.forbidden_induced_subgraphs(claw_graphs())
