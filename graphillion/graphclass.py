@@ -32,4 +32,88 @@ class GraphClass:
 
     @staticmethod
     def claw_free_graphs():
-        return GraphSet.forbidden_induced_subgraphs(claw_graphs())
+        return GraphSet.forbidden_induced_subgraphs(GraphClass.claw_graphs())
+
+    @staticmethod
+    def chordal_graphs():
+        """Returns a GraphSet with chordal graphs.
+
+        Examples:
+            >>> GraphSet.chordal_graphs()
+            GraphSet([[], [(1, 4)], [(4, 5)], [(1, 2)], [(2, 5)], [(2, 3)], [(3, 6)], [( ...
+
+        Returns:
+            A new GraphSet object.
+        """
+        cycles = GraphSet.cycles()
+        cycles_length_at_least_4 = cycles.larger(3) # >= 4
+        return GraphSet.forbidden_induced_subgraphs(cycles_length_at_least_4)
+
+    @staticmethod
+    def cographs():
+        """Returns a GraphSet with cographs.
+
+        Examples:
+            >>> GraphSet.cographs()
+
+        Returns:
+            A new GraphSet object.
+        """
+        deg_dist = {0: GraphSet.DegreeDistribution_Any, 1: 2, 2: 2}
+        p4 = GraphSet.degree_distribution_graphs(deg_dist, False)
+        return GraphSet.forbidden_induced_subgraphs(p4)
+
+    @staticmethod
+    def chordal_bipartite_graphs():
+        """Returns a GraphSet of chordal bipartite subgraphs.
+
+        Example:
+          >>> GraphSet.chordal_bipartite_graphs()
+
+        Returns:
+          A new GraphSet object.
+        """
+
+        cycles = GraphSet.cycles()
+        cycles_length_at_least_6 = cycles.larger(5) # >= 6
+        chordal = GraphSet.forbidden_induced_subgraphs(cycles_length_at_least_6)
+        return chordal & GraphSet.bipartite_graphs()
+
+    @staticmethod
+    def split_graphs():
+        """Returns a GraphSet of split subgraphs.
+
+        Example:
+          >>> GraphSet.split_graphs()
+
+        Returns:
+          A new GraphSet object.
+        """
+
+        deg_dist = {0: GraphSet.DegreeDistribution_Any, 1: 4}
+        graph_2K2 = GraphSet.degree_distribution_graphs(deg_dist, False)
+        cycles = GraphSet.cycles()
+        cycles_length_4 = cycles.graph_size(4)
+        cycles_length_5 = cycles.graph_size(5)
+
+        return GraphSet.forbidden_induced_subgraphs(graph_2K2 | cycles_length_4 | cycles_length_5)
+
+    @staticmethod
+    def threshold_graphs():
+        """Returns a GraphSet of threshold subgraphs.
+
+        Example:
+          >>> GraphSet.threshold_graphs()
+
+        Returns:
+          A new GraphSet object.
+        """
+
+        deg_dist1 = {0: GraphSet.DegreeDistribution_Any, 1: 4}
+        graph_2K2 = GraphSet.degree_distribution_graphs(deg_dist1, False)
+        cycles = GraphSet.cycles()
+        cycles_length_4 = cycles.graph_size(4)
+        deg_dist2 = {0: GraphSet.DegreeDistribution_Any, 1: 2, 2: 2}
+        p4 = GraphSet.degree_distribution_graphs(deg_dist2, False)
+
+        return GraphSet.forbidden_induced_subgraphs(graph_2K2 | cycles_length_4 | p4)
