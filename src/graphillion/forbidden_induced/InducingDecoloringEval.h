@@ -22,6 +22,7 @@ class InducingDecoloringEval
                 const tdzdd::DdValues<ZBDD, 3>& values) const {
     ZBDD z0 = values.get(0) + values.get(2);
     ZBDD z1 = values.get(0) + values.get(1);
+    //std::cerr << "level = " << level << ", offset_ = " << offset_ << ", VarOfLev = " << BDD_VarOfLev(level + offset_) << std::endl;
     zbdd = z0 + z1.Change(BDD_VarOfLev(level + offset_));
   }
 };

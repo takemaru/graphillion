@@ -236,6 +236,7 @@ class setset {
       const std::map<std::string, uint32_t> &weight_list, uint32_t lower,
       uint32_t upper);
   friend setset SearchChordals(const std::vector<edge_t> &edges, const uint32_t k);
+  friend setset SearchForbiddenInducedSubgraphs(const std::vector<edge_t> &edges, setset* ss);
   friend setset SearchOddEdgeSubgraphs(const std::vector<edge_t>& edges);
   friend setset SearchDegreeDistributionGraphs(const std::vector<edge_t> &edges,
                                 const std::vector<int>& degRanges,

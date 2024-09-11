@@ -4,7 +4,7 @@
 #include <climits>
 #include <vector>
 
-#include "FrontierManager.h"
+#include "graphillion/forbidden_induced/FrontierManager.h"
 #include "subsetting/DdSpec.hpp"
 
 // data associated with each vertex on the frontier

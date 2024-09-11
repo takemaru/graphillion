@@ -5,7 +5,7 @@
 #include <climits>
 
 #include "subsetting/DdSpec.hpp"
-#include "graphillion/chordal/FrontierManager.h"
+#include "graphillion/forbidden_induced/FrontierManager.h"
 #include "subsetting/util/IntSubset.hpp"
 
 typedef unsigned char uchar;

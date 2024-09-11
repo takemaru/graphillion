@@ -2275,12 +2275,11 @@ class GraphSet(object):
         return GraphSet(ss)
 
     @staticmethod
-    def chordal_graphs():
-        """Returns a GraphSet with chordal graphs.
+    def forbidden_induced_subgraphs(graphset):
+        """Returns a GraphSet characterized by forbidden induced subgraphs.
 
         Examples:
-            >>> GraphSet.chordal_graphs()
-            GraphSet([[], [(1, 4)], [(4, 5)], [(1, 2)], [(2, 5)], [(2, 3)], [(3, 6)], [( ...
+            >>> GraphSet.forbidden_induced_subgraphs(GraphSet.cycles())
 
         Returns:
             A new GraphSet object.
@@ -2291,8 +2290,23 @@ class GraphSet(object):
             graph.append(
                 (pickle.dumps(e[0], protocol=0), pickle.dumps(e[1], protocol=0)))
 
-        ss = _graphillion._chordal_graphs(graph=graph)
+        ss = _graphillion._forbidden_induced_subgraphs(graph=graph, graphset=graphset._ss)
         return GraphSet(ss)
+
+    @staticmethod
+    def chordal_graphs():
+        """Returns a GraphSet with chordal graphs.
+
+        Examples:
+            >>> GraphSet.chordal_graphs()
+            GraphSet([[], [(1, 4)], [(4, 5)], [(1, 2)], [(2, 5)], [(2, 3)], [(3, 6)], [( ...
+
+        Returns:
+            A new GraphSet object.
+        """
+        cycles = GraphSet.cycles()
+        cycles_length_at_least_4 = cycles.larger(3) # >= 4
+        return GraphSet.forbidden_induced_subgraphs(cycles_length_at_least_4)
 
     @staticmethod
     def bipartite_graphs(graphset=None):

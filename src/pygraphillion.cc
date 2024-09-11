@@ -46,6 +46,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "graphillion/induced_graphs/InducedGraphs.h"
 #include "graphillion/induced_graphs/WeightedInducedGraphs.h"
 #include "graphillion/chordal/chordal.h"
+#include "graphillion/forbidden_induced/ForbiddenInducedSubgraphs.h"
 
 #include "graphillion/odd_edges_subgraphs/OddEdgeSubgraphs.h"
 #include "graphillion/degree_distribution/DegreeDistributionGraphs.h"
@@ -1725,6 +1726,35 @@ static PyObject* chordal_graphs(PyObject*, PyObject* args, PyObject* kwds){
   return reinterpret_cast<PyObject*>(ret);
 }
 
+static PyObject* forbidden_induced_subgraphs(PyObject*, PyObject* args, PyObject* kwds){
+  static char s1[] = "graph";
+  static char s2[] = "graphset";
+  static char* kwlist[3] = {s1, s2, NULL};
+
+  PyObject* graph_obj = NULL;
+  PyObject* graphset_obj = NULL;
+  if (!PyArg_ParseTupleAndKeywords(args, kwds, "OO", kwlist, &graph_obj, &graphset_obj)) {
+    return NULL;
+  }
+
+  vector<pair<string, string> > graph;
+  if (!translate_graph(graph_obj, graph)) {
+    return NULL;
+  }
+
+  if (graphset_obj == NULL || graphset_obj == Py_None) {
+    PyErr_SetString(PyExc_TypeError, "graphset none");
+    return NULL;
+  }
+
+  auto ss = graphillion::SearchForbiddenInducedSubgraphs(graph,
+    reinterpret_cast<PySetsetObject*>(graphset_obj)->ss);
+  PySetsetObject* ret = reinterpret_cast<PySetsetObject*>
+      (PySetset_Type.tp_alloc(&PySetset_Type, 0));
+  ret->ss = new setset(ss);
+  return reinterpret_cast<PyObject*>(ret);
+}
+
 static PyObject* odd_edges_subgraphs(PyObject*, PyObject* args, PyObject* kwds) {
   static char s1[] = "graph";
   static char* kwlist[2] = {s1, NULL};
@@ -1825,6 +1855,7 @@ static PyMethodDef module_methods[] = {
   {"_induced_graphs", reinterpret_cast<PyCFunction>(induced_graphs), METH_VARARGS | METH_KEYWORDS, ""},
   {"_weighted_induced_graphs", reinterpret_cast<PyCFunction>(weighted_induced_graphs), METH_VARARGS | METH_KEYWORDS, ""},
   {"_chordal_graphs", reinterpret_cast<PyCFunction>(chordal_graphs), METH_VARARGS | METH_KEYWORDS, ""},
+  {"_forbidden_induced_subgraphs", reinterpret_cast<PyCFunction>(forbidden_induced_subgraphs), METH_VARARGS | METH_KEYWORDS, ""},
   {"_odd_edges_subgraphs", reinterpret_cast<PyCFunction>(odd_edges_subgraphs), METH_VARARGS | METH_KEYWORDS, ""},
   {"_degree_distribution_graphs", reinterpret_cast<PyCFunction>(degree_distribution_graphs), METH_VARARGS | METH_KEYWORDS, ""},
   {"_get_vertices_from_top", reinterpret_cast<PyCFunction>(setset_get_vertices_from_top), METH_VARARGS, ""},
