@@ -2352,6 +2352,22 @@ class GraphSet(object):
         return graphset.non_supergraphs(odd_cycle_gs)
 
     @staticmethod
+    def chordal_bipartite_graphs():
+        """Returns a GraphSet of chordal bipartite subgraphs.
+
+        Example:
+          >>> GraphSet.chordal_bipartite_graphs()
+
+        Returns:
+          A new GraphSet object.
+        """
+
+        cycles = GraphSet.cycles()
+        cycles_length_at_least_6 = cycles.larger(5) # >= 6
+        chordal = GraphSet.forbidden_induced_subgraphs(cycles_length_at_least_6)
+        return chordal & GraphSet.bipartite_graphs()
+
+    @staticmethod
     def show_messages(flag=True):
         """Enables/disables status messages.
 
