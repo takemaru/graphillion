@@ -2368,6 +2368,25 @@ class GraphSet(object):
         return chordal & GraphSet.bipartite_graphs()
 
     @staticmethod
+    def split_graphs():
+        """Returns a GraphSet of split subgraphs.
+
+        Example:
+          >>> GraphSet.split_graphs()
+
+        Returns:
+          A new GraphSet object.
+        """
+
+        deg_dist = {0: GraphSet.DegreeDistribution_Any, 1: 4}
+        graph_2K2 = GraphSet.degree_distribution_graphs(deg_dist, False)
+        cycles = GraphSet.cycles()
+        cycles_length_4 = cycles.graph_size(4)
+        cycles_length_5 = cycles.graph_size(5)
+
+        return GraphSet.forbidden_induced_subgraphs(graph_2K2 | cycles_length_4 | cycles_length_5)
+
+    @staticmethod
     def show_messages(flag=True):
         """Enables/disables status messages.
 
