@@ -2309,6 +2309,20 @@ class GraphSet(object):
         return GraphSet.forbidden_induced_subgraphs(cycles_length_at_least_4)
 
     @staticmethod
+    def cographs():
+        """Returns a GraphSet with cographs.
+
+        Examples:
+            >>> GraphSet.cographs()
+
+        Returns:
+            A new GraphSet object.
+        """
+        deg_dist = {0: GraphSet.DegreeDistribution_Any, 1: 2, 2: 2}
+        p4 = GraphSet.degree_distribution_graphs(deg_dist, False)
+        return GraphSet.forbidden_induced_subgraphs(p4)
+
+    @staticmethod
     def bipartite_graphs(graphset=None):
         """Returns a GraphSet of bipartite subgraphs.
 
