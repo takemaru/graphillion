@@ -35,6 +35,34 @@ class GraphClass:
         return GraphSet.forbidden_induced_subgraphs(GraphClass.claw_graphs())
 
     @staticmethod
+    def diamond_graphs():
+        # assume that universe has neither parallel edges nor self-loop
+        deg_dist = {0: GraphSet.DegreeDistribution_Any, 2: 2, 3: 2}
+        gs = GraphSet.degree_distribution_graphs(deg_dist, False)
+        return gs
+
+    @staticmethod
+    def diamond_free_graphs():
+        """See https://www.graphclasses.org/classes/gc_441.html .
+        
+        """
+        return GraphSet.forbidden_induced_subgraphs(GraphClass.diamond_graphs())
+
+    @staticmethod
+    def gem_graphs():
+        # assume that universe has neither parallel edges nor self-loop
+        deg_dist = {0: GraphSet.DegreeDistribution_Any, 2: 2, 3: 2, 4: 1}
+        gs = GraphSet.degree_distribution_graphs(deg_dist, False)
+        return gs
+
+    @staticmethod
+    def gem_free_graphs():
+        """See https://www.graphclasses.org/classes/gc_354.html .
+        
+        """
+        return GraphSet.forbidden_induced_subgraphs(GraphClass.gem_graphs())
+
+    @staticmethod
     def chordal_graphs():
         """Returns a GraphSet with chordal graphs.
 
@@ -97,6 +125,33 @@ class GraphClass:
         cycles_length_5 = cycles.graph_size(5)
 
         return GraphSet.forbidden_induced_subgraphs(graph_2K2 | cycles_length_4 | cycles_length_5)
+
+    @staticmethod
+    def block_graphs():
+        """Returns a GraphSet of block subgraphs.
+            See https://www.graphclasses.org/classes/gc_93.html .
+
+        Example:
+          >>> GraphSet.block_graphs()
+
+        Returns:
+          A new GraphSet object.
+        """
+
+        return GraphClass.chordal_graphs() & GraphClass.diamond_free_graphs()
+
+    def ptolemaic_graphs():
+        """Returns a GraphSet of ptolemaic subgraphs.
+            See https://www.graphclasses.org/classes/gc_95.html .
+
+        Example:
+          >>> GraphSet.ptolemaic_graphs()
+
+        Returns:
+          A new GraphSet object.
+        """
+
+        return GraphClass.chordal_graphs() & GraphClass.gem_free_graphs()
 
     @staticmethod
     def threshold_graphs():
