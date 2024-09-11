@@ -63,6 +63,31 @@ class GraphClass:
         return GraphSet.forbidden_induced_subgraphs(GraphClass.gem_graphs())
 
     @staticmethod
+    def odd_hole_graphs():
+        """See https://www.graphclasses.org/smallgraphs.html#odd_holes .
+
+        """
+
+        univ = GraphSet.universe()
+        vertices = set()
+        for e in univ:
+            vertices.add(e[0])
+            vertices.add(e[1])
+        n = len(vertices)
+
+        # cycle with odd length at least 5
+        dc = {}
+        for v in GraphSet._vertices:
+            dc[v] = range(0, 3, 2)
+        return GraphSet.graphs(vertex_groups=[[]], degree_constraints=dc,
+                               num_edges=range(5, n + 1, 2))
+
+    @staticmethod
+    def odd_hole_free_graphs():
+
+        return GraphSet.forbidden_induced_subgraphs(GraphClass.odd_hole_graphs())
+
+    @staticmethod
     def chordal_graphs():
         """Returns a GraphSet with chordal graphs.
 
@@ -80,6 +105,7 @@ class GraphClass:
     @staticmethod
     def cographs():
         """Returns a GraphSet with cographs.
+        See https://www.graphclasses.org/classes/gc_151.html .
 
         Examples:
             >>> GraphSet.cographs()
@@ -110,6 +136,7 @@ class GraphClass:
     @staticmethod
     def split_graphs():
         """Returns a GraphSet of split subgraphs.
+        See https://www.graphclasses.org/classes/gc_39.html .
 
         Example:
           >>> GraphSet.split_graphs()
@@ -156,6 +183,7 @@ class GraphClass:
     @staticmethod
     def threshold_graphs():
         """Returns a GraphSet of threshold subgraphs.
+        See https://www.graphclasses.org/classes/gc_328.html .
 
         Example:
           >>> GraphSet.threshold_graphs()
@@ -172,3 +200,31 @@ class GraphClass:
         p4 = GraphSet.degree_distribution_graphs(deg_dist2, False)
 
         return GraphSet.forbidden_induced_subgraphs(graph_2K2 | cycles_length_4 | p4)
+
+    @staticmethod
+    def gridline_graphs():
+        """See https://www.graphclasses.org/classes/gc_736.html .
+
+        """
+        cdo = GraphClass.claw_graphs() | GraphClass.diamond_graphs() | GraphClass.odd_hole_graphs()
+
+        return GraphSet.forbidden_induced_subgraphs(cdo)
+
+    @staticmethod
+    def domino_graphs():
+        """See https://www.graphclasses.org/classes/gc_180.html .
+
+        """
+        deg_dist = {0: GraphSet.DegreeDistribution_Any, 3: 4, 4: 1}
+        w4 = GraphSet.degree_distribution_graphs(deg_dist, False)
+
+        wcg = w4 | GraphClass.claw_graphs() | GraphClass.gem_graphs()
+
+        return GraphSet.forbidden_induced_subgraphs(wcg)
+
+    @staticmethod
+    def linear_domino_graphs():
+        """See https://www.graphclasses.org/classes/gc_719.html .
+
+        """
+        return GraphSet.forbidden_induced_subgraphs(GraphClass.claw_graphs() | GraphClass.diamond_graphs())
