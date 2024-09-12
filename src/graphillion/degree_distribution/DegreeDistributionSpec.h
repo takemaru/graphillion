@@ -63,6 +63,10 @@ private:
     ++data[fixedDegStart_ + d];
   }
 
+  void addFixedDeg(DSData* data, int d, int value) const {
+    data[fixedDegStart_ + d] += value;
+  }
+
   bool checkFixedDegUpper(DSData* data, int d) const {
     return (data[fixedDegStart_ + d] < degRanges_[d]->upperBound());
   }
@@ -264,6 +268,15 @@ public:
             if (nonisolated_found) {
               return 0; // return the 0-terminal.
             } else {
+              // count the vertices not leaving the frontier yet
+              int not_leaving_frontier_count
+                = static_cast<int>(leaving_vs.size()) - i - 1;
+              for (int k = edge_index + 1; k < m_; ++k) {
+                not_leaving_frontier_count
+                  += static_cast<int>(fm_.getLeavingVs(k).size());
+              }
+              // The degree of the vertices not leaving the frontier yet is 0.
+              addFixedDeg(data, 0, not_leaving_frontier_count);
               if (checkFixedDeg(data)) {
                 return -1;
               } else {

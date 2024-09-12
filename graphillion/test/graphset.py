@@ -242,10 +242,34 @@ class TestGraphSet(unittest.TestCase):
         self.assertTrue([(1, 2), (2, 3), (3, 6)] in gs)
         self.assertTrue([(1, 2), (2, 3), (5, 6)] not in gs)
 
+        # paths not specifying endpoints
+        gs = GraphSet.paths()
+        self.assertEqual(len(gs), 49)
+        self.assertTrue([(1, 4), (2, 3), (3, 6), (4, 5), (5, 6)] in gs)
+        self.assertTrue([(1, 4), (2, 5), (3, 6), (4, 5), (5, 6)] not in gs)
+
+        gs = GraphSet.paths(1)
+        self.assertEqual(len(gs), 17)
+        self.assertTrue([(1, 4), (2, 3), (3, 6), (4, 5), (5, 6)] in gs)
+        self.assertTrue([(2, 3), (3, 6), (4, 5), (5, 6)] not in gs)
+        self.assertTrue([(1, 4), (2, 5), (3, 6), (4, 5), (5, 6)] not in gs)
+
         # hamilton paths between 1 and 6
         gs = GraphSet.paths(1, 6, is_hamilton=True)
         self.assertEqual(len(gs), 1)
         self.assertTrue([(1, 4), (2, 3), (2, 5), (3, 6), (4, 5)] in gs)
+
+        # hamilton paths not specifying endpoints
+        gs = GraphSet.paths(is_hamilton=True)
+        self.assertEqual(len(gs), 8)
+        self.assertTrue([(1, 2), (1, 4), (2, 3), (3, 6), (4, 5)] in gs)
+        self.assertTrue([(1, 2), (1, 4), (2, 3), (4, 5)] not in gs)
+
+        gs = GraphSet.paths(1, is_hamilton=True)
+        self.assertEqual(len(gs), 3)
+        self.assertTrue([(1, 4), (2, 3), (3, 6), (4, 5), (5, 6)] in gs)
+        self.assertTrue([(1, 2), (1, 4), (2, 3), (3, 6), (4, 5)] not in gs)
+        self.assertTrue([(1, 2), (1, 4), (2, 3), (4, 5)] not in gs)
 
         # perfect matchings
         gs = GraphSet.perfect_matchings()

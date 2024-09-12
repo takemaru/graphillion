@@ -1810,8 +1810,8 @@ static PyObject* degree_distribution_graphs(PyObject*, PyObject* args, PyObject*
       int v = PyInt_AsLong(value);
       if (static_cast<int>(deg_ranges.size()) <= k) {
         deg_ranges.resize(k + 1);
-        deg_ranges[k] = v;
       }
+      deg_ranges[k] = v;
     } else {
       PyErr_SetString(PyExc_TypeError, "Currently, value must be an integer.");
       return NULL;

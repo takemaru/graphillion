@@ -2125,7 +2125,7 @@ class GraphSet(object):
                                graphset=graphset)
 
     @staticmethod
-    def paths(terminal1, terminal2, is_hamilton=False, graphset=None):
+    def paths(terminal1=None, terminal2=None, is_hamilton=False, graphset=None):
         """Returns a GraphSet of paths.
 
         This method can be parallelized with OpenMP by specifying the
@@ -2138,7 +2138,9 @@ class GraphSet(object):
           GraphSet([[(1, 2), (2, 3), (3, 6)], [(1, 2), (2, 5), (5, 6)], [(1, 4), (4, 5 ...
 
         Args:
-          terminal1 and terminal2: Both end vertices of a paths.
+          terminal1 and terminal2: Both end vertices of a paths. If terminal1 != None
+            and terminal2 == None, all paths start from terminal1.
+            If terminal1 == None and terminal2 == None, Both end vertices are arbitrary.
 
           graphset: Optional.  A GraphSet object.  Paths to be stored
             are selected from this object.
@@ -2149,15 +2151,39 @@ class GraphSet(object):
         See Also:
           graphs()
         """
-        dc = {}
-        for v in GraphSet._vertices:
-            if v in (terminal1, terminal2):
-                dc[v] = 1
+        if terminal2 == None:
+            if is_hamilton:
+                deg_dist = {1: 2, 2: GraphSet.DegreeDistribution_Any}
             else:
-                dc[v] = 2 if is_hamilton else range(0, 3, 2)
-        return GraphSet.graphs(vertex_groups=[[terminal1, terminal2]],
-                               degree_constraints=dc,
-                               no_loop=True, graphset=graphset)
+                deg_dist = {0: GraphSet.DegreeDistribution_Any,
+                            1: 2, 2: GraphSet.DegreeDistribution_Any}
+            gs = GraphSet.degree_distribution_graphs(deg_dist, True)
+            if terminal1 == None:
+                if graphset == None:
+                  return gs
+                else:
+                  return gs & graphset
+            else:
+                if graphset != None:
+                  gs &= graphset
+                dc = {}
+                for v in GraphSet._vertices:
+                    if v == terminal1:
+                        dc[v] = 1
+                    else:
+                        dc[v] = range(1, 3) if is_hamilton else range(0, 3)
+                return GraphSet.graphs(degree_constraints=dc, no_loop=True,
+                                      graphset=gs)
+        else:
+            dc = {}
+            for v in GraphSet._vertices:
+                if v in (terminal1, terminal2):
+                    dc[v] = 1
+                else:
+                    dc[v] = 2 if is_hamilton else range(0, 3, 2)
+            return GraphSet.graphs(vertex_groups=[[terminal1, terminal2]],
+                                  degree_constraints=dc,
+                                  no_loop=True, graphset=graphset)
 
     @staticmethod
     def matchings(graphset=None):
