@@ -2308,6 +2308,75 @@ class GraphSet(object):
         return GraphSet.graphs(degree_constraints=dc, graphset=graphset)
 
     @staticmethod
+    def k_factors(k, graphset=None):
+        """Returns a GraphSet of k-factors.
+        A k-factor is a set of edges such that each vertex is incident
+        to exactly k edges of the k-factor.
+
+        This method can be parallelized with OpenMP by specifying the
+        environmental variable `OMP_NUM_THREADS`:
+
+          `$ OMP_NUM_THREADS=4 python your_graphillion_script.py`
+
+        Examples:
+          >>> GraphSet.k_factors(3)
+
+        Args:
+          k: Integer. Each vertex is incident to exactly k edges.
+          graphset: Optional.  A GraphSet object.  Matchings to be stored
+            are selected from this object.
+
+        Returns:
+          A new GraphSet object.
+
+        See Also:
+          graphs()
+        """
+        dc = {}
+        for v in GraphSet._vertices:
+          dc[v] = k
+        return GraphSet.graphs(degree_constraints=dc, graphset=graphset)
+
+    @staticmethod
+    def f_factors(f, graphset=None):
+        """Returns a GraphSet of f-factors.
+        For a function f that maps from a vertex to an integer,
+        an f-factor is a set of edges such that each vertex v is incident
+        to exactly f(v) edges of the f-factor.
+
+        This method can be parallelized with OpenMP by specifying the
+        environmental variable `OMP_NUM_THREADS`:
+
+          `$ OMP_NUM_THREADS=4 python your_graphillion_script.py`
+
+        Examples:
+          >>> f = {}
+          # vertices is a list of vertices in the universe
+          >>> for v in vertices:
+          >>>     f[v] = 1 if f == 1 else 2
+          >>> GraphSet.f_factors(f)
+
+        Args:
+          f: Dictionary. A key is a vertex of the universe graph and a value
+            is an integer. For a vertex v, if f[v] is undefined, it means f[v] == 0.
+          graphset: Optional.  A GraphSet object.  Matchings to be stored
+            are selected from this object.
+
+        Returns:
+          A new GraphSet object.
+
+        See Also:
+          graphs()
+        """
+        dc = {}
+        for v in GraphSet._vertices:
+            if v in f:
+                dc[v] = f[v]
+            else:
+                dc[v] = 0
+        return GraphSet.graphs(degree_constraints=dc, graphset=graphset)
+
+    @staticmethod
     def induced_graphs():
         """Return a GraphSet with connected induced graphs.
 

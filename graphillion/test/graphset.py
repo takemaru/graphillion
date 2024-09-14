@@ -170,6 +170,29 @@ class TestGraphSet(unittest.TestCase):
         self.assertTrue([(2, 5), (3, 6), (4, 5)] in gs)
         self.assertTrue([(1, 2), (2, 5), (3, 6), (4, 5)] not in gs)
 
+        # k-factor
+        gs = GraphSet.k_factors(k=1)
+        # A 1-factor is equal to a perfect matching.
+        self.assertEqual(gs, GraphSet.perfect_matchings())
+        gs = GraphSet.k_factors(k=2)
+        self.assertEqual(gs, GraphSet([[(1, 2), (1, 4), (2, 3),
+                                        (3, 6), (4, 5), (5, 6)]]))
+        gs = GraphSet.k_factors(k=3)
+        self.assertEqual(len(gs), 0)
+
+        # f-factor
+        f = {}
+        for v in GraphSet._vertices:
+            if v == 2 or v == 5:
+                f[v] = 2
+            else:
+                f[v] = 1
+        gs = GraphSet.f_factors(f)
+        g1 = [(1, 2), (2, 3), (4, 5), (5, 6)]
+        g2 = [(1, 2), (2, 5), (3, 6), (4, 5)]
+        g3 = [(1, 4), (2, 3), (2, 5), (5, 6)]
+        self.assertEqual(gs, GraphSet([g1, g2, g3]))
+
         # subgraphs with 1 or 2 edges
         gs = GraphSet.graphs(num_edges=range(1, 3))
         self.assertEqual(len(gs), 28)
