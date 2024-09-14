@@ -2208,10 +2208,7 @@ class GraphSet(object):
         See Also:
           graphs()
         """
-        dc = {}
-        for v in GraphSet._vertices:
-          dc[v] = range(0, 2)
-        return GraphSet.graphs(degree_constraints=dc, graphset=graphset)
+        return GraphSet.k_matchings(1, graphset)
 
     @staticmethod
     def perfect_matchings(graphset=None):
@@ -2239,6 +2236,75 @@ class GraphSet(object):
         dc = {}
         for v in GraphSet._vertices:
           dc[v] = 1
+        return GraphSet.graphs(degree_constraints=dc, graphset=graphset)
+
+    @staticmethod
+    def k_matchings(k, graphset=None):
+        """Returns a GraphSet of k-matchings.
+        A k-matching is a set of edges such that each vertex is incident
+        to at most k edges of the k-matching.
+
+        This method can be parallelized with OpenMP by specifying the
+        environmental variable `OMP_NUM_THREADS`:
+
+          `$ OMP_NUM_THREADS=4 python your_graphillion_script.py`
+
+        Examples:
+          >>> GraphSet.k_matchings(3)
+
+        Args:
+          k: Integer. Each vertex is incident to at most k edges.
+          graphset: Optional.  A GraphSet object.  Matchings to be stored
+            are selected from this object.
+
+        Returns:
+          A new GraphSet object.
+
+        See Also:
+          graphs()
+        """
+        dc = {}
+        for v in GraphSet._vertices:
+          dc[v] = range(0, k + 1)
+        return GraphSet.graphs(degree_constraints=dc, graphset=graphset)
+
+    @staticmethod
+    def b_matchings(b, graphset=None):
+        """Returns a GraphSet of b-matchings.
+        For a function b that maps from a vertex to an integer,
+        a b-matching is a set of edges such that each vertex v is incident
+        to at most b(v) edges of the b-matching.
+
+        This method can be parallelized with OpenMP by specifying the
+        environmental variable `OMP_NUM_THREADS`:
+
+          `$ OMP_NUM_THREADS=4 python your_graphillion_script.py`
+
+        Examples:
+          >>> b = {}
+          # vertices is a list of vertices in the universe
+          >>> for v in vertices:
+          >>>     b[v] = 1 if v == 1 else 2
+          >>> GraphSet.b_matchings(b)
+
+        Args:
+          b: Dictionary. A key is a vertex of the universe graph and a value
+            is an integer. For a vertex v, if b[v] is undefined, it means b[v] == 0.
+          graphset: Optional.  A GraphSet object.  Matchings to be stored
+            are selected from this object.
+
+        Returns:
+          A new GraphSet object.
+
+        See Also:
+          graphs()
+        """
+        dc = {}
+        for v in GraphSet._vertices:
+            if v in b:
+                dc[v] = range(0, b[v] + 1)
+            else:
+                dc[v] = 0
         return GraphSet.graphs(degree_constraints=dc, graphset=graphset)
 
     @staticmethod

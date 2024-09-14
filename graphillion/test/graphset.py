@@ -152,6 +152,24 @@ class TestGraphSet(unittest.TestCase):
         for g in gs:
             self.assertTrue(len(g) < 4)
 
+        # k-matching
+        gs = GraphSet.k_matchings(k=2)
+        self.assertEqual(len(gs), 100)
+        self.assertTrue([(1, 2), (1, 4), (2, 3), (3, 6), (4, 5)] in gs)
+        self.assertTrue([(1, 4), (2, 3), (2, 5), (3, 6), (4, 5), (5, 6)] not in gs)
+        gs = GraphSet.k_matchings(k=3)
+        self.assertEqual(gs, GraphSet({})) # power set
+
+        # b-matching
+        b = {}
+        for v in GraphSet._vertices:
+            if v != 1:
+                b[v] = v % 2 + 1
+        gs = GraphSet.b_matchings(b)
+        self.assertEqual(len(gs), 17)
+        self.assertTrue([(2, 5), (3, 6), (4, 5)] in gs)
+        self.assertTrue([(1, 2), (2, 5), (3, 6), (4, 5)] not in gs)
+
         # subgraphs with 1 or 2 edges
         gs = GraphSet.graphs(num_edges=range(1, 3))
         self.assertEqual(len(gs), 28)
