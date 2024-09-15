@@ -1850,15 +1850,16 @@ static PyObject* degree_distribution_graphs(PyObject*, PyObject* args, PyObject*
 
   static char s1[] = "graph";
   static char s2[] = "deg_dist";
-  static char s3[] = "connected";
-  static char* kwlist[7] = {s1, s2, s3, NULL};
+  static char s3[] = "is_connected";
+  static char s4[] = "graphset";
+  static char* kwlist[5] = {s1, s2, s3, s4, NULL};
 
   PyObject* graph_obj = NULL;
   PyObject* deg_dist = NULL;
-  PyObject* connected = NULL;
-
-  if (!PyArg_ParseTupleAndKeywords(args, kwds, "OOO", kwlist, &graph_obj,
-                                   &deg_dist, &connected)) {
+  PyObject* is_connected = NULL;
+  PyObject* graphset_obj = NULL;
+  if (!PyArg_ParseTupleAndKeywords(args, kwds, "OOO|O", kwlist, &graph_obj,
+                                   &deg_dist, &is_connected, &graphset_obj)) {
     return NULL;
   }
 
@@ -1889,12 +1890,18 @@ static PyObject* degree_distribution_graphs(PyObject*, PyObject* args, PyObject*
     }
   }
 
-  if (!PyBool_Check(connected)) {
+  if (!PyBool_Check(is_connected)) {
     PyErr_SetString(PyExc_TypeError, "not bool");
     return NULL;
   }
 
-  auto ss = graphillion::SearchDegreeDistributionGraphs(graph, deg_ranges, connected != Py_False);
+  setset* search_space = NULL;
+  if (graphset_obj != NULL && graphset_obj != Py_None) {
+    search_space = reinterpret_cast<PySetsetObject*>(graphset_obj)->ss;
+  }
+
+  auto ss = graphillion::SearchDegreeDistributionGraphs(graph, deg_ranges,
+    is_connected != Py_False, search_space);
   PySetsetObject* ret = reinterpret_cast<PySetsetObject*>
       (PySetset_Type.tp_alloc(&PySetset_Type, 0));
   ret->ss = new setset(ss);

@@ -2157,15 +2157,10 @@ class GraphSet(object):
             else:
                 deg_dist = {0: GraphSet.DegreeDistribution_Any,
                             1: 2, 2: GraphSet.DegreeDistribution_Any}
-            gs = GraphSet.degree_distribution_graphs(deg_dist, True)
+            gs = GraphSet.degree_distribution_graphs(deg_dist, True, graphset=graphset)
             if terminal1 == None:
-                if graphset == None:
-                  return gs
-                else:
-                  return gs & graphset
+              return gs
             else:
-                if graphset != None:
-                  gs &= graphset
                 dc = {}
                 for v in GraphSet._vertices:
                     if v == terminal1:
@@ -2425,7 +2420,9 @@ class GraphSet(object):
         ss = None if graphset is None else graphset._ss
 
         ss = _graphillion._regular_graphs(graph=graph,
-                                          degree=degree, is_connected=is_connected,graphset=ss)
+                                          degree=degree,
+                                          is_connected=is_connected,
+                                          graphset=ss)
         return GraphSet(ss)
 
     @staticmethod
@@ -2488,7 +2485,7 @@ class GraphSet(object):
         return GraphSet(ss)
 
     @staticmethod
-    def forbidden_induced_subgraphs(graphset):
+    def forbidden_induced_subgraphs(graphset=None):
         """Returns a GraphSet characterized by forbidden induced subgraphs.
 
         Examples:
@@ -2503,7 +2500,9 @@ class GraphSet(object):
             graph.append(
                 (pickle.dumps(e[0], protocol=0), pickle.dumps(e[1], protocol=0)))
 
-        ss = _graphillion._forbidden_induced_subgraphs(graph=graph, graphset=graphset._ss)
+        ss = None if graphset is None else graphset._ss
+
+        ss = _graphillion._forbidden_induced_subgraphs(graph=graph, graphset=ss)
         return GraphSet(ss)
 
     @staticmethod
@@ -2783,7 +2782,7 @@ class GraphSet(object):
     DegreeDistribution_Any = -1
 
     @staticmethod
-    def degree_distribution_graphs(deg_dist, connected):
+    def degree_distribution_graphs(deg_dist, is_connected, graphset=None):
         """Returns a GraphSet having specified degree distribution.
 
         Examples:
@@ -2815,7 +2814,7 @@ class GraphSet(object):
             graph.append(
                 (pickle.dumps(e[0], protocol=0), pickle.dumps(e[1], protocol=0)))
 
-        ss = _graphillion._degree_distribution_graphs(graph, deg_dist, connected)
+        ss = _graphillion._degree_distribution_graphs(graph, deg_dist, is_connected, graphset)
         return GraphSet(ss)
 
     @staticmethod

@@ -246,7 +246,8 @@ class setset {
   friend setset SearchOddEdgeSubgraphs(const std::vector<edge_t>& edges);
   friend setset SearchDegreeDistributionGraphs(const std::vector<edge_t> &edges,
                                 const std::vector<int>& degRanges,
-                                const bool is_connected);
+                                const bool is_connected,
+                                const setset* search_space);
 };
 
 }  // namespace graphillion
