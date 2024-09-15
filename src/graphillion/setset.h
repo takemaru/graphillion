@@ -216,6 +216,12 @@ class setset {
       bool no_loop,
       const setset* search_space,
       const std::vector<linear_constraint_t>* linear_constraints);
+  friend setset SearchRegularGraphs(
+      const std::vector<edge_t> &edges,
+      const int degree_lower,
+      const int degree_upper,
+      const bool is_connected,
+      const setset* search_space);
   friend setset SearchPartitions(const std::vector<graphillion::edge_t>& edges,
                                  int16_t comp_lb, int16_t comp_ub);
   friend setset SearchRatioPartitions(

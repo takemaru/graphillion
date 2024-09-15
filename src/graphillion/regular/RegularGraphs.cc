@@ -1,20 +1,23 @@
-#ifndef DEGREE_DISTRIBUTION_SPEC_H
-#define DEGREE_DISTRIBUTION_SPEC_H
+#include "RegularGraphs.h"
+
+#include "graphillion/setset.h"
+#include "graphillion/graphset.h"
+#include "graphillion/forbidden_induced/FrontierManager.h"
+#include "subsetting/DdSpec.hpp"
+#include "subsetting/util/IntSubset.hpp"
+#include "subsetting/eval/ToZBDD.hpp"
+#include "subsetting/spec/SapporoZdd.hpp"
 
 #include <vector>
 #include <climits>
 
-#include "subsetting/DdSpec.hpp"
-#include "graphillion/forbidden_induced/FrontierManager.h"
-#include "subsetting/util/IntSubset.hpp"
-
 typedef unsigned char uchar;
-typedef unsigned char DSData;
+typedef unsigned char RData;
 
-const int DSData_MAX = UCHAR_MAX;
+const int RData_MAX = UCHAR_MAX;
 
-class DegreeDistributionSpec
-  : public tdzdd::PodArrayDdSpec<DegreeDistributionSpec, DSData, 2> {
+class RegularSpec
+  : public tdzdd::PodArrayDdSpec<RegularSpec, RData, 2> {
 private:
   // input graph
   const tdzdd::Graph& graph_;
@@ -23,105 +26,70 @@ private:
   // number of edges
   const int m_;
 
+  const int deg_lower_;
+  const int deg_upper_;
   // make subgraphs connected or not
   const bool is_connected_;
 
   const FrontierManager fm_;
 
   const int fixedDegStart_;
-  const std::vector<tdzdd::IntSubset*> degRanges_;
-  const std::vector<bool> storingList_;
 
   // This function gets deg of v.
-  int getDeg(DSData* data, int v) const {
+  int getDeg(RData* data, int v) const {
     return static_cast<int>(data[is_connected_ ?
                   (fm_.vertexToPos(v) * 2) :
                   fm_.vertexToPos(v)]);
   }
 
   // This function sets deg of v to be d.
-  void setDeg(DSData* data, int v, int d) const {
+  void setDeg(RData* data, int v, int d) const {
     data[is_connected_ ?
       (fm_.vertexToPos(v) * 2) :
       fm_.vertexToPos(v)] = static_cast<uchar>(d);
   }
 
   // This function gets comp of v.
-  int getComp(DSData* data, int v, int index) const {
+  int getComp(RData* data, int v, int index) const {
     assert(is_connected_);
     return fm_.posToVertex(index, data[fm_.vertexToPos(v) * 2 + 1]);
   }
 
   // This function sets comp of v to be c.
-  void setComp(DSData* data, int v, int c) const {
+  void setComp(RData* data, int v, int c) const {
     assert(is_connected_);
     data[fm_.vertexToPos(v) * 2 + 1] =
       static_cast<uchar>(fm_.vertexToPos(c));
   }
 
-  void incrementFixedDeg(DSData* data, int d) const {
-    ++data[fixedDegStart_ + d];
+  int getFixedDeg(RData* data) const {
+    return data[fixedDegStart_];
   }
 
-  void addFixedDeg(DSData* data, int d, int value) const {
-    data[fixedDegStart_ + d] += value;
+  void setFixedDeg(RData* data, int value) const {
+    data[fixedDegStart_] = value;
   }
 
-  bool checkFixedDegUpper(DSData* data, int d) const {
-    return (data[fixedDegStart_ + d] < degRanges_[d]->upperBound());
-  }
-
-  bool checkFixedDeg(DSData* data) const {
-    for (size_t deg = 0; deg < degRanges_.size(); ++deg) {
-      if (!degRanges_[deg]->contains(data[fixedDegStart_ + deg])) {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  int getDegUpper(DSData* data) const {
-    int deg;
-    for (deg = static_cast<int>(degRanges_.size()) - 1; deg >= 0; --deg) {
-      if (data[fixedDegStart_ + deg] < degRanges_[deg]->upperBound()) {
-        break;
-      }
-    }
-    return deg;
-  }
-
-  void initializeData(DSData* data) const {
-    for (int i = 0; i < fixedDegStart_ + static_cast<int>(degRanges_.size()); ++i) {
+  void initializeData(RData* data) const {
+    for (int i = 0; i < fixedDegStart_ + 1; ++i) {
       data[i] = 0;
     }
   }
 
-  std::vector<bool> getStoringList(const std::vector<tdzdd::IntSubset*>& degRanges) const {
-    std::vector<bool> storingList;
-    for (size_t i = 0; i < degRanges.size(); ++i) {
-      if (degRanges[i]->lowerBound() == 0 &&
-        degRanges[i]->upperBound() >= n_) {
-        storingList.push_back(false);
-      } else {
-        storingList.push_back(true);
-      }
-    }
-    return storingList;
-  }
-
 public:
-  DegreeDistributionSpec(const tdzdd::Graph& graph,
-                const std::vector<tdzdd::IntSubset*>& degRanges,
-                const bool is_connected)
+  RegularSpec(const tdzdd::Graph& graph,
+              const int degree_lower,
+              const int degree_upper,
+              const bool is_connected)
     : graph_(graph),
       n_(static_cast<short>(graph_.vertexSize())),
       m_(graph_.edgeSize()),
+      deg_lower_(degree_lower),
+      deg_upper_(degree_upper),
       is_connected_(is_connected),
       fm_(graph_),
       fixedDegStart_(is_connected ? (fm_.getMaxFrontierSize() * 2) :
-                      fm_.getMaxFrontierSize()),
-      degRanges_(degRanges),
-      storingList_(getStoringList(degRanges))
+                      fm_.getMaxFrontierSize())
   {
     if (graph_.vertexSize() > SHRT_MAX) { // SHRT_MAX == 32767
       std::cerr << "The number of vertices should be at most "
@@ -129,21 +97,15 @@ public:
       exit(1);
     }
 
-    if (degRanges.size() > DSData_MAX + 1) {
-      std::cerr << "The size of array degRanges should be at most "
-            << (DSData_MAX + 1) << std::endl;
-      exit(1);
-    }
-
-    setArraySize(fixedDegStart_ + degRanges_.size());
+    setArraySize(fixedDegStart_ + 1);
   }
 
-  int getRoot(DSData* data) const {
+  int getRoot(RData* data) const {
     initializeData(data);
     return m_;
   }
 
-  int getChild(DSData* data, int level, int value) const {
+  int getChild(RData* data, int level, int value) const {
     assert(1 <= level && level <= m_);
 
     // edge index (starting from 0)
@@ -170,17 +132,21 @@ public:
     if (value == 1) { // if we take the edge (go to 1-arc)
       // increment deg of v1 and v2 (recall that edge = {v1, v2})
 
-      int upper = getDegUpper(data);
-      if (getDeg(data, edge.v1) + 1 > upper) {
-        return 0;
+      int fixed_deg = getFixedDeg(data);
+
+      if (fixed_deg > 0) {
+        if (getDeg(data, edge.v1) >= fixed_deg) {
+          return 0;
+        }
+        if (getDeg(data, edge.v2) >= fixed_deg) {
+          return 0;
+        }
       }
-      if (getDeg(data, edge.v2) + 1 > upper) {
-        return 0;
-      }
-      if (getDeg(data, edge.v1) >= DSData_MAX ||
-        getDeg(data, edge.v2) >= DSData_MAX) {
+
+      if (getDeg(data, edge.v1) >= RData_MAX ||
+        getDeg(data, edge.v2) >= RData_MAX) {
         std::cerr << "The degree exceeded "
-          << DSData_MAX << "." << std::endl;
+          << RData_MAX << "." << std::endl;
       }
       setDeg(data, edge.v1, getDeg(data, edge.v1) + 1);
       setDeg(data, edge.v2, getDeg(data, edge.v2) + 1);
@@ -209,11 +175,17 @@ public:
       int v = leaving_vs[i];
 
       int d = getDeg(data, v);
-      if (!checkFixedDegUpper(data, d)) {
-        return 0;
-      }
-      if (storingList_[d]) {
-        incrementFixedDeg(data, d);
+
+      int fixed_deg = getFixedDeg(data);
+      if (fixed_deg > 0) {
+        if (d != fixed_deg && d > 0) {
+          return 0;
+        }
+      } else if (d > 0) {
+        if (d < deg_lower_ || d > deg_upper_) {
+          return 0;
+        }
+        setFixedDeg(data, d);
       }
 
       if (is_connected_) {
@@ -266,20 +238,7 @@ public:
             if (nonisolated_found) {
               return 0; // return the 0-terminal.
             } else {
-              // count the vertices not leaving the frontier yet
-              int not_leaving_frontier_count
-                = static_cast<int>(leaving_vs.size()) - i - 1;
-              for (int k = edge_index + 1; k < m_; ++k) {
-                not_leaving_frontier_count
-                  += static_cast<int>(fm_.getLeavingVs(k).size());
-              }
-              // The degree of the vertices not leaving the frontier yet is 0.
-              addFixedDeg(data, 0, not_leaving_frontier_count);
-              if (checkFixedDeg(data)) {
-                return -1;
-              } else {
-                return 0;
-              }
+              return -1;
             }
           }
         }
@@ -296,10 +255,11 @@ public:
         // If we come here, the edge set is empty (taking no edge).
         return 0;
       } else {
-        if (checkFixedDeg(data)) {
-          return -1;
-        } else {
+        if (getFixedDeg(data) == 0) {
+          // If we come here, the edge set is empty (taking no edge).
           return 0;
+        } else {
+          return -1;
         }
       }
     }
@@ -308,4 +268,60 @@ public:
   }
 };
 
-#endif // DEGREE_DISTRIBUTION_SPEC_H
+tdzdd::DdStructure<2>
+constructRegularGraphs(const tdzdd::Graph &g,
+                        const int degree_lower,
+                        const int degree_upper,
+                        const bool is_connected,
+                        const graphillion::zdd_t* search_space,
+                        const int offset) {
+
+#ifdef _OPENMP
+  bool use_mp = (omp_get_num_procs() >= 2);
+#else
+  bool use_mp = false;
+#endif
+
+  tdzdd::DdStructure<2> dd;
+  if (search_space != NULL) {
+    SapporoZdd f(*search_space, offset);
+    dd = tdzdd::DdStructure<2>(f, use_mp);
+  } else {
+    dd = tdzdd::DdStructure<2>(g.edgeSize(), use_mp);
+  }
+
+  RegularSpec ddspec(g, degree_lower,
+                      degree_upper, is_connected);
+
+  dd.zddSubset(ddspec);
+  dd.zddReduce();
+
+  return dd;
+}
+
+namespace graphillion {
+
+setset
+SearchRegularGraphs(const std::vector<edge_t> &edges,
+                    const int degree_lower,
+                    const int degree_upper,
+                    const bool is_connected,
+                    const setset* search_space) {
+  tdzdd::Graph g;
+  for (const auto &e : edges) {
+    g.addEdge(e.first, e.second);
+  }
+  g.update();
+
+  const zdd_t* search_space_z =
+  ((search_space == NULL) ? NULL : &search_space->zdd_);
+
+  auto dd = constructRegularGraphs(g, degree_lower,
+              degree_upper, is_connected, search_space_z,
+              setset::max_elem() - setset::num_elems());
+  dd.useMultiProcessors(false);
+  zdd_t f = dd.evaluate(ToZBDD(setset::max_elem() - setset::num_elems()));
+  return setset(f);
+}
+
+}  // namespace graphillion

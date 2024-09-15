@@ -2377,6 +2377,56 @@ class GraphSet(object):
         return GraphSet.graphs(degree_constraints=dc, graphset=graphset)
 
     @staticmethod
+    def regular_graphs(degree=None, is_connected=True, graphset=None):
+        """Returns a GraphSet of regular graphs.
+        A regular graph is one such that all the degrees of the vertices are the same.
+
+        This method can be parallelized with OpenMP by specifying the
+        environmental variable `OMP_NUM_THREADS`:
+
+          `$ OMP_NUM_THREADS=4 python your_graphillion_script.py`
+
+        Examples:
+          >>> GraphSet.regular_graphs()
+
+          # The degree is 3 and the graphs are not necessarily connected.
+          >>> GraphSet.regular_graphs(3, False)
+
+          # The degree is at least 2 and at most 5, and
+          # the graphs are connected.
+          >>> GraphSet.regular_graphs((2, 5), True)
+
+        Args:
+          degree: Tuple or Integer. If it is a tuple (l, u),
+            the degree is at least l and at most u.
+            If it is an integer d, the degree is d.
+            If it is None, the degree is arbitrary.
+          is_connected: Bool. If it is True, the graphs are
+            connected. If it is False, the graphs are
+            not necessarily connected.
+          graphset: Optional.  A GraphSet object.  Matchings to be stored
+            are selected from this object.
+
+        Returns:
+          A new GraphSet object.
+
+        See Also:
+          graphs()
+        """
+
+        graph = []
+        for e in setset.universe():
+            assert e[0] in GraphSet._vertices and e[1] in GraphSet._vertices
+            graph.append((pickle.dumps(e[0], protocol=0), pickle.dumps(e[1], protocol=0)))
+
+        if degree == None:
+            degree = (1, len(GraphSet._vertices))
+
+        ss = _graphillion._regular_graphs(graph=graph,
+                                          degree=degree, is_connected=is_connected,graphset=graphset)
+        return GraphSet(ss)
+
+    @staticmethod
     def induced_graphs():
         """Return a GraphSet with connected induced graphs.
 

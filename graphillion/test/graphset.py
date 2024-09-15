@@ -404,6 +404,32 @@ class TestGraphSet(unittest.TestCase):
         d = GraphSet.show_messages(a)
         self.assertFalse(d)
 
+    def test_regular_graphs(self):
+        GraphSet.set_universe([(1, 2), (1, 4), (2, 3), (2, 5), (3, 6), (4, 5),
+                               (5, 6)])
+
+        gs = GraphSet.regular_graphs(is_connected=False)
+        self.assertEqual(len(gs), 24)
+        self.assertTrue([(2, 3), (2, 5), (5, 6), (3, 6)] in gs)
+        self.assertTrue([(2, 5), (1, 4), (3, 6)] in gs)
+        self.assertTrue([(1, 2), (1, 4), (2, 5), (4, 5), (3, 6)] not in gs)
+
+        gs = GraphSet.regular_graphs(is_connected=True)
+        self.assertEqual(len(gs), 10)
+        self.assertTrue([(2, 3), (2, 5), (5, 6), (3, 6)] in gs)
+        self.assertTrue([(2, 5), (1, 4), (3, 6)] not in gs)
+        self.assertTrue([(1, 2), (1, 4), (2, 5), (4, 5), (3, 6)] not in gs)
+
+        universe = []
+        for i in range(1, 6):
+            for j in range(i + 1, 6):
+                universe.append((i, j))
+        GraphSet.set_universe(universe)
+        gs = GraphSet.regular_graphs(degree=(2, 3), is_connected=True)
+        self.assertEqual(len(gs), 42)
+        self.assertTrue([(2, 4), (2, 5), (3, 4), (3, 5)] in gs)
+        self.assertTrue([(1, 2)] not in gs)
+
     def test_partitions(self):
         GraphSet.set_universe([(1, 2), (1, 4), (2, 3), (2, 5), (3, 6), (4, 5),
                                (5, 6)])

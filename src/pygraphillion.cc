@@ -43,6 +43,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include "graphillion/graphset.h"
 #include "graphillion/reliability/reliability.h"
+#include "graphillion/regular/RegularGraphs.h"
 #include "graphillion/induced_graphs/InducedGraphs.h"
 #include "graphillion/induced_graphs/WeightedInducedGraphs.h"
 #include "graphillion/chordal/chordal.h"
@@ -1461,6 +1462,76 @@ static PyObject* graphset_show_messages(PySetsetObject* self, PyObject* obj) {
   else Py_RETURN_FALSE;
 }
 
+static PyObject* regular_graphs(PyObject*, PyObject* args, PyObject* kwds){
+  static char s1[] = "graph";
+  static char s2[] = "degree";
+  static char s3[] = "is_connected";
+  static char s4[] = "graphset";
+  static char* kwlist[5] = {s1, s2, s3, s4, NULL};
+  PyObject* graph_obj = NULL;
+  PyObject* degree_obj = NULL;
+  PyObject* is_connected_obj = NULL;
+  PyObject* graphset_obj = NULL;
+  int degree_lower = 0;
+  int degree_upper = INT_MAX;
+  if(!PyArg_ParseTupleAndKeywords(args, kwds, "OOO|O", kwlist, &graph_obj, &degree_obj, &is_connected_obj, &graphset_obj)){
+    return NULL;
+  }
+
+  vector<pair<string, string> > graph;
+  if (!translate_graph(graph_obj, graph)) {
+    return NULL;
+  }
+
+  if (PyInt_Check(degree_obj)) {
+    int d = PyLong_AsLong(degree_obj);
+    degree_lower = d;
+    degree_upper = d;
+  } else if (PyTuple_Check(degree_obj)) {
+    Py_ssize_t tuple_size = PyTuple_Size(degree_obj);
+    if (tuple_size != 2) {
+      PyErr_SetString(PyExc_TypeError, "tuple size must be 2");
+      return NULL;
+    }
+    PyObject* lower_obj = PyTuple_GetItem(degree_obj, 0);
+    if (PyLong_Check(lower_obj)) {
+      degree_lower = PyLong_AsLong(lower_obj);
+    } else {
+      PyErr_SetString(PyExc_TypeError, "degree lower must be integer");
+      return NULL;
+    }
+    PyObject* upper_obj = PyTuple_GetItem(degree_obj, 1);
+    if (PyLong_Check(upper_obj)) {
+      degree_upper = PyLong_AsLong(upper_obj);
+    } else {
+      PyErr_SetString(PyExc_TypeError, "degree upper must be an integer");
+      return NULL;
+    }
+  } else {
+    PyErr_SetString(PyExc_TypeError, "degree must be an integer or a tuple");
+    return NULL;
+  }
+
+  if (!PyBool_Check(is_connected_obj)) {
+    PyErr_SetString(PyExc_TypeError, "is_connected is not bool");
+    return NULL;
+  }
+  bool is_connected = (is_connected_obj != Py_False);
+
+  setset* search_space = NULL;
+  if (graphset_obj != NULL && graphset_obj != Py_None) {
+    search_space = reinterpret_cast<PySetsetObject*>(graphset_obj)->ss;
+  }
+
+  auto ss = graphillion::SearchRegularGraphs(graph,
+              degree_lower, degree_upper,
+              is_connected, search_space);
+  PySetsetObject* ret = reinterpret_cast<PySetsetObject*>
+      (PySetset_Type.tp_alloc(&PySetset_Type, 0));
+  ret->ss = new setset(ss);
+  return reinterpret_cast<PyObject*>(ret);
+}
+
 static PyObject* graph_partitions(PyObject*, PyObject* args, PyObject* kwds){
   static char s1[] = "graph";
   static char s2[] = "num_comp_lb";
@@ -1849,6 +1920,7 @@ static PyMethodDef module_methods[] = {
   {"_num_elems", setset_num_elems, METH_VARARGS, ""},
   {"_graphs", reinterpret_cast<PyCFunction>(graphset_graphs), METH_VARARGS | METH_KEYWORDS, ""},
   {"_show_messages", reinterpret_cast<PyCFunction>(graphset_show_messages), METH_O, ""},
+  {"_regular_graphs", reinterpret_cast<PyCFunction>(regular_graphs), METH_VARARGS | METH_KEYWORDS, ""},
   {"_partitions", reinterpret_cast<PyCFunction>(graph_partitions), METH_VARARGS | METH_KEYWORDS, ""},
   {"_balanced_partitions", reinterpret_cast<PyCFunction>(balanced_partitions), METH_VARARGS | METH_KEYWORDS, ""},
   {"_reliability", reinterpret_cast<PyCFunction>(reliability), METH_VARARGS | METH_KEYWORDS, ""},
