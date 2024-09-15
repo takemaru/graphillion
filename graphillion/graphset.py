@@ -2422,8 +2422,10 @@ class GraphSet(object):
         if degree == None:
             degree = (1, len(GraphSet._vertices))
 
+        ss = None if graphset is None else graphset._ss
+
         ss = _graphillion._regular_graphs(graph=graph,
-                                          degree=degree, is_connected=is_connected,graphset=graphset)
+                                          degree=degree, is_connected=is_connected,graphset=ss)
         return GraphSet(ss)
 
     @staticmethod
@@ -2536,6 +2538,41 @@ class GraphSet(object):
             return GraphSet({}).non_supergraphs(odd_cycle_gs)
 
         return graphset.non_supergraphs(odd_cycle_gs)
+
+    @staticmethod
+    def regular_bipartite_graphs(degree=None, is_connected=True, graphset=None):
+        """Returns a GraphSet of regular bipartite subgraphs.
+
+        Example:
+          >>> GraphSet.regular_bipartite_graphs()
+
+          # The degree is 3 and the graphs are not necessarily connected.
+          >>> GraphSet.regular_graphs(3, False)
+
+          # The degree is at least 2 and at most 5, and
+          # the graphs are connected.
+          >>> GraphSet.regular_graphs((2, 5), True)
+
+        Args:
+          degree: Tuple or Integer. If it is a tuple (l, u),
+            the degree is at least l and at most u.
+            If it is an integer d, the degree is d.
+            If it is None, the degree is arbitrary.
+          is_connected: Bool. If it is True, the graphs are
+            connected. If it is False, the graphs are
+            not necessarily connected.
+          graphset: Optional. A GraphSet object. Subgraphs to be stored
+            are selected from this object.
+
+        Returns:
+          A new GraphSet object.
+  
+        See Also:
+          regular_graphs()
+          bipartite_graphs()
+        """
+        bi_graphs = GraphSet.bipartite_graphs(graphset=graphset)
+        return GraphSet.regular_graphs(degree=degree, is_connected=is_connected, graphset=bi_graphs)
 
     @staticmethod
     def show_messages(flag=True):
