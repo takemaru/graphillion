@@ -137,7 +137,12 @@ class GraphSet(object):
                 obj = d
             self._ss = setset(obj)
         methods = ['graphs', 'connected_components', 'cliques', 'trees',
-                   'forests', 'cycles', 'paths']
+                   'forests', 'cycles', 'paths', 'matchings', 'perfect_matchings',
+                   'k_matchings', 'b_matchings', 'k_factors', 'f_factors',
+                   'regular_graphs', 'forbidden_induced_subgraphs', 'bipartite_graphs',
+                   'regular_bipartite_graphs', 'steiner_subgraphs', 'steiner_trees',
+                   'steiner_cycles', 'steiner_paths', 'degree_distribution_graphs',
+                   'letter_P_graphs']
         for method in methods:
             setattr(self, method, partial(getattr(GraphSet, method), graphset=self))
 
