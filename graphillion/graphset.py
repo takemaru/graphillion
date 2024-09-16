@@ -2526,7 +2526,7 @@ class GraphSet(object):
         return GraphSet(ss)
 
     @staticmethod
-    def forbidden_induced_subgraphs(graphset=None):
+    def forbidden_induced_subgraphs(forbidden_graphset=None):
         """Returns a GraphSet characterized by forbidden induced subgraphs.
 
         Examples:
@@ -2541,7 +2541,7 @@ class GraphSet(object):
             graph.append(
                 (pickle.dumps(e[0], protocol=0), pickle.dumps(e[1], protocol=0)))
 
-        ss = None if graphset is None else graphset._ss
+        ss = None if forbidden_graphset is None else forbidden_graphset._ss
 
         ss = _graphillion._forbidden_induced_subgraphs(graph=graph, graphset=ss)
         return GraphSet(ss)
