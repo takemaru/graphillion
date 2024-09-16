@@ -2022,6 +2022,42 @@ class GraphSet(object):
                                num_edges=ne, graphset=graphset)
 
     @staticmethod
+    def bicliques(a, b, graphset=None):
+        """Returns a GraphSet of (a, b)-bicliques ((a, b)-complete bipartite graphs).
+        Currently, the case of a == b is supported.
+
+        This method can be parallelized with OpenMP by specifying the
+        environmental variable `OMP_NUM_THREADS`:
+
+          `$ OMP_NUM_THREADS=4 python your_graphillion_script.py`
+
+        Examples:
+          >>> GraphSet.set_universe([(1, 2), (1, 3), (1, 4), (1, 5), (2, 3), (2, 4),
+                                     (2, 5), (3, 4), (3, 5), (4, 5)])
+          >>> GraphSet.bicliques(4)
+
+        Args:
+          a: An integer.  The number of degrees of the vertices in the left part.
+          b: An integer.  The number of degrees of the vertices in the right part.
+            a == b must hold.
+
+          graphset: Optional.  A GraphSet object.  Cliques to be
+            stored are selected from this object.
+
+        Returns:
+          A new GraphSet object.
+
+        See Also:
+          graphs()
+        """
+        if a != b:
+            TypeError('a == b must hold.')
+        gs = GraphSet.regular_bipartite_graphs(degree=a,
+                                                is_connected=True,
+                                                graphset=graphset)
+        return gs.graphs(num_edges=a*a)
+
+    @staticmethod
     def trees(root=None, is_spanning=False, graphset=None):
         """Returns a GraphSet of trees.
 

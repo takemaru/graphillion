@@ -404,6 +404,14 @@ class TestGraphSet(unittest.TestCase):
         d = GraphSet.show_messages(a)
         self.assertFalse(d)
 
+    def test_bicliques(self):
+        GraphSet.set_universe([(1, 2), (1, 3), (1, 4), (2, 3), (2, 4), (3, 4)])
+
+        gs = GraphSet.bicliques(2, 2)
+        self.assertEqual(len(gs), 3)
+        self.assertTrue([(1, 2), (1, 4), (2, 3), (3, 4)] in gs)
+        self.assertTrue([(1, 2)] not in gs)
+
     def test_regular_graphs(self):
         GraphSet.set_universe([(1, 2), (1, 4), (2, 3), (2, 5), (3, 6), (4, 5),
                                (5, 6)])
