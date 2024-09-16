@@ -693,16 +693,25 @@ class TestGraphSet(unittest.TestCase):
         |  /
         3 --- 4
         """
-        gs = GraphSet.bipartite_graphs()
+        gs = GraphSet.bipartite_graphs(is_connected=False)
         self.assertEqual(len(gs), 2 ** 4 - 2)
         self.assertTrue([(1, 2), (2, 3), (3, 4)] in gs)
+        self.assertTrue([(1, 2), (3, 4)] in gs)
         self.assertTrue([] in gs)
+        self.assertTrue([(1, 2), (1, 3), (2, 3)] not in gs)
+        self.assertTrue([(1, 2), (1, 3), (2, 3), (3, 4)] not in gs)
+
+        gs = GraphSet.bipartite_graphs(is_connected=True)
+        self.assertEqual(len(gs), 13)
+        self.assertTrue([(1, 2), (2, 3), (3, 4)] in gs)
+        self.assertTrue([] in gs)
+        self.assertTrue([(1, 2), (3, 4)] not in gs)
         self.assertTrue([(1, 2), (1, 3), (2, 3)] not in gs)
         self.assertTrue([(1, 2), (1, 3), (2, 3), (3, 4)] not in gs)
 
         graphset = GraphSet(
             [[(1, 2), (1, 3), (2, 3)], [(1, 2), (2, 3), (3, 4)]])
-        gs = GraphSet.bipartite_graphs(graphset=graphset)
+        gs = GraphSet.bipartite_graphs(is_connected=False, graphset=graphset)
         self.assertTrue([(1, 2), (2, 3), (3, 4)] in gs)
         self.assertTrue([(1, 2), (1, 3), (3, 4)] not in gs)
 
@@ -710,7 +719,7 @@ class TestGraphSet(unittest.TestCase):
         """
         1 --- 2 --- 3 --- 4 --- 5
         """
-        gs = GraphSet.bipartite_graphs()
+        gs = GraphSet.bipartite_graphs(is_connected=False)
         self.assertEqual(len(gs), 16)
 
     def test_degree_distribution_graphs(self):

@@ -2515,7 +2515,7 @@ class GraphSet(object):
         raise TypeError('chordal_graphs moved to GraphClass.chordal_graphs()')
 
     @staticmethod
-    def bipartite_graphs(graphset=None):
+    def bipartite_graphs(is_connected=True, graphset=None):
         """Returns a GraphSet of bipartite subgraphs.
 
         Example:
@@ -2539,9 +2539,15 @@ class GraphSet(object):
         odd_cycle_gs = odd_gs.cycles()
 
         if graphset is None:
-            return GraphSet({}).non_supergraphs(odd_cycle_gs)
+            gs = GraphSet({}).non_supergraphs(odd_cycle_gs)
+        else:
+            gs = graphset.non_supergraphs(odd_cycle_gs)
 
-        return graphset.non_supergraphs(odd_cycle_gs)
+        if is_connected:
+            # The empty set is a bipartite graph.
+            return gs.graphs(vertex_groups=[[]]) | GraphSet([[]])
+        else:
+            return gs
 
     @staticmethod
     def regular_bipartite_graphs(degree=None, is_connected=True, graphset=None):
@@ -2575,7 +2581,7 @@ class GraphSet(object):
           regular_graphs()
           bipartite_graphs()
         """
-        bi_graphs = GraphSet.bipartite_graphs(graphset=graphset)
+        bi_graphs = GraphSet.bipartite_graphs(is_connected=is_connected, graphset=graphset)
         return GraphSet.regular_graphs(degree=degree, is_connected=is_connected, graphset=bi_graphs)
 
     @staticmethod
