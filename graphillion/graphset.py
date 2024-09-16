@@ -2574,6 +2574,84 @@ class GraphSet(object):
         return GraphSet.regular_graphs(degree=degree, is_connected=is_connected, graphset=bi_graphs)
 
     @staticmethod
+    def steiner_subgraphs(terminals, graphset=None):
+        """Returns a GraphSet of Steiner subgraphs.
+          A Steiner subgraph is a subgraph that contains all vertices in "terminals".
+
+        Example:
+          >>> GraphSet.steiner_subgraphs([1, 2, 3])
+
+        Args:
+          terminals: A list of vertices to be connected.
+          graphset: Optional. A GraphSet object. Subgraphs to be stored
+            are selected from this object.
+
+        Returns:
+          A new GraphSet object.
+        """
+        return GraphSet.connected_components(terminals, graphset)
+
+    @staticmethod
+    def steiner_trees(terminals, graphset=None):
+        """Returns a GraphSet of Steiner trees.
+          A Steiner tree is a tree that contains all vertices in "terminals".
+
+        Example:
+          >>> GraphSet.steiner_trees([1, 2, 3])
+
+        Args:
+          terminals: A list of vertices to be connected.
+          graphset: Optional. A GraphSet object. Subgraphs to be stored
+            are selected from this object.
+
+        Returns:
+          A new GraphSet object.
+        """
+        return GraphSet.graphs(vertex_groups=[terminals],
+                               no_loop=True, graphset=graphset)
+
+    @staticmethod
+    def steiner_cycles(terminals, graphset=None):
+        """Returns a GraphSet of Steiner cycles.
+          A Steiner cycle is a cycle that contains all vertices in "terminals".
+
+        Example:
+          >>> GraphSet.steiner_cycles([1, 2, 3])
+
+        Args:
+          terminals: A list of vertices to be connected.
+          graphset: Optional. A GraphSet object. Subgraphs to be stored
+            are selected from this object.
+
+        Returns:
+          A new GraphSet object.
+        """
+        dc = {}
+        for v in GraphSet._vertices:
+            dc[v] = range(0, 3, 2)
+        return GraphSet.graphs(vertex_groups=[terminals], degree_constraints=dc,
+                               graphset=graphset)
+
+    @staticmethod
+    def steiner_paths(terminals, graphset=None):
+        """Returns a GraphSet of Steiner paths.
+          A Steiner path is a path that contains all vertices in "terminals".
+
+        Example:
+          >>> GraphSet.steiner_paths([1, 2, 3])
+
+        Args:
+          terminals: A list of vertices to be connected.
+          graphset: Optional. A GraphSet object. Subgraphs to be stored
+            are selected from this object.
+
+        Returns:
+          A new GraphSet object.
+        """
+        gs = GraphSet.paths(graphset)
+        return GraphSet.graphs(vertex_groups=[terminals], graphset=gs)
+
+    @staticmethod
     def show_messages(flag=True):
         """Enables/disables status messages.
 

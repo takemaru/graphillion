@@ -446,6 +446,32 @@ class TestGraphSet(unittest.TestCase):
         self.assertTrue([(1, 4), (2, 5), (3, 6)] not in gs)
         self.assertTrue([(1, 2), (1, 5), (2, 3), (3, 6), (5, 6)] not in gs)
 
+    def test_steiner(self):
+        GraphSet.set_universe([(1, 2), (1, 4), (2, 3), (2, 5), (4, 5), (4, 7),
+                                (3, 6), (5, 6), (5, 8), (6, 9), (7, 8), (8, 9)])
+        terminals = [1, 3, 8]
+
+        gs = GraphSet.steiner_subgraphs(terminals=terminals)
+        self.assertEqual(len(gs), 830)
+        self.assertTrue([(1, 2), (1, 4), (2, 3), (2, 5), (4, 5), (5, 8)] in gs)
+        self.assertTrue([(1, 2), (1, 4), (2, 3), (2, 5), (4, 5)] not in gs)
+
+        gs = GraphSet.steiner_trees(terminals=terminals)
+        self.assertEqual(len(gs), 438)
+        self.assertTrue([(1, 2), (1, 4), (2, 3), (4, 7), (7, 8), (8, 9)] in gs)
+        self.assertTrue([(1, 2), (1, 4), (2, 3), (2, 5), (4, 5), (5, 8)] not in gs)
+
+        gs = GraphSet.steiner_cycles(terminals=terminals)
+        self.assertEqual(len(gs), 3)
+        self.assertTrue([(1, 2), (1, 4), (2, 3), (3, 6), (4, 7), (5, 6), (5, 8), (7, 8)] in gs)
+        self.assertTrue([(1, 2), (1, 4), (2, 3), (4, 7), (7, 8), (8, 9)] not in gs)
+
+        gs = GraphSet.steiner_paths(terminals=terminals)
+        self.assertEqual(len(gs), 73)
+        self.assertTrue([(1, 2), (2, 3), (3, 6), (5, 6), (5, 8), (7, 8)] in gs)
+        self.assertTrue([(1, 2), (2, 3), (3, 6), (5, 6), (5, 8), (7, 8), (8, 9)] not in gs)
+
+
     def test_partitions(self):
         GraphSet.set_universe([(1, 2), (1, 4), (2, 3), (2, 5), (3, 6), (4, 5),
                                (5, 6)])
