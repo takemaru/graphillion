@@ -2896,7 +2896,7 @@ class GraphSet(object):
         return GraphSet(ss)
 
     @staticmethod
-    def letter_P_graphs():
+    def letter_P_graphs(graphset=None):
         """Returns a GraphSet whose shape looks like letter 'P'.
             That is, each subgraph has one vertex with degree 1,
             one vertex with degree 3, and any number of vertices with
@@ -2909,7 +2909,7 @@ class GraphSet(object):
             A new GraphSet object.
         """
         deg_dist = {0: GraphSet.DegreeDistribution_Any, 1: 1, 2: GraphSet.DegreeDistribution_Any, 3: 1}
-        return GraphSet.degree_distribution_graphs(deg_dist, True)
+        return GraphSet.degree_distribution_graphs(deg_dist, is_connected=True, graphset=graphset)
 
     @staticmethod
     def _conv_arg(obj):
