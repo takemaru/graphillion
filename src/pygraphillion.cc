@@ -1532,6 +1532,88 @@ static PyObject* regular_graphs(PyObject*, PyObject* args, PyObject* kwds){
   return reinterpret_cast<PyObject*>(ret);
 }
 
+static PyObject* odd_edges_subgraphs(PyObject*, PyObject* args, PyObject* kwds) {
+  static char s1[] = "graph";
+  static char* kwlist[2] = {s1, NULL};
+  PyObject* graph_obj = NULL;
+  if (!PyArg_ParseTupleAndKeywords(args, kwds, "O", kwlist, &graph_obj)) {
+    return NULL;
+  }
+
+  vector<pair<string, string> > graph;
+  if (!translate_graph(graph_obj, graph)) {
+    return NULL;
+  }
+
+  auto ss = graphillion::SearchOddEdgeSubgraphs(graph);
+  PySetsetObject* ret = reinterpret_cast<PySetsetObject*>(
+      PySetset_Type.tp_alloc(&PySetset_Type, 0));
+  ret->ss = new setset(ss);
+  return reinterpret_cast<PyObject*>(ret);
+}
+
+static PyObject* degree_distribution_graphs(PyObject*, PyObject* args, PyObject* kwds) {
+
+  static char s1[] = "graph";
+  static char s2[] = "deg_dist";
+  static char s3[] = "is_connected";
+  static char s4[] = "graphset";
+  static char* kwlist[5] = {s1, s2, s3, s4, NULL};
+
+  PyObject* graph_obj = NULL;
+  PyObject* deg_dist = NULL;
+  PyObject* is_connected = NULL;
+  PyObject* graphset_obj = NULL;
+  if (!PyArg_ParseTupleAndKeywords(args, kwds, "OOO|O", kwlist, &graph_obj,
+                                   &deg_dist, &is_connected, &graphset_obj)) {
+    return NULL;
+  }
+
+  vector<pair<string, string> > graph;
+  if (!translate_graph(graph_obj, graph)) {
+    return NULL;
+  }
+
+  PyObject* key, *value;
+  Py_ssize_t pos = 0;
+
+  std::vector<int> deg_ranges;
+  while (PyDict_Next(deg_dist, &pos, &key, &value)) {
+    if (!PyInt_Check(key)) {
+      PyErr_SetString(PyExc_TypeError, "key must be an integer.");
+      return NULL;
+    }
+    if (PyInt_Check(value)) {
+      int k = PyInt_AsLong(key);
+      int v = PyInt_AsLong(value);
+      if (static_cast<int>(deg_ranges.size()) <= k) {
+        deg_ranges.resize(k + 1);
+      }
+      deg_ranges[k] = v;
+    } else {
+      PyErr_SetString(PyExc_TypeError, "Currently, value must be an integer.");
+      return NULL;
+    }
+  }
+
+  if (!PyBool_Check(is_connected)) {
+    PyErr_SetString(PyExc_TypeError, "not bool");
+    return NULL;
+  }
+
+  setset* search_space = NULL;
+  if (graphset_obj != NULL && graphset_obj != Py_None) {
+    search_space = reinterpret_cast<PySetsetObject*>(graphset_obj)->ss;
+  }
+
+  auto ss = graphillion::SearchDegreeDistributionGraphs(graph, deg_ranges,
+    is_connected != Py_False, search_space);
+  PySetsetObject* ret = reinterpret_cast<PySetsetObject*>
+      (PySetset_Type.tp_alloc(&PySetset_Type, 0));
+  ret->ss = new setset(ss);
+  return reinterpret_cast<PyObject*>(ret);
+}
+
 static PyObject* graph_partitions(PyObject*, PyObject* args, PyObject* kwds){
   static char s1[] = "graph";
   static char s2[] = "num_comp_lb";
@@ -1637,71 +1719,6 @@ static PyObject* balanced_partitions(PyObject*, PyObject* args, PyObject* kwds) 
   return reinterpret_cast<PyObject*>(ret);
 }
 
-static PyObject* reliability(PyObject*, PyObject* args, PyObject* kwds) {
-  static char s1[] = "graph";
-  static char s2[] = "probabilities";
-  static char s3[] = "terminals";
-  static char* kwlist[4] = {s1, s2, s3, NULL};
-
-  PyObject* graph_obj = NULL;
-  PyObject* prob_list_obj = NULL;
-  PyObject* terminals_obj = NULL;
-  if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|OO", kwlist, &graph_obj,
-                                   &prob_list_obj, &terminals_obj)) {
-    return NULL;
-  }
-
-  vector<pair<string, string> > graph;
-  if (!translate_graph(graph_obj, graph)) {
-    return NULL;
-  }
-
-  vector<double> probabilities;
-  if (prob_list_obj == NULL || prob_list_obj == Py_None) {
-    PyErr_SetString(PyExc_TypeError, "no prob_list");
-    return NULL;
-  }
-  {
-    PyObject* i = PyObject_GetIter(prob_list_obj);
-    if (i == NULL) return NULL;
-    PyObject* p;
-    while ((p = PyIter_Next(i))) {
-      if (!PyFloat_Check(p)) {
-        PyErr_SetString(PyExc_TypeError, "invalid probability");
-        Py_DECREF(p);
-        return NULL;
-      }
-      probabilities.push_back(PyFloat_AsDouble(p));
-      Py_DECREF(p);
-    }
-    Py_DECREF(i);
-  }
-
-  if (terminals_obj == NULL || terminals_obj == Py_None) {
-    PyErr_SetString(PyExc_TypeError, "no terminals");
-    return NULL;
-  }
-  vector<string> terminals;
-  {
-    PyObject* i = PyObject_GetIter(terminals_obj);
-    if (i == NULL) return NULL;
-    PyObject* term;
-    while ((term = PyIter_Next(i))) {
-      if (!PyBytes_Check(term)) {
-        PyErr_SetString(PyExc_TypeError, "invalid terminals");
-        Py_DECREF(term);
-        return NULL;
-      }
-      terminals.push_back(PyBytes_AsString(term));
-      Py_DECREF(term);
-    }
-    Py_DECREF(i);
-  }
-
-  auto prob = graphillion::reliability(graph, probabilities, terminals);
-  return PyFloat_FromDouble(prob);
-}
-
 static PyObject* induced_graphs(PyObject*, PyObject* args, PyObject* kwds){
   static char s1[] = "graph";
   static char* kwlist[2] = {s1, NULL};
@@ -1776,27 +1793,6 @@ static PyObject* weighted_induced_graphs(PyObject*, PyObject* args,
   return reinterpret_cast<PyObject*>(ret);
 }
 
-static PyObject* chordal_graphs(PyObject*, PyObject* args, PyObject* kwds){
-  static char s1[] = "graph";
-  static char* kwlist[2] = {s1, NULL};
-
-  PyObject* graph_obj = NULL;
-  if (!PyArg_ParseTupleAndKeywords(args, kwds, "O", kwlist, &graph_obj)) {
-    return NULL;
-  }
-
-  vector<pair<string, string> > graph;
-  if (!translate_graph(graph_obj, graph)) {
-    return NULL;
-  }
-
-  auto ss = graphillion::SearchChordals(graph);
-  PySetsetObject* ret = reinterpret_cast<PySetsetObject*>
-      (PySetset_Type.tp_alloc(&PySetset_Type, 0));
-  ret->ss = new setset(ss);
-  return reinterpret_cast<PyObject*>(ret);
-}
-
 static PyObject* forbidden_induced_subgraphs(PyObject*, PyObject* args, PyObject* kwds){
   static char s1[] = "graph";
   static char s2[] = "graphset";
@@ -1826,9 +1822,10 @@ static PyObject* forbidden_induced_subgraphs(PyObject*, PyObject* args, PyObject
   return reinterpret_cast<PyObject*>(ret);
 }
 
-static PyObject* odd_edges_subgraphs(PyObject*, PyObject* args, PyObject* kwds) {
+static PyObject* chordal_graphs(PyObject*, PyObject* args, PyObject* kwds){
   static char s1[] = "graph";
   static char* kwlist[2] = {s1, NULL};
+
   PyObject* graph_obj = NULL;
   if (!PyArg_ParseTupleAndKeywords(args, kwds, "O", kwlist, &graph_obj)) {
     return NULL;
@@ -1839,27 +1836,24 @@ static PyObject* odd_edges_subgraphs(PyObject*, PyObject* args, PyObject* kwds) 
     return NULL;
   }
 
-  auto ss = graphillion::SearchOddEdgeSubgraphs(graph);
-  PySetsetObject* ret = reinterpret_cast<PySetsetObject*>(
-      PySetset_Type.tp_alloc(&PySetset_Type, 0));
+  auto ss = graphillion::SearchChordals(graph);
+  PySetsetObject* ret = reinterpret_cast<PySetsetObject*>
+      (PySetset_Type.tp_alloc(&PySetset_Type, 0));
   ret->ss = new setset(ss);
   return reinterpret_cast<PyObject*>(ret);
 }
 
-static PyObject* degree_distribution_graphs(PyObject*, PyObject* args, PyObject* kwds) {
-
+static PyObject* reliability(PyObject*, PyObject* args, PyObject* kwds) {
   static char s1[] = "graph";
-  static char s2[] = "deg_dist";
-  static char s3[] = "is_connected";
-  static char s4[] = "graphset";
-  static char* kwlist[5] = {s1, s2, s3, s4, NULL};
+  static char s2[] = "probabilities";
+  static char s3[] = "terminals";
+  static char* kwlist[4] = {s1, s2, s3, NULL};
 
   PyObject* graph_obj = NULL;
-  PyObject* deg_dist = NULL;
-  PyObject* is_connected = NULL;
-  PyObject* graphset_obj = NULL;
-  if (!PyArg_ParseTupleAndKeywords(args, kwds, "OOO|O", kwlist, &graph_obj,
-                                   &deg_dist, &is_connected, &graphset_obj)) {
+  PyObject* prob_list_obj = NULL;
+  PyObject* terminals_obj = NULL;
+  if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|OO", kwlist, &graph_obj,
+                                   &prob_list_obj, &terminals_obj)) {
     return NULL;
   }
 
@@ -1868,44 +1862,50 @@ static PyObject* degree_distribution_graphs(PyObject*, PyObject* args, PyObject*
     return NULL;
   }
 
-  PyObject* key, *value;
-  Py_ssize_t pos = 0;
-
-  std::vector<int> deg_ranges;
-  while (PyDict_Next(deg_dist, &pos, &key, &value)) {
-    if (!PyInt_Check(key)) {
-      PyErr_SetString(PyExc_TypeError, "key must be an integer.");
-      return NULL;
-    }
-    if (PyInt_Check(value)) {
-      int k = PyInt_AsLong(key);
-      int v = PyInt_AsLong(value);
-      if (static_cast<int>(deg_ranges.size()) <= k) {
-        deg_ranges.resize(k + 1);
-      }
-      deg_ranges[k] = v;
-    } else {
-      PyErr_SetString(PyExc_TypeError, "Currently, value must be an integer.");
-      return NULL;
-    }
-  }
-
-  if (!PyBool_Check(is_connected)) {
-    PyErr_SetString(PyExc_TypeError, "not bool");
+  vector<double> probabilities;
+  if (prob_list_obj == NULL || prob_list_obj == Py_None) {
+    PyErr_SetString(PyExc_TypeError, "no prob_list");
     return NULL;
   }
-
-  setset* search_space = NULL;
-  if (graphset_obj != NULL && graphset_obj != Py_None) {
-    search_space = reinterpret_cast<PySetsetObject*>(graphset_obj)->ss;
+  {
+    PyObject* i = PyObject_GetIter(prob_list_obj);
+    if (i == NULL) return NULL;
+    PyObject* p;
+    while ((p = PyIter_Next(i))) {
+      if (!PyFloat_Check(p)) {
+        PyErr_SetString(PyExc_TypeError, "invalid probability");
+        Py_DECREF(p);
+        return NULL;
+      }
+      probabilities.push_back(PyFloat_AsDouble(p));
+      Py_DECREF(p);
+    }
+    Py_DECREF(i);
   }
 
-  auto ss = graphillion::SearchDegreeDistributionGraphs(graph, deg_ranges,
-    is_connected != Py_False, search_space);
-  PySetsetObject* ret = reinterpret_cast<PySetsetObject*>
-      (PySetset_Type.tp_alloc(&PySetset_Type, 0));
-  ret->ss = new setset(ss);
-  return reinterpret_cast<PyObject*>(ret);
+  if (terminals_obj == NULL || terminals_obj == Py_None) {
+    PyErr_SetString(PyExc_TypeError, "no terminals");
+    return NULL;
+  }
+  vector<string> terminals;
+  {
+    PyObject* i = PyObject_GetIter(terminals_obj);
+    if (i == NULL) return NULL;
+    PyObject* term;
+    while ((term = PyIter_Next(i))) {
+      if (!PyBytes_Check(term)) {
+        PyErr_SetString(PyExc_TypeError, "invalid terminals");
+        Py_DECREF(term);
+        return NULL;
+      }
+      terminals.push_back(PyBytes_AsString(term));
+      Py_DECREF(term);
+    }
+    Py_DECREF(i);
+  }
+
+  auto prob = graphillion::reliability(graph, probabilities, terminals);
+  return PyFloat_FromDouble(prob);
 }
 
 static PyObject* setset_get_vertices_from_top(PySetsetObject* self, PyObject* args) {
@@ -1928,15 +1928,15 @@ static PyMethodDef module_methods[] = {
   {"_graphs", reinterpret_cast<PyCFunction>(graphset_graphs), METH_VARARGS | METH_KEYWORDS, ""},
   {"_show_messages", reinterpret_cast<PyCFunction>(graphset_show_messages), METH_O, ""},
   {"_regular_graphs", reinterpret_cast<PyCFunction>(regular_graphs), METH_VARARGS | METH_KEYWORDS, ""},
-  {"_partitions", reinterpret_cast<PyCFunction>(graph_partitions), METH_VARARGS | METH_KEYWORDS, ""},
-  {"_balanced_partitions", reinterpret_cast<PyCFunction>(balanced_partitions), METH_VARARGS | METH_KEYWORDS, ""},
-  {"_reliability", reinterpret_cast<PyCFunction>(reliability), METH_VARARGS | METH_KEYWORDS, ""},
-  {"_induced_graphs", reinterpret_cast<PyCFunction>(induced_graphs), METH_VARARGS | METH_KEYWORDS, ""},
-  {"_weighted_induced_graphs", reinterpret_cast<PyCFunction>(weighted_induced_graphs), METH_VARARGS | METH_KEYWORDS, ""},
-  {"_chordal_graphs", reinterpret_cast<PyCFunction>(chordal_graphs), METH_VARARGS | METH_KEYWORDS, ""},
-  {"_forbidden_induced_subgraphs", reinterpret_cast<PyCFunction>(forbidden_induced_subgraphs), METH_VARARGS | METH_KEYWORDS, ""},
   {"_odd_edges_subgraphs", reinterpret_cast<PyCFunction>(odd_edges_subgraphs), METH_VARARGS | METH_KEYWORDS, ""},
   {"_degree_distribution_graphs", reinterpret_cast<PyCFunction>(degree_distribution_graphs), METH_VARARGS | METH_KEYWORDS, ""},
+  {"_partitions", reinterpret_cast<PyCFunction>(graph_partitions), METH_VARARGS | METH_KEYWORDS, ""},
+  {"_balanced_partitions", reinterpret_cast<PyCFunction>(balanced_partitions), METH_VARARGS | METH_KEYWORDS, ""},
+  {"_induced_graphs", reinterpret_cast<PyCFunction>(induced_graphs), METH_VARARGS | METH_KEYWORDS, ""},
+  {"_weighted_induced_graphs", reinterpret_cast<PyCFunction>(weighted_induced_graphs), METH_VARARGS | METH_KEYWORDS, ""},
+  {"_forbidden_induced_subgraphs", reinterpret_cast<PyCFunction>(forbidden_induced_subgraphs), METH_VARARGS | METH_KEYWORDS, ""},
+  {"_chordal_graphs", reinterpret_cast<PyCFunction>(chordal_graphs), METH_VARARGS | METH_KEYWORDS, ""},
+  {"_reliability", reinterpret_cast<PyCFunction>(reliability), METH_VARARGS | METH_KEYWORDS, ""},
   {"_get_vertices_from_top", reinterpret_cast<PyCFunction>(setset_get_vertices_from_top), METH_VARARGS, ""},
   {NULL}  /* Sentinel */
 };

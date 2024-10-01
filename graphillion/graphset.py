@@ -136,12 +136,13 @@ class GraphSet(object):
                     d[k] = [GraphSet._conv_edge(e) for e in l]
                 obj = d
             self._ss = setset(obj)
-        methods = ['graphs', 'connected_components', 'cliques', 'trees',
-                   'forests', 'cycles', 'paths', 'matchings', 'perfect_matchings',
-                   'k_matchings', 'b_matchings', 'k_factors', 'f_factors',
-                   'regular_graphs', 'forbidden_induced_subgraphs', 'bipartite_graphs',
-                   'regular_bipartite_graphs', 'steiner_subgraphs', 'steiner_trees',
-                   'steiner_cycles', 'steiner_paths', 'degree_distribution_graphs',
+        methods = ['graphs', 'connected_components', 'cliques', 'bicliques',
+                   'trees', 'forests', 'cycles', 'paths', 'matchings',
+                   'perfect_matchings', 'k_matchings', 'b_matchings',
+                   'k_factors', 'f_factors', 'regular_graphs',
+                   'bipartite_graphs', 'regular_bipartite_graphs',
+                   'steiner_subgraphs', 'steiner_trees', 'steiner_cycles',
+                   'steiner_paths', 'degree_distribution_graphs',
                    'letter_P_graphs']
         for method in methods:
             setattr(self, method, partial(getattr(GraphSet, method), graphset=self))
@@ -2467,90 +2468,6 @@ class GraphSet(object):
         return GraphSet(ss)
 
     @staticmethod
-    def induced_graphs():
-        """Return a GraphSet with connected induced graphs.
-
-        Example: all connected induced graphs (more than a vertex)
-          >>> gs = GraphSet.induced_graphs()
-          GraphSet([[(1, 2), (1, 4), (2, 3), (2, 5), (3, 6), (4, 5), (5, 6)],
-          [(1, 2), (1, 4), (2, 3), (2, 5), (4, 5)], [(1, 2), (1, 4), (2, 5), (4, 5), (5, 6)]] ...
-
-        Returns:
-          A new GraphSet Object.
-        """
-        graph = []
-        for e in setset.universe():
-            assert e[0] in GraphSet._vertices and e[1] in GraphSet._vertices
-            graph.append(
-                (pickle.dumps(e[0], protocol=0), pickle.dumps(e[1], protocol=0)))
-
-        ss = _graphillion._induced_graphs(graph=graph)
-        return GraphSet(ss)
-
-    @staticmethod
-    def weighted_induced_graphs(weight_list=None, lower=0, upper=4294967295//2):
-        """Return a GraphSet with weighted connected induced graphs.
-
-        Examples: weighted connected induced graphs
-          >>> wl = {}
-          >>> for v in range(1, 7):
-          >>>   wl[v] = v
-          >>> gs = GraphSet.weighted_induced_graphs(weight_list=wl, lower=10, upper=17)
-          GraphSet([[(5, 6)], [(1, 4), (4, 5)], [(2, 5), (4, 5)], [(2, 3), (2, 5)], [( ...
-
-        Args:
-          weight_list: Optional. A list of int. Vertex weights. default weight is 1.
-          lower: Optional. int. the lower bound of the sum of vertex weights
-            in each connected component. (including)
-          upper: Optional. int. the upper bound of the sum of vertex weights
-            in each connected component. (including)
-
-        Returns:
-          A new GraphSet Object.
-        """
-        graph = []
-        for e in setset.universe():
-            assert e[0] in GraphSet._vertices and e[1] in GraphSet._vertices
-            graph.append(
-                (pickle.dumps(e[0], protocol=0), pickle.dumps(e[1], protocol=0)))
-
-        wl = None
-        if weight_list is not None:
-            wl = {}
-            for v, r in viewitems(weight_list):
-                if v not in GraphSet._vertices:
-                    raise KeyError(v)
-                wl[pickle.dumps(v, protocol=0)] = r
-
-        ss = _graphillion._weighted_induced_graphs(graph=graph, weight_list=wl, lower=lower, upper=upper)
-        return GraphSet(ss)
-
-    @staticmethod
-    def forbidden_induced_subgraphs(forbidden_graphset=None):
-        """Returns a GraphSet characterized by forbidden induced subgraphs.
-
-        Examples:
-            >>> GraphSet.forbidden_induced_subgraphs(GraphSet.cycles())
-
-        Returns:
-            A new GraphSet object.
-        """
-        graph = []
-        for e in setset.universe():
-            assert e[0] in GraphSet._vertices and e[1] in GraphSet._vertices
-            graph.append(
-                (pickle.dumps(e[0], protocol=0), pickle.dumps(e[1], protocol=0)))
-
-        ss = None if forbidden_graphset is None else forbidden_graphset._ss
-
-        ss = _graphillion._forbidden_induced_subgraphs(graph=graph, graphset=ss)
-        return GraphSet(ss)
-
-    @staticmethod
-    def chordal_graphs():
-        raise TypeError('chordal_graphs moved to GraphClass.chordal_graphs()')
-
-    @staticmethod
     def bipartite_graphs(is_connected=True, graphset=None):
         """Returns a GraphSet of bipartite subgraphs.
 
@@ -2698,19 +2615,215 @@ class GraphSet(object):
         gs = GraphSet.paths(graphset)
         return GraphSet.graphs(vertex_groups=[terminals], graphset=gs)
 
-    @staticmethod
-    def show_messages(flag=True):
-        """Enables/disables status messages.
+    DegreeDistribution_Any = -1
 
+    @staticmethod
+    def degree_distribution_graphs(deg_dist, is_connected, graphset=None):
+        """Returns a GraphSet having specified degree distribution.
+
+        Examples:
+            >>> GraphSet.set_universe([(1, 2), (1, 4), (2, 3),
+                                        (2, 5), (3, 6), (4, 5),
+                                        (5, 6)])
+            >>> deg_dist = {0: GraphSet.DegreeDistribution_Any,
+                            1: 2, 2: 1}
+            # This means that each subgraph has 2 vertices with degree 1,
+            # 1 vertex with degree 2, and any number of vertices with
+            # degree 0.
+            >>> gs = GraphSet.degree_distribution_graphs(deg_dist, True)
         Args:
-          flag: Optional.  True or False.  If True, status messages are
-          enabled.  If False, they are disabled (initial setting).
+          deg_dist: dictionary whose key and value mean that
+                    each subgraph has 'value' number of vertices
+                    with degree 'key'. If the value is
+                    GraphSet.DegreeDistribution_Any, it means that
+                    each subgraph has any number of vertices
+                    with degree 'key'.
+          connected: Each subgraph is connected if True.
+                      Each subgraph is not necessarily connected if False.
 
         Returns:
-          The setting before the method call.  True (enabled) or
-          False (disabled).
+            A new GraphSet object.
         """
-        return _graphillion._show_messages(flag)
+        graph = []
+        for e in setset.universe():
+            assert e[0] in GraphSet._vertices and e[1] in GraphSet._vertices
+            graph.append(
+                (pickle.dumps(e[0], protocol=0), pickle.dumps(e[1], protocol=0)))
+
+        ss = _graphillion._degree_distribution_graphs(graph, deg_dist, is_connected, graphset)
+        return GraphSet(ss)
+
+    @staticmethod
+    def letter_P_graphs(graphset=None):
+        """Returns a GraphSet whose shape looks like letter 'P'.
+            That is, each subgraph has one vertex with degree 1,
+            one vertex with degree 3, and any number of vertices with
+            degree 2, and is connected.
+
+        Examples:
+            >>> gs = GraphSet.letter_P_graphs()
+
+        Returns:
+            A new GraphSet object.
+        """
+        deg_dist = {0: GraphSet.DegreeDistribution_Any, 1: 1, 2: GraphSet.DegreeDistribution_Any, 3: 1}
+        return GraphSet.degree_distribution_graphs(deg_dist, is_connected=True, graphset=graphset)
+
+    @staticmethod
+    def partitions(num_comp_lb=1, num_comp_ub=32767):
+        """Returns a GraphSet with partitions of the graph.
+        Examples: partitions with two or three connected components.
+          >>> lb = 2
+          >>> ub = 3
+          >>> GraphSet.partitions(num_comp_lb=lb,num_comp_ub=ub)
+          GraphSet([[(1, 4), (2, 3), (4, 5)], [(1, 2), (1, 4), (2, 3)], [(1, 4), (3, 6 ...
+
+        Args:
+          num_comp_lb: Optional. int. the lower bound of the number of 
+            connected components. (including)
+          num_comp_ub: Optional. int. the upper bound of the number of
+            connected components. (including)
+
+        Returns:
+          A new GraphSet object.
+        """
+        graph = []
+        for e in setset.universe():
+            assert e[0] in GraphSet._vertices and e[1] in GraphSet._vertices
+            graph.append(
+              (pickle.dumps(e[0], protocol=0), pickle.dumps(e[1], protocol=0)))
+
+        ss = _graphillion._partitions(
+          graph=graph, num_comp_lb=num_comp_lb, num_comp_ub=num_comp_ub)
+        return GraphSet(ss)
+
+    @staticmethod
+    def balanced_partitions(weight_list=None, ratio=0.0, lower=0, upper=4294967295 // 4, num_comps=-1):
+        """Returns a GraphSet with balanced partitions of the graph.
+
+        Examples: balanced partitions with disparity less than or equal to 2.0.
+          >>> wl = {}
+          >>> for v in range(1,7):
+          >>>   if v % 2:
+          >>>     wl[v] = 1
+          >>>   else:
+          >>>     wl[v] = 2
+          >>> gs = GraphSet.balanced_partitions(weight_list=wl, ratio=2, num_comps=2, lower=2)
+          GraphSet([[(1, 4), (2, 3), (3, 6), (4, 5)], [(1, 4), (2, 3), (4, 5), (5, 6)] ...
+
+        Args:
+          weight_list: Optional. A list of int. Vertex weights.
+          ratio: Optional. a floating point number more than or equal to 1.0.
+          lower: Optional. int. the lower bound of the sum of vertex weights
+            in each connected component. (including)
+          upper: Optional. int. the upper bound of the sum of vertex weights
+            in each connected component. (including)
+          num_comps: Optional. int. the number of connected components.
+
+        Returns:
+          A new GraphSet object.
+        """
+        graph = []
+        for e in setset.universe():
+            assert e[0] in GraphSet._vertices and e[1] in GraphSet._vertices
+            graph.append(
+                (pickle.dumps(e[0], protocol=0), pickle.dumps(e[1], protocol=0)))
+
+        wl = None
+        if weight_list is not None:
+            wl = {}
+            for v, r in viewitems(weight_list):
+                if v not in GraphSet._vertices:
+                    raise KeyError(v)
+                wl[pickle.dumps(v, protocol=0)] = r
+
+        ss = _graphillion._balanced_partitions(
+            graph=graph, weight_list=wl, ratio=ratio, lower=lower, upper=upper, num_comps=num_comps)
+        return GraphSet(ss)
+
+    @staticmethod
+    def induced_graphs():
+        """Return a GraphSet with connected induced graphs.
+
+        Example: all connected induced graphs (more than a vertex)
+          >>> gs = GraphSet.induced_graphs()
+          GraphSet([[(1, 2), (1, 4), (2, 3), (2, 5), (3, 6), (4, 5), (5, 6)],
+          [(1, 2), (1, 4), (2, 3), (2, 5), (4, 5)], [(1, 2), (1, 4), (2, 5), (4, 5), (5, 6)]] ...
+
+        Returns:
+          A new GraphSet Object.
+        """
+        graph = []
+        for e in setset.universe():
+            assert e[0] in GraphSet._vertices and e[1] in GraphSet._vertices
+            graph.append(
+                (pickle.dumps(e[0], protocol=0), pickle.dumps(e[1], protocol=0)))
+
+        ss = _graphillion._induced_graphs(graph=graph)
+        return GraphSet(ss)
+
+    @staticmethod
+    def weighted_induced_graphs(weight_list=None, lower=0, upper=4294967295//2):
+        """Return a GraphSet with weighted connected induced graphs.
+
+        Examples: weighted connected induced graphs
+          >>> wl = {}
+          >>> for v in range(1, 7):
+          >>>   wl[v] = v
+          >>> gs = GraphSet.weighted_induced_graphs(weight_list=wl, lower=10, upper=17)
+          GraphSet([[(5, 6)], [(1, 4), (4, 5)], [(2, 5), (4, 5)], [(2, 3), (2, 5)], [( ...
+
+        Args:
+          weight_list: Optional. A list of int. Vertex weights. default weight is 1.
+          lower: Optional. int. the lower bound of the sum of vertex weights
+            in each connected component. (including)
+          upper: Optional. int. the upper bound of the sum of vertex weights
+            in each connected component. (including)
+
+        Returns:
+          A new GraphSet Object.
+        """
+        graph = []
+        for e in setset.universe():
+            assert e[0] in GraphSet._vertices and e[1] in GraphSet._vertices
+            graph.append(
+                (pickle.dumps(e[0], protocol=0), pickle.dumps(e[1], protocol=0)))
+
+        wl = None
+        if weight_list is not None:
+            wl = {}
+            for v, r in viewitems(weight_list):
+                if v not in GraphSet._vertices:
+                    raise KeyError(v)
+                wl[pickle.dumps(v, protocol=0)] = r
+
+        ss = _graphillion._weighted_induced_graphs(graph=graph, weight_list=wl, lower=lower, upper=upper)
+        return GraphSet(ss)
+
+    @staticmethod
+    def forbidden_induced_subgraphs(forbidden_graphset=None):
+        """Returns a GraphSet characterized by forbidden induced subgraphs.
+
+        Examples:
+            >>> GraphSet.forbidden_induced_subgraphs(GraphSet.cycles())
+
+        Returns:
+            A new GraphSet object.
+        """
+        graph = []
+        for e in setset.universe():
+            assert e[0] in GraphSet._vertices and e[1] in GraphSet._vertices
+            graph.append(
+                (pickle.dumps(e[0], protocol=0), pickle.dumps(e[1], protocol=0)))
+
+        ss = None if forbidden_graphset is None else forbidden_graphset._ss
+
+        ss = _graphillion._forbidden_induced_subgraphs(graph=graph, graphset=ss)
+        return GraphSet(ss)
+
+    @staticmethod
+    def chordal_graphs():
+        raise TypeError('chordal_graphs moved to GraphClass.chordal_graphs()')
 
     @staticmethod
     def reliability(probabilities, terminals):
@@ -2757,6 +2870,20 @@ class GraphSet(object):
         reliability = _graphillion._reliability(
             graph=graph, probabilities=ps, terminals=terms)
         return reliability
+
+    @staticmethod
+    def show_messages(flag=True):
+        """Enables/disables status messages.
+
+        Args:
+          flag: Optional.  True or False.  If True, status messages are
+          enabled.  If False, they are disabled (initial setting).
+
+        Returns:
+          The setting before the method call.  True (enabled) or
+          False (disabled).
+        """
+        return _graphillion._show_messages(flag)
 
     @staticmethod
     def _traverse(indexed_edges, traversal, source):
@@ -2831,132 +2958,6 @@ class GraphSet(object):
             return sorted_edges
         else:
             raise ValueError('invalid `traversal`: %s' % traversal)
-
-    @staticmethod
-    def partitions(num_comp_lb=1, num_comp_ub=32767):
-        """Returns a GraphSet with partitions of the graph.
-        Examples: partitions with two or three connected components.
-          >>> lb = 2
-          >>> ub = 3
-          >>> GraphSet.partitions(num_comp_lb=lb,num_comp_ub=ub)
-          GraphSet([[(1, 4), (2, 3), (4, 5)], [(1, 2), (1, 4), (2, 3)], [(1, 4), (3, 6 ...
-
-        Args:
-          num_comp_lb: Optional. int. the lower bound of the number of 
-            connected components. (including)
-          num_comp_ub: Optional. int. the upper bound of the number of
-            connected components. (including)
-
-        Returns:
-          A new GraphSet object.
-        """
-        graph = []
-        for e in setset.universe():
-            assert e[0] in GraphSet._vertices and e[1] in GraphSet._vertices
-            graph.append(
-              (pickle.dumps(e[0], protocol=0), pickle.dumps(e[1], protocol=0)))
-
-        ss = _graphillion._partitions(
-          graph=graph, num_comp_lb=num_comp_lb, num_comp_ub=num_comp_ub)
-        return GraphSet(ss)
-
-    @staticmethod
-    def balanced_partitions(weight_list=None, ratio=0.0, lower=0, upper=4294967295 // 4, num_comps=-1):
-        """Returns a GraphSet with balanced partitions of the graph.
-
-        Examples: balanced partitions with disparity less than or equal to 2.0.
-          >>> wl = {}
-          >>> for v in range(1,7):
-          >>>   if v % 2:
-          >>>     wl[v] = 1
-          >>>   else:
-          >>>     wl[v] = 2
-          >>> gs = GraphSet.balanced_partitions(weight_list=wl, ratio=2, num_comps=2, lower=2)
-          GraphSet([[(1, 4), (2, 3), (3, 6), (4, 5)], [(1, 4), (2, 3), (4, 5), (5, 6)] ...
-
-        Args:
-          weight_list: Optional. A list of int. Vertex weights.
-          ratio: Optional. a floating point number more than or equal to 1.0.
-          lower: Optional. int. the lower bound of the sum of vertex weights
-            in each connected component. (including)
-          upper: Optional. int. the upper bound of the sum of vertex weights
-            in each connected component. (including)
-          num_comps: Optional. int. the number of connected components.
-
-        Returns:
-          A new GraphSet object.
-        """
-        graph = []
-        for e in setset.universe():
-            assert e[0] in GraphSet._vertices and e[1] in GraphSet._vertices
-            graph.append(
-                (pickle.dumps(e[0], protocol=0), pickle.dumps(e[1], protocol=0)))
-
-        wl = None
-        if weight_list is not None:
-            wl = {}
-            for v, r in viewitems(weight_list):
-                if v not in GraphSet._vertices:
-                    raise KeyError(v)
-                wl[pickle.dumps(v, protocol=0)] = r
-
-        ss = _graphillion._balanced_partitions(
-            graph=graph, weight_list=wl, ratio=ratio, lower=lower, upper=upper, num_comps=num_comps)
-        return GraphSet(ss)
-
-    DegreeDistribution_Any = -1
-
-    @staticmethod
-    def degree_distribution_graphs(deg_dist, is_connected, graphset=None):
-        """Returns a GraphSet having specified degree distribution.
-
-        Examples:
-            >>> GraphSet.set_universe([(1, 2), (1, 4), (2, 3),
-                                        (2, 5), (3, 6), (4, 5),
-                                        (5, 6)])
-            >>> deg_dist = {0: GraphSet.DegreeDistribution_Any,
-                            1: 2, 2: 1}
-            # This means that each subgraph has 2 vertices with degree 1,
-            # 1 vertex with degree 2, and any number of vertices with
-            # degree 0.
-            >>> gs = GraphSet.degree_distribution_graphs(deg_dist, True)
-        Args:
-          deg_dist: dictionary whose key and value mean that
-                    each subgraph has 'value' number of vertices
-                    with degree 'key'. If the value is
-                    GraphSet.DegreeDistribution_Any, it means that
-                    each subgraph has any number of vertices
-                    with degree 'key'.
-          connected: Each subgraph is connected if True.
-                      Each subgraph is not necessarily connected if False.
-
-        Returns:
-            A new GraphSet object.
-        """
-        graph = []
-        for e in setset.universe():
-            assert e[0] in GraphSet._vertices and e[1] in GraphSet._vertices
-            graph.append(
-                (pickle.dumps(e[0], protocol=0), pickle.dumps(e[1], protocol=0)))
-
-        ss = _graphillion._degree_distribution_graphs(graph, deg_dist, is_connected, graphset)
-        return GraphSet(ss)
-
-    @staticmethod
-    def letter_P_graphs(graphset=None):
-        """Returns a GraphSet whose shape looks like letter 'P'.
-            That is, each subgraph has one vertex with degree 1,
-            one vertex with degree 3, and any number of vertices with
-            degree 2, and is connected.
-
-        Examples:
-            >>> gs = GraphSet.letter_P_graphs()
-
-        Returns:
-            A new GraphSet object.
-        """
-        deg_dist = {0: GraphSet.DegreeDistribution_Any, 1: 1, 2: GraphSet.DegreeDistribution_Any, 3: 1}
-        return GraphSet.degree_distribution_graphs(deg_dist, is_connected=True, graphset=graphset)
 
     @staticmethod
     def _conv_arg(obj):

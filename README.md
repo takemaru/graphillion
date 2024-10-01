@@ -586,7 +586,7 @@ supports the following graph types:
 | `GraphSet.k_factors(k)`                                              | Returns a GraphSet of k-factors                |
 | `GraphSet.f_factors(f)`                                              | Returns a GraphSet of f-factors                |
 | `GraphSet.regular_graphs(degree, is_connected)`                                              | Returns a GraphSet of regular graphs                |
-| `GraphSet.bipartite_graphs()`                                                 | Returns a GraphSet of bipartite graphs                   |
+| `GraphSet.bipartite_graphs(is_connected)`                                                 | Returns a GraphSet of bipartite graphs                   |
 | `GraphSet.regular_bipartite_graphs(degree, is_connected)`                                                 | Returns a GraphSet of regular bipartite graphs                   |
 | `GraphSet.steiner_subgraphs(terminals)`                                                 | Returns a GraphSet of Steiner subgraphs                   |
 | `GraphSet.steiner_trees(terminals)`                                                 | Returns a GraphSet of Steiner trees                   |
@@ -724,8 +724,7 @@ Creation methods specifying graph types also work as selection methods.
 | `gs.k_factors(k)`                                              | Returns a GraphSet of k-factors                |
 | `gs.f_factors(f)`                                              | Returns a GraphSet of f-factors                |
 | `gs.regular_graphs(degree, is_connected)`                                              | Returns a GraphSet of regular graphs                |
-| `gs.forbidden_induced_subgraphs()`                                              | Returns a GraphSet of forbidden induced subgraphs                |
-| `gs.bipartite_graphs()`                                                 | Returns a GraphSet of bipartite graphs                   |
+| `gs.bipartite_graphs(is_connected)`                                                 | Returns a GraphSet of bipartite graphs                   |
 | `gs.regular_bipartite_graphs(degree, is_connected)`                                                 | Returns a GraphSet of regular bipartite graphs                   |
 | `gs.steiner_subgraphs(terminals)`                                                 | Returns a GraphSet of Steiner subgraphs                   |
 | `gs.steiner_trees(terminals)`                                                 | Returns a GraphSet of Steiner trees                   |
@@ -733,6 +732,7 @@ Creation methods specifying graph types also work as selection methods.
 | `gs.steiner_paths(terminals)`                                                 | Returns a GraphSet of Steiner paths                   |
 | `gs.degree_distribution_graphs(deg_dist, is_connected)`                                                 | Returns a GraphSet of degree distribution graphs                   |
 | `gs.letter_P_graphs()`                                                 | Returns a GraphSet of 'P'-shaped graphs                   |
+
 
 ### Modification or generation methods
 
