@@ -43,11 +43,14 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include "graphillion/graphset.h"
 #include "graphillion/reliability/reliability.h"
+#include "graphillion/regular/RegularGraphs.h"
 #include "graphillion/induced_graphs/InducedGraphs.h"
 #include "graphillion/induced_graphs/WeightedInducedGraphs.h"
 #include "graphillion/chordal/chordal.h"
+#include "graphillion/forbidden_induced/ForbiddenInducedSubgraphs.h"
 
 #include "graphillion/odd_edges_subgraphs/OddEdgeSubgraphs.h"
+#include "graphillion/degree_distribution/DegreeDistributionGraphs.h"
 
 using graphillion::setset;
 using graphillion::Range;
@@ -982,11 +985,7 @@ static PyObject* setset_cost_le(PySetsetObject* self, PyObject* args, PyObject* 
   }
   Py_DECREF(cost_iter);
 
-  PySetsetObject* ret = reinterpret_cast<PySetsetObject*>
-      (PySetset_Type.tp_alloc(&PySetset_Type, 0));
-  auto ss = self->ss->cost_le(costs, cost_bound);
-  ret->ss = new setset(ss);
-  return reinterpret_cast<PyObject*>(ret);
+  RETURN_NEW_SETSET(self, self->ss->cost_le(costs, cost_bound));
 }
 
 static PyObject* setset_remove_some_element(PySetsetObject* self) {
@@ -1271,6 +1270,39 @@ static PyObject* setset_num_elems(PyObject*, PyObject* args) {
   }
 }
 
+// return true if success
+static bool translate_graph(PyObject* graph_obj,
+                            vector<pair<string, string> >& graph) {
+  if (graph_obj == NULL || graph_obj == Py_None) {
+    PyErr_SetString(PyExc_TypeError, "no graph");
+    return false;
+  }
+  PyObject* i = PyObject_GetIter(graph_obj);
+  if (i == NULL) return false;
+  PyObject* eo;
+  while ((eo = PyIter_Next(i))) {
+    PyObject* j = PyObject_GetIter(eo);
+    if (j == NULL) return false;
+    vector<string> e;
+    PyObject* vo;
+    while ((vo = PyIter_Next(j))) {
+      if (!PyBytes_Check(vo)) {
+        PyErr_SetString(PyExc_TypeError, "invalid graph");
+        return false;
+      }
+      string v = PyBytes_AsString(vo);
+      if (v.find(',') != string::npos) {
+        PyErr_SetString(PyExc_TypeError, "invalid vertex in the graph");
+        return false;
+      }
+      e.push_back(v);
+    }
+    assert(e.size() == 2);
+    graph.push_back(make_pair(e[0], e[1]));
+  }
+  return true;
+}
+
 static PyObject* graphset_graphs(PyObject*, PyObject* args, PyObject* kwds) {
   static char s1[] = "graph";
   static char s2[] = "vertex_groups";
@@ -1295,32 +1327,8 @@ static PyObject* graphset_graphs(PyObject*, PyObject* args, PyObject* kwds) {
     return NULL;
 
   vector<pair<string, string> > graph;
-  if (graph_obj == NULL || graph_obj == Py_None) {
-    PyErr_SetString(PyExc_TypeError, "no graph");
+  if (!translate_graph(graph_obj, graph)) {
     return NULL;
-  }
-  PyObject* i = PyObject_GetIter(graph_obj);
-  if (i == NULL) return NULL;
-  PyObject* eo;
-  while ((eo = PyIter_Next(i))) {
-    PyObject* j = PyObject_GetIter(eo);
-    if (j == NULL) return NULL;
-    vector<string> e;
-    PyObject* vo;
-    while ((vo = PyIter_Next(j))) {
-      if (!PyBytes_Check(vo)) {
-        PyErr_SetString(PyExc_TypeError, "invalid graph");
-        return NULL;
-      }
-      string v = PyBytes_AsString(vo);
-      if (v.find(',') != string::npos) {
-        PyErr_SetString(PyExc_TypeError, "invalid vertex in the graph");
-        return NULL;
-      }
-      e.push_back(v);
-    }
-    assert(e.size() == 2);
-    graph.push_back(make_pair(e[0], e[1]));
   }
 
   vector<vector<string> > vertex_groups_entity;
@@ -1454,6 +1462,158 @@ static PyObject* graphset_show_messages(PySetsetObject* self, PyObject* obj) {
   else Py_RETURN_FALSE;
 }
 
+static PyObject* regular_graphs(PyObject*, PyObject* args, PyObject* kwds){
+  static char s1[] = "graph";
+  static char s2[] = "degree";
+  static char s3[] = "is_connected";
+  static char s4[] = "graphset";
+  static char* kwlist[5] = {s1, s2, s3, s4, NULL};
+  PyObject* graph_obj = NULL;
+  PyObject* degree_obj = NULL;
+  PyObject* is_connected_obj = NULL;
+  PyObject* graphset_obj = NULL;
+  int degree_lower = 0;
+  int degree_upper = INT_MAX;
+  if(!PyArg_ParseTupleAndKeywords(args, kwds, "OOO|O", kwlist, &graph_obj, &degree_obj, &is_connected_obj, &graphset_obj)){
+    return NULL;
+  }
+
+  vector<pair<string, string> > graph;
+  if (!translate_graph(graph_obj, graph)) {
+    return NULL;
+  }
+
+  if (PyInt_Check(degree_obj)) {
+    int d = PyLong_AsLong(degree_obj);
+    degree_lower = d;
+    degree_upper = d;
+  } else if (PyTuple_Check(degree_obj)) {
+    Py_ssize_t tuple_size = PyTuple_Size(degree_obj);
+    if (tuple_size != 2) {
+      PyErr_SetString(PyExc_TypeError, "tuple size must be 2");
+      return NULL;
+    }
+    PyObject* lower_obj = PyTuple_GetItem(degree_obj, 0);
+    if (PyLong_Check(lower_obj)) {
+      degree_lower = PyLong_AsLong(lower_obj);
+    } else {
+      PyErr_SetString(PyExc_TypeError, "degree lower must be integer");
+      return NULL;
+    }
+    PyObject* upper_obj = PyTuple_GetItem(degree_obj, 1);
+    if (PyLong_Check(upper_obj)) {
+      degree_upper = PyLong_AsLong(upper_obj);
+    } else {
+      PyErr_SetString(PyExc_TypeError, "degree upper must be an integer");
+      return NULL;
+    }
+  } else {
+    PyErr_SetString(PyExc_TypeError, "degree must be an integer or a tuple");
+    return NULL;
+  }
+
+  if (!PyBool_Check(is_connected_obj)) {
+    PyErr_SetString(PyExc_TypeError, "is_connected is not bool");
+    return NULL;
+  }
+  bool is_connected = (is_connected_obj != Py_False);
+
+  setset* search_space = NULL;
+  if (graphset_obj != NULL && graphset_obj != Py_None) {
+    search_space = reinterpret_cast<PySetsetObject*>(graphset_obj)->ss;
+  }
+
+  auto ss = graphillion::SearchRegularGraphs(graph,
+              degree_lower, degree_upper,
+              is_connected, search_space);
+  PySetsetObject* ret = reinterpret_cast<PySetsetObject*>
+      (PySetset_Type.tp_alloc(&PySetset_Type, 0));
+  ret->ss = new setset(ss);
+  return reinterpret_cast<PyObject*>(ret);
+}
+
+static PyObject* odd_edges_subgraphs(PyObject*, PyObject* args, PyObject* kwds) {
+  static char s1[] = "graph";
+  static char* kwlist[2] = {s1, NULL};
+  PyObject* graph_obj = NULL;
+  if (!PyArg_ParseTupleAndKeywords(args, kwds, "O", kwlist, &graph_obj)) {
+    return NULL;
+  }
+
+  vector<pair<string, string> > graph;
+  if (!translate_graph(graph_obj, graph)) {
+    return NULL;
+  }
+
+  auto ss = graphillion::SearchOddEdgeSubgraphs(graph);
+  PySetsetObject* ret = reinterpret_cast<PySetsetObject*>(
+      PySetset_Type.tp_alloc(&PySetset_Type, 0));
+  ret->ss = new setset(ss);
+  return reinterpret_cast<PyObject*>(ret);
+}
+
+static PyObject* degree_distribution_graphs(PyObject*, PyObject* args, PyObject* kwds) {
+
+  static char s1[] = "graph";
+  static char s2[] = "deg_dist";
+  static char s3[] = "is_connected";
+  static char s4[] = "graphset";
+  static char* kwlist[5] = {s1, s2, s3, s4, NULL};
+
+  PyObject* graph_obj = NULL;
+  PyObject* deg_dist = NULL;
+  PyObject* is_connected = NULL;
+  PyObject* graphset_obj = NULL;
+  if (!PyArg_ParseTupleAndKeywords(args, kwds, "OOO|O", kwlist, &graph_obj,
+                                   &deg_dist, &is_connected, &graphset_obj)) {
+    return NULL;
+  }
+
+  vector<pair<string, string> > graph;
+  if (!translate_graph(graph_obj, graph)) {
+    return NULL;
+  }
+
+  PyObject* key, *value;
+  Py_ssize_t pos = 0;
+
+  std::vector<int> deg_ranges;
+  while (PyDict_Next(deg_dist, &pos, &key, &value)) {
+    if (!PyInt_Check(key)) {
+      PyErr_SetString(PyExc_TypeError, "key must be an integer.");
+      return NULL;
+    }
+    if (PyInt_Check(value)) {
+      int k = PyInt_AsLong(key);
+      int v = PyInt_AsLong(value);
+      if (static_cast<int>(deg_ranges.size()) <= k) {
+        deg_ranges.resize(k + 1);
+      }
+      deg_ranges[k] = v;
+    } else {
+      PyErr_SetString(PyExc_TypeError, "Currently, value must be an integer.");
+      return NULL;
+    }
+  }
+
+  if (!PyBool_Check(is_connected)) {
+    PyErr_SetString(PyExc_TypeError, "not bool");
+    return NULL;
+  }
+
+  setset* search_space = NULL;
+  if (graphset_obj != NULL && graphset_obj != Py_None) {
+    search_space = reinterpret_cast<PySetsetObject*>(graphset_obj)->ss;
+  }
+
+  auto ss = graphillion::SearchDegreeDistributionGraphs(graph, deg_ranges,
+    is_connected != Py_False, search_space);
+  PySetsetObject* ret = reinterpret_cast<PySetsetObject*>
+      (PySetset_Type.tp_alloc(&PySetset_Type, 0));
+  ret->ss = new setset(ss);
+  return reinterpret_cast<PyObject*>(ret);
+}
+
 static PyObject* graph_partitions(PyObject*, PyObject* args, PyObject* kwds){
   static char s1[] = "graph";
   static char s2[] = "num_comp_lb";
@@ -1479,32 +1639,8 @@ static PyObject* graph_partitions(PyObject*, PyObject* args, PyObject* kwds){
   }
 
   vector<pair<string, string> > graph;
-  if (graph_obj == NULL || graph_obj == Py_None) {
-    PyErr_SetString(PyExc_TypeError, "no graph");
+  if (!translate_graph(graph_obj, graph)) {
     return NULL;
-  }
-  PyObject* i = PyObject_GetIter(graph_obj);
-  if (i == NULL) return NULL;
-  PyObject* eo;
-  while ((eo = PyIter_Next(i))) {
-    PyObject* j = PyObject_GetIter(eo);
-    if (j == NULL) return NULL;
-    vector<string> e;
-    PyObject* vo;
-    while ((vo = PyIter_Next(j))) {
-      if (!PyBytes_Check(vo)) {
-        PyErr_SetString(PyExc_TypeError, "invalid graph");
-        return NULL;
-      }
-      string v = PyBytes_AsString(vo);
-      if (v.find(',') != string::npos) {
-        PyErr_SetString(PyExc_TypeError, "invalid vertex in the graph");
-        return NULL;
-      }
-      e.push_back(v);
-    }
-    assert(e.size() == 2);
-    graph.push_back(make_pair(e[0], e[1]));
   }
 
   auto ss = graphillion::SearchPartitions(graph, num_comp_lb, num_comp_ub);
@@ -1551,36 +1687,8 @@ static PyObject* balanced_partitions(PyObject*, PyObject* args, PyObject* kwds) 
   }
 
   vector<pair<string, string> > graph;
-  if (graph_obj == NULL || graph_obj == Py_None) {
-    PyErr_SetString(PyExc_TypeError, "no graph");
+  if (!translate_graph(graph_obj, graph)) {
     return NULL;
-  }
-  PyObject* i = PyObject_GetIter(graph_obj);
-  if (i == NULL) {
-    return NULL;
-  }
-  PyObject* eo;
-  while ((eo = PyIter_Next(i))) {
-    PyObject* j = PyObject_GetIter(eo);
-    if (j == NULL) {
-      return NULL;
-    }
-    vector<string> e;
-    PyObject* vo;
-    while ((vo = PyIter_Next(j))) {
-      if (!PyBytes_Check(vo)) {
-        PyErr_SetString(PyExc_TypeError, "invalid graph");
-        return NULL;
-      }
-      string v = PyBytes_AsString(vo);
-      if (v.find(',') != string::npos) {
-        PyErr_SetString(PyExc_TypeError, "invalid vertex in the graph");
-        return NULL;
-      }
-      e.push_back(v);
-    }
-    assert(e.size() == 2);
-    graph.push_back(make_pair(e[0], e[1]));
   }
 
   map<string, uint32_t> weight_list;
@@ -1611,6 +1719,130 @@ static PyObject* balanced_partitions(PyObject*, PyObject* args, PyObject* kwds) 
   return reinterpret_cast<PyObject*>(ret);
 }
 
+static PyObject* induced_graphs(PyObject*, PyObject* args, PyObject* kwds){
+  static char s1[] = "graph";
+  static char* kwlist[2] = {s1, NULL};
+
+  PyObject* graph_obj = NULL;
+  if (!PyArg_ParseTupleAndKeywords(args, kwds, "O", kwlist, &graph_obj)) {
+    return NULL;
+  }
+
+  vector<pair<string, string> > graph;
+  if (!translate_graph(graph_obj, graph)) {
+    return NULL;
+  }
+
+  auto ss = graphillion::SearchInducedGraphs(graph);
+  PySetsetObject* ret = reinterpret_cast<PySetsetObject*>
+      (PySetset_Type.tp_alloc(&PySetset_Type, 0));
+  ret->ss = new setset(ss);
+  return reinterpret_cast<PyObject*>(ret);
+}
+
+static PyObject* weighted_induced_graphs(PyObject*, PyObject* args,
+                                         PyObject* kwds){
+  static char s1[] = "graph";
+  static char s2[] = "weight_list";
+  static char s3[] = "lower";
+  static char s4[] = "upper";
+  static char* kwlist[5] = {s1, s2, s3, s4, NULL};
+
+  PyObject* graph_obj = NULL;
+  PyObject* weight_list_obj = NULL;
+  uint32_t lower = 0, upper = std::numeric_limits<uint32_t>::max() / 2;
+  if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|OII", kwlist, &graph_obj,
+                                   &weight_list_obj, &lower, &upper)) {
+    return NULL;
+  }
+  if (upper < lower) {
+    PyErr_SetString(PyExc_TypeError, "lower bound is larger than upper bound");
+    return NULL;
+  }
+
+  vector<pair<string, string> > graph;
+  if (!translate_graph(graph_obj, graph)) {
+    return NULL;
+  }
+
+  std::map<std::string, uint32_t> weight_list;
+  if (weight_list_obj != NULL && weight_list_obj != Py_None) {
+    PyObject* keyObject;
+    PyObject* valObject;
+    Py_ssize_t pos = 0;
+    while (PyDict_Next(weight_list_obj, &pos, &keyObject, &valObject)) {
+      if (!PyBytes_Check(keyObject)) {
+        PyErr_SetString(PyExc_TypeError, "invalid vertex in weight list");
+        return NULL;
+      }
+      string vertex = PyBytes_AsString(keyObject);
+      if (!PyInt_Check(valObject)) {
+        PyErr_SetString(PyExc_TypeError, "invalid weight in weight list");
+        return NULL;
+      }
+      uint32_t weight = PyInt_AsLong(valObject);
+      weight_list[vertex] = weight;
+    }
+  }
+
+  auto ss = graphillion::SearchWeightedInducedGraphs(graph, weight_list, lower,
+                                                     upper);
+  PySetsetObject* ret = reinterpret_cast<PySetsetObject*>
+      (PySetset_Type.tp_alloc(&PySetset_Type, 0));
+  ret->ss = new setset(ss);
+  return reinterpret_cast<PyObject*>(ret);
+}
+
+static PyObject* forbidden_induced_subgraphs(PyObject*, PyObject* args, PyObject* kwds){
+  static char s1[] = "graph";
+  static char s2[] = "graphset";
+  static char* kwlist[3] = {s1, s2, NULL};
+
+  PyObject* graph_obj = NULL;
+  PyObject* graphset_obj = NULL;
+  if (!PyArg_ParseTupleAndKeywords(args, kwds, "OO", kwlist, &graph_obj, &graphset_obj)) {
+    return NULL;
+  }
+
+  vector<pair<string, string> > graph;
+  if (!translate_graph(graph_obj, graph)) {
+    return NULL;
+  }
+
+  if (graphset_obj == NULL || graphset_obj == Py_None) {
+    PyErr_SetString(PyExc_TypeError, "graphset none");
+    return NULL;
+  }
+
+  auto ss = graphillion::SearchForbiddenInducedSubgraphs(graph,
+    reinterpret_cast<PySetsetObject*>(graphset_obj)->ss);
+  PySetsetObject* ret = reinterpret_cast<PySetsetObject*>
+      (PySetset_Type.tp_alloc(&PySetset_Type, 0));
+  ret->ss = new setset(ss);
+  return reinterpret_cast<PyObject*>(ret);
+}
+
+static PyObject* chordal_graphs(PyObject*, PyObject* args, PyObject* kwds){
+  static char s1[] = "graph";
+  static char* kwlist[2] = {s1, NULL};
+
+  PyObject* graph_obj = NULL;
+  if (!PyArg_ParseTupleAndKeywords(args, kwds, "O", kwlist, &graph_obj)) {
+    return NULL;
+  }
+
+  vector<pair<string, string> > graph;
+  if (!translate_graph(graph_obj, graph)) {
+    return NULL;
+  }
+
+  auto ss = graphillion::SearchChordals(graph);
+  PySetsetObject* ret = reinterpret_cast<PySetsetObject*>
+      (PySetset_Type.tp_alloc(&PySetset_Type, 0));
+  ret->ss = new setset(ss);
+  return reinterpret_cast<PyObject*>(ret);
+}
+
 static PyObject* reliability(PyObject*, PyObject* args, PyObject* kwds) {
   static char s1[] = "graph";
   static char s2[] = "probabilities";
@@ -1626,32 +1858,8 @@ static PyObject* reliability(PyObject*, PyObject* args, PyObject* kwds) {
   }
 
   vector<pair<string, string> > graph;
-  if (graph_obj == NULL || graph_obj == Py_None) {
-    PyErr_SetString(PyExc_TypeError, "no graph");
+  if (!translate_graph(graph_obj, graph)) {
     return NULL;
-  }
-  PyObject* i = PyObject_GetIter(graph_obj);
-  if (i == NULL) return NULL;
-  PyObject* eo;
-  while ((eo = PyIter_Next(i))) {
-    PyObject* j = PyObject_GetIter(eo);
-    if (j == NULL) return NULL;
-    vector<string> e;
-    PyObject* vo;
-    while ((vo = PyIter_Next(j))) {
-      if (!PyBytes_Check(vo)) {
-        PyErr_SetString(PyExc_TypeError, "invalid graph");
-        return NULL;
-      }
-      string v = PyBytes_AsString(vo);
-      if (v.find(',') != string::npos) {
-        PyErr_SetString(PyExc_TypeError, "invalid vertex in the graph");
-        return NULL;
-      }
-      e.push_back(v);
-    }
-    assert(e.size() == 2);
-    graph.push_back(make_pair(e[0], e[1]));
   }
 
   vector<double> probabilities;
@@ -1700,217 +1908,6 @@ static PyObject* reliability(PyObject*, PyObject* args, PyObject* kwds) {
   return PyFloat_FromDouble(prob);
 }
 
-static PyObject* induced_graphs(PyObject*, PyObject* args, PyObject* kwds){
-  static char s1[] = "graph";
-  static char* kwlist[2] = {s1, NULL};
-
-  PyObject* graph_obj = NULL;
-  if (!PyArg_ParseTupleAndKeywords(args, kwds, "O", kwlist, &graph_obj)) {
-    return NULL;
-  }
-
-  vector<pair<string, string> > graph;
-  if (graph_obj == NULL || graph_obj == Py_None) {
-    PyErr_SetString(PyExc_TypeError, "no graph");
-    return NULL;
-  }
-  PyObject* i = PyObject_GetIter(graph_obj);
-  if (i == NULL) return NULL;
-  PyObject* eo;
-  while ((eo = PyIter_Next(i))) {
-    PyObject* j = PyObject_GetIter(eo);
-    if (j == NULL) return NULL;
-    vector<string> e;
-    PyObject* vo;
-    while ((vo = PyIter_Next(j))) {
-      if (!PyBytes_Check(vo)) {
-        PyErr_SetString(PyExc_TypeError, "invalid graph");
-        return NULL;
-      }
-      string v = PyBytes_AsString(vo);
-      if (v.find(',') != string::npos) {
-        PyErr_SetString(PyExc_TypeError, "invalid vertex in the graph");
-        return NULL;
-      }
-      e.push_back(v);
-    }
-    assert(e.size() == 2);
-    graph.push_back(make_pair(e[0], e[1]));
-  }
-
-  auto ss = graphillion::SearchInducedGraphs(graph);
-  PySetsetObject* ret = reinterpret_cast<PySetsetObject*>
-      (PySetset_Type.tp_alloc(&PySetset_Type, 0));
-  ret->ss = new setset(ss);
-  return reinterpret_cast<PyObject*>(ret);
-}
-
-static PyObject* weighted_induced_graphs(PyObject*, PyObject* args,
-                                         PyObject* kwds){
-  static char s1[] = "graph";
-  static char s2[] = "weight_list";
-  static char s3[] = "lower";
-  static char s4[] = "upper";
-  static char* kwlist[5] = {s1, s2, s3, s4, NULL};
-
-  PyObject* graph_obj = NULL;
-  PyObject* weight_list_obj = NULL;
-  uint32_t lower = 0, upper = std::numeric_limits<uint32_t>::max() / 2;
-  if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|OII", kwlist, &graph_obj,
-                                   &weight_list_obj, &lower, &upper)) {
-    return NULL;
-  }
-  if (upper < lower) {
-    PyErr_SetString(PyExc_TypeError, "lower bound is larger than upper bound");
-    return NULL;
-  }
-
-  vector<pair<string, string> > graph;
-  if (graph_obj == NULL || graph_obj == Py_None) {
-    PyErr_SetString(PyExc_TypeError, "no graph");
-    return NULL;
-  }
-  PyObject* i = PyObject_GetIter(graph_obj);
-  if (i == NULL) return NULL;
-  PyObject* eo;
-  while ((eo = PyIter_Next(i))) {
-    PyObject* j = PyObject_GetIter(eo);
-    if (j == NULL) return NULL;
-    vector<string> e;
-    PyObject* vo;
-    while ((vo = PyIter_Next(j))) {
-      if (!PyBytes_Check(vo)) {
-        PyErr_SetString(PyExc_TypeError, "invalid graph");
-        return NULL;
-      }
-      string v = PyBytes_AsString(vo);
-      if (v.find(',') != string::npos) {
-        PyErr_SetString(PyExc_TypeError, "invalid vertex in the graph");
-        return NULL;
-      }
-      e.push_back(v);
-    }
-    assert(e.size() == 2);
-    graph.push_back(make_pair(e[0], e[1]));
-  }
-
-  std::map<std::string, uint32_t> weight_list;
-  if (weight_list_obj != NULL && weight_list_obj != Py_None) {
-    PyObject* keyObject;
-    PyObject* valObject;
-    Py_ssize_t pos = 0;
-    while (PyDict_Next(weight_list_obj, &pos, &keyObject, &valObject)) {
-      if (!PyBytes_Check(keyObject)) {
-        PyErr_SetString(PyExc_TypeError, "invalid vertex in weight list");
-        return NULL;
-      }
-      string vertex = PyBytes_AsString(keyObject);
-      if (!PyInt_Check(valObject)) {
-        PyErr_SetString(PyExc_TypeError, "invalid weight in weight list");
-        return NULL;
-      }
-      uint32_t weight = PyInt_AsLong(valObject);
-      weight_list[vertex] = weight;
-    }
-  }
-
-  auto ss = graphillion::SearchWeightedInducedGraphs(graph, weight_list, lower,
-                                                     upper);
-  PySetsetObject* ret = reinterpret_cast<PySetsetObject*>
-      (PySetset_Type.tp_alloc(&PySetset_Type, 0));
-  ret->ss = new setset(ss);
-  return reinterpret_cast<PyObject*>(ret);
-}
-
-static PyObject* chordal_graphs(PyObject*, PyObject* args, PyObject* kwds){
-  static char s1[] = "graph";
-  static char* kwlist[2] = {s1, NULL};
-
-  PyObject* graph_obj = NULL;
-  if (!PyArg_ParseTupleAndKeywords(args, kwds, "O", kwlist, &graph_obj)) {
-    return NULL;
-  }
-
-  vector<pair<string, string> > graph;
-  if (graph_obj == NULL || graph_obj == Py_None) {
-    PyErr_SetString(PyExc_TypeError, "no graph");
-    return NULL;
-  }
-  PyObject* i = PyObject_GetIter(graph_obj);
-  if (i == NULL) return NULL;
-  PyObject* eo;
-  while ((eo = PyIter_Next(i))) {
-    PyObject* j = PyObject_GetIter(eo);
-    if (j == NULL) return NULL;
-    vector<string> e;
-    PyObject* vo;
-    while ((vo = PyIter_Next(j))) {
-      if (!PyBytes_Check(vo)) {
-        PyErr_SetString(PyExc_TypeError, "invalid graph");
-        return NULL;
-      }
-      string v = PyBytes_AsString(vo);
-      if (v.find(',') != string::npos) {
-        PyErr_SetString(PyExc_TypeError, "invalid vertex in the graph");
-        return NULL;
-      }
-      e.push_back(v);
-    }
-    assert(e.size() == 2);
-    graph.push_back(make_pair(e[0], e[1]));
-  }
-
-  auto ss = graphillion::SearchChordals(graph);
-  PySetsetObject* ret = reinterpret_cast<PySetsetObject*>
-      (PySetset_Type.tp_alloc(&PySetset_Type, 0));
-  ret->ss = new setset(ss);
-  return reinterpret_cast<PyObject*>(ret);
-}
-
-static PyObject* odd_edges_subgraphs(PyObject*, PyObject* args, PyObject* kwds) {
-  static char s1[] = "graph";
-  static char* kwlist[2] = {s1, NULL};
-  PyObject* graph_obj = NULL;
-  if (!PyArg_ParseTupleAndKeywords(args, kwds, "O", kwlist, &graph_obj)) {
-    return NULL;
-  }
-
-  vector<pair<string, string> > graph;
-  if (graph_obj == NULL || graph_obj == Py_None) {
-    PyErr_SetString(PyExc_TypeError, "no graph");
-    return NULL;
-  }
-  PyObject* i = PyObject_GetIter(graph_obj);
-  if (i == NULL) return NULL;
-  PyObject* eo;
-  while ((eo = PyIter_Next(i))) {
-    PyObject* j = PyObject_GetIter(eo);
-    if (j == NULL) return NULL;
-    vector<string> e;
-    PyObject* vo;
-    while ((vo = PyIter_Next(j))) {
-      if (!PyBytes_Check(vo)) {
-        PyErr_SetString(PyExc_TypeError, "invalid graph");
-        return NULL;
-      }
-      string v = PyBytes_AsString(vo);
-      if (v.find(',') != string::npos) {
-        PyErr_SetString(PyExc_TypeError, "invalid vertex in the graph");
-        return NULL;
-      }
-      e.push_back(v);
-    }
-    assert(e.size() == 2);
-    graph.push_back(make_pair(e[0], e[1]));
-  }
-
-  auto ss = graphillion::SearchOddEdgeSubgraphs(graph);
-  PySetsetObject* ret = reinterpret_cast<PySetsetObject*>(
-      PySetset_Type.tp_alloc(&PySetset_Type, 0));
-  ret->ss = new setset(ss);
-  return reinterpret_cast<PyObject*>(ret);
-}
-
 static PyObject* setset_get_vertices_from_top(PySetsetObject* self, PyObject* args) {
   std::vector<std::vector<std::string>> edges = parse_args_to_edges(args);
   std::vector<std::string> v_order_from_top = VariableConverter::get_vertices_from_top(edges);
@@ -1930,13 +1927,16 @@ static PyMethodDef module_methods[] = {
   {"_num_elems", setset_num_elems, METH_VARARGS, ""},
   {"_graphs", reinterpret_cast<PyCFunction>(graphset_graphs), METH_VARARGS | METH_KEYWORDS, ""},
   {"_show_messages", reinterpret_cast<PyCFunction>(graphset_show_messages), METH_O, ""},
+  {"_regular_graphs", reinterpret_cast<PyCFunction>(regular_graphs), METH_VARARGS | METH_KEYWORDS, ""},
+  {"_odd_edges_subgraphs", reinterpret_cast<PyCFunction>(odd_edges_subgraphs), METH_VARARGS | METH_KEYWORDS, ""},
+  {"_degree_distribution_graphs", reinterpret_cast<PyCFunction>(degree_distribution_graphs), METH_VARARGS | METH_KEYWORDS, ""},
   {"_partitions", reinterpret_cast<PyCFunction>(graph_partitions), METH_VARARGS | METH_KEYWORDS, ""},
   {"_balanced_partitions", reinterpret_cast<PyCFunction>(balanced_partitions), METH_VARARGS | METH_KEYWORDS, ""},
-  {"_reliability", reinterpret_cast<PyCFunction>(reliability), METH_VARARGS | METH_KEYWORDS, ""},
   {"_induced_graphs", reinterpret_cast<PyCFunction>(induced_graphs), METH_VARARGS | METH_KEYWORDS, ""},
   {"_weighted_induced_graphs", reinterpret_cast<PyCFunction>(weighted_induced_graphs), METH_VARARGS | METH_KEYWORDS, ""},
+  {"_forbidden_induced_subgraphs", reinterpret_cast<PyCFunction>(forbidden_induced_subgraphs), METH_VARARGS | METH_KEYWORDS, ""},
   {"_chordal_graphs", reinterpret_cast<PyCFunction>(chordal_graphs), METH_VARARGS | METH_KEYWORDS, ""},
-  {"_odd_edges_subgraphs", reinterpret_cast<PyCFunction>(odd_edges_subgraphs), METH_VARARGS | METH_KEYWORDS, ""},
+  {"_reliability", reinterpret_cast<PyCFunction>(reliability), METH_VARARGS | METH_KEYWORDS, ""},
   {"_get_vertices_from_top", reinterpret_cast<PyCFunction>(setset_get_vertices_from_top), METH_VARARGS, ""},
   {NULL}  /* Sentinel */
 };

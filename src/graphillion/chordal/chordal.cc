@@ -1,8 +1,8 @@
 #include "chordal.h"
 
 #include "FrontierSingleCycle.h"
-#include "InducingColoringSpec.h"
-#include "InducingDecoloringEval.h"
+#include "../forbidden_induced/InducingColoringSpec.h"
+#include "../forbidden_induced/InducingDecoloringEval.h"
 #include "SBDD_helper.h"
 #include "subsetting/DdStructure.hpp"
 #include "subsetting/spec/SizeConstraint.hpp"

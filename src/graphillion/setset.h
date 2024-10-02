@@ -216,6 +216,12 @@ class setset {
       bool no_loop,
       const setset* search_space,
       const std::vector<linear_constraint_t>* linear_constraints);
+  friend setset SearchRegularGraphs(
+      const std::vector<edge_t> &edges,
+      const int degree_lower,
+      const int degree_upper,
+      const bool is_connected,
+      const setset* search_space);
   friend setset SearchPartitions(const std::vector<graphillion::edge_t>& edges,
                                  int16_t comp_lb, int16_t comp_ub);
   friend setset SearchRatioPartitions(
@@ -236,7 +242,12 @@ class setset {
       const std::map<std::string, uint32_t> &weight_list, uint32_t lower,
       uint32_t upper);
   friend setset SearchChordals(const std::vector<edge_t> &edges, const uint32_t k);
+  friend setset SearchForbiddenInducedSubgraphs(const std::vector<edge_t> &edges, setset* ss);
   friend setset SearchOddEdgeSubgraphs(const std::vector<edge_t>& edges);
+  friend setset SearchDegreeDistributionGraphs(const std::vector<edge_t> &edges,
+                                const std::vector<int>& degRanges,
+                                const bool is_connected,
+                                const setset* search_space);
 };
 
 }  // namespace graphillion

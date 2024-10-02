@@ -50,9 +50,7 @@ typedef unsigned int bddvar;
                     /* bddp of a constant valued node */
 #define bddvalmax B_VAL_MASK  /* Max constant value */
 
-#ifdef BDD_CPP
-  extern "C" {
-#endif /* BDD_CPP */
+
 
 /***************** For stack overflow limit *****************/
 extern const int BDD_RecurLimit;
@@ -128,8 +126,6 @@ extern int    bddiszbdd B_ARG((bddp f));
 /************** SeqBDD operations *************/
 extern bddp   bddpush B_ARG((bddp f, bddvar v));
 
-#ifdef BDD_CPP
-  }
-#endif /* BDD_CPP */
+
 
 #endif /* bddc_h */

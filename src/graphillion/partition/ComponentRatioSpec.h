@@ -154,7 +154,6 @@ class ComponentRatioSpec
   double const ratio;
   int const mateSize;
   std::vector<Mate> initialMate;
-  bool const noLoop;
   bool const lookahead;
 
   bool updateRatio(Count& count, int weight) const {
@@ -274,7 +273,7 @@ class ComponentRatioSpec
   // m]
   ComponentRatioSpec(tdzdd::Graph const& graph,
                      const std::vector<uint32_t>& weight_list, uint32_t lower,
-                     uint32_t upper, double ratio, bool noLoop = false,
+                     uint32_t upper, double ratio, bool /*noLoop*/ = false,
                      bool lookahead = true)
       : graph(graph),
         m(graph.vertexSize()),
@@ -284,7 +283,6 @@ class ComponentRatioSpec
         ratio(ratio),
         mateSize(graph.maxFrontierSize()),
         initialMate(1 + m + mateSize),
-        noLoop(noLoop),
         lookahead(lookahead) {
     this->setArraySize(mateSize);
     for (int u = 0; u < m; ++u) {

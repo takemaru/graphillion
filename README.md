@@ -569,12 +569,56 @@ You can specify a graph type, such as paths and trees, and create a
 GraphSet object that stores all graphs matching the type.  Graphillion
 supports the following graph types:
 
-- connected components,
-- cliques,
-- trees,
-- forests,
-- cycles, and
-- paths.
+| Method                                                                | Description                                            |
+| :-------------------------------------------------------------------- | :----------------------------------------------------- |
+| `GraphSet.graphs(constraints)`                                              | Returns a GraphSet with graphs under given constraints |
+| `GraphSet.connected_components(vertices)`                                   | Returns a GraphSet of connected components             |
+| `GraphSet.cliques(k)`                                                       | Returns a GraphSet of k-cliques                        |
+| `GraphSet.bicliques(a, b)`                                                       | Returns a GraphSet of (a, b)-bicliques                        |
+| `GraphSet.trees(root, is_spanning)`                                         | Returns a GraphSet of trees                            |
+| `GraphSet.forests(roots, is_spanning)`                                      | Returns a GraphSet of forests, sets of trees           |
+| `GraphSet.cycles(is_hamilton)`                                              | Returns a GraphSet of cycles                           |
+| `GraphSet.paths(terminal1, terminal2, is_hamilton)`                         | Returns a GraphSet of paths                            |
+| `GraphSet.matchings()`                                                      | Returns a GraphSet of matchings                        |
+| `GraphSet.perfect_matchings()`                                              | Returns a GraphSet of perfect matchings                |
+| `GraphSet.k_matchings(k)`                                              | Returns a GraphSet of k-matchings                |
+| `GraphSet.b_matchings(b)`                                              | Returns a GraphSet of b-matchings                |
+| `GraphSet.k_factors(k)`                                              | Returns a GraphSet of k-factors                |
+| `GraphSet.f_factors(f)`                                              | Returns a GraphSet of f-factors                |
+| `GraphSet.regular_graphs(degree, is_connected)`                                              | Returns a GraphSet of regular graphs                |
+| `GraphSet.bipartite_graphs(is_connected)`                                                 | Returns a GraphSet of bipartite graphs                   |
+| `GraphSet.regular_bipartite_graphs(degree, is_connected)`                                                 | Returns a GraphSet of regular bipartite graphs                   |
+| `GraphSet.steiner_subgraphs(terminals)`                                                 | Returns a GraphSet of Steiner subgraphs                   |
+| `GraphSet.steiner_trees(terminals)`                                                 | Returns a GraphSet of Steiner trees                   |
+| `GraphSet.steiner_cycles(terminals)`                                                 | Returns a GraphSet of Steiner cycles                   |
+| `GraphSet.steiner_paths(terminals)`                                                 | Returns a GraphSet of Steiner paths                   |
+| `GraphSet.degree_distribution_graphs(deg_dist, is_connected)`                                                 | Returns a GraphSet of degree distribution graphs                   |
+| `GraphSet.letter_P_graphs()`                                                 | Returns a GraphSet of 'P'-shaped graphs                   |
+| `GraphSet.partitions(num_comp_lb, num_comp_ub)`                             | Returns a GraphSet of partitions                       |
+| `GraphSet.balanced_partitions(weight_list, ratio, lower, upper, num_comps)` | Returns a GraphSet of balanced_partitions              |
+| `GraphSet.induced_graphs()`                                                 | Returns a GraphSet of induced graphs                   |
+| `GraphSet.weighted_induced_graphs(weight_list, lower, upper)`               | Returns a GraphSet of induced graphs with weight_list  |
+| `GraphSet.forbidden_induced_subgraphs()`                                              | Returns a GraphSet of forbidden induced subgraphs                |
+
+GraphClass class supports the following further graph classes:
+- claw_graphs
+- claw_free_graphs
+- diamond_graphs
+- diamond_free_graphs
+- gem_graphs
+- gem_free_graphs
+- odd_hole_graphs
+- odd_hole_free_graphs
+- chordal_graphs
+- cographs
+- chordal_bipartite_graphs
+- split_graphs
+- block_graphs
+- ptolemaic_graphs
+- threshold_graphs
+- gridline_graphs
+- domino_graphs
+- linear_domino_graphs
 
 For example, `paths()` method takes two arguments, two end vertices,
 and finds all paths between the vertices.
@@ -610,6 +654,13 @@ If these methods are called object methods, like `gs.paths(1, 6)`,
 graphs are selected only from the GraphSet object.  Please see the
 library reference for more details.  The internal implementation of
 `graphs()` is independently available as [TdZdd].
+
+GraphClass class can be used as follows:
+
+```python
+from graphillion.graphclass import GraphClass
+gs = GraphClass.claw_free_graphs()
+```
 
 Manipulating graphsets
 --------------------------------------------------------------------------------
@@ -661,18 +712,26 @@ Creation methods specifying graph types also work as selection methods.
 | `gs.graphs(constraints)`                                              | Returns a GraphSet with graphs under given constraints |
 | `gs.connected_components(vertices)`                                   | Returns a GraphSet of connected components             |
 | `gs.cliques(k)`                                                       | Returns a GraphSet of k-cliques                        |
+| `gs.bicliques(a, b)`                                                       | Returns a GraphSet of (a, b)-bicliques                        |
 | `gs.trees(root, is_spanning)`                                         | Returns a GraphSet of trees                            |
 | `gs.forests(roots, is_spanning)`                                      | Returns a GraphSet of forests, sets of trees           |
 | `gs.cycles(is_hamilton)`                                              | Returns a GraphSet of cycles                           |
 | `gs.paths(terminal1, terminal2, is_hamilton)`                         | Returns a GraphSet of paths                            |
 | `gs.matchings()`                                                      | Returns a GraphSet of matchings                        |
 | `gs.perfect_matchings()`                                              | Returns a GraphSet of perfect matchings                |
-| `gs.partitions(num_comp_lb, num_comp_ub)`                             | Returns a GraphSet of partitions                       |
-| `gs.balanced_partitions(weight_list, ratio, lower, upper, num_comps)` | Returns a GraphSet of balanced_partitions              |
-| `gs.induced_graphs()`                                                 | Returns a GraphSet of induced graphs                   |
-| `gs.weighted_induced_graphs(weight_list, lower, upper)`               | Returns a GraphSet of induced graphs with weight_list  |
-| `gs.chordal_graphs()`                                                 | Returns a GraphSet of chordal graphs                   |
-| `gs.bipartite_graphs()`                                                 | Returns a GraphSet of bipartite graphs                   |
+| `gs.k_matchings(k)`                                              | Returns a GraphSet of k-matchings                |
+| `gs.b_matchings(b)`                                              | Returns a GraphSet of b-matchings                |
+| `gs.k_factors(k)`                                              | Returns a GraphSet of k-factors                |
+| `gs.f_factors(f)`                                              | Returns a GraphSet of f-factors                |
+| `gs.regular_graphs(degree, is_connected)`                                              | Returns a GraphSet of regular graphs                |
+| `gs.bipartite_graphs(is_connected)`                                                 | Returns a GraphSet of bipartite graphs                   |
+| `gs.regular_bipartite_graphs(degree, is_connected)`                                                 | Returns a GraphSet of regular bipartite graphs                   |
+| `gs.steiner_subgraphs(terminals)`                                                 | Returns a GraphSet of Steiner subgraphs                   |
+| `gs.steiner_trees(terminals)`                                                 | Returns a GraphSet of Steiner trees                   |
+| `gs.steiner_cycles(terminals)`                                                 | Returns a GraphSet of Steiner cycles                   |
+| `gs.steiner_paths(terminals)`                                                 | Returns a GraphSet of Steiner paths                   |
+| `gs.degree_distribution_graphs(deg_dist, is_connected)`                                                 | Returns a GraphSet of degree distribution graphs                   |
+| `gs.letter_P_graphs()`                                                 | Returns a GraphSet of 'P'-shaped graphs                   |
 
 
 ### Modification or generation methods

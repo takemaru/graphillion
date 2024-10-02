@@ -72,17 +72,20 @@ sources_list = [os.path.join('src', 'pygraphillion.cc'),
                 os.path.join('src', 'graphillion', 'util.cc'),
                 os.path.join('src', 'graphillion', 'zdd.cc'),
                 os.path.join('src', 'graphillion', 'reconf.cc'),
-                os.path.join('src', 'SAPPOROBDD', 'bddc.c'),
+                os.path.join('src', 'SAPPOROBDD', 'bddc.cc'),
                 os.path.join('src', 'SAPPOROBDD', 'BDD.cc'),
                 os.path.join('src', 'SAPPOROBDD', 'ZBDD.cc'),
                 os.path.join('src', 'SAPPOROBDD', 'BDDCT.cc'),
+                os.path.join('src', 'graphillion', 'regular', 'RegularGraphs.cc'),
                 os.path.join('src', 'graphillion', 'partition', 'Partition.cc'),
                 os.path.join('src', 'graphillion', 'partition', 'BalancedPartition.cc'),
                 os.path.join('src', 'graphillion', 'reliability', 'reliability.cc'),
                 os.path.join('src', 'graphillion', 'induced_graphs', 'InducedGraphs.cc'),
                 os.path.join('src', 'graphillion', 'induced_graphs', 'WeightedInducedGraphs.cc'),
                 os.path.join('src', 'graphillion', 'chordal', 'chordal.cc'),
+                os.path.join('src', 'graphillion', 'forbidden_induced', 'ForbiddenInducedSubgraphs.cc'),
                 os.path.join('src', 'graphillion', 'odd_edges_subgraphs', 'OddEdgeSubgraphs.cc'),
+                os.path.join('src', 'graphillion', 'degree_distribution', 'DegreeDistributionGraphs.cc'),
                 os.path.join('src', 'graphillion', 'variable_converter', 'variable_converter.cc')]
 
 if sys.platform == 'win32':
@@ -99,15 +102,14 @@ else:
         extra_compile_args_list = []
         extra_link_args_list = []
 
-if os.uname().sysname == 'Darwin': # macOS
-    dispatch_path = os.path.join(os.path.dirname(__file__),
-                                 'compile_dispatch.sh')
-    os.environ['CC'] = dispatch_path
 
 # We add this option to suppress warning when compiling bddc.c
 # in SAPPOROBDD library. It is no problem because
 # the variables that the compiler warns are actually used.
-extra_compile_args_list.append('-Wno-maybe-uninitialized')
+if os.uname().sysname == 'Darwin': # macOS
+    extra_compile_args_list.append('-std=c++11')
+else:
+    extra_compile_args_list.append('-Wno-maybe-uninitialized')
 
 setup(name='Graphillion',
       version=release.version,
@@ -142,7 +144,7 @@ trillions of graphs can be processed on a single computer.
       keywords=['graph', 'set', 'math', 'network'],
       author=release.authors[0][0],
       author_email=release.authors[0][1],
-      url='http://graphillion.org/',
+      url='https://github.com/takemaru/graphillion',
       license=release.license,
       packages=['graphillion'],
       install_requires=['future'],

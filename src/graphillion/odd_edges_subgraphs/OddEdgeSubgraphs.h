@@ -1,8 +1,6 @@
 #ifndef GRAPHILLION_ODD_EDGE_SUBGRAPH_SPEC_H_
 #define GRAPHILLION_ODD_EDGE_SUBGRAPH_SPEC_H_
 
-#include "OddEdgeSubgraphs.h"
-
 namespace graphillion {
 /**
  * @return A setset that represents the set of subgraphs with odd edges.

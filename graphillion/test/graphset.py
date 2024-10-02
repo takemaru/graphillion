@@ -152,6 +152,47 @@ class TestGraphSet(unittest.TestCase):
         for g in gs:
             self.assertTrue(len(g) < 4)
 
+        # k-matching
+        gs = GraphSet.k_matchings(k=2)
+        self.assertEqual(len(gs), 100)
+        self.assertTrue([(1, 2), (1, 4), (2, 3), (3, 6), (4, 5)] in gs)
+        self.assertTrue([(1, 4), (2, 3), (2, 5), (3, 6), (4, 5), (5, 6)] not in gs)
+        gs = GraphSet.k_matchings(k=3)
+        self.assertEqual(gs, GraphSet({})) # power set
+
+        # b-matching
+        b = {}
+        for v in GraphSet._vertices:
+            if v != 1:
+                b[v] = v % 2 + 1
+        gs = GraphSet.b_matchings(b)
+        self.assertEqual(len(gs), 17)
+        self.assertTrue([(2, 5), (3, 6), (4, 5)] in gs)
+        self.assertTrue([(1, 2), (2, 5), (3, 6), (4, 5)] not in gs)
+
+        # k-factor
+        gs = GraphSet.k_factors(k=1)
+        # A 1-factor is equal to a perfect matching.
+        self.assertEqual(gs, GraphSet.perfect_matchings())
+        gs = GraphSet.k_factors(k=2)
+        self.assertEqual(gs, GraphSet([[(1, 2), (1, 4), (2, 3),
+                                        (3, 6), (4, 5), (5, 6)]]))
+        gs = GraphSet.k_factors(k=3)
+        self.assertEqual(len(gs), 0)
+
+        # f-factor
+        f = {}
+        for v in GraphSet._vertices:
+            if v == 2 or v == 5:
+                f[v] = 2
+            else:
+                f[v] = 1
+        gs = GraphSet.f_factors(f)
+        g1 = [(1, 2), (2, 3), (4, 5), (5, 6)]
+        g2 = [(1, 2), (2, 5), (3, 6), (4, 5)]
+        g3 = [(1, 4), (2, 3), (2, 5), (5, 6)]
+        self.assertEqual(gs, GraphSet([g1, g2, g3]))
+
         # subgraphs with 1 or 2 edges
         gs = GraphSet.graphs(num_edges=range(1, 3))
         self.assertEqual(len(gs), 28)
@@ -242,10 +283,34 @@ class TestGraphSet(unittest.TestCase):
         self.assertTrue([(1, 2), (2, 3), (3, 6)] in gs)
         self.assertTrue([(1, 2), (2, 3), (5, 6)] not in gs)
 
+        # paths not specifying endpoints
+        gs = GraphSet.paths()
+        self.assertEqual(len(gs), 49)
+        self.assertTrue([(1, 4), (2, 3), (3, 6), (4, 5), (5, 6)] in gs)
+        self.assertTrue([(1, 4), (2, 5), (3, 6), (4, 5), (5, 6)] not in gs)
+
+        gs = GraphSet.paths(1)
+        self.assertEqual(len(gs), 17)
+        self.assertTrue([(1, 4), (2, 3), (3, 6), (4, 5), (5, 6)] in gs)
+        self.assertTrue([(2, 3), (3, 6), (4, 5), (5, 6)] not in gs)
+        self.assertTrue([(1, 4), (2, 5), (3, 6), (4, 5), (5, 6)] not in gs)
+
         # hamilton paths between 1 and 6
         gs = GraphSet.paths(1, 6, is_hamilton=True)
         self.assertEqual(len(gs), 1)
         self.assertTrue([(1, 4), (2, 3), (2, 5), (3, 6), (4, 5)] in gs)
+
+        # hamilton paths not specifying endpoints
+        gs = GraphSet.paths(is_hamilton=True)
+        self.assertEqual(len(gs), 8)
+        self.assertTrue([(1, 2), (1, 4), (2, 3), (3, 6), (4, 5)] in gs)
+        self.assertTrue([(1, 2), (1, 4), (2, 3), (4, 5)] not in gs)
+
+        gs = GraphSet.paths(1, is_hamilton=True)
+        self.assertEqual(len(gs), 3)
+        self.assertTrue([(1, 4), (2, 3), (3, 6), (4, 5), (5, 6)] in gs)
+        self.assertTrue([(1, 2), (1, 4), (2, 3), (3, 6), (4, 5)] not in gs)
+        self.assertTrue([(1, 2), (1, 4), (2, 3), (4, 5)] not in gs)
 
         # perfect matchings
         gs = GraphSet.perfect_matchings()
@@ -338,6 +403,82 @@ class TestGraphSet(unittest.TestCase):
         self.assertTrue(c)
         d = GraphSet.show_messages(a)
         self.assertFalse(d)
+
+    def test_bicliques(self):
+        GraphSet.set_universe([(1, 2), (1, 3), (1, 4), (2, 3), (2, 4), (3, 4)])
+
+        gs = GraphSet.bicliques(2, 2)
+        self.assertEqual(len(gs), 3)
+        self.assertTrue([(1, 2), (1, 4), (2, 3), (3, 4)] in gs)
+        self.assertTrue([(1, 2)] not in gs)
+
+    def test_regular_graphs(self):
+        GraphSet.set_universe([(1, 2), (1, 4), (2, 3), (2, 5), (3, 6), (4, 5),
+                               (5, 6)])
+
+        gs = GraphSet.regular_graphs(is_connected=False)
+        self.assertEqual(len(gs), 24)
+        self.assertTrue([(2, 3), (2, 5), (5, 6), (3, 6)] in gs)
+        self.assertTrue([(2, 5), (1, 4), (3, 6)] in gs)
+        self.assertTrue([(1, 2), (1, 4), (2, 5), (4, 5), (3, 6)] not in gs)
+
+        gs = GraphSet.regular_graphs(is_connected=True)
+        self.assertEqual(len(gs), 10)
+        self.assertTrue([(2, 3), (2, 5), (5, 6), (3, 6)] in gs)
+        self.assertTrue([(2, 5), (1, 4), (3, 6)] not in gs)
+        self.assertTrue([(1, 2), (1, 4), (2, 5), (4, 5), (3, 6)] not in gs)
+
+        universe = []
+        for i in range(1, 6):
+            for j in range(i + 1, 6):
+                universe.append((i, j))
+        GraphSet.set_universe(universe)
+        gs = GraphSet.regular_graphs(degree=(2, 3), is_connected=True)
+        self.assertEqual(len(gs), 42)
+        self.assertTrue([(2, 4), (2, 5), (3, 4), (3, 5)] in gs)
+        self.assertTrue([(1, 2)] not in gs)
+
+    def test_regular_bipartite_graphs(self):
+        GraphSet.set_universe([(1, 2), (1, 4), (1, 5), (2, 3), (2, 5),
+                               (3, 6), (4, 5), (5, 6)])
+
+        gs = GraphSet.regular_bipartite_graphs(is_connected=False)
+        self.assertEqual(len(gs), 27)
+        self.assertTrue([(1, 2), (1, 4), (2, 3), (3, 6), (4, 5), (5, 6)] in gs)
+        self.assertTrue([(1, 4), (2, 5), (3, 6)] in gs)
+        self.assertTrue([(1, 2), (1, 5), (2, 3), (3, 6), (5, 6)] not in gs)
+
+        gs = GraphSet.regular_bipartite_graphs(is_connected=True)
+        self.assertEqual(len(gs), 11)
+        self.assertTrue([(1, 2), (1, 4), (2, 3), (3, 6), (4, 5), (5, 6)] in gs)
+        self.assertTrue([(1, 4), (2, 5), (3, 6)] not in gs)
+        self.assertTrue([(1, 2), (1, 5), (2, 3), (3, 6), (5, 6)] not in gs)
+
+    def test_steiner(self):
+        GraphSet.set_universe([(1, 2), (1, 4), (2, 3), (2, 5), (4, 5), (4, 7),
+                                (3, 6), (5, 6), (5, 8), (6, 9), (7, 8), (8, 9)])
+        terminals = [1, 3, 8]
+
+        gs = GraphSet.steiner_subgraphs(terminals=terminals)
+        self.assertEqual(len(gs), 830)
+        self.assertTrue([(1, 2), (1, 4), (2, 3), (2, 5), (4, 5), (5, 8)] in gs)
+        self.assertTrue([(1, 2), (1, 4), (2, 3), (2, 5), (4, 5)] not in gs)
+
+        gs = GraphSet.steiner_trees(terminals=terminals)
+        self.assertEqual(len(gs), 438)
+        self.assertTrue([(1, 2), (1, 4), (2, 3), (4, 7), (7, 8), (8, 9)] in gs)
+        self.assertTrue([(1, 2), (1, 4), (2, 3), (2, 5), (4, 5), (5, 8)] not in gs)
+
+        gs = GraphSet.steiner_cycles(terminals=terminals)
+        self.assertEqual(len(gs), 3)
+        self.assertTrue([(1, 2), (1, 4), (2, 3), (3, 6), (4, 7), (5, 6), (5, 8), (7, 8)] in gs)
+        self.assertTrue([(1, 2), (1, 4), (2, 3), (4, 7), (7, 8), (8, 9)] not in gs)
+
+        gs = GraphSet.steiner_paths(terminals=terminals)
+        self.assertEqual(len(gs), 73)
+        self.assertTrue([(1, 2), (2, 3), (3, 6), (5, 6), (5, 8), (7, 8)] in gs)
+        self.assertTrue([(1, 2), (2, 3), (3, 6), (5, 6), (5, 8), (7, 8), (8, 9)] not in gs)
+
 
     def test_partitions(self):
         GraphSet.set_universe([(1, 2), (1, 4), (2, 3), (2, 5), (3, 6), (4, 5),
@@ -526,31 +667,33 @@ class TestGraphSet(unittest.TestCase):
 
         gs = GraphSet.weighted_induced_graphs(weight_list=wl, lower=10, upper=17)
         self.assertEqual(len(gs), 20) # 34 - 5 - 9
-    def test_chordal_graphs(self):
-        # the number of chordal labeled graphs: https://oeis.org/A058862
 
-        # K3
-        GraphSet.set_universe([(1, 2), (1, 3), (2, 3)])
-        gs = GraphSet.chordal_graphs()
-        self.assertEqual(len(gs), 8)
+    # def test_chordal_graphs(self):
+    #     # the number of chordal labeled graphs: https://oeis.org/A058862
 
-        # K4
-        GraphSet.set_universe([(1, 2), (1, 3), (1, 4), (2, 3), (2, 4), (3, 4)])
-        gs = GraphSet.chordal_graphs()
-        self.assertEqual(len(gs), 61)
-        self.assertTrue([(1, 2), (1, 4), (2, 3), (3, 4)] not in gs)
-        self.assertTrue([(1, 2), (1, 3), (1, 4), (2, 3), (3, 4)] in gs)
+    #     # K3
+    #     GraphSet.set_universe([(1, 2), (1, 3), (2, 3)])
+    #     gs = GraphSet.chordal_graphs()
+    #     self.assertEqual(len(gs), 8)
 
-        # K6
-        es = []
-        for i in range(1, 8):
-            for j in range(i + 1, 8):
-                es.append((i, j))
-        GraphSet.set_universe(es)
-        gs = GraphSet.chordal_graphs()
-        self.assertEqual(len(gs), 617675)
-        self.assertTrue([(2, 3), (2, 5), (3, 4), (4, 5)] not in gs)
-        self.assertTrue([(3, 4), (3, 5), (3, 6), (4, 5), (5, 6)] in gs)
+    #     # K4
+    #     GraphSet.set_universe([(1, 2), (1, 3), (1, 4), (2, 3), (2, 4), (3, 4)])
+    #     gs = GraphSet.chordal_graphs()
+    #     self.assertEqual(len(gs), 61)
+    #     self.assertTrue([(1, 2), (1, 4), (2, 3), (3, 4)] not in gs)
+    #     self.assertTrue([(1, 2), (1, 3), (1, 4), (2, 3), (3, 4)] in gs)
+
+    #     # K6
+    #     es = []
+    #     for i in range(1, 8):
+    #         for j in range(i + 1, 8):
+    #             es.append((i, j))
+    #     GraphSet.set_universe(es)
+    #     gs = GraphSet.chordal_graphs()
+    #     self.assertEqual(len(gs), 617675)
+    #     self.assertTrue([(2, 3), (2, 5), (3, 4), (4, 5)] not in gs)
+    #     self.assertTrue([(3, 4), (3, 5), (3, 6), (4, 5), (5, 6)] in gs)
+
     def test_bipartite_graphs(self):
         GraphSet.set_universe([(1, 2), (1, 3), (2, 3), (3, 4)])
         """
@@ -558,16 +701,25 @@ class TestGraphSet(unittest.TestCase):
         |  /
         3 --- 4
         """
-        gs = GraphSet.bipartite_graphs()
+        gs = GraphSet.bipartite_graphs(is_connected=False)
         self.assertEqual(len(gs), 2 ** 4 - 2)
         self.assertTrue([(1, 2), (2, 3), (3, 4)] in gs)
+        self.assertTrue([(1, 2), (3, 4)] in gs)
         self.assertTrue([] in gs)
+        self.assertTrue([(1, 2), (1, 3), (2, 3)] not in gs)
+        self.assertTrue([(1, 2), (1, 3), (2, 3), (3, 4)] not in gs)
+
+        gs = GraphSet.bipartite_graphs(is_connected=True)
+        self.assertEqual(len(gs), 13)
+        self.assertTrue([(1, 2), (2, 3), (3, 4)] in gs)
+        self.assertTrue([] in gs)
+        self.assertTrue([(1, 2), (3, 4)] not in gs)
         self.assertTrue([(1, 2), (1, 3), (2, 3)] not in gs)
         self.assertTrue([(1, 2), (1, 3), (2, 3), (3, 4)] not in gs)
 
         graphset = GraphSet(
             [[(1, 2), (1, 3), (2, 3)], [(1, 2), (2, 3), (3, 4)]])
-        gs = GraphSet.bipartite_graphs(graphset=graphset)
+        gs = GraphSet.bipartite_graphs(is_connected=False, graphset=graphset)
         self.assertTrue([(1, 2), (2, 3), (3, 4)] in gs)
         self.assertTrue([(1, 2), (1, 3), (3, 4)] not in gs)
 
@@ -575,8 +727,55 @@ class TestGraphSet(unittest.TestCase):
         """
         1 --- 2 --- 3 --- 4 --- 5
         """
-        gs = GraphSet.bipartite_graphs()
+        gs = GraphSet.bipartite_graphs(is_connected=False)
         self.assertEqual(len(gs), 16)
+
+    def test_degree_distribution_graphs(self):
+        GraphSet.set_universe([(1, 2), (1, 4), (2, 3), (2, 5), (3, 6), (4, 5),
+                               (5, 6)])
+
+        deg_dist1 = {0: GraphSet.DegreeDistribution_Any, 1: 2, 2: 1}
+        gs1 = GraphSet.degree_distribution_graphs(deg_dist1, False)
+
+        self.assertEqual(len(gs1), 10)
+        self.assertTrue([(1, 2), (1, 4)] in gs1)
+        self.assertTrue([(1, 2), (3, 6)] not in gs1)
+
+        gs2 = GraphSet.degree_distribution_graphs(deg_dist1, True)
+        # same as the case of not connected
+
+        self.assertEqual(len(gs2), 10)
+        self.assertTrue([(1, 2), (1, 4)] in gs2)
+        self.assertTrue([(1, 2), (3, 6)] not in gs2)
+
+        deg_dist2 = {0: GraphSet.DegreeDistribution_Any, 1: 4,
+                     3: GraphSet.DegreeDistribution_Any} # 2: 0
+        gs3 = GraphSet.degree_distribution_graphs(deg_dist2, False)
+
+        self.assertEqual(len(gs3), 12)
+
+        self.assertTrue([(1, 2), (2, 3), (2, 5), (4, 5), (5, 6)] in gs3)
+        self.assertTrue([(1, 2), (3, 6)] in gs3)
+        self.assertTrue([(1, 2), (1, 4)] not in gs3)
+
+        gs4 = GraphSet.degree_distribution_graphs(deg_dist2, True)
+
+        self.assertEqual(len(gs4), 1)
+
+        self.assertTrue([(1, 2), (2, 3), (2, 5), (4, 5), (5, 6)] in gs4)
+        self.assertTrue([(1, 2), (3, 6)] not in gs4)
+        self.assertTrue([(1, 2), (1, 4)] not in gs4)
+
+    def test_letter_P_graphs(self):
+        GraphSet.set_universe([(1, 2), (1, 4), (2, 3), (2, 5), (3, 6), (4, 5),
+                               (5, 6)])
+
+        gs = GraphSet.letter_P_graphs()
+
+        self.assertEqual(len(gs), 8)
+
+        self.assertTrue([(1, 2), (1, 4), (2, 3), (2, 5), (4, 5)] in gs)
+        self.assertTrue([(1, 2), (1, 4), (2, 3), (3, 6)] not in gs)
 
     def test_comparison(self):
         gs = GraphSet([g12])

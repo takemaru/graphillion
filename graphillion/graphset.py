@@ -136,8 +136,14 @@ class GraphSet(object):
                     d[k] = [GraphSet._conv_edge(e) for e in l]
                 obj = d
             self._ss = setset(obj)
-        methods = ['graphs', 'connected_components', 'cliques', 'trees',
-                   'forests', 'cycles', 'paths']
+        methods = ['graphs', 'connected_components', 'cliques', 'bicliques',
+                   'trees', 'forests', 'cycles', 'paths', 'matchings',
+                   'perfect_matchings', 'k_matchings', 'b_matchings',
+                   'k_factors', 'f_factors', 'regular_graphs',
+                   'bipartite_graphs', 'regular_bipartite_graphs',
+                   'steiner_subgraphs', 'steiner_trees', 'steiner_cycles',
+                   'steiner_paths', 'degree_distribution_graphs',
+                   'letter_P_graphs']
         for method in methods:
             setattr(self, method, partial(getattr(GraphSet, method), graphset=self))
 
@@ -1482,6 +1488,7 @@ class GraphSet(object):
         Raises:
           KeyError: If a given edge is not found in the universe.
         """
+        probabilities = {GraphSet._conv_edge(e): p for e, p in probabilities.items()}
         return self._ss.probability(probabilities)
 
     def dump(self, fp):
@@ -2016,6 +2023,42 @@ class GraphSet(object):
                                num_edges=ne, graphset=graphset)
 
     @staticmethod
+    def bicliques(a, b, graphset=None):
+        """Returns a GraphSet of (a, b)-bicliques ((a, b)-complete bipartite graphs).
+        Currently, the case of a == b is supported.
+
+        This method can be parallelized with OpenMP by specifying the
+        environmental variable `OMP_NUM_THREADS`:
+
+          `$ OMP_NUM_THREADS=4 python your_graphillion_script.py`
+
+        Examples:
+          >>> GraphSet.set_universe([(1, 2), (1, 3), (1, 4), (1, 5), (2, 3), (2, 4),
+                                     (2, 5), (3, 4), (3, 5), (4, 5)])
+          >>> GraphSet.bicliques(4)
+
+        Args:
+          a: An integer.  The number of degrees of the vertices in the left part.
+          b: An integer.  The number of degrees of the vertices in the right part.
+            a == b must hold.
+
+          graphset: Optional.  A GraphSet object.  Cliques to be
+            stored are selected from this object.
+
+        Returns:
+          A new GraphSet object.
+
+        See Also:
+          graphs()
+        """
+        if a != b:
+            TypeError('a == b must hold.')
+        gs = GraphSet.regular_bipartite_graphs(degree=a,
+                                                is_connected=True,
+                                                graphset=graphset)
+        return gs.graphs(num_edges=a*a)
+
+    @staticmethod
     def trees(root=None, is_spanning=False, graphset=None):
         """Returns a GraphSet of trees.
 
@@ -2124,7 +2167,7 @@ class GraphSet(object):
                                graphset=graphset)
 
     @staticmethod
-    def paths(terminal1, terminal2, is_hamilton=False, graphset=None):
+    def paths(terminal1=None, terminal2=None, is_hamilton=False, graphset=None):
         """Returns a GraphSet of paths.
 
         This method can be parallelized with OpenMP by specifying the
@@ -2137,7 +2180,9 @@ class GraphSet(object):
           GraphSet([[(1, 2), (2, 3), (3, 6)], [(1, 2), (2, 5), (5, 6)], [(1, 4), (4, 5 ...
 
         Args:
-          terminal1 and terminal2: Both end vertices of a paths.
+          terminal1 and terminal2: Both end vertices of a paths. If terminal1 != None
+            and terminal2 == None, all paths start from terminal1.
+            If terminal1 == None and terminal2 == None, Both end vertices are arbitrary.
 
           graphset: Optional.  A GraphSet object.  Paths to be stored
             are selected from this object.
@@ -2148,15 +2193,34 @@ class GraphSet(object):
         See Also:
           graphs()
         """
-        dc = {}
-        for v in GraphSet._vertices:
-            if v in (terminal1, terminal2):
-                dc[v] = 1
+        if terminal2 == None:
+            if is_hamilton:
+                deg_dist = {1: 2, 2: GraphSet.DegreeDistribution_Any}
             else:
-                dc[v] = 2 if is_hamilton else range(0, 3, 2)
-        return GraphSet.graphs(vertex_groups=[[terminal1, terminal2]],
-                               degree_constraints=dc,
-                               no_loop=True, graphset=graphset)
+                deg_dist = {0: GraphSet.DegreeDistribution_Any,
+                            1: 2, 2: GraphSet.DegreeDistribution_Any}
+            gs = GraphSet.degree_distribution_graphs(deg_dist, True, graphset=graphset)
+            if terminal1 == None:
+              return gs
+            else:
+                dc = {}
+                for v in GraphSet._vertices:
+                    if v == terminal1:
+                        dc[v] = 1
+                    else:
+                        dc[v] = range(1, 3) if is_hamilton else range(0, 3)
+                return GraphSet.graphs(degree_constraints=dc, no_loop=True,
+                                      graphset=gs)
+        else:
+            dc = {}
+            for v in GraphSet._vertices:
+                if v in (terminal1, terminal2):
+                    dc[v] = 1
+                else:
+                    dc[v] = 2 if is_hamilton else range(0, 3, 2)
+            return GraphSet.graphs(vertex_groups=[[terminal1, terminal2]],
+                                  degree_constraints=dc,
+                                  no_loop=True, graphset=graphset)
 
     @staticmethod
     def matchings(graphset=None):
@@ -2181,10 +2245,7 @@ class GraphSet(object):
         See Also:
           graphs()
         """
-        dc = {}
-        for v in GraphSet._vertices:
-          dc[v] = range(0, 2)
-        return GraphSet.graphs(degree_constraints=dc, graphset=graphset)
+        return GraphSet.k_matchings(1, graphset)
 
     @staticmethod
     def perfect_matchings(graphset=None):
@@ -2213,6 +2274,472 @@ class GraphSet(object):
         for v in GraphSet._vertices:
           dc[v] = 1
         return GraphSet.graphs(degree_constraints=dc, graphset=graphset)
+
+    @staticmethod
+    def k_matchings(k, graphset=None):
+        """Returns a GraphSet of k-matchings.
+        A k-matching is a set of edges such that each vertex is incident
+        to at most k edges of the k-matching.
+
+        This method can be parallelized with OpenMP by specifying the
+        environmental variable `OMP_NUM_THREADS`:
+
+          `$ OMP_NUM_THREADS=4 python your_graphillion_script.py`
+
+        Examples:
+          >>> GraphSet.k_matchings(3)
+
+        Args:
+          k: Integer. Each vertex is incident to at most k edges.
+          graphset: Optional.  A GraphSet object.  Matchings to be stored
+            are selected from this object.
+
+        Returns:
+          A new GraphSet object.
+
+        See Also:
+          graphs()
+        """
+        dc = {}
+        for v in GraphSet._vertices:
+          dc[v] = range(0, k + 1)
+        return GraphSet.graphs(degree_constraints=dc, graphset=graphset)
+
+    @staticmethod
+    def b_matchings(b, graphset=None):
+        """Returns a GraphSet of b-matchings.
+        For a function b that maps from a vertex to an integer,
+        a b-matching is a set of edges such that each vertex v is incident
+        to at most b(v) edges of the b-matching.
+
+        This method can be parallelized with OpenMP by specifying the
+        environmental variable `OMP_NUM_THREADS`:
+
+          `$ OMP_NUM_THREADS=4 python your_graphillion_script.py`
+
+        Examples:
+          >>> b = {}
+          # vertices is a list of vertices in the universe
+          >>> for v in vertices:
+          >>>     b[v] = 1 if v == 1 else 2
+          >>> GraphSet.b_matchings(b)
+
+        Args:
+          b: Dictionary. A key is a vertex of the universe graph and a value
+            is an integer. For a vertex v, if b[v] is undefined, it means b[v] == 0.
+          graphset: Optional.  A GraphSet object.  Matchings to be stored
+            are selected from this object.
+
+        Returns:
+          A new GraphSet object.
+
+        See Also:
+          graphs()
+        """
+        dc = {}
+        for v in GraphSet._vertices:
+            if v in b:
+                dc[v] = range(0, b[v] + 1)
+            else:
+                dc[v] = 0
+        return GraphSet.graphs(degree_constraints=dc, graphset=graphset)
+
+    @staticmethod
+    def k_factors(k, graphset=None):
+        """Returns a GraphSet of k-factors.
+        A k-factor is a set of edges such that each vertex is incident
+        to exactly k edges of the k-factor.
+
+        This method can be parallelized with OpenMP by specifying the
+        environmental variable `OMP_NUM_THREADS`:
+
+          `$ OMP_NUM_THREADS=4 python your_graphillion_script.py`
+
+        Examples:
+          >>> GraphSet.k_factors(3)
+
+        Args:
+          k: Integer. Each vertex is incident to exactly k edges.
+          graphset: Optional.  A GraphSet object.  Matchings to be stored
+            are selected from this object.
+
+        Returns:
+          A new GraphSet object.
+
+        See Also:
+          graphs()
+        """
+        dc = {}
+        for v in GraphSet._vertices:
+          dc[v] = k
+        return GraphSet.graphs(degree_constraints=dc, graphset=graphset)
+
+    @staticmethod
+    def f_factors(f, graphset=None):
+        """Returns a GraphSet of f-factors.
+        For a function f that maps from a vertex to an integer,
+        an f-factor is a set of edges such that each vertex v is incident
+        to exactly f(v) edges of the f-factor.
+
+        This method can be parallelized with OpenMP by specifying the
+        environmental variable `OMP_NUM_THREADS`:
+
+          `$ OMP_NUM_THREADS=4 python your_graphillion_script.py`
+
+        Examples:
+          >>> f = {}
+          # vertices is a list of vertices in the universe
+          >>> for v in vertices:
+          >>>     f[v] = 1 if f == 1 else 2
+          >>> GraphSet.f_factors(f)
+
+        Args:
+          f: Dictionary. A key is a vertex of the universe graph and a value
+            is an integer. For a vertex v, if f[v] is undefined, it means f[v] == 0.
+          graphset: Optional.  A GraphSet object.  Matchings to be stored
+            are selected from this object.
+
+        Returns:
+          A new GraphSet object.
+
+        See Also:
+          graphs()
+        """
+        dc = {}
+        for v in GraphSet._vertices:
+            if v in f:
+                dc[v] = f[v]
+            else:
+                dc[v] = 0
+        return GraphSet.graphs(degree_constraints=dc, graphset=graphset)
+
+    @staticmethod
+    def regular_graphs(degree=None, is_connected=True, graphset=None):
+        """Returns a GraphSet of regular graphs.
+        A regular graph is one such that all the degrees of the vertices are the same.
+
+        This method can be parallelized with OpenMP by specifying the
+        environmental variable `OMP_NUM_THREADS`:
+
+          `$ OMP_NUM_THREADS=4 python your_graphillion_script.py`
+
+        Examples:
+          >>> GraphSet.regular_graphs()
+
+          # The degree is 3 and the graphs are not necessarily connected.
+          >>> GraphSet.regular_graphs(3, False)
+
+          # The degree is at least 2 and at most 5, and
+          # the graphs are connected.
+          >>> GraphSet.regular_graphs((2, 5), True)
+
+        Args:
+          degree: Tuple or Integer. If it is a tuple (l, u),
+            the degree is at least l and at most u.
+            If it is an integer d, the degree is d.
+            If it is None, the degree is arbitrary.
+          is_connected: Bool. If it is True, the graphs are
+            connected. If it is False, the graphs are
+            not necessarily connected.
+          graphset: Optional.  A GraphSet object.  Matchings to be stored
+            are selected from this object.
+
+        Returns:
+          A new GraphSet object.
+
+        See Also:
+          graphs()
+        """
+
+        graph = []
+        for e in setset.universe():
+            assert e[0] in GraphSet._vertices and e[1] in GraphSet._vertices
+            graph.append((pickle.dumps(e[0], protocol=0), pickle.dumps(e[1], protocol=0)))
+
+        if degree == None:
+            degree = (1, len(GraphSet._vertices))
+
+        ss = None if graphset is None else graphset._ss
+
+        ss = _graphillion._regular_graphs(graph=graph,
+                                          degree=degree,
+                                          is_connected=is_connected,
+                                          graphset=ss)
+        return GraphSet(ss)
+
+    @staticmethod
+    def bipartite_graphs(is_connected=True, graphset=None):
+        """Returns a GraphSet of bipartite subgraphs.
+
+        Example:
+          >>> GraphSet.bipartite_graphs()
+          GraphSet([[], [(1, 4)], [(4, 5)], [(1, 2)], [(2, 5)], [(2, 3)], [(3, 6)], [( ...
+
+        Args:
+          graphset: Optional. A GraphSet object. Subgraphs to be stored
+            are selected from this object.
+
+        Returns:
+          A new GraphSet object.
+        """
+        graph = []
+        for e in setset.universe():
+            assert e[0] in GraphSet._vertices and e[1] in GraphSet._vertices
+            graph.append(
+                (pickle.dumps(e[0], protocol=0), pickle.dumps(e[1], protocol=0)))
+
+        odd_gs = GraphSet(_graphillion._odd_edges_subgraphs(graph))
+        odd_cycle_gs = odd_gs.cycles()
+
+        if graphset is None:
+            gs = GraphSet({}).non_supergraphs(odd_cycle_gs)
+        else:
+            gs = graphset.non_supergraphs(odd_cycle_gs)
+
+        if is_connected:
+            # The empty set is a bipartite graph.
+            return gs.graphs(vertex_groups=[[]]) | GraphSet([[]])
+        else:
+            return gs
+
+    @staticmethod
+    def regular_bipartite_graphs(degree=None, is_connected=True, graphset=None):
+        """Returns a GraphSet of regular bipartite subgraphs.
+
+        Example:
+          >>> GraphSet.regular_bipartite_graphs()
+
+          # The degree is 3 and the graphs are not necessarily connected.
+          >>> GraphSet.regular_graphs(3, False)
+
+          # The degree is at least 2 and at most 5, and
+          # the graphs are connected.
+          >>> GraphSet.regular_graphs((2, 5), True)
+
+        Args:
+          degree: Tuple or Integer. If it is a tuple (l, u),
+            the degree is at least l and at most u.
+            If it is an integer d, the degree is d.
+            If it is None, the degree is arbitrary.
+          is_connected: Bool. If it is True, the graphs are
+            connected. If it is False, the graphs are
+            not necessarily connected.
+          graphset: Optional. A GraphSet object. Subgraphs to be stored
+            are selected from this object.
+
+        Returns:
+          A new GraphSet object.
+  
+        See Also:
+          regular_graphs()
+          bipartite_graphs()
+        """
+        bi_graphs = GraphSet.bipartite_graphs(is_connected=is_connected, graphset=graphset)
+        return GraphSet.regular_graphs(degree=degree, is_connected=is_connected, graphset=bi_graphs)
+
+    @staticmethod
+    def steiner_subgraphs(terminals, graphset=None):
+        """Returns a GraphSet of Steiner subgraphs.
+          A Steiner subgraph is a subgraph that contains all vertices in "terminals".
+
+        Example:
+          >>> GraphSet.steiner_subgraphs([1, 2, 3])
+
+        Args:
+          terminals: A list of vertices to be connected.
+          graphset: Optional. A GraphSet object. Subgraphs to be stored
+            are selected from this object.
+
+        Returns:
+          A new GraphSet object.
+        """
+        return GraphSet.connected_components(terminals, graphset)
+
+    @staticmethod
+    def steiner_trees(terminals, graphset=None):
+        """Returns a GraphSet of Steiner trees.
+          A Steiner tree is a tree that contains all vertices in "terminals".
+
+        Example:
+          >>> GraphSet.steiner_trees([1, 2, 3])
+
+        Args:
+          terminals: A list of vertices to be connected.
+          graphset: Optional. A GraphSet object. Subgraphs to be stored
+            are selected from this object.
+
+        Returns:
+          A new GraphSet object.
+        """
+        return GraphSet.graphs(vertex_groups=[terminals],
+                               no_loop=True, graphset=graphset)
+
+    @staticmethod
+    def steiner_cycles(terminals, graphset=None):
+        """Returns a GraphSet of Steiner cycles.
+          A Steiner cycle is a cycle that contains all vertices in "terminals".
+
+        Example:
+          >>> GraphSet.steiner_cycles([1, 2, 3])
+
+        Args:
+          terminals: A list of vertices to be connected.
+          graphset: Optional. A GraphSet object. Subgraphs to be stored
+            are selected from this object.
+
+        Returns:
+          A new GraphSet object.
+        """
+        dc = {}
+        for v in GraphSet._vertices:
+            dc[v] = range(0, 3, 2)
+        return GraphSet.graphs(vertex_groups=[terminals], degree_constraints=dc,
+                               graphset=graphset)
+
+    @staticmethod
+    def steiner_paths(terminals, graphset=None):
+        """Returns a GraphSet of Steiner paths.
+          A Steiner path is a path that contains all vertices in "terminals".
+
+        Example:
+          >>> GraphSet.steiner_paths([1, 2, 3])
+
+        Args:
+          terminals: A list of vertices to be connected.
+          graphset: Optional. A GraphSet object. Subgraphs to be stored
+            are selected from this object.
+
+        Returns:
+          A new GraphSet object.
+        """
+        gs = GraphSet.paths(graphset)
+        return GraphSet.graphs(vertex_groups=[terminals], graphset=gs)
+
+    DegreeDistribution_Any = -1
+
+    @staticmethod
+    def degree_distribution_graphs(deg_dist, is_connected, graphset=None):
+        """Returns a GraphSet having specified degree distribution.
+
+        Examples:
+            >>> GraphSet.set_universe([(1, 2), (1, 4), (2, 3),
+                                        (2, 5), (3, 6), (4, 5),
+                                        (5, 6)])
+            >>> deg_dist = {0: GraphSet.DegreeDistribution_Any,
+                            1: 2, 2: 1}
+            # This means that each subgraph has 2 vertices with degree 1,
+            # 1 vertex with degree 2, and any number of vertices with
+            # degree 0.
+            >>> gs = GraphSet.degree_distribution_graphs(deg_dist, True)
+        Args:
+          deg_dist: dictionary whose key and value mean that
+                    each subgraph has 'value' number of vertices
+                    with degree 'key'. If the value is
+                    GraphSet.DegreeDistribution_Any, it means that
+                    each subgraph has any number of vertices
+                    with degree 'key'.
+          connected: Each subgraph is connected if True.
+                      Each subgraph is not necessarily connected if False.
+
+        Returns:
+            A new GraphSet object.
+        """
+        graph = []
+        for e in setset.universe():
+            assert e[0] in GraphSet._vertices and e[1] in GraphSet._vertices
+            graph.append(
+                (pickle.dumps(e[0], protocol=0), pickle.dumps(e[1], protocol=0)))
+
+        ss = _graphillion._degree_distribution_graphs(graph, deg_dist, is_connected, graphset)
+        return GraphSet(ss)
+
+    @staticmethod
+    def letter_P_graphs(graphset=None):
+        """Returns a GraphSet whose shape looks like letter 'P'.
+            That is, each subgraph has one vertex with degree 1,
+            one vertex with degree 3, and any number of vertices with
+            degree 2, and is connected.
+
+        Examples:
+            >>> gs = GraphSet.letter_P_graphs()
+
+        Returns:
+            A new GraphSet object.
+        """
+        deg_dist = {0: GraphSet.DegreeDistribution_Any, 1: 1, 2: GraphSet.DegreeDistribution_Any, 3: 1}
+        return GraphSet.degree_distribution_graphs(deg_dist, is_connected=True, graphset=graphset)
+
+    @staticmethod
+    def partitions(num_comp_lb=1, num_comp_ub=32767):
+        """Returns a GraphSet with partitions of the graph.
+        Examples: partitions with two or three connected components.
+          >>> lb = 2
+          >>> ub = 3
+          >>> GraphSet.partitions(num_comp_lb=lb,num_comp_ub=ub)
+          GraphSet([[(1, 4), (2, 3), (4, 5)], [(1, 2), (1, 4), (2, 3)], [(1, 4), (3, 6 ...
+
+        Args:
+          num_comp_lb: Optional. int. the lower bound of the number of 
+            connected components. (including)
+          num_comp_ub: Optional. int. the upper bound of the number of
+            connected components. (including)
+
+        Returns:
+          A new GraphSet object.
+        """
+        graph = []
+        for e in setset.universe():
+            assert e[0] in GraphSet._vertices and e[1] in GraphSet._vertices
+            graph.append(
+              (pickle.dumps(e[0], protocol=0), pickle.dumps(e[1], protocol=0)))
+
+        ss = _graphillion._partitions(
+          graph=graph, num_comp_lb=num_comp_lb, num_comp_ub=num_comp_ub)
+        return GraphSet(ss)
+
+    @staticmethod
+    def balanced_partitions(weight_list=None, ratio=0.0, lower=0, upper=4294967295 // 4, num_comps=-1):
+        """Returns a GraphSet with balanced partitions of the graph.
+
+        Examples: balanced partitions with disparity less than or equal to 2.0.
+          >>> wl = {}
+          >>> for v in range(1,7):
+          >>>   if v % 2:
+          >>>     wl[v] = 1
+          >>>   else:
+          >>>     wl[v] = 2
+          >>> gs = GraphSet.balanced_partitions(weight_list=wl, ratio=2, num_comps=2, lower=2)
+          GraphSet([[(1, 4), (2, 3), (3, 6), (4, 5)], [(1, 4), (2, 3), (4, 5), (5, 6)] ...
+
+        Args:
+          weight_list: Optional. A list of int. Vertex weights.
+          ratio: Optional. a floating point number more than or equal to 1.0.
+          lower: Optional. int. the lower bound of the sum of vertex weights
+            in each connected component. (including)
+          upper: Optional. int. the upper bound of the sum of vertex weights
+            in each connected component. (including)
+          num_comps: Optional. int. the number of connected components.
+
+        Returns:
+          A new GraphSet object.
+        """
+        graph = []
+        for e in setset.universe():
+            assert e[0] in GraphSet._vertices and e[1] in GraphSet._vertices
+            graph.append(
+                (pickle.dumps(e[0], protocol=0), pickle.dumps(e[1], protocol=0)))
+
+        wl = None
+        if weight_list is not None:
+            wl = {}
+            for v, r in viewitems(weight_list):
+                if v not in GraphSet._vertices:
+                    raise KeyError(v)
+                wl[pickle.dumps(v, protocol=0)] = r
+
+        ss = _graphillion._balanced_partitions(
+            graph=graph, weight_list=wl, ratio=ratio, lower=lower, upper=upper, num_comps=num_comps)
+        return GraphSet(ss)
 
     @staticmethod
     def induced_graphs():
@@ -2274,12 +2801,11 @@ class GraphSet(object):
         return GraphSet(ss)
 
     @staticmethod
-    def chordal_graphs():
-        """Returns a GraphSet with chordal graphs.
+    def forbidden_induced_subgraphs(forbidden_graphset=None):
+        """Returns a GraphSet characterized by forbidden induced subgraphs.
 
         Examples:
-            >>> GraphSet.chordal_graphs()
-            GraphSet([[], [(1, 4)], [(4, 5)], [(1, 2)], [(2, 5)], [(2, 3)], [(3, 6)], [( ...
+            >>> GraphSet.forbidden_induced_subgraphs(GraphSet.cycles())
 
         Returns:
             A new GraphSet object.
@@ -2290,51 +2816,14 @@ class GraphSet(object):
             graph.append(
                 (pickle.dumps(e[0], protocol=0), pickle.dumps(e[1], protocol=0)))
 
-        ss = _graphillion._chordal_graphs(graph=graph)
+        ss = None if forbidden_graphset is None else forbidden_graphset._ss
+
+        ss = _graphillion._forbidden_induced_subgraphs(graph=graph, graphset=ss)
         return GraphSet(ss)
 
     @staticmethod
-    def bipartite_graphs(graphset=None):
-        """Returns a GraphSet of bipartite subgraphs.
-
-        Example:
-          >>> GraphSet.bipartite_graphs()
-          GraphSet([[], [(1, 4)], [(4, 5)], [(1, 2)], [(2, 5)], [(2, 3)], [(3, 6)], [( ...
-
-        Args:
-          graphset: Optional. A GraphSet object. Subgraphs to be stored
-            are selected from this object.
-
-        Returns:
-          A new GraphSet object.
-        """
-        graph = []
-        for e in setset.universe():
-            assert e[0] in GraphSet._vertices and e[1] in GraphSet._vertices
-            graph.append(
-                (pickle.dumps(e[0], protocol=0), pickle.dumps(e[1], protocol=0)))
-
-        odd_gs = GraphSet(_graphillion._odd_edges_subgraphs(graph))
-        odd_cycle_gs = odd_gs.cycles()
-
-        if graphset is None:
-            return GraphSet({}).non_supergraphs(odd_cycle_gs)
-
-        return graphset.non_supergraphs(odd_cycle_gs)
-
-    @staticmethod
-    def show_messages(flag=True):
-        """Enables/disables status messages.
-
-        Args:
-          flag: Optional.  True or False.  If True, status messages are
-          enabled.  If False, they are disabled (initial setting).
-
-        Returns:
-          The setting before the method call.  True (enabled) or
-          False (disabled).
-        """
-        return _graphillion._show_messages(flag)
+    def chordal_graphs():
+        raise TypeError('chordal_graphs moved to GraphClass.chordal_graphs()')
 
     @staticmethod
     def reliability(probabilities, terminals):
@@ -2381,6 +2870,20 @@ class GraphSet(object):
         reliability = _graphillion._reliability(
             graph=graph, probabilities=ps, terminals=terms)
         return reliability
+
+    @staticmethod
+    def show_messages(flag=True):
+        """Enables/disables status messages.
+
+        Args:
+          flag: Optional.  True or False.  If True, status messages are
+          enabled.  If False, they are disabled (initial setting).
+
+        Returns:
+          The setting before the method call.  True (enabled) or
+          False (disabled).
+        """
+        return _graphillion._show_messages(flag)
 
     @staticmethod
     def _traverse(indexed_edges, traversal, source):
@@ -2455,78 +2958,6 @@ class GraphSet(object):
             return sorted_edges
         else:
             raise ValueError('invalid `traversal`: %s' % traversal)
-
-    @staticmethod
-    def partitions(num_comp_lb=1, num_comp_ub=32767):
-        """Returns a GraphSet with partitions of the graph.
-        Examples: partitions with two or three connected components.
-          >>> lb = 2
-          >>> ub = 3
-          >>> GraphSet.partitions(num_comp_lb=lb,num_comp_ub=ub)
-          GraphSet([[(1, 4), (2, 3), (4, 5)], [(1, 2), (1, 4), (2, 3)], [(1, 4), (3, 6 ...
-
-        Args:
-          num_comp_lb: Optional. int. the lower bound of the number of 
-            connected components. (including)
-          num_comp_ub: Optional. int. the upper bound of the number of
-            connected components. (including)
-
-        Returns:
-          A new GraphSet object.
-        """
-        graph = []
-        for e in setset.universe():
-            assert e[0] in GraphSet._vertices and e[1] in GraphSet._vertices
-            graph.append(
-              (pickle.dumps(e[0], protocol=0), pickle.dumps(e[1], protocol=0)))
-
-        ss = _graphillion._partitions(
-          graph=graph, num_comp_lb=num_comp_lb, num_comp_ub=num_comp_ub)
-        return GraphSet(ss)
-
-    @staticmethod
-    def balanced_partitions(weight_list=None, ratio=0.0, lower=0, upper=4294967295 // 4, num_comps=-1):
-        """Returns a GraphSet with balanced partitions of the graph.
-
-        Examples: balanced partitions with disparity less than or equal to 2.0.
-          >>> wl = {}
-          >>> for v in range(1,7):
-          >>>   if v % 2:
-          >>>     wl[v] = 1
-          >>>   else:
-          >>>     wl[v] = 2
-          >>> gs = GraphSet.balanced_partitions(weight_list=wl, ratio=2, num_comps=2, lower=2)
-          GraphSet([[(1, 4), (2, 3), (3, 6), (4, 5)], [(1, 4), (2, 3), (4, 5), (5, 6)] ...
-
-        Args:
-          weight_list: Optional. A list of int. Vertex weights.
-          ratio: Optional. a floating point number more than or equal to 1.0.
-          lower: Optional. int. the lower bound of the sum of vertex weights
-            in each connected component. (including)
-          upper: Optional. int. the upper bound of the sum of vertex weights
-            in each connected component. (including)
-          num_comps: Optional. int. the number of connected components.
-
-        Returns:
-          A new GraphSet object.
-        """
-        graph = []
-        for e in setset.universe():
-            assert e[0] in GraphSet._vertices and e[1] in GraphSet._vertices
-            graph.append(
-                (pickle.dumps(e[0], protocol=0), pickle.dumps(e[1], protocol=0)))
-
-        wl = None
-        if weight_list is not None:
-            wl = {}
-            for v, r in viewitems(weight_list):
-                if v not in GraphSet._vertices:
-                    raise KeyError(v)
-                wl[pickle.dumps(v, protocol=0)] = r
-
-        ss = _graphillion._balanced_partitions(
-            graph=graph, weight_list=wl, ratio=ratio, lower=lower, upper=upper, num_comps=num_comps)
-        return GraphSet(ss)
 
     @staticmethod
     def _conv_arg(obj):
