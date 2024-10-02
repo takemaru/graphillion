@@ -102,14 +102,14 @@ zdd_t single(elem_t e) {
   return top().Change(e);
 }
 
-zdd_t complement(zdd_t f) {
-  vector<zdd_t> n(num_elems_ + 2);
+zdd_t complement(zdd_t f, elem_t num_elems_a) {
+  vector<zdd_t> n(num_elems_a + 2);
   n[0] = bot(), n[1] = top();
-  for (elem_t v = num_elems_; v > 0; --v) {
-    elem_t i = num_elems_ - v + 2;
+  for (elem_t v = num_elems_a; v > 0; --v) {
+    elem_t i = num_elems_a - v + 2;
     n[i] = n[i - 1] + single(v) * n[i - 1];
   }
-  return n[num_elems_ + 1] - f;
+  return n[num_elems_a + 1] - f;
 }
 
 zdd_t minimal(zdd_t f) {
@@ -138,34 +138,35 @@ zdd_t maximal(zdd_t f) {
   return cache[id(f)] = r;
 }
 
-zdd_t hitting(zdd_t f) {
+zdd_t hitting(zdd_t f, elem_t num_elems_a) {
   if (f == bot()) return top();
   if (f == top()) return bot();
-  vector<vector<zdd_t> > stacks(num_elems_ + 1);
+  vector<vector<zdd_t> > stacks(num_elems_a + 1);
   set<word_t> visited;
-  sort_zdd(f, &stacks, &visited);
+  elem_t max_elem = 0;
+  sort_zdd(f, &stacks, &visited, &max_elem);
   map<word_t, zdd_t> cache;
   cache[id(bot())] = bot();
   cache[id(top())] = bot();
-  for (elem_t v = num_elems_; v > 0; --v) {
+  for (elem_t v = num_elems_a; v > 0; --v) {
     while (!stacks[v].empty()) {
       zdd_t n = stacks[v].back();
       stacks[v].pop_back();
       zdd_t l = cache.at(id(lo(n)));
       if (lo(n) != bot()) {
-        elem_t j = lo(n) == top() ? num_elems_ : elem(lo(n)) - 1;
+        elem_t j = lo(n) == top() ? num_elems_a : elem(lo(n)) - 1;
         for (; j > v; --j)
           l = l + l.Change(j);
       }
       zdd_t h = cache.at(id(hi(n)));
       if (hi(n) != bot()) {
-        elem_t j = hi(n) == top() ? num_elems_ : elem(hi(n)) - 1;
+        elem_t j = hi(n) == top() ? num_elems_a : elem(hi(n)) - 1;
         for (; j > v; --j)
           h = h + h.Change(j);
       }
       if (lo(n) == bot()) {
         zdd_t g = top();
-        for (elem_t j = num_elems_; j > v; --j)
+        for (elem_t j = num_elems_a; j > v; --j)
           g = g + g.Change(j);
         g = g.Change(elem(n));
         cache[id(n)] = h + g;
@@ -175,7 +176,7 @@ zdd_t hitting(zdd_t f) {
     }
   }
   zdd_t g = cache.at(id(f));
-  elem_t j = is_term(f) ? num_elems_ : elem(f) - 1;
+  elem_t j = is_term(f) ? num_elems_a : elem(f) - 1;
   for (; j > 0; --j)
     g = g + g.Change(j);
   return g;
@@ -331,10 +332,11 @@ void dump(zdd_t f, ostream& out) {
   } else if (f == top()) {
     out << "T" << endl;
   } else {
-    vector<vector<zdd_t> > stacks(num_elems_ + 1);
+    vector<vector<zdd_t> > stacks;
     set<word_t> visited;
-    sort_zdd(f, &stacks, &visited);
-    for (elem_t v = num_elems_; v > 0; --v) {
+    elem_t max_elem = 0;
+    sort_zdd(f, &stacks, &visited, &max_elem);
+    for (elem_t v = max_elem; v > 0; --v) {
       while (!stacks[v].empty()) {
         zdd_t g = stacks[v].back();
         stacks[v].pop_back();
@@ -361,10 +363,11 @@ void dump(zdd_t f, FILE* fp) {
   } else if (f == top()) {
     fprintf(fp, "T\n");
   } else {
-    vector<vector<zdd_t> > stacks(num_elems_ + 1);
+    vector<vector<zdd_t> > stacks;
     set<word_t> visited;
-    sort_zdd(f, &stacks, &visited);
-    for (elem_t v = num_elems_; v > 0; --v) {
+    elem_t max_elem = 0;
+    sort_zdd(f, &stacks, &visited, &max_elem);
+    for (elem_t v = max_elem; v > 0; --v) {
       while (!stacks[v].empty()) {
         zdd_t g = stacks[v].back();
         stacks[v].pop_back();
@@ -518,7 +521,7 @@ void algo_b(zdd_t f, const vector<double>& w, vector<bool>* x) {
   assert(x != NULL);
   assert(f != bot());
   if (f == top()) return;
-  vector<vector<zdd_t> > stacks(num_elems_ + 1);
+  vector<vector<zdd_t> > stacks;
   set<word_t> visited;
   elem_t max_elem = 0;
   sort_zdd(f, &stacks, &visited, &max_elem);
@@ -569,26 +572,28 @@ double algo_c(zdd_t f) {
     return counts[id(f)] = algo_c(hi(f)) + algo_c(lo(f));
 }
 
-static double skip_probability(elem_t e, zdd_t f, const vector<double>& probabilities) {
+static double skip_probability(elem_t e, zdd_t f,
+                               const vector<double>& probabilities,
+                               elem_t num_elems_a) {
   double p = 1;
-  for (int i = e; i < (is_term(f) ? num_elems() + 1 : elem(f)); ++i)
+  for (int i = e; i < (is_term(f) ? num_elems_a + 1 : elem(f)); ++i)
     p *= 1 - probabilities[i];
   return p;
 }
 
 double probability(elem_t e, zdd_t f, const vector<double>& probabilities,
-                   map<word_t, double>& cache) {
+                   map<word_t, double>& cache, elem_t num_elems_a) {
   zdd_t l = lo(f);
   zdd_t h = hi(f);
   if (cache.find(id(l)) == cache.end())
-    cache[id(l)] = probability(elem(l), l, probabilities, cache);
+    cache[id(l)] = probability(elem(l), l, probabilities, cache, num_elems_a);
   if (cache.find(id(h)) == cache.end())
-    cache[id(h)] = probability(elem(h), h, probabilities, cache);
+    cache[id(h)] = probability(elem(h), h, probabilities, cache, num_elems_a);
   double pl = (1 - probabilities[elem(f)]) *
-      skip_probability(elem(f) + 1, l, probabilities) * cache.at(id(l));
+      skip_probability(elem(f) + 1, l, probabilities, num_elems_a) * cache.at(id(l));
   double ph = probabilities[elem(f)] *
-      skip_probability(elem(f) + 1, h, probabilities) * cache.at(id(h));
-  return skip_probability(e, f, probabilities) * (pl + ph);
+      skip_probability(elem(f) + 1, h, probabilities, num_elems_a) * cache.at(id(h));
+  return skip_probability(e, f, probabilities, num_elems_a) * (pl + ph);
 }
 
 // Algorithm ZUNIQ from Knuth vol. 4 fascicle 1 sec. 7.1.4.
@@ -610,15 +615,20 @@ double rand_xor128() {
     return static_cast<double>(w) / ULONG_MAX;
 }
 
+// max_elem must not be NULL.
 void sort_zdd(zdd_t f, vector<vector<zdd_t> >* stacks,
               set<word_t>* visited, elem_t* max_elem) {
-  assert(stacks != NULL && visited != NULL);
+  assert(stacks != NULL && visited != NULL && max_elem != NULL);
   if (is_term(f)) return;
   if (visited->find(id(f)) != visited->end()) return;
+  if (elem(f) > *max_elem) {
+    *max_elem = elem(f);
+    if (static_cast<int>(stacks->size()) < *max_elem + 1) {
+      stacks->resize(*max_elem + 1);
+    }
+  }
   (*stacks)[elem(f)].push_back(f);
   visited->insert(id(f));
-  if (max_elem != NULL && elem(f) > *max_elem)
-    *max_elem = elem(f);
   sort_zdd(lo(f), stacks, visited, max_elem);
   sort_zdd(hi(f), stacks, visited, max_elem);
 }

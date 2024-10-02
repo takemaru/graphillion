@@ -65,10 +65,10 @@ inline elem_t elem(zdd_t f) {
 
 zdd_t operator|(const zdd_t& f, const zdd_t& g);
 
-zdd_t complement(zdd_t f);
+zdd_t complement(zdd_t f, elem_t num_elems_a);
 zdd_t minimal(zdd_t f);
 zdd_t maximal(zdd_t f);
-zdd_t hitting(zdd_t f);
+zdd_t hitting(zdd_t f, elem_t num_elems_a);
 zdd_t join(zdd_t f, zdd_t g);
 zdd_t meet(zdd_t f, zdd_t g);
 zdd_t non_subsets(zdd_t f, zdd_t g);
@@ -94,11 +94,11 @@ void _enum(zdd_t f, FILE* fp, std::vector<elem_t>* stack, bool* first,
 void algo_b(zdd_t f, const std::vector<double>& w, std::vector<bool>* x);
 double algo_c(zdd_t f);
 double probability(elem_t e, zdd_t f, const std::vector<double>& probabilities,
-                   std::map<word_t, double>& cache);
+                   std::map<word_t, double>& cache, elem_t num_elems_a);
 zdd_t zuniq(elem_t v, zdd_t l, zdd_t h);
 double rand_xor128();
 void sort_zdd(zdd_t f, std::vector<std::vector<zdd_t> >* stacks,
-              std::set<word_t>* visited, elem_t* max_elem = NULL);
+              std::set<word_t>* visited, elem_t* max_elem);
 inline std::pair<word_t, word_t> make_key(zdd_t f, zdd_t g) {
   return std::make_pair(id(f), id(g));
 }

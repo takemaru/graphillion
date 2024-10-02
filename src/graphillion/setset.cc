@@ -177,7 +177,7 @@ setset::setset(istream& in) : zdd_(graphillion::load(in)) {
 }
 
 setset setset::operator~() const {
-  return setset(complement(this->zdd_));
+  return setset(complement(this->zdd_, num_elems()));
 }
 
 setset setset::operator|(const setset& ss) const {
@@ -371,7 +371,7 @@ setset setset::maximal() const {
 }
 
 setset setset::hitting() const {  // a.k.a cross elements
-  return setset(graphillion::hitting(this->zdd_));
+  return setset(graphillion::hitting(this->zdd_, num_elems()));
 }
 
 setset setset::smaller(size_t set_size) const {
@@ -481,7 +481,7 @@ double setset::probability(const vector<double>& probabilities) const {
     map<word_t, double> cache;
     cache[graphillion::id(bot())] = 0;
     cache[graphillion::id(top())] = 1;
-    return graphillion::probability(1, this->zdd_, probabilities, cache);
+    return graphillion::probability(1, this->zdd_, probabilities, cache, num_elems());
   }
 }
 
