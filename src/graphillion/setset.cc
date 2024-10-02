@@ -147,7 +147,7 @@ setset::setset(const vector<set<elem_t> >& v) : zdd_(bot()) {
     this->zdd_ += setset(*s).zdd_;
 }
 
-setset::setset(const map<string, vector<elem_t> >& m) {
+setset::setset(const map<string, vector<elem_t> >& m, elem_t num_elems_a) {
   for (map<string, vector<elem_t> >::const_iterator i = m.begin();
        i != m.end(); ++i)
     assert(i->first == "include" || i->first == "exclude");
@@ -159,18 +159,18 @@ setset::setset(const map<string, vector<elem_t> >& m) {
     single(*e);
   for (vector<elem_t>::const_iterator e = ex_v.begin(); e != ex_v.end(); ++e)
     single(*e);
-  vector<zdd_t> n(num_elems() + 2);
+  vector<zdd_t> n(num_elems_a + 2);
   n[0] = bot(), n[1] = top();
-  for (elem_t v = num_elems(); v > 0; --v) {
+  for (elem_t v = num_elems_a; v > 0; --v) {
     bool in_found = std::find(in_v.begin(), in_v.end(), v) != in_v.end();
     bool ex_found = std::find(ex_v.begin(), ex_v.end(), v) != ex_v.end();
     assert(!(in_found && ex_found));
-    elem_t i = num_elems() - v + 2;
+    elem_t i = num_elems_a - v + 2;
     n[i] = in_found ? n[0]   + single(v) * n[i-1]
          : ex_found ? n[i-1] + single(v) * n[0]
          :            n[i-1] + single(v) * n[i-1];
   }
-  this->zdd_ = n[num_elems() + 1];
+  this->zdd_ = n[num_elems_a + 1];
 }
 
 setset::setset(istream& in) : zdd_(graphillion::load(in)) {
@@ -266,8 +266,8 @@ bool setset::empty() const {
   return this->zdd_ == bot();
 }
 
-string setset::size() const {
-  SapporoZdd f(this->zdd_, graphillion::max_elem() - graphillion::num_elems());
+string setset::size(elem_t num_elems_a) const {
+  SapporoZdd f(this->zdd_, graphillion::max_elem() - num_elems_a);
   return countPaths(f, true);
 }
 
@@ -337,10 +337,13 @@ size_t setset::erase(const set<elem_t>& s) {
 }
 
 void setset::erase(elem_t e) {
-  set<elem_t> s;
-  for (elem_t e2 = 1; e2 <= num_elems(); ++e2)
-    if (e != e2) s.insert(e2);
-  this->zdd_ = graphillion::meet(this->zdd_, setset(s).zdd_);
+  //set<elem_t> s;
+  //for (elem_t e2 = 1; e2 <= num_elems_; ++e2)
+  //  if (e != e2) s.insert(e2);
+  //this->zdd_ = graphillion::meet(this->zdd_, setset(s).zdd_);
+
+  // Change the algorithm so that num_elems_ is not used.
+  this->zdd_ = this->zdd_.OffSet(e) + this->zdd_.OnSet0(e);
 }
 
 void setset::clear() {
@@ -357,8 +360,8 @@ void setset::flip(elem_t e) {
   this->zdd_ = this->zdd_.Change(e);
 }
 
-void setset::flip() {
-  for (elem_t e = 1; e <= graphillion::num_elems(); ++e)
+void setset::flip_all(elem_t num_elems_a) {
+  for (elem_t e = 1; e <= num_elems_a; ++e)
     this->zdd_ = this->zdd_.Change(e);
 }
 
@@ -370,8 +373,8 @@ setset setset::maximal() const {
   return setset(graphillion::maximal(this->zdd_));
 }
 
-setset setset::hitting() const {  // a.k.a cross elements
-  return setset(graphillion::hitting(this->zdd_, num_elems()));
+setset setset::hitting(elem_t num_elems_a) const {  // a.k.a cross elements
+  return setset(graphillion::hitting(this->zdd_, num_elems_a));
 }
 
 setset setset::smaller(size_t set_size) const {
@@ -426,8 +429,7 @@ setset setset::non_supersets(elem_t e) const {
 }
 
 setset setset::cost_le(const std::vector<bddcost>& costs, const bddcost cost_bound) const {
-  //assert(costs.size() == num_elems() + 1);
-  assert(costs.size() == num_elems());
+  //assert(costs.size() == num_elems());
   BDDCT bddct;
   //bddct.Alloc(costs.size());
   bddct.Alloc(BDD_VarUsed()); // We should set n to be the number of used vars.
@@ -468,20 +470,20 @@ setset setset::to_vertexsetset_setset(const std::vector<std::vector<std::string>
   return setset(dd_v);
 }
 
-double setset::probability(const vector<double>& probabilities) const {
-  assert(probabilities.size() == num_elems() + 1);
+double setset::probability(const vector<double>& probabilities, elem_t num_elems_a) const {
+  assert(probabilities.size() == num_elems_a + 1);
   if (this->zdd_ == bot()) {  // this->empty()
     return 0;
   } else if (this->zdd_ == top()) {
     double p = 1;
-    for (int e = 1; e <= num_elems(); ++e)
+    for (int e = 1; e <= num_elems_a; ++e)
       p *= 1 - probabilities[e];
     return p;
   } else {
     map<word_t, double> cache;
     cache[graphillion::id(bot())] = 0;
     cache[graphillion::id(top())] = 1;
-    return graphillion::probability(1, this->zdd_, probabilities, cache, num_elems());
+    return graphillion::probability(1, this->zdd_, probabilities, cache, num_elems_a);
   }
 }
 

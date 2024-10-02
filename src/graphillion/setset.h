@@ -101,7 +101,7 @@ class setset {
   setset();
   setset(const setset& ss) : zdd_(ss.zdd_) {}
   explicit setset(const std::vector<std::set<elem_t> >& v);
-  explicit setset(const std::map<std::string, std::vector<elem_t> >& m);
+  explicit setset(const std::map<std::string, std::vector<elem_t> >& m, elem_t num_elems_a);
   explicit setset(std::istream& in);
 
   virtual ~setset() {}
@@ -134,7 +134,7 @@ class setset {
   bool is_superset(const setset& ss) const;
 
   bool empty() const;
-  std::string size() const;
+  std::string size(elem_t num_elems_a) const;
   iterator begin() const;
   random_iterator begin_randomly() const;
   weighted_iterator begin_from_min(const std::vector<double>& weights) const;
@@ -150,11 +150,11 @@ class setset {
   void clear();
   void swap(setset& ss);
   void flip(elem_t e);
-  void flip();
+  void flip_all(elem_t num_elems_a);
 
   setset minimal() const;
   setset maximal() const;
-  setset hitting() const;
+  setset hitting(elem_t num_elems_a) const;
   setset smaller(size_t set_size) const;
   setset larger(size_t set_size) const;
   setset set_size(size_t set_size) const;
@@ -174,7 +174,7 @@ class setset {
 
   setset to_vertexsetset_setset(const std::vector<std::vector<std::string>> &edges_from_top) const;
 
-  double probability(const std::vector<double>& probabilities) const;
+  double probability(const std::vector<double>& probabilities, elem_t num_elems_a) const;
 
   void dump(std::ostream& out) const;
   void dump(FILE* fp = stdout) const;

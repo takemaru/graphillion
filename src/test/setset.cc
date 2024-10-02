@@ -400,7 +400,7 @@ class TestSetset {
     assert(ss.zdd_ == s0 + s1 + s14 + s2 + s23 + s234 + s34 + s4);
 
     ss = setset(u);
-    ss.flip();
+    ss.flip_all(setset::num_elems());
     assert(ss.zdd_ == s0 + s123 + s1234 + s2 + s23 + s234 + s34 + s4);
   }
 

@@ -363,7 +363,7 @@ static int setset_init(PySetsetObject* self, PyObject* args, PyObject* kwds) {
   } else if (PyDict_Check(obj)) {
     map<string, vector<int> > m;
     if (setset_parse_map(obj, &m) == -1) return -1;
-    self->ss = new setset(m);
+    self->ss = new setset(m, setset::num_elems());
   } else {
     PyErr_SetString(PyExc_TypeError, "invalid argumet");
     return -1;
@@ -499,7 +499,7 @@ static int setset_nonzero(PySetsetObject* self) {
 
 static Py_ssize_t setset_len(PyObject* obj) {
   PySetsetObject* self = reinterpret_cast<PySetsetObject*>(obj);
-  long long int len = strtoll(self->ss->size().c_str(), NULL, 0);
+  long long int len = strtoll(self->ss->size(setset::num_elems()).c_str(), NULL, 0);
   if (len != LLONG_MAX) {
     return len;
   } else {
@@ -512,7 +512,7 @@ static PyObject* setset_len2(PySetsetObject* self, PyObject* args) {
   PyObject* obj = NULL;
   if (!PyArg_ParseTuple(args, "|O", &obj)) return NULL;
   if (obj == NULL || obj == Py_None) {
-    string size = self->ss->size();
+    string size = self->ss->size(setset::num_elems());
     vector<char> buf;
     for (string::const_iterator c = size.begin(); c != size.end(); ++c)
       buf.push_back(*c);
@@ -680,7 +680,7 @@ static PyObject* setset_flip(PySetsetObject* self, PyObject* args) {
   PyObject* obj = NULL;
   if (!PyArg_ParseTuple(args, "|O", &obj)) return NULL;
   if (obj == NULL || obj == Py_None) {
-    self->ss->flip();
+    self->ss->flip_all(setset::num_elems());
   } else if (PyInt_Check(obj)) {
     int e = PyLong_AsLong(obj);
     self->ss->flip(e);
@@ -700,7 +700,7 @@ static PyObject* setset_maximal(PySetsetObject* self) {
 }
 
 static PyObject* setset_hitting(PySetsetObject* self) {
-  RETURN_NEW_SETSET(self, self->ss->hitting());
+  RETURN_NEW_SETSET(self, self->ss->hitting(setset::num_elems()));
 }
 
 static PyObject* setset_smaller(PySetsetObject* self, PyObject* io) {
@@ -811,7 +811,7 @@ static PyObject* setset_probability(PySetsetObject* self,
     Py_DECREF(eo);
   }
   Py_DECREF(i);
-  return PyFloat_FromDouble(self->ss->probability(p));
+  return PyFloat_FromDouble(self->ss->probability(p, setset::num_elems()));
 }
 
 static PyObject* setset_dump(PySetsetObject* self, PyObject* obj) {
