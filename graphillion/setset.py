@@ -118,8 +118,6 @@ class setset(setset_base):
             setset._objtable.add_elem(e)
         setset._objtable.check_universe()
 
-        setset_base.set_universe(universe)
-
     @staticmethod
     def universe():
         setset._objtable.check_universe()

@@ -55,13 +55,14 @@ class TestSetset(unittest.TestCase):
 
         setset.set_universe([])
 
-        self.assertEqual(setset._obj2int, {})
-        self.assertEqual(setset._int2obj, [None])
+        # setset._obj2int and setset._int2obj was not used anymore
+        #self.assertEqual(setset._obj2int, {})
+        #self.assertEqual(setset._int2obj, [None])
         self.assertEqual(setset.universe(), [])
 
         setset.set_universe(['i', 'ii'])
-        self.assertEqual(setset._obj2int, {'i': 1, 'ii': 2})
-        self.assertEqual(setset._int2obj, [None, 'i', 'ii'])
+        #self.assertEqual(setset._obj2int, {'i': 1, 'ii': 2})
+        #self.assertEqual(setset._int2obj, [None, 'i', 'ii'])
         self.assertEqual(setset.universe(), ['i', 'ii'])
 
         ss = setset({})
@@ -70,8 +71,8 @@ class TestSetset(unittest.TestCase):
             setset([set(), set(['i']), set(['i','ii']), set(['ii'])]))
 
         setset.set_universe(['1'])
-        self.assertEqual(setset._obj2int, {'1': 1})
-        self.assertEqual(setset._int2obj, [None, '1'])
+        #self.assertEqual(setset._obj2int, {'1': 1})
+        #self.assertEqual(setset._int2obj, [None, '1'])
         self.assertEqual(setset.universe(), ['1'])
 
         ss = setset({})
