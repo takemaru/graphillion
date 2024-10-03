@@ -21,7 +21,6 @@
 """
 
 from builtins import range
-from future.utils import viewitems
 import _graphillion
 
 class ObjectTable:
@@ -173,6 +172,9 @@ class setset_base(_graphillion.setset):
         else:
             return _graphillion.setset.flip_all(self, objtable.num_elems())
 
+    def hitting(self, objtable):
+        return _graphillion.setset.hitting(self, objtable.num_elems())
+
     #def __iter__(self):
     def _iter(self, objtable):
         i = _graphillion.setset.iter(self)
@@ -226,15 +228,15 @@ class setset_base(_graphillion.setset):
 
     def probability(self, objtable, probabilities):
         ps = [-1] * (objtable.num_elems() + 1)
-        for e, p in viewitems(probabilities):
+        for e, p in probabilities.items():
             i = objtable.obj2int[e]
             ps[i] = p
         assert len([p for p in ps[1:] if p < 0 or 1 < p]) == 0
-        return _graphillion.setset.probability(self, ps)
+        return _graphillion.setset.probability(self, objtable.num_elems(), ps)
 
     def cost_le(self, objtable, costs, cost_bound):
         cs = [-1] * (objtable.num_elems() + 1)
-        for e, c in viewitems(costs):
+        for e, c in costs.items():
             i = objtable.obj2int[e]
             cs[i] = c
         # Each cost must be in the range of 32 bit signed integer
@@ -324,7 +326,7 @@ class setset_base(_graphillion.setset):
     @staticmethod
     def _check_universe():
         assert len(setset_base._int2obj) == _graphillion._num_elems() + 1
-        for e, i in viewitems(setset_base._obj2int):
+        for e, i in setset_base._obj2int.items():
             assert e == setset_base._int2obj[i]
         for i in range(1, len(setset_base._int2obj)):
             e = setset_base._int2obj[i]

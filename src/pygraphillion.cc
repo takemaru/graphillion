@@ -716,8 +716,14 @@ static PyObject* setset_maximal(PySetsetObject* self) {
   RETURN_NEW_SETSET(self, self->ss->maximal());
 }
 
-static PyObject* setset_hitting(PySetsetObject* self) {
-  RETURN_NEW_SETSET(self, self->ss->hitting(setset::num_elems()));
+static PyObject* setset_hitting(PySetsetObject* self, PyObject* io) {
+  CHECK_OR_ERROR(io, PyInt_Check, "int", NULL);
+  int num_elems_a = PyLong_AsLong(io);
+  if (num_elems_a < 0) {
+    PyErr_SetString(PyExc_ValueError, "not unsigned int");
+    return NULL;
+  }
+  RETURN_NEW_SETSET(self, self->ss->hitting(num_elems_a));
 }
 
 static PyObject* setset_smaller(PySetsetObject* self, PyObject* io) {
@@ -805,7 +811,24 @@ static PyObject* setset_choice(PySetsetObject* self) {
 }
 
 static PyObject* setset_probability(PySetsetObject* self,
-                                    PyObject* probabilities) {
+                                    PyObject* args) {
+  int num_elems_a = -1;
+  PyObject* probabilities;
+
+  if (!PyArg_ParseTuple(args, "iO", &num_elems_a, &probabilities)) {
+    return NULL;
+  }
+
+  if (num_elems_a < 0) {
+    PyErr_SetString(PyExc_TypeError, "num_elems must be a positive interger");
+    return NULL;
+  }
+
+  if (!PyList_Check(probabilities)) {
+    PyErr_SetString(PyExc_TypeError, "Probabilities must be a list");
+    return NULL;
+  }
+
   PyObject* i = PyObject_GetIter(probabilities);
   if (i == NULL) return NULL;
   PyObject* eo;
@@ -828,7 +851,7 @@ static PyObject* setset_probability(PySetsetObject* self,
     Py_DECREF(eo);
   }
   Py_DECREF(i);
-  return PyFloat_FromDouble(self->ss->probability(p, setset::num_elems()));
+  return PyFloat_FromDouble(self->ss->probability(p, num_elems_a));
 }
 
 static PyObject* setset_dump(PySetsetObject* self, PyObject* obj) {
@@ -1116,7 +1139,7 @@ static PyMethodDef setset_methods[] = {
   {"clear", reinterpret_cast<PyCFunction>(setset_clear), METH_NOARGS, ""},
   {"minimal", reinterpret_cast<PyCFunction>(setset_minimal), METH_NOARGS, ""},
   {"maximal", reinterpret_cast<PyCFunction>(setset_maximal), METH_NOARGS, ""},
-  {"hitting", reinterpret_cast<PyCFunction>(setset_hitting), METH_NOARGS, ""},
+  {"hitting", reinterpret_cast<PyCFunction>(setset_hitting), METH_O, ""},
   {"smaller", reinterpret_cast<PyCFunction>(setset_smaller), METH_O, ""},
   {"larger", reinterpret_cast<PyCFunction>(setset_larger), METH_O, ""},
   {"set_size", reinterpret_cast<PyCFunction>(setset_set_size), METH_O, ""},
@@ -1129,7 +1152,7 @@ static PyMethodDef setset_methods[] = {
   {"non_subsets", reinterpret_cast<PyCFunction>(setset_non_subsets), METH_O, ""},
   {"non_supersets", reinterpret_cast<PyCFunction>(setset_non_supersets), METH_O, ""},
   {"choice", reinterpret_cast<PyCFunction>(setset_choice), METH_NOARGS, ""},
-  {"probability", reinterpret_cast<PyCFunction>(setset_probability), METH_O, ""},
+  {"probability", reinterpret_cast<PyCFunction>(setset_probability), METH_VARARGS, ""},
   {"dump", reinterpret_cast<PyCFunction>(setset_dump), METH_O, ""},
   {"dumps", reinterpret_cast<PyCFunction>(setset_dumps), METH_NOARGS, ""},
   {"_enum", reinterpret_cast<PyCFunction>(setset_enum), METH_O, ""},

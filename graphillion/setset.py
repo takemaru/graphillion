@@ -22,8 +22,6 @@
 
 from graphillion.setset_base import setset_base
 from graphillion.setset_base import ObjectTable
-from builtins import range
-from future.utils import viewitems
 import _graphillion
 
 class setset(setset_base):
@@ -56,6 +54,9 @@ class setset(setset_base):
 
     def flip(self, elem=None):
         return setset_base.flip(self, setset._objtable, elem)
+
+    def hitting(self):
+        return setset_base.hitting(self, setset._objtable)
 
     def __iter__(self):
         return setset_base._iter(self, setset._objtable)
