@@ -165,15 +165,15 @@ class setset_base(_graphillion.setset):
         set = _graphillion.setset.pop(self)
         return objtable.conv_ret(set)
 
+    def hitting(self, objtable):
+        return _graphillion.setset.hitting(self, objtable.num_elems())
+
     def flip(self, objtable, elem=None):
         if elem is not None:
             elem = objtable.conv_elem(elem)
             return _graphillion.setset.flip(self, elem)
         else:
             return _graphillion.setset.flip_all(self, objtable.num_elems())
-
-    def hitting(self, objtable):
-        return _graphillion.setset.hitting(self, objtable.num_elems())
 
     #def __iter__(self):
     def _iter(self, objtable):
@@ -243,6 +243,20 @@ class setset_base(_graphillion.setset):
         # due to the implementation of BDDCT class of SAPPOROBDD.
         assert len([c for c in cs[1:] if c < -(1 << 31) or (1 << 31) <= c]) == 0
         return _graphillion.setset.cost_le(self, costs=cs[1:], cost_bound=cost_bound)
+
+    # num_elems will be removed
+    def add_some_element(self, objtable, num_elems = None):
+        if num_elems:
+            return _graphillion.setset.add_some_element(self, num_elems)
+        else:
+            return _graphillion.setset.add_some_element(self, objtable.num_elems())
+
+    # num_elems will be removed
+    def remove_add_some_elements(self, objtable, num_elems = None):
+        if num_elems:
+            return _graphillion.setset.remove_add_some_elements(self, num_elems)
+        else:
+            return _graphillion.setset.remove_add_some_elements(self, objtable.num_elems())
 
     def to_vertexsetset(self, objtable):
         edges_from_top = [list(e) for e in objtable.int2obj[1:]]

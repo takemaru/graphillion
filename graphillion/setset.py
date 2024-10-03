@@ -52,11 +52,11 @@ class setset(setset_base):
     def pop(self):
         return setset_base.pop(self, setset._objtable)
 
-    def flip(self, elem=None):
-        return setset_base.flip(self, setset._objtable, elem)
-
     def hitting(self):
         return setset_base.hitting(self, setset._objtable)
+
+    def flip(self, elem=None):
+        return setset_base.flip(self, setset._objtable, elem)
 
     def __iter__(self):
         return setset_base._iter(self, setset._objtable)
@@ -84,6 +84,12 @@ class setset(setset_base):
 
     def cost_le(self, costs, cost_bound):
         return setset_base.cost_le(self, setset._objtable, costs, cost_bound)
+
+    def add_some_element(self, num_elems = None):
+        return setset_base.add_some_element(self, setset._objtable, num_elems)
+
+    def remove_add_some_elements(self, num_elems = None):
+        return setset_base.remove_add_some_elements(self, setset._objtable, num_elems)
 
     def to_vertexsetset(self):
         return setset_base.to_vertexsetset(self, setset._objtable)
