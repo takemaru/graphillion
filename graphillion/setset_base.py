@@ -24,6 +24,54 @@ from builtins import range
 from future.utils import viewitems
 import _graphillion
 
+class ObjectTable:
+
+    def __init__(self):
+        self.obj2int = {}
+        self.int2obj = [None]
+
+    def num_elems(self):
+        return len(self.int2obj) - 1
+
+    def check_universe(self):
+        for e, i in self.obj2int.items():
+            assert e == self.int2obj[i]
+        for i in range(1, len(self.int2obj)):
+            e = self.int2obj[i]
+            assert i == self.obj2int[e]
+
+    def add_elem(self, elem):
+        assert elem not in self.obj2int
+        if len(self.obj2int) >= _graphillion._elem_limit():
+            m = 'too many elements are set, which must be %d or less' % _graphillion._elem_limit()
+            raise RuntimeError(m)
+        i = len(self.int2obj)
+        _graphillion.setset([set([i])])
+        self.obj2int[elem] = i
+        self.int2obj.append(elem)
+        assert self.int2obj[i] == elem
+        assert self.obj2int[elem] == i
+
+    def conv_elem(self, elem):
+        if elem not in self.obj2int:
+            self.add_elem(elem)
+        return self.obj2int[elem]
+
+    def conv_arg(self, obj):
+        if isinstance(obj, (set, frozenset)):  # a set
+            return set([self.conv_elem(e) for e in obj])
+        else:  # an element
+            return self.conv_elem(obj)
+
+    def conv_ret(self, obj):
+        if isinstance(obj, (set, frozenset)):  # a set
+            ret = set()
+            for e in obj:
+                ret.add(self.int2obj[e])
+            return ret
+        raise TypeError(obj)
+
+
 
 class setset_base(_graphillion.setset):
     """Represents and manipulates a set of sets.
@@ -52,37 +100,37 @@ class setset_base(_graphillion.setset):
       set([1, 2])
     """
 
-    def __init__(self, setset_or_constraints=None):
+    def __init__(self, objtable, setset_or_constraints=None):
         obj = setset_or_constraints
         if obj is None:
             obj = []
         elif isinstance(obj, list):  # a set of sets [set+]
             l = []
             for s in obj:
-                l.append(set([setset_base._conv_elem(e) for e in s]))
+                l.append(set([objtable.conv_elem(e) for e in s]))
             obj = l
         elif isinstance(obj, dict):  # constraints
             d = {}
-            for k, l in viewitems(obj):
-                d[k] = [setset_base._conv_elem(e) for e in l]
+            for k, l in obj.items():
+                d[k] = [objtable.conv_elem(e) for e in l]
             obj = d
         _graphillion.setset.__init__(self, obj)
 
-    def __repr__(self):
+    def __repr__(self, objtable):
         name = self.__class__.__name__
-        return self._repr((name + '([', '])'), ('set([', '])'))
+        return setset_base._repr(self, objtable, (name + '([', '])'), ('set([', '])'))
 
     # obj_to_str: dict[tuple, str]
-    def _repr(self, outer_braces=('[', ']'), inner_braces=('[', ']'), obj_to_str=None):
-        n = _graphillion._num_elems()
+    def _repr(self, objtable, outer_braces=('[', ']'), inner_braces=('[', ']'), obj_to_str=None):
+        n = objtable.num_elems()
         w = {}
         for i in range(1, n + 1):
-            e = setset_base._int2obj[i]
+            e = objtable.int2obj[i]
             w[e] = 1 + float(i) / n**2
         ret = outer_braces[0]
         maxchar = 80
         no_comma = True
-        for s in setset_base.min_iter(self, w):
+        for s in setset_base.min_iter(self, objtable, w):
             if no_comma:
                 no_comma = False
             else:
@@ -98,40 +146,42 @@ class setset_base(_graphillion.setset):
         else:
             return ret[:(maxchar - 4)] + ' ...'
 
-    def __contains__(self, set_or_elem):
-        set_or_elem = setset_base._conv_arg(set_or_elem)
+    def __contains__(self, objtable, set_or_elem):
+        set_or_elem = objtable.conv_arg(set_or_elem)
         return _graphillion.setset.__contains__(self, set_or_elem)
 
-    def add(self, set_or_elem):
-        set_or_elem = setset_base._conv_arg(set_or_elem)
+    def add(self, objtable, set_or_elem):
+        set_or_elem = objtable.conv_arg(set_or_elem)
         return _graphillion.setset.add(self, set_or_elem)
 
-    def remove(self, set_or_elem):
-        set_or_elem = setset_base._conv_arg(set_or_elem)
+    def remove(self, objtable, set_or_elem):
+        set_or_elem = objtable.conv_arg(set_or_elem)
         return _graphillion.setset.remove(self, set_or_elem)
 
-    def discard(self, set_or_elem):
-        set_or_elem = setset_base._conv_arg(set_or_elem)
+    def discard(self, objtable, set_or_elem):
+        set_or_elem = objtable.conv_arg(set_or_elem)
         return _graphillion.setset.discard(self, set_or_elem)
 
-    def pop(self):
+    def pop(self, objtable):
         set = _graphillion.setset.pop(self)
-        return setset_base._conv_ret(set)
+        return objtable.conv_ret(set)
 
-    def flip(self, elem=None):
+    def flip(self, objtable, elem=None):
         if elem is not None:
-            elem = setset_base._conv_elem(elem)
+            elem = objtable.conv_elem(elem)
         return _graphillion.setset.flip(self, elem)
 
-    def __iter__(self):
+    #def __iter__(self):
+    def _iter(self, objtable):
         i = _graphillion.setset.iter(self)
         while (True):
             try:
-                yield setset_base._conv_ret(next(i))
+                #yield setset_base._conv_ret(next(i))
+                yield objtable.conv_ret(next(i))
             except StopIteration:
                 return
 
-    def rand_iter(self):
+    def rand_iter(self, objtable):
         i = _graphillion.setset.rand_iter(self)
         while (True):
             try:
@@ -139,64 +189,64 @@ class setset_base(_graphillion.setset):
             except StopIteration:
                 return
 
-    def min_iter(self, weights=None, default=1):
-        return self._optimize(weights, default, _graphillion.setset.min_iter)
+    def min_iter(self, objtable, weights=None, default=1):
+        return self._optimize(objtable, weights, default, _graphillion.setset.min_iter)
 
-    def max_iter(self, weights=None, default=1):
-        return self._optimize(weights, default, _graphillion.setset.max_iter)
+    def max_iter(self, objtable, weights=None, default=1):
+        return self._optimize(objtable, weights, default, _graphillion.setset.max_iter)
 
-    def _optimize(self, weights, default, generator):
-        ws = [default] * (_graphillion._num_elems() + 1)
+    def _optimize(self, objtable, weights, default, generator):
+        ws = [default] * (objtable.num_elems() + 1)
         if weights:
-            for e, w in viewitems(weights):
-                i = setset_base._obj2int[e]
+            for e, w in weights.items():
+                i = objtable.obj2int[e]
                 ws[i] = w
         i = generator(self, ws)
         while (True):
             try:
-                yield setset_base._conv_ret(next(i))
+                yield objtable.conv_ret(next(i))
             except StopIteration:
                 return
 
-    def supersets(self, obj):
+    def supersets(self, objtable, obj):
         if (not isinstance(obj, setset_base)):
-            obj = setset_base._conv_elem(obj)
+            obj = objtable.conv_elem(obj)
         return _graphillion.setset.supersets(self, obj)
 
-    def non_supersets(self, obj):
+    def non_supersets(self, objtable, obj):
         if (not isinstance(obj, setset_base)):
-            obj = setset_base._conv_elem(obj)
+            obj = objtable.conv_elem(obj)
         return _graphillion.setset.non_supersets(self, obj)
 
-    def choice(self):
+    def choice(self, objtable):
         set = _graphillion.setset.choice(self)
-        return setset_base._conv_ret(set)
+        return objtable.conv_ret(set)
 
-    def probability(self, probabilities):
-        ps = [-1] * (_graphillion._num_elems() + 1)
+    def probability(self, objtable, probabilities):
+        ps = [-1] * (objtable.num_elems() + 1)
         for e, p in viewitems(probabilities):
-            i = setset_base._obj2int[e]
+            i = objtable.obj2int[e]
             ps[i] = p
         assert len([p for p in ps[1:] if p < 0 or 1 < p]) == 0
         return _graphillion.setset.probability(self, ps)
 
-    def cost_le(self, costs, cost_bound):
-        cs = [-1] * (_graphillion._num_elems() + 1)
+    def cost_le(self, objtable, costs, cost_bound):
+        cs = [-1] * (objtable.num_elems() + 1)
         for e, c in viewitems(costs):
-            i = setset_base._obj2int[e]
+            i = objtable.obj2int[e]
             cs[i] = c
         # Each cost must be in the range of 32 bit signed integer
         # due to the implementation of BDDCT class of SAPPOROBDD.
         assert len([c for c in cs[1:] if c < -(1 << 31) or (1 << 31) <= c]) == 0
         return _graphillion.setset.cost_le(self, costs=cs[1:], cost_bound=cost_bound)
 
-    def to_vertexsetset(self):
-        edges_from_top = [list(e) for e in setset_base._int2obj[1:]]
+    def to_vertexsetset(self, objtable):
+        edges_from_top = [list(e) for e in objtable.int2obj[1:]]
         return _graphillion.setset.to_vertexsetset(self, edges_from_top)
 
     @staticmethod
-    def get_vertices_from_top():
-        edges_from_top = [list(e) for e in setset_base._int2obj[1:]]
+    def get_vertices_from_top(objtable):
+        edges_from_top = [list(e) for e in objtable.int2obj[1:]]
         return _graphillion._get_vertices_from_top(edges_from_top)
 
     @staticmethod
