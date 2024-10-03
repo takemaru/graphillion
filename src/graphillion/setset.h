@@ -134,7 +134,7 @@ class setset {
   bool is_superset(const setset& ss) const;
 
   bool empty() const;
-  std::string size(elem_t num_elems_a) const;
+  std::string size() const;
   iterator begin() const;
   random_iterator begin_randomly() const;
   weighted_iterator begin_from_min(const std::vector<double>& weights) const;

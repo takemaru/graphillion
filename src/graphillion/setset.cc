@@ -266,8 +266,10 @@ bool setset::empty() const {
   return this->zdd_ == bot();
 }
 
-string setset::size(elem_t num_elems_a) const {
-  SapporoZdd f(this->zdd_, graphillion::max_elem() - num_elems_a);
+string setset::size() const {
+  // need not offset because it just counts the number of elements
+  //SapporoZdd f(this->zdd_, graphillion::max_elem() - graphillion::num_elems());
+  SapporoZdd f(this->zdd_, 0);
   return countPaths(f, true);
 }
 

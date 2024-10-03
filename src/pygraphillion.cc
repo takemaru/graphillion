@@ -335,8 +335,9 @@ static PyObject* setset_new(PyTypeObject* type, PyObject* args, PyObject* kwds) 
 }
 
 static int setset_init(PySetsetObject* self, PyObject* args, PyObject* kwds) {
+  int num_elems_a = 0;
   PyObject* obj = NULL;
-  if (!PyArg_ParseTuple(args, "|O", &obj))
+  if (!PyArg_ParseTuple(args, "|Oi", &obj, &num_elems_a))
     return -1;
   if (obj == NULL || obj == Py_None) {
     self->ss = new setset();
@@ -363,7 +364,7 @@ static int setset_init(PySetsetObject* self, PyObject* args, PyObject* kwds) {
   } else if (PyDict_Check(obj)) {
     map<string, vector<int> > m;
     if (setset_parse_map(obj, &m) == -1) return -1;
-    self->ss = new setset(m, setset::num_elems());
+    self->ss = new setset(m, num_elems_a);
   } else {
     PyErr_SetString(PyExc_TypeError, "invalid argumet");
     return -1;
@@ -499,7 +500,7 @@ static int setset_nonzero(PySetsetObject* self) {
 
 static Py_ssize_t setset_len(PyObject* obj) {
   PySetsetObject* self = reinterpret_cast<PySetsetObject*>(obj);
-  long long int len = strtoll(self->ss->size(setset::num_elems()).c_str(), NULL, 0);
+  long long int len = strtoll(self->ss->size().c_str(), NULL, 0);
   if (len != LLONG_MAX) {
     return len;
   } else {
@@ -512,7 +513,7 @@ static PyObject* setset_len2(PySetsetObject* self, PyObject* args) {
   PyObject* obj = NULL;
   if (!PyArg_ParseTuple(args, "|O", &obj)) return NULL;
   if (obj == NULL || obj == Py_None) {
-    string size = self->ss->size(setset::num_elems());
+    string size = self->ss->size();
     vector<char> buf;
     for (string::const_iterator c = size.begin(); c != size.end(); ++c)
       buf.push_back(*c);
@@ -1037,11 +1038,9 @@ static PyObject* setset_add_some_element(PySetsetObject* self, PyObject* args) {
   if (!PyArg_ParseTuple(args, "|i", &num_variables)) {
     return NULL;
   }
-  if (num_variables < 0) {
+  if (num_variables <= 0) {
     PyErr_SetString(PyExc_TypeError, "not a positive number");
     return NULL;
-  } else if (num_variables == 0) {
-    num_variables = setset::num_elems();
   }
   RETURN_NEW_SETSET(self, self->ss->add_some_element(setset::max_elem(),
     setset::max_elem() - num_variables + 1));
@@ -1055,8 +1054,6 @@ static PyObject* setset_remove_add_some_elements(PySetsetObject* self, PyObject*
   if (num_variables < 0) {
     PyErr_SetString(PyExc_TypeError, "not a positive number");
     return NULL;
-  } else if (num_variables == 0) {
-    num_variables = setset::num_elems();
   }
   RETURN_NEW_SETSET(self, self->ss->remove_add_some_elements(setset::max_elem(),
     setset::max_elem() - num_variables + 1));

@@ -113,7 +113,7 @@ class setset_base(_graphillion.setset):
             for k, l in obj.items():
                 d[k] = [objtable.conv_elem(e) for e in l]
             obj = d
-        _graphillion.setset.__init__(self, obj)
+        _graphillion.setset.__init__(self, obj, objtable.num_elems())
 
     def __repr__(self, objtable):
         name = self.__class__.__name__
