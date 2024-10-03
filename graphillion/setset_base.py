@@ -145,6 +145,9 @@ class setset_base(_graphillion.setset):
         else:
             return ret[:(maxchar - 4)] + ' ...'
 
+    def _invert(self, objtable):
+        return _graphillion.setset.complement(self, objtable.num_elems())
+
     def __contains__(self, objtable, set_or_elem):
         set_or_elem = objtable.conv_arg(set_or_elem)
         return _graphillion.setset.__contains__(self, set_or_elem)

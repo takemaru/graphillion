@@ -40,6 +40,9 @@ class setset(setset_base):
     def __contains__(self, set_or_elem):
         return setset_base.__contains__(self, setset._objtable, set_or_elem)
 
+    def __invert__(self):
+        return setset_base._invert(self, setset._objtable)
+
     def add(self, set_or_elem):
         return setset_base.add(self, setset._objtable, set_or_elem)
 

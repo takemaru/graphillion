@@ -177,7 +177,7 @@ setset::setset(istream& in) : zdd_(graphillion::load(in)) {
 }
 
 setset setset::operator~() const {
-  return setset(complement(this->zdd_, num_elems()));
+  return setset(graphillion::complement(this->zdd_, num_elems()));
 }
 
 setset setset::operator|(const setset& ss) const {
@@ -365,6 +365,10 @@ void setset::flip(elem_t e) {
 void setset::flip_all(elem_t num_elems_a) {
   for (elem_t e = 1; e <= num_elems_a; ++e)
     this->zdd_ = this->zdd_.Change(e);
+}
+
+setset setset::complement(elem_t num_elems_a) const {
+  return setset(graphillion::complement(this->zdd_, num_elems_a));
 }
 
 setset setset::minimal() const {

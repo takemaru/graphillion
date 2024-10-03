@@ -151,6 +151,7 @@ class setset {
   void swap(setset& ss);
   void flip(elem_t e);
   void flip_all(elem_t num_elems_a);
+  setset complement(elem_t num_elems_a) const;
 
   setset minimal() const;
   setset maximal() const;

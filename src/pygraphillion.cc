@@ -387,6 +387,16 @@ static PyObject* setset_invert(PySetsetObject* self) {
   RETURN_NEW_SETSET(self, ~(*self->ss));
 }
 
+static PyObject* setset_complement(PySetsetObject* self, PyObject* io) {
+  CHECK_OR_ERROR(io, PyInt_Check, "int", NULL);
+  int num_elems_a = PyLong_AsLong(io);
+  if (num_elems_a < 0) {
+    PyErr_SetString(PyExc_ValueError, "not unsigned int");
+    return NULL;
+  }
+  RETURN_NEW_SETSET(self, self->ss->complement(num_elems_a));
+}
+
 static PyObject* setset_union(PySetsetObject* self, PyObject* other) {
   CHECK_SETSET_OR_ERROR(other);
   RETURN_NEW_SETSET2(self, other, _other, (*self->ss) | (*_other->ss));
@@ -1107,6 +1117,7 @@ static PyMemberDef setset_members[] = {
 static PyMethodDef setset_methods[] = {
   {"copy", reinterpret_cast<PyCFunction>(setset_copy), METH_NOARGS, ""},
   {"invert", reinterpret_cast<PyCFunction>(setset_invert), METH_NOARGS, ""},
+  {"complement", reinterpret_cast<PyCFunction>(setset_complement), METH_O, ""},
   {"union", reinterpret_cast<PyCFunction>(setset_union_multi), METH_VARARGS, ""},
   {"update", reinterpret_cast<PyCFunction>(setset_update_multi), METH_VARARGS, ""},
   {"intersection", reinterpret_cast<PyCFunction>(setset_intersection_multi), METH_VARARGS, ""},
