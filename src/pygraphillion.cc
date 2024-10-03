@@ -1043,9 +1043,8 @@ static PyObject* setset_add_some_element(PySetsetObject* self, PyObject* args) {
   } else if (num_variables == 0) {
     num_variables = setset::num_elems();
   }
-  //RETURN_NEW_SETSET(self, self->ss->add_some_element(setset::max_elem(), setset::max_elem() - setset::num_elems() + 1));
-  RETURN_NEW_SETSET(self, self->ss->add_some_element(setset::max_elem() - setset::num_elems() + num_variables,
-    setset::max_elem() - setset::num_elems() + 1));
+  RETURN_NEW_SETSET(self, self->ss->add_some_element(setset::max_elem(),
+    setset::max_elem() - num_variables + 1));
 }
 
 static PyObject* setset_remove_add_some_elements(PySetsetObject* self, PyObject* args) {
@@ -1059,9 +1058,8 @@ static PyObject* setset_remove_add_some_elements(PySetsetObject* self, PyObject*
   } else if (num_variables == 0) {
     num_variables = setset::num_elems();
   }
-  //RETURN_NEW_SETSET(self, self->ss->remove_add_some_elements(setset::max_elem(), setset::max_elem() - setset::num_elems() + 1));
-  RETURN_NEW_SETSET(self, self->ss->remove_add_some_elements(setset::max_elem() - setset::num_elems() + num_variables,
-    setset::max_elem() - setset::num_elems() + 1));
+  RETURN_NEW_SETSET(self, self->ss->remove_add_some_elements(setset::max_elem(),
+    setset::max_elem() - num_variables + 1));
 }
 
 std::vector<std::vector<std::string>> parse_args_to_edges(PyObject* args) {

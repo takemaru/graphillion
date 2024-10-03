@@ -466,7 +466,7 @@ setset setset::to_vertexsetset_setset(const std::vector<std::vector<std::string>
   SapporoZdd dd_e_spec(this->zdd_, offset);
   tdzdd::DdStructure<2> dd_e(dd_e_spec);
   dd_e.zddReduce();
-  zdd_t dd_v = VariableConverter::eToVZdd(dd_e, graph, vlist, offset);
+  zdd_t dd_v = VariableConverter::eToVZdd(dd_e, graph, vlist, max_elem() - graph.vertexSize());
   return setset(dd_v);
 }
 
