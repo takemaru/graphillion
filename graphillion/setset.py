@@ -113,7 +113,6 @@ class setset(setset_base):
     def set_universe(universe):
         if len(universe) != len(set(universe)):
             raise ValueError('duplicated elements found')
-        _graphillion._num_elems(0)
         setset._objtable = ObjectTable()
         for e in universe:
             setset._objtable.add_elem(e)

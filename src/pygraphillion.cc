@@ -1306,16 +1306,16 @@ static PyObject* setset_elem_limit(PyObject*) {
   return PyInt_FromLong(setset::elem_limit());
 }
 
-static PyObject* setset_num_elems(PyObject*, PyObject* args) {
-  PyObject* obj = NULL;
-  if (!PyArg_ParseTuple(args, "|O", &obj)) return NULL;
-  if (obj == NULL) {
-    return PyInt_FromLong(setset::num_elems());
-  } else {
-    setset::num_elems(PyInt_AsLong(obj));
-    Py_RETURN_NONE;
-  }
-}
+//static PyObject* setset_num_elems(PyObject*, PyObject* args) {
+//  PyObject* obj = NULL;
+//  if (!PyArg_ParseTuple(args, "|O", &obj)) return NULL;
+//  if (obj == NULL) {
+//    return PyInt_FromLong(setset::num_elems());
+//  } else {
+//    setset::num_elems(PyInt_AsLong(obj));
+//    Py_RETURN_NONE;
+//  }
+//}
 
 // return true if success
 static bool translate_graph(PyObject* graph_obj,
@@ -1971,7 +1971,7 @@ static PyMethodDef module_methods[] = {
   {"load", reinterpret_cast<PyCFunction>(setset_load), METH_O, ""},
   {"loads", reinterpret_cast<PyCFunction>(setset_loads), METH_O, ""},
   {"_elem_limit", reinterpret_cast<PyCFunction>(setset_elem_limit), METH_NOARGS, ""},
-  {"_num_elems", setset_num_elems, METH_VARARGS, ""},
+  //{"_num_elems", setset_num_elems, METH_VARARGS, ""},
   {"_graphs", reinterpret_cast<PyCFunction>(graphset_graphs), METH_VARARGS | METH_KEYWORDS, ""},
   {"_show_messages", reinterpret_cast<PyCFunction>(graphset_show_messages), METH_O, ""},
   {"_regular_graphs", reinterpret_cast<PyCFunction>(regular_graphs), METH_VARARGS | METH_KEYWORDS, ""},

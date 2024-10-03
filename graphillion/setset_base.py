@@ -328,7 +328,7 @@ class setset_base(_graphillion.setset):
     def set_universe(universe):
         if len(universe) != len(set(universe)):
             raise ValueError('duplicated elements found')
-        _graphillion._num_elems(0)
+        #_graphillion._num_elems(0)
         setset_base._obj2int = {}
         setset_base._int2obj = [None]
         for e in universe:
@@ -342,7 +342,7 @@ class setset_base(_graphillion.setset):
 
     @staticmethod
     def _check_universe():
-        assert len(setset_base._int2obj) == _graphillion._num_elems() + 1
+        #assert len(setset_base._int2obj) == _graphillion._num_elems() + 1
         for e, i in setset_base._obj2int.items():
             assert e == setset_base._int2obj[i]
         for i in range(1, len(setset_base._int2obj)):
@@ -359,7 +359,7 @@ class setset_base(_graphillion.setset):
         _graphillion.setset([set([i])])
         setset_base._obj2int[elem] = i
         setset_base._int2obj.append(elem)
-        assert len(setset_base._int2obj) == _graphillion._num_elems() + 1
+        #assert len(setset_base._int2obj) == _graphillion._num_elems() + 1
         assert setset_base._int2obj[i] == elem
         assert setset_base._obj2int[elem] == i
 
