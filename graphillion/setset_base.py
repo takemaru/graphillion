@@ -169,7 +169,9 @@ class setset_base(_graphillion.setset):
     def flip(self, objtable, elem=None):
         if elem is not None:
             elem = objtable.conv_elem(elem)
-        return _graphillion.setset.flip(self, elem)
+            return _graphillion.setset.flip(self, elem)
+        else:
+            return _graphillion.setset.flip_all(self, objtable.num_elems())
 
     #def __iter__(self):
     def _iter(self, objtable):

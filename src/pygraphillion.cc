@@ -678,12 +678,29 @@ static PyObject* setset_clear(PySetsetObject* self) {
 
 static PyObject* setset_flip(PySetsetObject* self, PyObject* args) {
   PyObject* obj = NULL;
-  if (!PyArg_ParseTuple(args, "|O", &obj)) return NULL;
+  if (!PyArg_ParseTuple(args, "O", &obj)) return NULL;
   if (obj == NULL || obj == Py_None) {
-    self->ss->flip_all(setset::num_elems());
+    PyErr_SetString(PyExc_TypeError, "need arg e");
+    return NULL;
   } else if (PyInt_Check(obj)) {
     int e = PyLong_AsLong(obj);
     self->ss->flip(e);
+  } else {
+    PyErr_SetString(PyExc_TypeError, "not int");
+    return NULL;
+  }
+  Py_RETURN_NONE;
+}
+
+static PyObject* setset_flip_all(PySetsetObject* self, PyObject* args) {
+  PyObject* obj = NULL;
+  if (!PyArg_ParseTuple(args, "O", &obj)) return NULL;
+  if (obj == NULL || obj == Py_None) {
+    PyErr_SetString(PyExc_TypeError, "need arg num_elems");
+    return NULL;
+  } else if (PyInt_Check(obj)) {
+    int num_elems = PyLong_AsLong(obj);
+    self->ss->flip_all(num_elems);
   } else {
     PyErr_SetString(PyExc_TypeError, "not int");
     return NULL;
@@ -1104,6 +1121,7 @@ static PyMethodDef setset_methods[] = {
   {"larger", reinterpret_cast<PyCFunction>(setset_larger), METH_O, ""},
   {"set_size", reinterpret_cast<PyCFunction>(setset_set_size), METH_O, ""},
   {"flip", reinterpret_cast<PyCFunction>(setset_flip), METH_VARARGS, ""},
+  {"flip_all", reinterpret_cast<PyCFunction>(setset_flip_all), METH_VARARGS, ""},
   {"join", reinterpret_cast<PyCFunction>(setset_join), METH_O, ""},
   {"meet", reinterpret_cast<PyCFunction>(setset_meet), METH_O, ""},
   {"subsets", reinterpret_cast<PyCFunction>(setset_subsets), METH_O, ""},
