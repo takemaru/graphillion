@@ -39,6 +39,9 @@ class ObjectTable:
             e = self.int2obj[i]
             assert i == self.obj2int[e]
 
+    def universe(self):
+        return self.int2obj[1:]
+
     def add_elem(self, elem):
         assert elem not in self.obj2int
         if len(self.obj2int) >= _graphillion._elem_limit():
@@ -113,7 +116,11 @@ class setset_base(_graphillion.setset):
             for k, l in obj.items():
                 d[k] = [objtable.conv_elem(e) for e in l]
             obj = d
-        _graphillion.setset.__init__(self, obj, objtable.num_elems())
+        if objtable is None:
+            num_elems = 0
+        else:
+            num_elems = objtable.num_elems()
+        _graphillion.setset.__init__(self, obj, num_elems)
 
     def __repr__(self, objtable):
         name = self.__class__.__name__
@@ -148,7 +155,7 @@ class setset_base(_graphillion.setset):
     def _invert(self, objtable):
         return _graphillion.setset.complement(self, objtable.num_elems())
 
-    def __contains__(self, objtable, set_or_elem):
+    def _contains(self, objtable, set_or_elem):
         set_or_elem = objtable.conv_arg(set_or_elem)
         return _graphillion.setset.__contains__(self, set_or_elem)
 
@@ -192,7 +199,8 @@ class setset_base(_graphillion.setset):
         i = _graphillion.setset.rand_iter(self)
         while (True):
             try:
-                yield setset_base._conv_ret(next(i))
+                #yield setset_base._conv_ret(next(i))
+                yield objtable.conv_ret(next(i))
             except StopIteration:
                 return
 
@@ -297,7 +305,7 @@ class setset_base(_graphillion.setset):
         See Also:
           loads()
         """
-        return setset_base(_graphillion.load(fp))
+        return setset_base(None, _graphillion.load(fp))
 
     @staticmethod
     def loads(s):
@@ -322,7 +330,7 @@ class setset_base(_graphillion.setset):
         See Also:
           load()
         """
-        return setset_base(_graphillion.loads(s))
+        return setset_base(None, _graphillion.loads(s))
 
     @staticmethod
     def set_universe(universe):

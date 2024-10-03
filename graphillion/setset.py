@@ -38,7 +38,7 @@ class setset(setset_base):
         return setset_base._repr(self, setset._objtable, outer_braces, inner_braces, obj_to_str)
 
     def __contains__(self, set_or_elem):
-        return setset_base.__contains__(self, setset._objtable, set_or_elem)
+        return setset_base._contains(self, setset._objtable, set_or_elem)
 
     def __invert__(self):
         return setset_base._invert(self, setset._objtable)
@@ -97,9 +97,9 @@ class setset(setset_base):
     def to_vertexsetset(self):
         return setset_base.to_vertexsetset(self, setset._objtable)
 
-    @staticmethod
-    def get_vertices_from_top():
-        return setset_base.get_vertices_from_top(setset._objtable)
+    #@staticmethod
+    #def get_vertices_from_top():
+    #    return setset_base.get_vertices_from_top(setset._objtable)
 
     @staticmethod
     def load(fp):

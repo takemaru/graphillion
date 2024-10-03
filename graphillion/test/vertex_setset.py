@@ -71,9 +71,10 @@ class TestVertexSetSet(unittest.TestCase):
         VertexSetSet.set_universe([1, (3, 100), 2])
         self.assertEqual(VertexSetSet.universe(), [1, (3, 100), 2])
 
-        self.assertRaises(AssertionError,
-                          VertexSetSet.set_universe,
-                          ["i", "ii", "iii", "iv", "v", "vi", "vii", "viii", "ix"])
+        # currently, universe size larger than that of GraphSet is supported
+        #self.assertRaises(AssertionError,
+        #                  VertexSetSet.set_universe,
+        #                  ["i", "ii", "iii", "iv", "v", "vi", "vii", "viii", "ix"])
         self.assertRaises(ValueError, VertexSetSet.set_universe, ["i", "i"])
 
     def test_constructors(self):
@@ -470,7 +471,7 @@ class TestVertexSetSet(unittest.TestCase):
         v = [vs1, vs12, vs13]
         vss = VertexSetSet(v)
         g = vss.pop()
-        self.assertTrue(isinstance(g, list))
+        self.assertTrue(isinstance(g, set))
         self.assertTrue(g not in vss)
         self.assertEqual(vss | VertexSetSet([g]), VertexSetSet(v))
 
