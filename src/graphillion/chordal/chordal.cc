@@ -38,7 +38,7 @@ ZBDD constructChordalGraphs(const tdzdd::Graph &graph, const uint32_t k) {
   // four as an induced subgraph
   DD3.useMultiProcessors(false);
   int offset =
-      graphillion::setset::max_elem() - graphillion::setset::num_elems();
+      graphillion::setset::max_elem() - m;
   ZBDD dd = DD3.evaluate(InducingDecoloringEval(offset));
 
   std::vector<bddvar> vararr;

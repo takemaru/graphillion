@@ -81,7 +81,7 @@ setset SearchGraphs(
     bool no_loop,
     const setset* search_space,
     const vector<linear_constraint_t>* linear_constraints) {
-  assert(static_cast<size_t>(setset::num_elems()) == graph.size());
+  //assert(static_cast<size_t>(setset::num_elems()) == graph.size());
 
   Graph g;
   for (vector<edge_t>::const_iterator e = graph.begin(); e != graph.end(); ++e)
@@ -97,7 +97,7 @@ setset SearchGraphs(
 
   DdStructure<2> dd;
   if (search_space != NULL) {
-    SapporoZdd f(search_space->zdd_, setset::max_elem() - setset::num_elems());
+    SapporoZdd f(search_space->zdd_, setset::max_elem() - g.edgeSize());
     dd = DdStructure<2>(f, use_mp);
   } else {
     dd = DdStructure<2>(g.edgeSize(), use_mp);
@@ -150,7 +150,7 @@ setset SearchGraphs(
   }
 
   dd.useMultiProcessors(false);
-  zdd_t f = dd.evaluate(ToZBDD(setset::max_elem() - setset::num_elems()));
+  zdd_t f = dd.evaluate(ToZBDD(setset::max_elem() - g.edgeSize()));
   return setset(f);
 }
 

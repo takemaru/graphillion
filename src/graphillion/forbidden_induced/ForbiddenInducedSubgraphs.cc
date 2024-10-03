@@ -27,7 +27,7 @@ ZBDD constructForbiddenInducedSubgraphs(const tdzdd::Graph &graph, const tdzdd::
   // each of which contains a subgraph as an induced subgraph
   DD3.useMultiProcessors(false);
   int offset =
-      graphillion::setset::max_elem() - graphillion::setset::num_elems();
+      graphillion::setset::max_elem() - m;
   ZBDD new_dd = DD3.evaluate(InducingDecoloringEval(offset));
 
   ZBDD powerSetDD = ZBDD(1);
@@ -53,7 +53,7 @@ setset SearchForbiddenInducedSubgraphs(const std::vector<edge_t> &edges, setset*
   g.update();
 
   int offset =
-      graphillion::setset::max_elem() - graphillion::setset::num_elems();
+      graphillion::setset::max_elem() - g.edgeSize();
   SapporoZdd szdd(ss->zdd_, offset);
   auto new_dd = constructForbiddenInducedSubgraphs(g,
     tdzdd::DdStructure<2>(szdd));

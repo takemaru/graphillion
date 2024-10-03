@@ -318,9 +318,9 @@ SearchRegularGraphs(const std::vector<edge_t> &edges,
 
   auto dd = constructRegularGraphs(g, degree_lower,
               degree_upper, is_connected, search_space_z,
-              setset::max_elem() - setset::num_elems());
+              setset::max_elem() - g.edgeSize());
   dd.useMultiProcessors(false);
-  zdd_t f = dd.evaluate(ToZBDD(setset::max_elem() - setset::num_elems()));
+  zdd_t f = dd.evaluate(ToZBDD(setset::max_elem() - g.edgeSize()));
   return setset(f);
 }
 

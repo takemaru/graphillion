@@ -65,9 +65,9 @@ SearchDegreeDistributionGraphs(const std::vector<edge_t> &edges,
   ((search_space == NULL) ? NULL : &search_space->zdd_);
 
   auto dd = constructDegreeDistributionGraphs(g, degRanges, is_connected,
-    search_space_z, setset::max_elem() - setset::num_elems());
+    search_space_z, setset::max_elem() - g.edgeSize());
   dd.useMultiProcessors(false);
-  zdd_t f = dd.evaluate(ToZBDD(setset::max_elem() - setset::num_elems()));
+  zdd_t f = dd.evaluate(ToZBDD(setset::max_elem() - g.edgeSize()));
   return setset(f);
 }
 

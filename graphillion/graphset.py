@@ -2861,7 +2861,8 @@ class GraphSet(object):
                     raise KeyError(v)
                 terms.append(pickle.dumps(v, protocol=0))
 
-        ps = [1.0] * (_graphillion._num_elems())
+        #ps = [1.0] * (_graphillion._num_elems())
+        ps = [1.0] * (len(setset.universe()))
         if probabilities is not None:
           for e, p in viewitems(probabilities):
               i = setset._obj2int[e]
