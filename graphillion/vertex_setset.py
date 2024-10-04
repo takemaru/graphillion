@@ -1698,7 +1698,7 @@ class VertexSetSet(object):
         Returns:
           A new VertexSetSet object.
         """
-        return VertexSetSet(self._ss.add_some_element(VertexSetSet._objtable, VertexSetSet._objtable.num_elems()))
+        return VertexSetSet(self._ss.add_some_element(VertexSetSet._objtable))
 
     def remove_add_some_vertices(self):
         """Returns a new VertexSetSet with vertex sets that are obtained by removing some vertex from a vertex set in `self` and adding another vertex to the vertex set.
@@ -1717,7 +1717,7 @@ class VertexSetSet(object):
         Returns:
           A new VertexSetSet object.
         """
-        return VertexSetSet(self._ss.remove_add_some_elements(VertexSetSet._objtable, VertexSetSet._objtable.num_elems()))
+        return VertexSetSet(self._ss.remove_add_some_elements(VertexSetSet._objtable))
 
     @staticmethod
     def load(fp):

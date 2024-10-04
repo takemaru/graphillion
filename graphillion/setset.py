@@ -25,8 +25,31 @@ from graphillion.setset_base import ObjectTable
 import _graphillion
 
 class setset(setset_base):
+    """Represents and manipulates a set of sets.
 
-    _objtable = ObjectTable()
+    A setset_base object stores a set of sets.  A set element can be any
+    hashable object like a number, a text string, and a tuple.
+
+    Like Python set types, setset_base supports `set in setset`,
+    `len(setset)`, and `for set in setset`.  It also supports all set
+    methods and operators,
+    * isdisjoint(), issubset(), issuperset(), union(), intersection(),
+      difference(), symmetric_difference(), copy(), update(),
+      intersection_update(), difference_update(),
+      symmetric_difference_update(), add(), remove(), discard(),
+      pop(), clear(),
+    * ==, !=, <=, <, >=, >, |, &, -, ^, |=, &=, -=, ^=.
+
+    Examples:
+      >>> from graphillion import setset
+      >>> ss = setset([set([1]), set([1,2])])
+      >>> len(ss)
+      2
+      >>> for s in ss:
+      ...   s
+      set([1])
+      set([1, 2])
+    """
 
     def __init__(self, setset_or_constraints=None):
         setset_base.__init__(self, setset._objtable, setset_or_constraints)
@@ -88,11 +111,11 @@ class setset(setset_base):
     def cost_le(self, costs, cost_bound):
         return setset_base.cost_le(self, setset._objtable, costs, cost_bound)
 
-    def add_some_element(self, num_elems = None):
-        return setset_base.add_some_element(self, setset._objtable, num_elems)
+    def add_some_element(self):
+        return setset_base.add_some_element(self, setset._objtable)
 
-    def remove_add_some_elements(self, num_elems = None):
-        return setset_base.remove_add_some_elements(self, setset._objtable, num_elems)
+    def remove_add_some_elements(self):
+        return setset_base.remove_add_some_elements(self, setset._objtable)
 
     def to_vertexsetset(self):
         return setset_base.to_vertexsetset(self, setset._objtable)
@@ -103,10 +126,56 @@ class setset(setset_base):
 
     @staticmethod
     def load(fp):
+        """Deserialize a file `fp` to `self`.
+
+        This method does not deserialize the universe, which should be
+        loaded separately by pickle.
+
+        Args:
+          fp: A read-supporting file-like object.
+
+        Examples of dump():
+          >>> import pickle
+          >>> fp = open('/path/to/setset_base', 'wb')
+          >>> ss.dump(fp)
+          >>> fp = open('/path/to/universe' 'wb')
+          >>> pickle.dump(setset_base.universe(), fp)
+
+        Examples of load():
+          >>> import pickle
+          >>> fp = open('/path/to/universe')
+          >>> setset_base.set_universe(pickle.load(fp))
+          >>> fp = open('/path/to/setset_base')
+          >>> ss = setset_base.load(fp)
+
+        See Also:
+          loads()
+        """
         return setset(_graphillion.load(fp))
 
     @staticmethod
     def loads(s):
+        """Deserialize `s` to `self`.
+
+        This method does not deserialize the universe, which should be
+        loaded separately by pickle.
+
+        Args:
+          s: A string instance.
+
+        Examples of dump():
+          >>> import pickle
+          >>> setset_str = ss.dumps()
+          >>> universe_str = pickle.dumps(setset_base.universe())
+
+        Examples of load():
+          >>> import pickle
+          >>> setset_base.set_universe(pickle.loads(universe_str))
+          >>> ss = setset_base.load(graphset_str)
+
+        See Also:
+          load()
+        """
         return setset(_graphillion.loads(s))
 
     @staticmethod
@@ -122,3 +191,5 @@ class setset(setset_base):
     def universe():
         setset._objtable.check_universe()
         return setset._objtable.int2obj[1:]
+
+    _objtable = ObjectTable()

@@ -17,14 +17,22 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-"""Module for a set of sets.
+"""Base class for setset, GraphSet, VertexSetSet, and so on.
 """
 
 from builtins import range
 import _graphillion
 
+"""
+ObjectTable class manages the universe of each class such as GraphSet and VertexSetSet.
+"""
 class ObjectTable:
 
+    # Objects such as edges and vertices are
+    # associated with integers 1,...,n.
+    # self.int2obj[0] is dummy.
+    # To obtain the set of objects,
+    # write "objtable.int2obj[1:]".
     def __init__(self):
         self.obj2int = {}
         self.int2obj = [None]
@@ -76,30 +84,10 @@ class ObjectTable:
 
 
 class setset_base(_graphillion.setset):
-    """Represents and manipulates a set of sets.
-
-    A setset_base object stores a set of sets.  A set element can be any
-    hashable object like a number, a text string, and a tuple.
-
-    Like Python set types, setset_base supports `set in setset`,
-    `len(setset)`, and `for set in setset`.  It also supports all set
-    methods and operators,
-    * isdisjoint(), issubset(), issuperset(), union(), intersection(),
-      difference(), symmetric_difference(), copy(), update(),
-      intersection_update(), difference_update(),
-      symmetric_difference_update(), add(), remove(), discard(),
-      pop(), clear(),
-    * ==, !=, <=, <, >=, >, |, &, -, ^, |=, &=, -=, ^=.
-
-    Examples:
-      >>> from graphillion import setset
-      >>> ss = setset([set([1]), set([1,2])])
-      >>> len(ss)
-      2
-      >>> for s in ss:
-      ...   s
-      set([1])
-      set([1, 2])
+    """
+    The setset_base class is the base class of GraphSet,
+    VertexSetset, and so on. This class is not directly
+    intended to be used by users.
     """
 
     def __init__(self, objtable, setset_or_constraints=None):
@@ -185,12 +173,10 @@ class setset_base(_graphillion.setset):
         else:
             return _graphillion.setset.flip_all(self, objtable.num_elems())
 
-    #def __iter__(self):
     def _iter(self, objtable):
         i = _graphillion.setset.iter(self)
         while (True):
             try:
-                #yield setset_base._conv_ret(next(i))
                 yield objtable.conv_ret(next(i))
             except StopIteration:
                 return
@@ -199,7 +185,6 @@ class setset_base(_graphillion.setset):
         i = _graphillion.setset.rand_iter(self)
         while (True):
             try:
-                #yield setset_base._conv_ret(next(i))
                 yield objtable.conv_ret(next(i))
             except StopIteration:
                 return
@@ -255,19 +240,11 @@ class setset_base(_graphillion.setset):
         assert len([c for c in cs[1:] if c < -(1 << 31) or (1 << 31) <= c]) == 0
         return _graphillion.setset.cost_le(self, costs=cs[1:], cost_bound=cost_bound)
 
-    # num_elems will be removed
-    def add_some_element(self, objtable, num_elems = None):
-        if num_elems:
-            return _graphillion.setset.add_some_element(self, num_elems)
-        else:
-            return _graphillion.setset.add_some_element(self, objtable.num_elems())
+    def add_some_element(self, objtable):
+        return _graphillion.setset.add_some_element(self, objtable.num_elems())
 
-    # num_elems will be removed
-    def remove_add_some_elements(self, objtable, num_elems = None):
-        if num_elems:
-            return _graphillion.setset.remove_add_some_elements(self, num_elems)
-        else:
-            return _graphillion.setset.remove_add_some_elements(self, objtable.num_elems())
+    def remove_add_some_elements(self, objtable):
+        return _graphillion.setset.remove_add_some_elements(self, objtable.num_elems())
 
     def to_vertexsetset(self, objtable):
         edges_from_top = [list(e) for e in objtable.int2obj[1:]]
@@ -280,54 +257,9 @@ class setset_base(_graphillion.setset):
 
     @staticmethod
     def load(fp):
-        """Deserialize a file `fp` to `self`.
 
-        This method does not deserialize the universe, which should be
-        loaded separately by pickle.
-
-        Args:
-          fp: A read-supporting file-like object.
-
-        Examples of dump():
-          >>> import pickle
-          >>> fp = open('/path/to/setset_base', 'wb')
-          >>> ss.dump(fp)
-          >>> fp = open('/path/to/universe' 'wb')
-          >>> pickle.dump(setset_base.universe(), fp)
-
-        Examples of load():
-          >>> import pickle
-          >>> fp = open('/path/to/universe')
-          >>> setset_base.set_universe(pickle.load(fp))
-          >>> fp = open('/path/to/setset_base')
-          >>> ss = setset_base.load(fp)
-
-        See Also:
-          loads()
-        """
         return setset_base(None, _graphillion.load(fp))
 
     @staticmethod
     def loads(s):
-        """Deserialize `s` to `self`.
-
-        This method does not deserialize the universe, which should be
-        loaded separately by pickle.
-
-        Args:
-          s: A string instance.
-
-        Examples of dump():
-          >>> import pickle
-          >>> setset_str = ss.dumps()
-          >>> universe_str = pickle.dumps(setset_base.universe())
-
-        Examples of load():
-          >>> import pickle
-          >>> setset_base.set_universe(pickle.loads(universe_str))
-          >>> ss = setset_base.load(graphset_str)
-
-        See Also:
-          load()
-        """
         return setset_base(None, _graphillion.loads(s))
