@@ -62,6 +62,11 @@ private:
       static_cast<uchar>(fm_.vertexToPos(c));
   }
 
+  void clearComp(RData* data, int v) const {
+    assert(is_connected_);
+    data[fm_.vertexToPos(v) * 2 + 1] = static_cast<uchar>(-1);
+  }
+
   int getFixedDeg(RData* data) const {
     return data[fixedDegStart_];
   }
@@ -244,7 +249,7 @@ public:
         }
         // Since comp of v are never used until the end,
         // we erase the value.
-        setComp(data, v, -1);
+        clearComp(data, v);
       }
       // Since deg of v are never used until the end,
       // we erase the value.
