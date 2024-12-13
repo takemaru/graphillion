@@ -777,6 +777,8 @@ class GraphSet(object):
 
     def __contains__(self, obj):
         """Returns True if `obj` is in the `self`, False otherwise.
+        When `obj` is a graph (list of edges), returns True if the graph is in the `self`.
+        When `obj` is an edge or a vertex, returns True if a graph containing `obj` is in the `self`.
 
         Use the expression `obj in gs`.
 
@@ -786,6 +788,14 @@ class GraphSet(object):
           >>> gs = GraphSet([graph1, graph2])
           >>> graph1 in gs
           True
+          >>> (1, 2) in gs
+          True
+          >>> (1, 5) in gs  # assume that (1, 5) is in the universe
+          False
+          >>> 1 in gs
+          True
+          >>> 5 in gs
+          False
 
         Args:
           obj: A graph (an edge list), an edge, or a vertex in the
