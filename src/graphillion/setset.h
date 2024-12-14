@@ -251,6 +251,29 @@ class setset {
                                 const std::vector<int>& degRanges,
                                 const bool is_connected,
                                 const setset* search_space);
+  friend setset SearchDirectedCycles(const std::vector<edge_t>& digraph,
+                            const setset* search_space);
+
+  friend setset SearchDirectedHamiltonianCycles(const std::vector<edge_t>& digraph,
+                                       const setset* search_space);
+
+  friend setset SearchDirectedSTPath(const std::vector<edge_t>& digraph,
+                            bool is_hamiltonian, vertex_t s, vertex_t t,
+                            const setset* search_space);
+
+  friend setset SearchDirectedForests(const std::vector<edge_t>& digraph,
+                             const std::vector<vertex_t>& roots,
+                             bool is_spanning, const setset* search_space);
+
+  friend setset SearchRootedTrees(const std::vector<edge_t>& digraph, vertex_t root,
+                         bool is_spanning, const setset* search_space);
+
+  friend setset SearchDirectedGraphs(
+    const std::vector<edge_t>& digraph,
+    const std::map<vertex_t, Range>* in_degree_constraints,
+    const std::map<vertex_t, Range>* out_degree_constraints,
+    const setset* search_space);
+
 };
 
 }  // namespace graphillion

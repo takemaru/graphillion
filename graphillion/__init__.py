@@ -28,6 +28,7 @@ from graphillion.setset import setset
 from graphillion.vertex_setset import VertexSetSet
 from graphillion.edgevertex_setset import EdgeVertexSetSet
 from graphillion.graphset import GraphSet
+from graphillion.digraphset import DiGraphSet
 import graphillion.release
 
 __version__ = release.version

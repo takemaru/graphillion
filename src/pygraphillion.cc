@@ -1977,6 +1977,347 @@ static PyObject* setset_get_vertices_from_top(PySetsetObject* self, PyObject* ar
   return ret;
 }
 
+// directed version
+
+bool input_graph(PyObject* graph_obj,
+                 std::vector<std::pair<std::string, std::string> >& graph) {
+  if (graph_obj == NULL || graph_obj == Py_None) {
+    PyErr_SetString(PyExc_TypeError, "no graph");
+    return false;
+  }
+  PyObject* i = PyObject_GetIter(graph_obj);
+  if (i == NULL) return false;
+  PyObject* eo;
+  while ((eo = PyIter_Next(i))) {
+    PyObject* j = PyObject_GetIter(eo);
+    if (j == NULL) return false;
+    std::vector<std::string> e;
+    PyObject* vo;
+    while ((vo = PyIter_Next(j))) {
+      if (!PyBytes_Check(vo)) {
+        PyErr_SetString(PyExc_TypeError, "invalid graph");
+        return false;
+      }
+      std::string v = PyBytes_AsString(vo);
+      if (v.find(',') != std::string::npos) {
+        PyErr_SetString(PyExc_TypeError, "invalid vertex in the graph");
+        return false;
+      }
+      e.push_back(v);
+    }
+    assert(e.size() == 2);
+    graph.push_back(make_pair(e[0], e[1]));
+  }
+  return true;
+}
+
+bool input_string_list(PyObject* list_obj, std::vector<std::string>& list) {
+  if (list_obj == NULL || list_obj == Py_None) {
+    PyErr_SetString(PyExc_TypeError, "no input");
+    return false;
+  }
+
+  PyObject* i = PyObject_GetIter(list_obj);
+  if (i == NULL) return false;
+  PyObject* vo;
+  while ((vo = PyIter_Next(i))) {
+    if (!PyBytes_Check(vo)) {
+      PyErr_SetString(PyExc_TypeError, "invalid input");
+      return false;
+    }
+    std::string v = PyBytes_AsString(vo);
+    if (v.find(',') != std::string::npos) {
+      PyErr_SetString(PyExc_TypeError, "invalid vertex in the graph");
+      return false;
+    }
+    list.push_back(v);
+  }
+  return true;
+}
+
+bool input_vertex_to_range_map(
+    PyObject* map_obj, std::map<std::string, Range>& mp) {
+  PyObject* vo;
+  PyObject* lo;
+  Py_ssize_t pos = 0;
+  while (PyDict_Next(map_obj, &pos, &vo, &lo)) {
+    if (!PyBytes_Check(vo)) {
+      PyErr_SetString(PyExc_TypeError, "invalid vertex in map object");
+      return false;
+    }
+    std::string vertex = PyBytes_AsString(vo);
+    PyObject* i = PyObject_GetIter(lo);
+    if (i == NULL) return false;
+    std::vector<int> r;
+    PyObject* io;
+    while ((io = PyIter_Next(i))) {
+      if (!PyInt_Check(io)) {
+        Py_DECREF(io);
+        PyErr_SetString(PyExc_TypeError, "invalid degree in map object");
+        return false;
+      }
+      r.push_back(PyInt_AsLong(io));
+    }
+    mp[vertex] = Range(r[0], r[1], r[2]);
+  }
+  return true;
+}
+
+static PyObject* graphset_directed_cycles(PyObject*, PyObject* args,
+                                          PyObject* kwds) {
+  static char s1[] = "graph";
+  static char s2[] = "search_space";
+  static char* kwlist[3] = {s1, s2, NULL};
+  PyObject* graph_obj = NULL;
+  PyObject* search_space_obj = NULL;
+  if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|O", kwlist, &graph_obj,
+                                   &search_space_obj))
+    return NULL;
+
+  std::vector<std::pair<std::string, std::string> > graph;
+  if (!input_graph(graph_obj, graph)) {
+    return NULL;
+  }
+
+  graphillion::setset* search_space = NULL;
+  if (search_space_obj != NULL && search_space_obj != Py_None)
+    search_space = reinterpret_cast<PySetsetObject*>(search_space_obj)->ss;
+
+  graphillion::setset ss =
+      graphillion::SearchDirectedCycles(graph, search_space);
+
+  PySetsetObject* ret = reinterpret_cast<PySetsetObject*>(
+      PySetset_Type.tp_alloc(&PySetset_Type, 0));
+  ret->ss = new graphillion::setset(ss);
+  return reinterpret_cast<PyObject*>(ret);
+}
+
+static PyObject* graphset_directed_hamiltonian_cycles(PyObject*, PyObject* args,
+                                                      PyObject* kwds) {
+  static char s1[] = "graph";
+  static char s2[] = "search_space";
+  static char* kwlist[3] = {s1, s2, NULL};
+  PyObject* graph_obj = NULL;
+  PyObject* search_space_obj = NULL;
+  if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|O", kwlist, &graph_obj,
+                                   &search_space_obj))
+    return NULL;
+
+  std::vector<std::pair<std::string, std::string> > graph;
+  if (!input_graph(graph_obj, graph)) {
+    return NULL;
+  }
+
+  graphillion::setset* search_space = NULL;
+  if (search_space_obj != NULL && search_space_obj != Py_None)
+    search_space = reinterpret_cast<PySetsetObject*>(search_space_obj)->ss;
+
+  graphillion::setset ss =
+      graphillion::SearchDirectedHamiltonianCycles(graph, search_space);
+
+  PySetsetObject* ret = reinterpret_cast<PySetsetObject*>(
+      PySetset_Type.tp_alloc(&PySetset_Type, 0));
+  ret->ss = new graphillion::setset(ss);
+  return reinterpret_cast<PyObject*>(ret);
+}
+
+static PyObject* graphset_directed_st_path(PyObject*, PyObject* args,
+                                           PyObject* kwds) {
+  static char s1[] = "graph";
+  static char s2[] = "s";
+  static char s3[] = "t";
+  static char s4[] = "is_hamiltonian";
+  static char s5[] = "search_space";
+  static char* kwlist[] = {s1, s2, s3, s4, s5, NULL};
+  PyObject* graph_obj = NULL;
+  int is_hamiltonian = false;
+  PyObject* s_obj = NULL;
+  PyObject* t_obj = NULL;
+  PyObject* search_space_obj = NULL;
+  if (!PyArg_ParseTupleAndKeywords(args, kwds, "OSSp|O", kwlist, &graph_obj,
+                                   &s_obj, &t_obj, &is_hamiltonian,
+                                   &search_space_obj))
+    return NULL;
+
+  std::vector<std::pair<std::string, std::string> > graph;
+  if (!input_graph(graph_obj, graph)) {
+    return NULL;
+  }
+
+  std::string s, t;
+  if (s_obj == NULL || s_obj == Py_None) {
+    PyErr_SetString(PyExc_TypeError, "no vertex s");
+    return NULL;
+  }
+  if (!PyBytes_Check(s_obj)) {
+    PyErr_SetString(PyExc_TypeError, "invalid vertex s");
+    return NULL;
+  }
+  s = PyBytes_AsString(s_obj);
+
+  if (t_obj == NULL || t_obj == Py_None) {
+    PyErr_SetString(PyExc_TypeError, "no vertex t");
+    return NULL;
+  }
+  if (!PyBytes_Check(t_obj)) {
+    PyErr_SetString(PyExc_TypeError, "invalid vertex t");
+    return NULL;
+  }
+  t = PyBytes_AsString(t_obj);
+
+  graphillion::setset* search_space = NULL;
+  if (search_space_obj != NULL && search_space_obj != Py_None)
+    search_space = reinterpret_cast<PySetsetObject*>(search_space_obj)->ss;
+
+  graphillion::setset ss = graphillion::SearchDirectedSTPath(
+      graph, is_hamiltonian, s, t, search_space);
+
+  PySetsetObject* ret = reinterpret_cast<PySetsetObject*>(
+      PySetset_Type.tp_alloc(&PySetset_Type, 0));
+  ret->ss = new graphillion::setset(ss);
+  return reinterpret_cast<PyObject*>(ret);
+}
+
+static PyObject* graphset_rooted_forests(PyObject*, PyObject* args,
+                                         PyObject* kwds) {
+  static char s1[] = "graph";
+  static char s2[] = "roots";
+  static char s3[] = "is_spanning";
+  static char s4[] = "search_space";
+  static char* kwlist[] = {s1, s2, s3, s4, NULL};
+  PyObject* graph_obj = NULL;
+  PyObject* roots_obj = NULL;
+  PyObject* search_space_obj = NULL;
+  int is_spanning;
+  if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|OpO", kwlist, &graph_obj,
+                                   &roots_obj, &is_spanning, &search_space_obj))
+    return NULL;
+
+  std::vector<std::pair<std::string, std::string> > graph;
+  if (!input_graph(graph_obj, graph)) {
+    return NULL;
+  }
+
+  std::vector<std::string> roots;
+  if (roots_obj != NULL && roots_obj != Py_None) {
+    if (!input_string_list(roots_obj, roots)) {
+      return NULL;
+    }
+  }
+
+  graphillion::setset* search_space = NULL;
+  if (search_space_obj != NULL && search_space_obj != Py_None)
+    search_space = reinterpret_cast<PySetsetObject*>(search_space_obj)->ss;
+
+  graphillion::setset ss = graphillion::SearchDirectedForests(
+      graph, roots, is_spanning, search_space);
+
+  PySetsetObject* ret = reinterpret_cast<PySetsetObject*>(
+      PySetset_Type.tp_alloc(&PySetset_Type, 0));
+  ret->ss = new graphillion::setset(ss);
+  return reinterpret_cast<PyObject*>(ret);
+}
+
+static PyObject* graphset_rooted_trees(PyObject*, PyObject* args,
+                                       PyObject* kwds) {
+  static char s1[] = "graph";
+  static char s2[] = "root";
+  static char s3[] = "is_spanning";
+  static char s4[] = "search_space";
+  static char* kwlist[] = {s1, s2, s3, s4, NULL};
+  PyObject* graph_obj = NULL;
+  PyObject* search_space_obj = NULL;
+  PyObject* root_obj = NULL;
+  int is_spanning = false;
+  if (!PyArg_ParseTupleAndKeywords(args, kwds, "OSp|O", kwlist, &graph_obj,
+                                   &root_obj, &is_spanning, &search_space_obj))
+    return NULL;
+
+  std::vector<std::pair<std::string, std::string> > graph;
+  if (!input_graph(graph_obj, graph)) {
+    return NULL;
+  }
+
+  std::string root;
+  if (root_obj == NULL || root_obj == Py_None) {
+    PyErr_SetString(PyExc_TypeError, "no vertex root");
+    return NULL;
+  }
+  if (!PyBytes_Check(root_obj)) {
+    PyErr_SetString(PyExc_TypeError, "invalid vertex root");
+    return NULL;
+  }
+  root = PyBytes_AsString(root_obj);
+
+  graphillion::setset* search_space = NULL;
+  if (search_space_obj != NULL && search_space_obj != Py_None)
+    search_space = reinterpret_cast<PySetsetObject*>(search_space_obj)->ss;
+
+  graphillion::setset ss =
+      graphillion::SearchRootedTrees(graph, root, is_spanning, search_space);
+
+  PySetsetObject* ret = reinterpret_cast<PySetsetObject*>(
+      PySetset_Type.tp_alloc(&PySetset_Type, 0));
+  ret->ss = new graphillion::setset(ss);
+  return reinterpret_cast<PyObject*>(ret);
+}
+
+static PyObject* graphset_directed_graphs(PyObject*, PyObject* args,
+                                          PyObject* kwds) {
+  static char s1[] = "graph";
+  static char s2[] = "in_degree_constraints";
+  static char s3[] = "out_degree_constraints";
+  static char s4[] = "search_space";
+  static char* kwlist[] = {s1, s2, s3, s4, NULL};
+  PyObject* graph_obj = NULL;
+  PyObject* in_degree_constraints_obj = NULL;
+  PyObject* out_degree_constraints_obj = NULL;
+  PyObject* search_space_obj = NULL;
+  if (!PyArg_ParseTupleAndKeywords(
+          args, kwds, "O|OOO", kwlist, &graph_obj, &in_degree_constraints_obj,
+          &out_degree_constraints_obj, &search_space_obj))
+    return NULL;
+
+  std::vector<std::pair<std::string, std::string> > graph;
+  if (!input_graph(graph_obj, graph)) {
+    return NULL;
+  }
+
+  std::map<std::string, Range> in_degree_constraints_entity;
+  std::map<std::string, Range>* in_degree_constraints = NULL;
+  if (in_degree_constraints_obj != NULL &&
+      in_degree_constraints_obj != Py_None) {
+    in_degree_constraints = &in_degree_constraints_entity;
+    if (!input_vertex_to_range_map(in_degree_constraints_obj,
+                                   in_degree_constraints_entity)) {
+      return NULL;
+    }
+  }
+
+  std::map<std::string, Range> out_degree_constrains_entity;
+  std::map<std::string, Range>* out_degree_constrains = NULL;
+  if (out_degree_constraints_obj != NULL &&
+      out_degree_constraints_obj != Py_None) {
+    out_degree_constrains = &out_degree_constrains_entity;
+    if (!input_vertex_to_range_map(out_degree_constraints_obj,
+                                   out_degree_constrains_entity)) {
+      return NULL;
+    }
+  }
+
+  graphillion::setset* search_space = NULL;
+  if (search_space_obj != NULL && search_space_obj != Py_None)
+    search_space = reinterpret_cast<PySetsetObject*>(search_space_obj)->ss;
+
+  graphillion::setset ss = graphillion::SearchDirectedGraphs(
+      graph, in_degree_constraints, out_degree_constrains, search_space);
+
+  PySetsetObject* ret = reinterpret_cast<PySetsetObject*>(
+      PySetset_Type.tp_alloc(&PySetset_Type, 0));
+  ret->ss = new graphillion::setset(ss);
+  return reinterpret_cast<PyObject*>(ret);
+}
+
 static PyMethodDef module_methods[] = {
   {"load", reinterpret_cast<PyCFunction>(setset_load), METH_O, ""},
   {"loads", reinterpret_cast<PyCFunction>(setset_loads), METH_O, ""},
@@ -1995,6 +2336,23 @@ static PyMethodDef module_methods[] = {
   {"_chordal_graphs", reinterpret_cast<PyCFunction>(chordal_graphs), METH_VARARGS | METH_KEYWORDS, ""},
   {"_reliability", reinterpret_cast<PyCFunction>(reliability), METH_VARARGS | METH_KEYWORDS, ""},
   {"_get_vertices_from_top", reinterpret_cast<PyCFunction>(setset_get_vertices_from_top), METH_VARARGS, ""},
+  // directed version
+  {"_directed_cycles",
+    reinterpret_cast<PyCFunction>(graphset_directed_cycles),
+    METH_VARARGS | METH_KEYWORDS, ""},
+  {"_directed_hamiltonian_cycles",
+    reinterpret_cast<PyCFunction>(graphset_directed_hamiltonian_cycles),
+    METH_VARARGS | METH_KEYWORDS, ""},
+  {"_directed_st_path",
+    reinterpret_cast<PyCFunction>(graphset_directed_st_path),
+    METH_VARARGS | METH_KEYWORDS, ""},
+  {"_rooted_forests", reinterpret_cast<PyCFunction>(graphset_rooted_forests),
+    METH_VARARGS | METH_KEYWORDS, ""},
+  {"_rooted_trees", reinterpret_cast<PyCFunction>(graphset_rooted_trees),
+    METH_VARARGS | METH_KEYWORDS, ""},
+  {"_directed_graphs",
+    reinterpret_cast<PyCFunction>(graphset_directed_graphs),
+    METH_VARARGS | METH_KEYWORDS, ""},
   {NULL}  /* Sentinel */
 };
 
