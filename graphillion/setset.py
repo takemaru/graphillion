@@ -120,6 +120,9 @@ class setset(setset_base):
     def to_vertexsetset(self):
         return setset_base.to_vertexsetset(self, setset._objtable)
 
+    def to_edgevertexsetset(self):
+        return setset_base.to_edgevertexsetset(self, setset._objtable)
+
     #@staticmethod
     #def get_vertices_from_top():
     #    return setset_base.get_vertices_from_top(setset._objtable)

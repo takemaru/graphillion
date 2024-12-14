@@ -250,6 +250,10 @@ class setset_base(_graphillion.setset):
         edges_from_top = [list(e) for e in objtable.int2obj[1:]]
         return _graphillion.setset.to_vertexsetset(self, edges_from_top)
 
+    def to_edgevertexsetset(self, objtable):
+        edges_from_top = [list(e) for e in objtable.int2obj[1:]]
+        return _graphillion.setset.to_edgevertexsetset(self, edges_from_top)
+
     @staticmethod
     def get_vertices_from_top(objtable):
         edges_from_top = [list(e) for e in objtable.int2obj[1:]]

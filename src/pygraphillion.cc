@@ -1110,6 +1110,15 @@ static PyObject* setset_to_vertexsetset(PySetsetObject* self, PyObject* args) {
   return reinterpret_cast<PyObject*>(ret);
 }
 
+static PyObject* setset_to_edgevertexsetset(PySetsetObject* self, PyObject* args) {
+  std::vector<std::vector<std::string>> edges = parse_args_to_edges(args);
+  PySetsetObject* ret = reinterpret_cast<PySetsetObject*>
+      (PySetset_Type.tp_alloc(&PySetset_Type, 0));
+  auto ss = self->ss->to_edgevertexsetset_setset(edges);
+  ret->ss = new setset(ss);
+  return reinterpret_cast<PyObject*>(ret);
+}
+
 static PyMemberDef setset_members[] = {
   {NULL}  /* Sentinel */
 };
@@ -1168,6 +1177,7 @@ static PyMethodDef setset_methods[] = {
   {"add_some_element", reinterpret_cast<PyCFunction>(setset_add_some_element), METH_VARARGS, ""},
   {"remove_add_some_elements", reinterpret_cast<PyCFunction>(setset_remove_add_some_elements), METH_VARARGS, ""},
   {"to_vertexsetset", reinterpret_cast<PyCFunction>(setset_to_vertexsetset), METH_VARARGS, ""},
+  {"to_edgevertexsetset", reinterpret_cast<PyCFunction>(setset_to_edgevertexsetset), METH_VARARGS, ""},
   {NULL}  /* Sentinel */
 };
 

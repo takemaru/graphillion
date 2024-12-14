@@ -23,6 +23,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 **********************************************************************/
 
 #include "variable_converter.h"
+#include "subsetting/eval/ToZBDD.hpp"
 
 #include <vector>
 
@@ -241,6 +242,14 @@ tdzdd::DdStructure<2> eToEvZdd(const tdzdd::DdStructure<2>& dd,
   ZDDEVSpec spec(dd, graph, vlist);
   tdzdd::DdStructure<2> out_dd(spec);
   return out_dd;
+}
+
+ZBDD eToEvSZdd(const tdzdd::DdStructure<2>& dd,
+                const tdzdd::Graph& graph,
+                const VariableList& vlist,
+                int offset) {
+  tdzdd::DdStructure<2> evdd = eToEvZdd(dd, graph, vlist);
+  return evdd.evaluate(ToZBDD(offset));
 }
 
 ZBDD eToVZdd(const tdzdd::DdStructure<2>& dd,

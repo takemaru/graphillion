@@ -59,6 +59,11 @@ tdzdd::DdStructure<2> eToEvZdd(const tdzdd::DdStructure<2>& dd,
                     const tdzdd::Graph& graph,
                     const VariableList& vlist);
 
+ZBDD eToEvSZdd(const tdzdd::DdStructure<2>& dd,
+                const tdzdd::Graph& graph,
+                const VariableList& vlist,
+                int offset);
+
 ZBDD eToVZdd(const tdzdd::DdStructure<2>& dd,
           const tdzdd::Graph& graph);
 

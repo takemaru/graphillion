@@ -25,6 +25,7 @@ from builtins import range, int
 from future.utils import viewitems
 import _graphillion
 from graphillion import VertexSetSet
+from graphillion import EdgeVertexSetSet
 from graphillion.setset_base import ObjectTable
 from graphillion.setset_base import setset_base
 import pickle
@@ -1728,6 +1729,33 @@ class GraphSet(object):
 
         """
         return VertexSetSet(self._ss.to_vertexsetset(GraphSet._objtable))
+
+    def to_edgevertexsetset(self):
+        """Returns a new EdgeVertexSetSet with edges and vertices of each graph in `self`.
+
+        Examples:
+          >>> e1 = (1, 2)
+          >>> e2 = (3, 4)
+          >>> e3 = (2, 3)
+          >>> e4 = (2, 4)
+          >>> e5 = (2, 5)
+          >>> GraphSet.set_universe([e1, e2, e3, e4, e5], "as-is")
+          >>> EdgeVertexSetSet.set_universe()
+          >>> g1 = [e2]           # edge vertex set is {e2, 3, 4}
+          >>> g2 = [e1, e2]       # edge vertex set is {e1, e2, 1, 2, 3, 4}
+          >>> g3 = [e1, e2, e4]   # edge vertex set is {e1, e2, e4, 1, 2, 3, 4}
+          >>> evss1 = GraphSet([g1, g2, g3]).to_edgevertexsetset()
+          >>> for evs in evss1:
+          ...     evs
+          [(1, 2), (2, 4), (3, 4), 1, 2, 3, 4]
+          [(1, 2), (3, 4), 1, 2, 3, 4]
+          [(3, 4), 3, 4]
+
+        Returns:
+          A new EdgeVertexSetSet object.
+
+        """
+        return EdgeVertexSetSet(self._ss.to_edgevertexsetset(GraphSet._objtable))
 
     @staticmethod
     def load(fp):

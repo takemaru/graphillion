@@ -477,6 +477,23 @@ setset setset::to_vertexsetset_setset(const std::vector<std::vector<std::string>
   return setset(dd_v);
 }
 
+setset setset::to_edgevertexsetset_setset(const std::vector<std::vector<std::string>> &edges_from_top) const {
+  if (this->zdd_ == bot()) {
+    return setset(bot());
+  }
+  std::pair<tdzdd::Graph, VariableConverter::VariableList> graph_and_vlist =
+    VariableConverter::construct_graph_and_vlist(edges_from_top);
+  tdzdd::Graph graph = graph_and_vlist.first;
+  VariableConverter::VariableList vlist = graph_and_vlist.second;
+
+  const int offset = max_elem() - graph.edgeSize();
+  SapporoZdd dd_e_spec(this->zdd_, offset);
+  tdzdd::DdStructure<2> dd_e(dd_e_spec);
+  dd_e.zddReduce();
+  zdd_t dd_v = VariableConverter::eToEvSZdd(dd_e, graph, vlist, max_elem() - graph.edgeSize() - graph.vertexSize());
+  return setset(dd_v);
+}
+
 double setset::probability(const vector<double>& probabilities, elem_t num_elems_a) const {
   assert(probabilities.size() == num_elems_a + 1);
   if (this->zdd_ == bot()) {  // this->empty()
