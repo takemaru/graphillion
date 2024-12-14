@@ -1346,43 +1346,6 @@ class EdgeVertexSetSet(object):
         probabilities = {EdgeVertexSetSet._conv_edgevertex(ev): p for ev, p in probabilities.items()}
         return self._ss.probability(EdgeVertexSetSet._objtable, probabilities)
 
-    def dump(self, fp):
-        """Serialize `self` to a file `fp`.
-
-        This method does not serialize the universe, which should be
-        saved separately by pickle.
-
-        Examples:
-          >>> import pickle
-          >>> fp = open('/path/to/graphset', 'wb')
-          >>> gs.dump(fp)
-          >>> fp = open('/path/to/universe' 'wb')
-          >>> pickle.dump(EdgeVertexSetSet.universe(), fp)
-
-        Args:
-          fp: A write-supporting file-like object.
-
-        See Also:
-          dumps(), load()
-        """
-        return self._ss.dump(fp)
-
-    def dumps(self):
-        """Returns a serialized `self`.
-
-        This method does not serialize the universe, which should be
-        saved separately by pickle.
-
-        Examples:
-          >>> import pickle
-          >>> graphset_str = gs.dumps()
-          >>> universe_str = pickle.dumps(EdgeVertexSetSet.universe())
-
-        See Also:
-          dump(), loads()
-        """
-        return self._ss.dumps()
-
     def cost_le(self, costs, cost_bound):
         """Returns a new EdgeVertexSetSet with subgraphs whose cost is less than or equal to the cost bound.
 
@@ -1493,6 +1456,43 @@ class EdgeVertexSetSet(object):
         le_ss = self._ss.cost_le(objtable=EdgeVertexSetSet._objtable, costs=costs, cost_bound=cost_bound)
         lt_ss = self._ss.cost_le(objtable=EdgeVertexSetSet._objtable, costs=costs, cost_bound=cost_bound - 1)
         return EdgeVertexSetSet(le_ss.difference(lt_ss))
+
+    def dump(self, fp):
+        """Serialize `self` to a file `fp`.
+
+        This method does not serialize the universe, which should be
+        saved separately by pickle.
+
+        Examples:
+          >>> import pickle
+          >>> fp = open('/path/to/graphset', 'wb')
+          >>> gs.dump(fp)
+          >>> fp = open('/path/to/universe' 'wb')
+          >>> pickle.dump(EdgeVertexSetSet.universe(), fp)
+
+        Args:
+          fp: A write-supporting file-like object.
+
+        See Also:
+          dumps(), load()
+        """
+        return self._ss.dump(fp)
+
+    def dumps(self):
+        """Returns a serialized `self`.
+
+        This method does not serialize the universe, which should be
+        saved separately by pickle.
+
+        Examples:
+          >>> import pickle
+          >>> graphset_str = gs.dumps()
+          >>> universe_str = pickle.dumps(EdgeVertexSetSet.universe())
+
+        See Also:
+          dump(), loads()
+        """
+        return self._ss.dumps()
 
     @staticmethod
     def load(fp):
