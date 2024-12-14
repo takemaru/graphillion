@@ -42,7 +42,7 @@ class GraphSet(object):
     graphs without edge labels.
 
     The universal graph must be defined before creating GraphSet
-    objects by `GraphSet.universe()` method.
+    objects by `GraphSet.set_universe()` method.
 
     Like Python set types, GraphSet supports `graph in graphset`,
     `len(graphset)`, and `for graph in graphset`.  It also supports
@@ -1485,12 +1485,14 @@ class GraphSet(object):
         graph in `self` given `probabilities` of each edge.
 
         Examples:
+          >>> GraphSet.set_universe([(1, 2), (1, 4), (2, 3)])
           >>> graph1 = [(1, 2), (1, 4)]
           >>> graph2 = [(2, 3)]
           >>> gs = GraphSet([graph1, graph2])
           >>> probabilities = {(1, 2): .9, (1, 4): .8, (2, 3): .7}
           >>> gs.probability(probabilities)
           0.23
+          # 0.9*0.8*(1-0.7) + (1-0.9)*(1-0.8)*0.7
 
         Args:
           probabilities: A dictionary of probabilities of each edge.
