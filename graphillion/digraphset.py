@@ -1490,6 +1490,168 @@ class DiGraphSet(object):
         """
         return self._ss.probability(DiGraphSet._objtable, probabilities)
 
+    def cost_le(self, costs, cost_bound):
+        """Returns a new DiGraphSet with subgraphs whose cost is less than or equal to the cost bound.
+
+        This method constructs a DiGraphSet of subgraphs
+        whose cost is less than or equal to the cost bound,
+        where `costs` of each edge and the `cost_bound` are given as arguments.
+
+        Examples:
+          >>> universe = [(1, 2), (1, 4), (2, 3), (3, 4)]
+          >>> DiGraphSet.set_universe(universe)
+
+          >>> graph1 = [(1, 2), (2, 3)]
+          >>> graph2 = [(3, 4)]
+          >>> graph3 = [(1, 2), (1, 4), (3, 4)]
+          >>> gs = DiGraphSet([graph1, graph2, graph3])
+          >>> costs = {(1, 2): 2, (1, 4): 3, (2, 3): 1, (3, 4): 7}
+          >>> cost_bound = 7
+          >>> print(gs.cost_le(costs, cost_bound))
+          DiGraphSet([[(3, 4)], [(1, 2), (2, 3)]])
+
+        Args:
+          costs: A dictionary of the cost of each edge.
+          cost_bound: The upper limit of the cost of each digraph. 32 bit signed integer.
+
+        Returns:
+          A new DiGraphSet object.
+
+        Raises:
+          KeyError: If a given edge is not found in the universe.
+          AssertionError: If the cost of at least one edge is not given, or outside the range of 32 bit signed integer.
+          TypeError: If at least one cost is not integer.
+
+        """
+        return DiGraphSet(self._ss.cost_le(objtable=DiGraphSet._objtable, costs=costs, cost_bound=cost_bound))
+
+    def cost_ge(self, costs, cost_bound):
+        """Returns a new DiGraphSet with subgraphs whose cost is greater than or equal to the cost bound.
+
+        This method constructs a DiGraphSet of subgraphs
+        whose cost is greater than or equal to the cost bound,
+        where `costs` of each edge and the `cost_bound` are given as arguments.
+
+        Examples:
+          >>> universe = [(1, 2), (1, 4), (2, 3), (3, 4)]
+          >>> DiGraphSet.set_universe(universe)
+
+          >>> graph1 = [(1, 2), (2, 3)]
+          >>> graph2 = [(3, 4)]
+          >>> graph3 = [(1, 2), (1, 4), (3, 4)]
+          >>> gs = DiGraphSet([graph1, graph2, graph3])
+          >>> costs = {(1, 2): 2, (1, 4): 3, (2, 3): 1, (3, 4): 7}
+          >>> cost_bound = 7
+          >>> print(gs.cost_ge(costs, cost_bound))
+          DiGraphSet([[(3, 4)], [(1, 2), (1, 4), (3, 4)]])
+
+        Args:
+          costs: A dictionary of the cost of each edge.
+          cost_bound: The lower limit of the cost of each digraph. 32 bit signed integer.
+
+        Returns:
+          A new DiGraphSet object.
+
+        Raises:
+          KeyError: If a given edge is not found in the universe.
+          AssertionError: If the cost of at least one edge is not given, or outside the range of 32 bit signed integer.
+          TypeError: If at least one cost is not integer.
+
+        """
+        inv_costs = {e: -cost for e, cost in costs.items()}
+        return DiGraphSet(self._ss.cost_le(objtable=DiGraphSet._objtable, costs=inv_costs, cost_bound=-cost_bound))
+
+    def cost_eq(self, costs, cost_bound):
+        """Returns a new DiGraphSet with subgraphs whose cost is equal to the cost bound.
+
+        This method constructs a DiGraphSet of subgraphs
+        whose cost is equal to the cost bound,
+        where `costs` of each edge and the `cost_bound` are given as arguments.
+
+        Examples:
+          >>> universe = [(1, 2), (1, 4), (2, 3), (3, 4)]
+          >>> DiGraphSet.set_universe(universe)
+
+          >>> graph1 = [(1, 2), (2, 3)]
+          >>> graph2 = [(3, 4)]
+          >>> graph3 = [(1, 2), (1, 4), (3, 4)]
+          >>> gs = DiGraphSet([graph1, graph2, graph3])
+          >>> costs = {(1, 2): 2, (1, 4): 3, (2, 3): 1, (3, 4): 7}
+          >>> cost_bound = 7
+          >>> print(gs.cost_eq(costs, cost_bound))
+          DiGraphSet([[(3, 4)]])
+
+        Args:
+          costs: A dictionary of the cost of each edge.
+          cost_bound: The limit of the cost of each digraph. 32 bit signed integer.
+
+        Returns:
+          A new DiGraphSet object.
+
+        Raises:
+          KeyError: If a given edge is not found in the universe.
+          AssertionError: If the cost of at least one edge is not given, or outside the range of 32 bit signed integer.
+          TypeError: If at least one cost is not integer.
+
+        """
+        le_ss = self._ss.cost_le(objtable=DiGraphSet._objtable, costs=costs, cost_bound=cost_bound)
+        lt_ss = self._ss.cost_le(objtable=DiGraphSet._objtable, costs=costs, cost_bound=cost_bound - 1)
+        return DiGraphSet(le_ss.difference(lt_ss))
+
+    def remove_some_edge(self):
+        """Returns a new DiGraphSet with digraphs that are obtained by removing some edge from a digraph in `self`.
+
+        The `self` is not changed.
+
+        Examples:
+          >>> DiGraphSet.set_universe([(1, 2), (1, 4), (2, 3)])
+          >>> graph1 = [(1, 2), (1, 4)]
+          >>> graph2 = [(2, 3)]
+          >>> gs = DiGraphSet([graph1, graph2])
+          >>> gs.remove_some_edge()
+          DiGraphSet([[], [(1, 4)], [(1, 2)]])
+
+        Returns:
+          A new DiGraphSet object.
+        """
+        return DiGraphSet(self._ss.remove_some_element())
+
+    def add_some_edge(self):
+        """Returns a new DiGraphSet with digraphs that are obtained by adding some edge to a digraph in `self`.
+
+        The `self` is not changed.
+
+        Examples:
+          >>> DiGraphSet.set_universe([(1, 2), (1, 4), (2, 3)])
+          >>> graph1 = [(1, 2), (1, 4)]
+          >>> graph2 = [(2, 3)]
+          >>> gs = DiGraphSet([graph1, graph2])
+          >>> gs.add_some_edge()
+          DiGraphSet([[(1, 4), (2, 3)], [(1, 2), (2, 3)], [(1, 2), (1, 4), (2, 3)]])
+
+        Returns:
+          A new DiGraphSet object.
+        """
+        return DiGraphSet(self._ss.add_some_element(DiGraphSet._objtable))
+
+    def remove_add_some_edges(self):
+        """Returns a new DiGraphSet with digraphs that are obtained by removing some edge from a digraph in `self` and adding another edge to the digraph.
+
+        The `self` is not changed.
+
+        Examples:
+          >>> DiGraphSet.set_universe([(1, 2), (1, 4), (2, 3)])
+          >>> graph1 = [(1, 2), (1, 4)]
+          >>> graph2 = [(2, 3)]
+          >>> gs = DiGraphSet([graph1, graph2])
+          >>> gs.remove_add_some_edges()
+          DiGraphSet([[(1, 4)], [(1, 2)], [(1, 4), (2, 3)], [(1, 2), (2, 3)]])
+
+        Returns:
+          A new DiGraphSet object.
+        """
+        return DiGraphSet(self._ss.remove_add_some_elements(DiGraphSet._objtable))
+
     def dump(self, fp):
         """Serialize `self` to a file `fp`.
 

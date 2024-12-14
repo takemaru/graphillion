@@ -27,6 +27,8 @@ e2 = (1, 3)
 e3 = (2, 4)
 e4 = (3, 4)
 
+e1r = (2, 1)
+
 g0 = []
 g1 = [e1]
 g2 = [e2]
@@ -43,6 +45,10 @@ g124 = [e1, e2, e4]
 g134 = [e1, e3, e4]
 g234 = [e2, e3, e4]
 g1234 = [e1, e2, e3, e4]
+
+g1r = [e1r]
+g1r2 = [e1r, e2]
+g1r4 = [e1r, e4]
 
 """
 1 <-> 2 <-> 3
@@ -553,6 +559,147 @@ class TestDiGraphSet(unittest.TestCase):
         self.assertEqual(gs, DiGraphSet([g0, g1, g14, g2, g23, g234, g34, g4]))
 
 #    def test_probability(self):
+
+    def test_cost_le(self):
+        DiGraphSet.set_universe([e1, e1r, e2, e3, e4])
+        gs = DiGraphSet([g0, g1, g2, g3, g4, g12, g14, g134, g234, g1234, g1r, g1r2, g1r4])
+
+        costs = {e1: 2, e1r: 6, e2: 14, e3: 4, e4: 7}
+        cost_bound = 13
+
+        small_cost_gs = gs.cost_le(costs, cost_bound)
+        self.assertIn(g0, small_cost_gs) # cost: 0
+        self.assertIn(g1, small_cost_gs) # cost: 2
+        self.assertNotIn(g2, small_cost_gs) # cost: 14
+        self.assertIn(g3, small_cost_gs) # cost: 4
+        self.assertIn(g4, small_cost_gs) # cost: 7
+        self.assertNotIn(g12, small_cost_gs) # cost: 16
+        self.assertIn(g14, small_cost_gs) # cost: 9
+        self.assertIn(g134, small_cost_gs) # cost: 13
+        self.assertNotIn(g234, small_cost_gs) # cost: 25
+        self.assertNotIn(g1234, small_cost_gs) # cost: 27
+        self.assertIn(g1r, small_cost_gs) # cost: 6
+        self.assertNotIn(g1r2, small_cost_gs) # cost: 20
+        self.assertIn(g1r4, small_cost_gs) # cost: 13
+
+    def test_cost_ge(self):
+        DiGraphSet.set_universe([e1, e1r, e2, e3, e4])
+        gs = DiGraphSet([g0, g1, g2, g3, g4, g12, g14, g134, g234, g1234, g1r, g1r2, g1r4])
+
+        costs = {e1: 2, e1r: 6, e2: 14, e3: 4, e4: 7}
+        cost_bound = 13
+
+        large_cost_gs = gs.cost_ge(costs, cost_bound)
+        self.assertNotIn(g0, large_cost_gs) # cost: 0
+        self.assertNotIn(g1, large_cost_gs) # cost: 2
+        self.assertIn(g2, large_cost_gs) # cost: 14
+        self.assertNotIn(g3, large_cost_gs) # cost: 4
+        self.assertNotIn(g4, large_cost_gs) # cost: 7
+        self.assertIn(g12, large_cost_gs) # cost: 16
+        self.assertNotIn(g14, large_cost_gs) # cost: 9
+        self.assertIn(g134, large_cost_gs) # cost: 13
+        self.assertIn(g234, large_cost_gs) # cost: 25
+        self.assertIn(g1234, large_cost_gs) # cost: 27
+        self.assertNotIn(g1r, large_cost_gs) # cost: 6
+        self.assertIn(g1r2, large_cost_gs) # cost: 20
+        self.assertIn(g1r4, large_cost_gs) # cost: 13
+
+    def test_cost_eq(self):
+        DiGraphSet.set_universe([e1, e1r, e2, e3, e4])
+        gs = DiGraphSet([g0, g1, g2, g3, g4, g12, g14, g134, g234, g1234, g1r, g1r2, g1r4])
+
+        costs = {e1: 2, e1r: 6, e2: 14, e3: 4, e4: 7}
+        cost_bound = 13
+
+        equal_cost_gs = gs.cost_eq(costs, cost_bound)
+        self.assertNotIn(g0, equal_cost_gs) # cost: 0
+        self.assertNotIn(g1, equal_cost_gs) # cost: 2
+        self.assertNotIn(g2, equal_cost_gs) # cost: 14
+        self.assertNotIn(g3, equal_cost_gs) # cost: 4
+        self.assertNotIn(g4, equal_cost_gs) # cost: 7
+        self.assertNotIn(g12, equal_cost_gs) # cost: 16
+        self.assertNotIn(g14, equal_cost_gs) # cost: 9
+        self.assertIn(g134, equal_cost_gs) # cost: 13
+        self.assertNotIn(g234, equal_cost_gs) # cost: 25
+        self.assertNotIn(g1234, equal_cost_gs) # cost: 27
+        self.assertNotIn(g1r, equal_cost_gs) # cost: 6
+        self.assertNotIn(g1r2, equal_cost_gs) # cost: 20
+        self.assertIn(g1r4, equal_cost_gs) # cost: 13
+
+    def test_remove_some_edge(self):
+        DiGraphSet.set_universe([e1, e1r, e2, e3, e4])
+
+        gs = DiGraphSet([])
+        self.assertEqual(gs.remove_some_edge(), DiGraphSet())
+
+        gs = DiGraphSet([g0])
+        self.assertEqual(gs.remove_some_edge(), DiGraphSet())
+
+        gs = DiGraphSet([g1r])
+        self.assertEqual(gs.remove_some_edge(), DiGraphSet([g0]))
+
+        gs = DiGraphSet([g0, g1r])
+        self.assertEqual(gs.remove_some_edge(), DiGraphSet([g0]))
+
+        gs = DiGraphSet([g1, g12])
+        self.assertEqual(gs.remove_some_edge(), DiGraphSet([g0, g1, g2]))
+
+        gs1 = DiGraphSet([g0, g4, g12, g234])
+        gs2 = DiGraphSet([g0, g1, g2, g23, g24, g34])
+        self.assertEqual(gs1.remove_some_edge(), gs2)
+
+    def test_add_some_edge(self):
+        DiGraphSet.set_universe([e1, e1r, e2, e3, e4])
+
+        gs = DiGraphSet([])
+        self.assertEqual(gs.add_some_edge(), DiGraphSet())
+
+        gs = DiGraphSet([g0])
+        self.assertEqual(gs.add_some_edge(), DiGraphSet([g1, g2, g3, g4, g1r]))
+
+        DiGraphSet.set_universe([e1, e2, e3, e4])
+
+        gs = DiGraphSet([g1])
+        self.assertEqual(gs.add_some_edge(), DiGraphSet([g12, g13, g14]))
+
+        gs = DiGraphSet([g0, g1])
+        self.assertEqual(gs.add_some_edge(),
+                         DiGraphSet([g1, g2, g3, g4, g12, g13, g14]))
+
+        gs = DiGraphSet([g1, g12])
+        self.assertEqual(gs.add_some_edge(),
+                         DiGraphSet([g12, g13, g14, g123, g124]))
+
+        gs1 = DiGraphSet([g0, g4, g12, g234])
+        gs2 = DiGraphSet([g1, g2, g3, g4, g14, g24, g34, g123, g124, g1234])
+        self.assertEqual(gs1.add_some_edge(), gs2)
+
+    def test_remove_add_some_edges(self):
+        DiGraphSet.set_universe([e1, e1r, e2, e3, e4])
+
+        gs = DiGraphSet([])
+        self.assertEqual(gs.remove_add_some_edges(), DiGraphSet())
+
+        gs = DiGraphSet([g0])
+        self.assertEqual(gs.remove_add_some_edges(), DiGraphSet())
+
+        gs = DiGraphSet([g1r])
+        self.assertEqual(gs.remove_add_some_edges(),
+                         DiGraphSet([g1, g2, g3, g4]))
+
+        gs = DiGraphSet([g0, g1])
+        self.assertEqual(gs.remove_add_some_edges(),
+                         DiGraphSet([g1r, g2, g3, g4]))
+
+        DiGraphSet.set_universe([e1, e2, e3, e4])
+
+        gs = DiGraphSet([g1, g12])
+        self.assertEqual(gs.remove_add_some_edges(),
+                         DiGraphSet([g2, g3, g4, g13, g14, g23, g24]))
+
+        gs1 = DiGraphSet([g0, g4, g12, g234])
+        gs2 = DiGraphSet([g1, g2, g3, g13, g14, g23, g24, g123, g124, g134])
+        self.assertEqual(gs1.remove_add_some_edges(), gs2)
 
     def test_io(self):
         self.setUp()
