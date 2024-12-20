@@ -822,6 +822,121 @@ structure.
 - `gs.pop()`, and
 - `gs.copy()`.
 
+DiGraphSet class
+--------------------------------------------------------------------------------
+
+The DiGraphSet class is a class representing a set of directed graphs (digraphs).
+The following are terminology for digraphs.
+
+| Term            | Description                   | Example                                            |
+|:----------------|:------------------------------|:---------------------------------------------------|
+| vertex          | any hashable object           | `1`, `'v1'`, `(x, y)`                              |
+| directed edge   | tuple of vertices             | `(1, 2)`, `(2, 1)`                                 |
+| digraph         | list of directed edges        | `[(1, 2), (2, 1), (1, 3)]`                         |
+| set of digraphs | DiGraphSet object             | `DiGraphSet([[(1, 2), (1, 3)], [(1, 2), (2, 1)]])` |
+
+The order of vertices is important. Directed edge `(1, 2)` is not equal to `(2, 1)`. Self-loop edges and multiedges are *NOT* supported. Incorrect solutions may be obtained.
+
+Before using DiGraphSet, we need to first set a universe graph by calling DiGraphSet.set_universe(). It can be independently set from that of GraphSet. You can use `GraphSet` with `DiGraphSet` in the same program. However, `GraphSet` and `DiGraphSet` are incompatible.
+
+```
+from graphillion import GraphSet, DiGraphSet
+
+DiGraphSet.set_universe([(1, 2), (2, 1), (2, 3), (3, 4), (2, 4)])
+GraphSet.set_universe([(4, 5), (4, 6)])
+```
+
+For example, we can construct the set of all the directed paths as follows:
+
+```
+gs = DiGraphSet.directed_st_paths(1, 4)
+gs.len()   # 2
+gs         # DiGraphSet([[(1, 2), (2, 4)], [(1, 2), (2, 3), (3, 4)]])
+```
+
+
+### Methods for digraphs
+
+| Method                                                     | Description                                                                |
+| :--------------------------------------------------------- | :------------------------------------------------------------------------- |
+| `gs.graphs(in_degree_constraints, out_degree_constraints)` | Returns a new DiGraphSet with degree constraints from `gs`                 |
+| `gs.directed_cycles()`                                     | Returns a new DiGraphSet with directed single cycles from `gs`             |
+| `gs.directed_hamiltonian_cycles()`                         | Returns a new DiGraphSet with directed single hamiltonian cycles from `gs` |
+| `gs.directed_st_paths(s, t, is_hamiltonian)`               | Returns a new DiGraphSet with directed st path from `gs`                   |
+| `gs.rooted_forests(roots, is_spanning)`                    | Returns a new DiGraphSet with rooted forests from `gs`                     |
+| `gs.rooted_trees(root, is_spanning)`                       | Returns a new DiGraphSet with rooted trees from `gs`                       |
+
+VertexSetSet class
+--------------------------------------------------------------------------------
+
+The VertexSetSet class is a class representing a set of vertices of a given graph. For example, it can represent all the independent sets and dominating sets of a graph.
+
+We need to set the universe of VertexSetSet by calling VertexSetSet.set_universe() without arguments after setting the universe of GraphSet.
+
+```
+from graphillion import GraphSet, VertexSetSet
+
+graph = [(1, 2), (1, 3), (2, 4), (3, 4)]
+GraphSet.set_universe(graph)
+VertexSetSet.set_universe()  # need not argument
+vss_universe = VertexSetSet.universe()   # [2, 1, 3, 4]
+```
+
+For example, we can construct the set of all the independent sets of the universe graph as follows:
+
+```
+vss = VertexSetSet.independent_sets(graph)    # need graph as an argument
+vss.len()   # 3
+vss         # VertexSetSet([[], [2], [1], [3], [4], [2, 3], [1, 4]])
+```
+
+VertexSetSet supports almost all methods of GraphSet.
+
+GraphSet can be converted into VertexSetSet by `to_vertexsetset()` method. An edge set in GraphSet is converted into the set of vertices each of which is an endpoint of an edge in the edge set.
+
+```
+gs = GraphSet([[(2, 4)], [(1, 2), (1, 3)]])
+vss = gs.to_vertexsetset()
+vss         # VertexSetSet([[2, 4], [1, 2, 3]])
+```
+
+### Methods for VertexSetSet
+
+| Method                                    | Description                                                |
+| :---------------------------------------- | :----------------------------------------------------------|
+| `vss.independent_sets(edges, distance=1)` | Returns a new VertexSetSet with independent sets from `vss` |
+| `vss.dominating_sets(edges, distance=1)`  | Returns a new VertexSetSet with dominating sets from `vss`  |
+| `vss.vertex_covers(edges)`                | Returns a new VertexSetSet with vertex covers from `vss`    |
+| `vss.cliques(edges)`                      | Returns a new VertexSetSet with cliques from `vss`          |
+
+
+EdgeVertexSetSet class
+--------------------------------------------------------------------------------
+
+The EdgeVertexSetSet class is a class representing a set of subgraphs of a given graph, where a subgraph is represented by a set containing edges and vertices. It enables us to represent subgraphs with isolated vertices and to conduct linear optimization where both edges and vertices have weights.
+
+We need to set the universe of EdgeVertexSetSet by calling EdgeVertexSetSet.set_universe() without arguments after setting the universe of GraphSet.
+
+```
+from graphillion import GraphSet, EdgeVertexSetSet
+
+graph = [(1, 2), (1, 3), (2, 4), (3, 4)]
+GraphSet.set_universe(graph)
+EdgeVertexSetSet.set_universe()  # need not argument
+evss_universe = EdgeVertexSetSet.universe()   # [(1, 2), (2, 4), 2, (1, 3), 1, (3, 4), 3, 4]
+```
+
+In the current version, EdgeVertexSetSet has no direct construction method such as `EdgeVertexSetSet.paths()`. It can be obtained from GraphSet by `GraphSet.to_edgevertexsetset()` method.
+
+```
+gs = GraphSet([[(2, 4)], [(1, 2), (1, 3)]])
+evss = gs.to_edgevertexsetset()
+gs.len() == evss.len()   # True
+evss          # EdgeVertexSetSet([[(2, 4), 2, 4], [(1, 2), (1, 3), 1, 2, 3]])
+```
+
+EdgeVertexSetSet supports some methods of GraphSet, but does not support quotient, remainder, flip, blocking, remove_some_edge, add_some_edge, remove_add_some_edges, and so on.
+
 Parallel computing
 --------------------------------------------------------------------------------
 
