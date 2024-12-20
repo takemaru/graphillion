@@ -29,6 +29,12 @@ News
   Japanese).
 - Graphillion was used in the lecture by Prof. Jun Kawahara at Nara
   Institute of Science and Technology in January and February 2015.
+- Graphillion [version 2.0rc0](https://github.com/takemaru/graphillion/tree/v2.0rc0) is published, and will be officially released soon. You can try 2.0rc0 by the following command.
+
+```
+pip install git+https://github.com/takemaru/graphillion.git@v2.0rc0
+```
+
 
 Features
 --------------------------------------------------------------------------------
