@@ -146,8 +146,8 @@ trillions of graphs can be processed on a single computer.
       author_email=release.authors[0][1],
       url='https://github.com/takemaru/graphillion',
       license=release.license,
-      packages=['graphillion'],
-      install_requires=['future'],
+      packages=['graphillion', 'graphillion.test'],
+#      install_requires=['future'],
       ext_modules=[
         Extension('_graphillion',
                   sources=sources_list,
@@ -158,5 +158,5 @@ trillions of graphs can be processed on a single computer.
                   extra_link_args=extra_link_args_list,
                   ),
         ],
-      test_suite='graphillion.test',
+#      test_suite='graphillion.test',
       )
