@@ -22,7 +22,6 @@
 
 from functools import partial
 from builtins import range, int
-from future.utils import viewitems
 import _graphillion
 from graphillion import VertexSetSet
 from graphillion import EdgeVertexSetSet
@@ -135,7 +134,7 @@ class GraphSet(object):
                 obj = l
             elif isinstance(obj, dict):  # constraints
                 d = {}
-                for k, l in viewitems(obj):
+                for k, l in obj.items():
                     d[k] = [GraphSet._conv_edge(e) for e in l]
                 obj = d
             self._ss = setset_base(GraphSet._objtable, obj)
@@ -1964,7 +1963,7 @@ class GraphSet(object):
         dc = None
         if degree_constraints is not None:
             dc = {}
-            for v, r in viewitems(degree_constraints):
+            for v, r in degree_constraints.items():
                 if v not in GraphSet._vertices:
                     raise KeyError(v)
                 if isinstance(r, int):
@@ -2778,7 +2777,7 @@ class GraphSet(object):
         wl = None
         if weight_list is not None:
             wl = {}
-            for v, r in viewitems(weight_list):
+            for v, r in weight_list.items():
                 if v not in GraphSet._vertices:
                     raise KeyError(v)
                 wl[pickle.dumps(v, protocol=0)] = r
@@ -2838,7 +2837,7 @@ class GraphSet(object):
         wl = None
         if weight_list is not None:
             wl = {}
-            for v, r in viewitems(weight_list):
+            for v, r in weight_list.items():
                 if v not in GraphSet._vertices:
                     raise KeyError(v)
                 wl[pickle.dumps(v, protocol=0)] = r
@@ -2910,7 +2909,7 @@ class GraphSet(object):
         #ps = [1.0] * (_graphillion._num_elems())
         ps = [1.0] * (GraphSet._objtable.num_elems())
         if probabilities is not None:
-          for e, p in viewitems(probabilities):
+          for e, p in probabilities.items():
               i = GraphSet._objtable.obj2int[e]
               ps[i - 1] = p
 

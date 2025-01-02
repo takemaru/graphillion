@@ -22,7 +22,6 @@
 
 from functools import partial
 from builtins import range, int
-from future.utils import viewitems
 import _graphillion
 from graphillion import VertexSetSet
 from graphillion.setset_base import ObjectTable

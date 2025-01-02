@@ -21,7 +21,6 @@
 """
 
 from collections import deque
-from future.utils import viewitems
 
 import _graphillion
 from graphillion.setset_base import ObjectTable
@@ -135,7 +134,7 @@ class VertexSetSet(object):
                 obj = l
             elif isinstance(obj, dict): # constraints
                 d = {}
-                for k, l in viewitems(obj):
+                for k, l in obj.items():
                     #d[k] = list(VertexSetSet._conv_vertices_to_objs(l))
                     for v in l:
                         if v not in VertexSetSet._objtable.obj2int:
@@ -1514,7 +1513,7 @@ class VertexSetSet(object):
           AssertionError: If at least one vertex's probability is not set.
           KeyError: If a given vertex is not found in the universe.
         """
-        #probabilities = {VertexSetSet._vertex2obj[v]: p for v, p in viewitems(probabilities)}
+        #probabilities = {VertexSetSet._vertex2obj[v]: p for v, p in probabilities.items()}
         #for obj in setset._int2obj[VertexSetSet._vertex_num + 1:]:
         #    probabilities[obj] = 0
         return self._ss.probability(VertexSetSet._objtable, probabilities)
@@ -1587,7 +1586,7 @@ class VertexSetSet(object):
 
         """
         #assert costs.keys() == VertexSetSet._vertex2obj.keys()
-        #costs = {VertexSetSet._vertex2obj[v]: c for v, c in viewitems(costs)}
+        #costs = {VertexSetSet._vertex2obj[v]: c for v, c in costs.items()}
         #for obj in setset._int2obj[VertexSetSet._vertex_num + 1:]:
         #    costs[obj] = 0
         le = self._ss.cost_le(VertexSetSet._objtable, costs, cost_bound)
