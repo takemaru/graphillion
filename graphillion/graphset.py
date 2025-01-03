@@ -1824,6 +1824,8 @@ class GraphSet(object):
         See Also:
           universe()
         """
+        if len(universe) == 0:
+            raise ValueError("The universe must not be empty.")
         sorted_edges = []
         indexed_edges = set()
         GraphSet._vertices = set()
