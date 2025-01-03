@@ -79,18 +79,39 @@ using std::vector;
   do {                                                        \
     PySetsetObject* _ret = reinterpret_cast<PySetsetObject*>( \
         Py_TYPE(self)->tp_alloc(Py_TYPE(self), 0));           \
-    _ret->ss = new setset(expr);                              \
+    if (_ret == NULL) {                                       \
+      PyErr_SetString(PyExc_MemoryError, "Failed to "         \
+      "allocate memory for new setset object");               \
+      return NULL;                                            \
+    }                                                         \
+    try {                                                     \
+      _ret->ss = new setset(expr);                            \
+    } catch (const std::exception& e) {                       \
+      Py_DECREF(_ret);                                        \
+      PyErr_SetString(PyExc_RuntimeError, e.what());          \
+      return NULL;                                            \
+    }                                                         \
     return reinterpret_cast<PyObject*>(_ret);                 \
   } while (0);
 
 
 #define RETURN_NEW_SETSET2(self, other, _other, expr)                   \
   do {                                                                  \
-    PySetsetObject* _other = reinterpret_cast<PySetsetObject*>(other); \
+    PySetsetObject* _other = reinterpret_cast<PySetsetObject*>(other);  \
     PySetsetObject* _ret = reinterpret_cast<PySetsetObject*>(           \
         Py_TYPE(self)->tp_alloc(Py_TYPE(self), 0));                     \
-    if (_ret == NULL) return NULL;                                      \
-    _ret->ss = new setset(expr);                                        \
+    if (_ret == NULL) {                                                 \
+      PyErr_SetString(PyExc_MemoryError, "Failed to "                   \
+      "allocate memory for new setset object");                         \
+      return NULL;                                                      \
+    }                                                                   \
+    try {                                                               \
+      _ret->ss = new setset(expr);                                      \
+    } catch (const std::exception& e) {                                 \
+      Py_DECREF(_ret);                                                  \
+      PyErr_SetString(PyExc_RuntimeError, e.what());                    \
+      return NULL;                                                      \
+    }                                                                   \
     return reinterpret_cast<PyObject*>(_ret);                           \
   } while (0);
 
@@ -117,6 +138,11 @@ using std::vector;
     Py_INCREF(self);                                                    \
     for (Py_ssize_t _i = 0; _i < PyTuple_GET_SIZE(others); ++_i) {      \
       PyObject* _other = PyTuple_GET_ITEM(others, _i);                  \
+      if (_other == NULL) {                                             \
+        Py_DECREF(_result);                                             \
+        PyErr_SetString(PyExc_TypeError, "invalid tuple element");      \
+        return NULL;                                                    \
+      }                                                                 \
       PyObject* _newresult                                              \
           = expr(reinterpret_cast<PySetsetObject*>(_result), _other);   \
       if (_newresult == NULL) {                                         \
@@ -133,6 +159,10 @@ using std::vector;
   do {                                                                 \
     for (Py_ssize_t _i = 0; _i < PyTuple_GET_SIZE(others); ++_i) {     \
       PyObject* _other = PyTuple_GET_ITEM(others, _i);                 \
+      if (_other == NULL) {                                            \
+        PyErr_SetString(PyExc_TypeError, "invalid tuple element");     \
+        return NULL;                                                   \
+      }                                                                \
       if (expr(self, _other) == NULL)                                  \
         return NULL;                                                   \
     }                                                                  \
@@ -142,19 +172,23 @@ using std::vector;
 
 static PyObject* setset_build_set(const set<int>& s) {
   PyObject* so = PySet_New(NULL);
+  if (so == NULL) {
+    return NULL;
+  }
   for (set<int>::const_iterator e = s.begin(); e != s.end(); ++e) {
     PyObject* eo = PyLong_FromLong(*e);
     if (eo == NULL) {
       PyErr_SetString(PyExc_TypeError, "not int set");
-      Py_DECREF(eo);
+      Py_DECREF(so);
       return NULL;
     }
     if (PySet_Add(so, eo) == -1) {
       PyErr_SetString(PyExc_RuntimeError, "can't add elements to a set");
       Py_DECREF(eo);
+      Py_DECREF(so);
       return NULL;
     }
-    Py_DECREF(eo);  // TODO: is Py_DECREF() required for PyLong_FromLong object?
+    Py_DECREF(eo);
   }
   return so;
 }
@@ -167,12 +201,25 @@ static int setset_parse_set(PyObject* so, set<int>* s) {
   while ((eo = PyIter_Next(i))) {
     if (!PyLong_Check(eo)) {
       Py_DECREF(eo);
+      Py_DECREF(i);
       PyErr_SetString(PyExc_TypeError, "not int set");
       return -1;
     }
-    s->insert(PyLong_AsLong(eo));
+    long value = PyLong_AsLong(eo);
     Py_DECREF(eo);
+    // error occurs in PyLong_AsLong
+    if (PyErr_Occurred()) {
+      Py_DECREF(i);
+      return -1;
+    }
+    s->insert(value);
   }
+  // error occurs in PyIter_Next
+  if (PyErr_Occurred()) {
+    Py_DECREF(i);
+    return -1;
+  }
+
   Py_DECREF(i);
   return 0;
 }
@@ -203,7 +250,11 @@ static int setset_parse_map(PyObject* dict_obj, map<string, vector<int> >* m) {
       PyErr_SetString(PyExc_TypeError, "invalid argument");
       return -1;
     }
-    string key = PyUnicode_AsUTF8(key_obj);
+    const char* key_cstr = PyUnicode_AsUTF8(key_obj);
+    if (key_cstr == NULL) {
+      return -1;
+    }
+    std::string key(key_cstr);
     if (key != "include" && key != "exclude") {
       PyErr_SetString(PyExc_TypeError, "invalid dict key");
       return -1;
@@ -215,11 +266,25 @@ static int setset_parse_map(PyObject* dict_obj, map<string, vector<int> >* m) {
     while ((eo = PyIter_Next(i))) {
       if (!PyLong_Check(eo)) {
         Py_DECREF(eo);
+        Py_DECREF(i);
         PyErr_SetString(PyExc_TypeError, "not int");
         return -1;
       }
-      v.push_back(PyLong_AsLong(eo));
+      long value = PyLong_AsLong(eo);
       Py_DECREF(eo);
+
+      // error occurs in PyLong_AsLong
+      if (PyErr_Occurred()) {
+        Py_DECREF(i);
+        return -1;
+      }
+
+      v.push_back(value);
+    }
+    // error occurs in PyIter_Next
+    if (PyErr_Occurred()) {
+      Py_DECREF(i);
+      return -1;
     }
     Py_DECREF(i);
     (*m)[key] = v;
@@ -241,7 +306,10 @@ typedef struct {
 static PyObject* setsetiter_new(PyTypeObject* type, PyObject* args, PyObject* kwds) {
   PySetsetIterObject* self;
   self = reinterpret_cast<PySetsetIterObject*>(type->tp_alloc(type, 0));
-  if (self == NULL) return NULL;
+  if (self == NULL) {
+    PyErr_SetString(PyExc_MemoryError, "Failed to allocate memory for PysetsetIterObject");
+    return NULL;
+  }
   return reinterpret_cast<PyObject*>(self);
 }
 
@@ -251,11 +319,17 @@ static void setsetiter_dealloc(PySetsetIterObject* self) {
 }
 
 static PyObject* setsetiter_next(PySetsetIterObject* self) {
-  if (*(self->it) == setset::end())
+  if (*(self->it) == setset::end()) {
+    PyErr_SetNone(PyExc_StopIteration);
     return NULL;
+  }
   set<int> s = *(*self->it);
+  PyObject* py_set = setset_build_set(s);
+  if (py_set == NULL) {
+    return NULL;
+  }
   ++(*self->it);
-  return setset_build_set(s);
+  return py_set;
 }
 
 static PyMethodDef setsetiter_methods[] = {
@@ -315,10 +389,13 @@ static PyTypeObject PySetsetIter_Type = {
 
 // setset
 
-static PyObject* setset_new(PyTypeObject* type, PyObject* args, PyObject* kwds) {
+static PyObject* setset_new(PyTypeObject* type, PyObject* /*args*/, PyObject* /*kwds*/) {
   PySetsetObject* self;
   self = reinterpret_cast<PySetsetObject*>(type->tp_alloc(type, 0));
-  if (self == NULL) return NULL;
+  if (self == NULL) {
+    PyErr_SetString(PyExc_MemoryError, "Failed to allocate memory for PySetsetObject");
+    return NULL;
+  }
   return reinterpret_cast<PyObject*>(self);
 }
 
@@ -327,38 +404,54 @@ static int setset_init(PySetsetObject* self, PyObject* args, PyObject* kwds) {
   PyObject* obj = NULL;
   if (!PyArg_ParseTuple(args, "|Oi", &obj, &num_elems_a))
     return -1;
-  if (obj == NULL || obj == Py_None) {
-    self->ss = new setset();
-  } else if (PySetset_Check(obj)) {
-    PySetsetObject* sso = reinterpret_cast<PySetsetObject*>(obj);
-    self->ss = new setset(*(sso->ss));
-  } else if (PyList_Check(obj)) {
-    PyObject* i = PyObject_GetIter(obj);
-    if (i == NULL) return -1;
-    vector<set<int> > vs;
-    PyObject* o;
-    while ((o = PyIter_Next(i))) {
-      if (!PyAnySet_Check(o)) {
-        PyErr_SetString(PyExc_TypeError, "not set");
+
+  try {
+    if (obj == NULL || obj == Py_None) {
+      self->ss = new setset();
+    } else if (PySetset_Check(obj)) {
+      PySetsetObject* sso = reinterpret_cast<PySetsetObject*>(obj);
+      self->ss = new setset(*(sso->ss));
+    } else if (PyList_Check(obj)) {
+      PyObject* i = PyObject_GetIter(obj);
+      if (i == NULL) return -1;
+      vector<set<int> > vs;
+      PyObject* o;
+      while ((o = PyIter_Next(i))) {
+        if (!PyAnySet_Check(o)) {
+          Py_DECREF(o);
+          Py_DECREF(i);
+          PyErr_SetString(PyExc_TypeError, "not set");
+          return -1;
+        }
+        set<int> s;
+        if (setset_parse_set(o, &s) == -1) {
+          Py_DECREF(o);
+          Py_DECREF(i);
+          return -1;
+        }
+        vs.push_back(s);
+        Py_DECREF(o);
+      }
+      Py_DECREF(i);
+
+      // error occurs in PyIter_Next
+      if (PyErr_Occurred()) {
         return -1;
       }
-      set<int> s;
-      if (setset_parse_set(o, &s) == -1) return -1;
-      vs.push_back(s);
-      Py_DECREF(o);
+
+      self->ss = new setset(vs);
+    } else if (PyDict_Check(obj)) {
+      map<string, vector<int> > m;
+      if (setset_parse_map(obj, &m) == -1) return -1;
+      self->ss = new setset(m, num_elems_a);
+    } else {
+      PyErr_SetString(PyExc_TypeError, "invalid argumet");
+      return -1;
     }
-    Py_DECREF(i);
-    self->ss = new setset(vs);
-  } else if (PyDict_Check(obj)) {
-    map<string, vector<int> > m;
-    if (setset_parse_map(obj, &m) == -1) return -1;
-    self->ss = new setset(m, num_elems_a);
-  } else {
-    PyErr_SetString(PyExc_TypeError, "invalid argumet");
-    return -1;
+  } catch (...) {
+    PyErr_SetString(PyExc_RuntimeError, "Unexpected error occurred "
+    "during initialization");
   }
-  if (PyErr_Occurred())
-    return -1;
   return 0;
 }
 
@@ -378,6 +471,9 @@ static PyObject* setset_invert(PySetsetObject* self) {
 static PyObject* setset_complement(PySetsetObject* self, PyObject* io) {
   CHECK_OR_ERROR(io, PyLong_Check, "int", NULL);
   int num_elems_a = PyLong_AsLong(io);
+  if (PyErr_Occurred()) {
+    return NULL;
+  }
   if (num_elems_a < 0) {
     PyErr_SetString(PyExc_ValueError, "not unsigned int");
     return NULL;
@@ -509,16 +605,27 @@ static Py_ssize_t setset_len(PyObject* obj) {
 
 static PyObject* setset_len2(PySetsetObject* self, PyObject* args) {
   PyObject* obj = NULL;
-  if (!PyArg_ParseTuple(args, "|O", &obj)) return NULL;
+  if (!PyArg_ParseTuple(args, "|O", &obj)) {
+    PyErr_SetString(PyExc_TypeError, "invalid arguments. expected () or (int)");
+    return NULL;
+  }
   if (obj == NULL || obj == Py_None) {
     string size = self->ss->size();
     vector<char> buf;
     for (string::const_iterator c = size.begin(); c != size.end(); ++c)
       buf.push_back(*c);
     buf.push_back('\0');
-    return PyLong_FromString(buf.data(), NULL, 0);
+    PyObject* result = PyLong_FromString(buf.data(), NULL, 0);
+    if (result == NULL) {
+      PyErr_SetString(PyExc_ValueError, "Failed to convert size to integer");
+      return NULL;
+    }
+    return result;
   } else if (PyLong_Check(obj)) {
     int len = PyLong_AsLong(obj);
+    if (PyErr_Occurred()) {
+      return NULL;
+    }
     RETURN_NEW_SETSET(self, self->ss->set_size(len));
   } else {
     PyErr_SetString(PyExc_TypeError, "not int");
@@ -528,8 +635,22 @@ static PyObject* setset_len2(PySetsetObject* self, PyObject* args) {
 
 static PyObject* setset_iter(PySetsetObject* self) {
   PySetsetIterObject* ssi = PyObject_New(PySetsetIterObject, &PySetsetIter_Type);
-  if (ssi == NULL) return NULL;
-  ssi->it = new setset::iterator(self->ss->begin());
+  if (ssi == NULL) {
+    PyErr_NoMemory();
+    return NULL;
+  }
+  try {
+    ssi->it = new setset::iterator(self->ss->begin());
+  } catch (const std::exception& e) {
+    PyObject_Del(ssi);
+    PyErr_SetString(PyExc_RuntimeError, e.what());
+    return NULL;
+  } catch (...) {
+    PyObject_Del(ssi);
+    PyErr_SetString(PyExc_RuntimeError, "Unknown error occured "
+      "while creating iterator");
+    return NULL;
+  }
   if (ssi->it == NULL) {
     PyErr_NoMemory();
     return NULL;
@@ -539,8 +660,24 @@ static PyObject* setset_iter(PySetsetObject* self) {
 
 static PyObject* setset_rand_iter(PySetsetObject* self) {
   PySetsetIterObject* ssi = PyObject_New(PySetsetIterObject, &PySetsetIter_Type);
-  if (ssi == NULL) return NULL;
-  ssi->it = new setset::random_iterator(self->ss->begin_randomly());
+  if (ssi == NULL) {
+    PyErr_NoMemory();
+    return NULL;
+  }
+  ssi->it = NULL;
+
+  try {
+    ssi->it = new setset::random_iterator(self->ss->begin_randomly());
+  } catch (const std::exception& e) {
+    PyObject_Del(ssi);
+    PyErr_SetString(PyExc_RuntimeError, e.what());
+    return NULL;
+  } catch (...) {
+    PyObject_Del(ssi);
+    PyErr_SetString(PyExc_RuntimeError, "Unknown error occured "
+      "while creating iterator");
+    return NULL;
+  }
   if (ssi->it == NULL) {
     PyErr_NoMemory();
     return NULL;
@@ -552,30 +689,52 @@ static PyObject* setset_optimize(PySetsetObject* self, PyObject* weights,
                                  bool is_maximizing) {
   PyObject* i = PyObject_GetIter(weights);
   if (i == NULL) return NULL;
-  PyObject* eo;
+  PyObject* eo = NULL;
   vector<double> w;
   while ((eo = PyIter_Next(i))) {
     if (PyFloat_Check(eo)) {
       w.push_back(PyFloat_AsDouble(eo));
     }
     else if (PyLong_Check(eo)) {
-      w.push_back(static_cast<double>(PyLong_AsLong(eo)));
-    }
-    else if (PyLong_Check(eo)) {
-      w.push_back(static_cast<double>(PyLong_AsLong(eo)));
+      long value = PyLong_AsLong(eo);
+      if (PyErr_Occurred()) {
+        return NULL;
+      }
+      w.push_back(static_cast<double>(value));
     }
     else {
-      PyErr_SetString(PyExc_TypeError, "not a number");
       Py_DECREF(eo);
+      Py_DECREF(i);
+      PyErr_SetString(PyExc_TypeError, "not a number");
       return NULL;
     }
     Py_DECREF(eo);
   }
+  // error occurs in PyIter_Next
+  if (PyErr_Occurred()) {
+    Py_DECREF(i);
+    return NULL;
+  }
   Py_DECREF(i);
   PySetsetIterObject* ssi = PyObject_New(PySetsetIterObject, &PySetsetIter_Type);
-  if (ssi == NULL) return NULL;
-  ssi->it = new setset::weighted_iterator(
-      is_maximizing ? self->ss->begin_from_max(w) : self->ss->begin_from_min(w));
+  if (ssi == NULL) {
+    PyErr_NoMemory();
+    return NULL;
+  }
+
+  try {
+    ssi->it = new setset::weighted_iterator(
+        is_maximizing ? self->ss->begin_from_max(w) : self->ss->begin_from_min(w));
+  } catch (const std::exception& e) {
+    PyObject_Del(ssi);
+    PyErr_SetString(PyExc_RuntimeError, e.what());
+    return NULL;
+  } catch (...) {
+    PyObject_Del(ssi);
+    PyErr_SetString(PyExc_RuntimeError, "Unknown error occured "
+      "while creating iterator");
+    return NULL;
+  }
   if (ssi->it == NULL) {
     PyErr_NoMemory();
     return NULL;
@@ -595,10 +754,16 @@ static PyObject* setset_min_iter(PySetsetObject* self, PyObject* weights) {
 static int setset_contains(PySetsetObject* self, PyObject* obj) {
   if (PyAnySet_Check(obj)) {
     set<int> s;
-    if (setset_parse_set(obj, &s) == -1) return -1;
+    if (setset_parse_set(obj, &s) == -1) {
+      PyErr_SetString(PyExc_TypeError, "Failed to parse the set");
+      return -1;
+    }
     return self->ss->find(s) != self->ss->end() ? 1 : 0;
   } else if (PyLong_Check(obj)) {
     int e = PyLong_AsLong(obj);
+    if (PyErr_Occurred()) {
+      return -1;
+    }
     return self->ss->supersets(e) != setset() ? 1 : 0;
   } else {
     PyErr_SetString(PyExc_TypeError, "not set nor int");
@@ -609,10 +774,16 @@ static int setset_contains(PySetsetObject* self, PyObject* obj) {
 static PyObject* setset_add(PySetsetObject* self, PyObject* obj) {
   if (PyAnySet_Check(obj)) {
     set<int> s;
-    if (setset_parse_set(obj, &s) == -1) return NULL;
+    if (setset_parse_set(obj, &s) == -1) {
+      PyErr_SetString(PyExc_TypeError, "Failed to parse the set");
+      return NULL;
+    }
     self->ss->insert(s);
   } else if (PyLong_Check(obj)) {
     int e = PyLong_AsLong(obj);
+    if (PyErr_Occurred()) {
+      return NULL;
+    }
     self->ss->insert(e);
   } else {
     PyErr_SetString(PyExc_TypeError, "not set nor int");
@@ -624,14 +795,19 @@ static PyObject* setset_add(PySetsetObject* self, PyObject* obj) {
 static PyObject* setset_remove(PySetsetObject* self, PyObject* obj) {
   if (PyAnySet_Check(obj)) {
     set<int> s;
-    if (setset_parse_set(obj, &s) == -1) return NULL;
+    if (setset_parse_set(obj, &s) == -1) {
+      PyErr_SetString(PyExc_TypeError, "Failed to parse the set");
+      return NULL;
+    }
     if (self->ss->erase(s) == 0) {
       PyErr_SetString(PyExc_KeyError, "not found");
       return NULL;
     }
-    self->ss->erase(s);
   } else if (PyLong_Check(obj)) {
     int e = PyLong_AsLong(obj);
+    if (PyErr_Occurred()) {
+      return NULL;
+    }
     if (self->ss->supersets(e).empty()) {
       PyErr_SetString(PyExc_KeyError, "not found");
       return NULL;
@@ -647,10 +823,16 @@ static PyObject* setset_remove(PySetsetObject* self, PyObject* obj) {
 static PyObject* setset_discard(PySetsetObject* self, PyObject* obj) {
   if (PyAnySet_Check(obj)) {
     set<int> s;
-    if (setset_parse_set(obj, &s) == -1) return NULL;
+    if (setset_parse_set(obj, &s) == -1) {
+      PyErr_SetString(PyExc_TypeError, "Failed to parse the set");
+      return NULL;
+    }
     self->ss->erase(s);
   } else if (PyLong_Check(obj)) {
     int e = PyLong_AsLong(obj);
+    if (PyErr_Occurred()) {
+      return NULL;
+    }
     self->ss->erase(e);
   } else {
     PyErr_SetString(PyExc_TypeError, "not set nor int");
@@ -660,14 +842,28 @@ static PyObject* setset_discard(PySetsetObject* self, PyObject* obj) {
 }
 
 static PyObject* setset_pop(PySetsetObject* self) {
-  setset::iterator i = self->ss->begin();
-  if (i == self->ss->end()) {
-    PyErr_SetString(PyExc_KeyError, "'pop' from an empty set");
+  try {
+    setset::iterator i = self->ss->begin();
+    if (i == self->ss->end()) {
+      PyErr_SetString(PyExc_KeyError, "'pop' from an empty set");
+      return NULL;
+    }
+    set<int> s = *i;
+    self->ss->erase(s);
+    PyObject* result = setset_build_set(s);
+    if (result == NULL) {
+      PyErr_SetString(PyExc_RuntimeError, "Failed to build Python set");
+      return NULL;
+    }
+    return result;
+  } catch (const std::exception& e) {
+    PyErr_SetString(PyExc_RuntimeError, e.what());
+    return NULL;
+  } catch (...) {
+    PyErr_SetString(PyExc_RuntimeError, "Unknown error occured "
+      "in setset_pop");
     return NULL;
   }
-  set<int> s = *i;
-  self->ss->erase(s);
-  return setset_build_set(s);
 }
 
 static PyObject* setset_clear(PySetsetObject* self) {
@@ -683,6 +879,9 @@ static PyObject* setset_flip(PySetsetObject* self, PyObject* args) {
     return NULL;
   } else if (PyLong_Check(obj)) {
     int e = PyLong_AsLong(obj);
+    if (PyErr_Occurred()) {
+      return NULL;
+    }
     self->ss->flip(e);
   } else {
     PyErr_SetString(PyExc_TypeError, "not int");
@@ -698,8 +897,11 @@ static PyObject* setset_flip_all(PySetsetObject* self, PyObject* args) {
     PyErr_SetString(PyExc_TypeError, "need arg num_elems");
     return NULL;
   } else if (PyLong_Check(obj)) {
-    int num_elems = PyLong_AsLong(obj);
-    self->ss->flip_all(num_elems);
+    long num_elems = PyLong_AsLong(obj);
+    if (PyErr_Occurred()) {
+      return NULL;
+    }
+    self->ss->flip_all(static_cast<int>(num_elems));
   } else {
     PyErr_SetString(PyExc_TypeError, "not int");
     return NULL;
@@ -718,6 +920,9 @@ static PyObject* setset_maximal(PySetsetObject* self) {
 static PyObject* setset_hitting(PySetsetObject* self, PyObject* io) {
   CHECK_OR_ERROR(io, PyLong_Check, "int", NULL);
   int num_elems_a = PyLong_AsLong(io);
+  if (PyErr_Occurred()) {
+    return NULL;
+  }
   if (num_elems_a < 0) {
     PyErr_SetString(PyExc_ValueError, "not unsigned int");
     return NULL;
@@ -728,6 +933,9 @@ static PyObject* setset_hitting(PySetsetObject* self, PyObject* io) {
 static PyObject* setset_smaller(PySetsetObject* self, PyObject* io) {
   CHECK_OR_ERROR(io, PyLong_Check, "int", NULL);
   int set_size = PyLong_AsLong(io);
+  if (PyErr_Occurred()) {
+    return NULL;
+  }
   if (set_size < 0) {
     PyErr_SetString(PyExc_ValueError, "not unsigned int");
     return NULL;
@@ -738,6 +946,9 @@ static PyObject* setset_smaller(PySetsetObject* self, PyObject* io) {
 static PyObject* setset_larger(PySetsetObject* self, PyObject* io) {
   CHECK_OR_ERROR(io, PyLong_Check, "int", NULL);
   int set_size = PyLong_AsLong(io);
+  if (PyErr_Occurred()) {
+    return NULL;
+  }
   if (set_size < 0) {
     PyErr_SetString(PyExc_ValueError, "not unsigned int");
     return NULL;
@@ -748,6 +959,9 @@ static PyObject* setset_larger(PySetsetObject* self, PyObject* io) {
 static PyObject* setset_set_size(PySetsetObject* self, PyObject* io) {
   CHECK_OR_ERROR(io, PyLong_Check, "int", NULL);
   int set_size = PyLong_AsLong(io);
+  if (PyErr_Occurred()) {
+    return NULL;
+  }
   if (set_size < 0) {
     PyErr_SetString(PyExc_ValueError, "not unsigned int");
     return NULL;
@@ -775,6 +989,9 @@ static PyObject* setset_supersets(PySetsetObject* self, PyObject* obj) {
     RETURN_NEW_SETSET2(self, obj, _obj, self->ss->supersets(*_obj->ss));
   } else if (PyLong_Check(obj)) {
     int e = PyLong_AsLong(obj);
+    if (PyErr_Occurred()) {
+      return NULL;
+    }
     RETURN_NEW_SETSET(self, self->ss->supersets(e));
   } else {
     PyErr_SetString(PyExc_TypeError, "not setset nor int");
@@ -792,6 +1009,9 @@ static PyObject* setset_non_supersets(PySetsetObject* self, PyObject* obj) {
     RETURN_NEW_SETSET2(self, obj, _obj, self->ss->non_supersets(*_obj->ss));
   } else if (PyLong_Check(obj)) {
     int e = PyLong_AsLong(obj);
+    if (PyErr_Occurred()) {
+      return NULL;
+    }
     RETURN_NEW_SETSET(self, self->ss->non_supersets(e));
   } else {
     PyErr_SetString(PyExc_TypeError, "not setset nor int");
@@ -819,7 +1039,7 @@ static PyObject* setset_probability(PySetsetObject* self,
   }
 
   if (num_elems_a < 0) {
-    PyErr_SetString(PyExc_TypeError, "num_elems must be a positive interger");
+    PyErr_SetString(PyExc_TypeError, "num_elems must be a non-negative integer");
     return NULL;
   }
 
@@ -837,14 +1057,18 @@ static PyObject* setset_probability(PySetsetObject* self,
       p.push_back(PyFloat_AsDouble(eo));
     }
     else if (PyLong_Check(eo)) {
-      p.push_back(static_cast<double>(PyLong_AsLong(eo)));
-    }
-    else if (PyLong_Check(eo)) {
-      p.push_back(static_cast<double>(PyLong_AsLong(eo)));
+      long value = PyLong_AsLong(eo);
+      if (PyErr_Occurred()) {
+        Py_DECREF(eo);
+        Py_DECREF(i);
+        return NULL;
+      }
+      p.push_back(static_cast<double>(value));
     }
     else {
       PyErr_SetString(PyExc_TypeError, "not a number");
       Py_DECREF(eo);
+      Py_DECREF(i);
       return NULL;
     }
     Py_DECREF(eo);
@@ -856,11 +1080,21 @@ static PyObject* setset_probability(PySetsetObject* self,
 static PyObject* setset_dump(PySetsetObject* self, PyObject* obj) {
   CHECK_OR_ERROR(obj, PyObject_AsFileDescriptor, "file", NULL);
   int fd = PyObject_AsFileDescriptor(obj);
+  if (fd == -1) {
+    return NULL;
+  }
   FILE* fp = fdopen(dup(fd), "w");
+  if (fp == NULL) {
+    PyErr_SetFromErrno(PyExc_OSError);
+    return NULL;
+  }
   Py_BEGIN_ALLOW_THREADS;
   self->ss->dump(fp);
   Py_END_ALLOW_THREADS;
-  fclose(fp);
+  if (fclose(fp) != 0) {
+    PyErr_SetFromErrno(PyExc_OSError);
+    return NULL;
+  }
   Py_RETURN_NONE;
 }
 
@@ -873,44 +1107,130 @@ static PyObject* setset_dumps(PySetsetObject* self) {
 static PyObject* setset_load(PySetsetObject* self, PyObject* obj) {
   CHECK_OR_ERROR(obj, PyObject_AsFileDescriptor, "file", NULL);
   int fd = PyObject_AsFileDescriptor(obj);
+  if (fd == -1) {
+    return NULL;
+  }
   FILE* fp = fdopen(dup(fd), "r");
-  PySetsetObject* ret;
-  Py_BEGIN_ALLOW_THREADS;
-  ret = reinterpret_cast<PySetsetObject*>(
+  if (fp == NULL) {
+    PyErr_SetFromErrno(PyExc_OSError);
+    return NULL;
+  }
+  PySetsetObject* ret = reinterpret_cast<PySetsetObject*>(
       PySetset_Type.tp_alloc(&PySetset_Type, 0));
-  ret->ss = new setset(setset::load(fp));
-  Py_END_ALLOW_THREADS;
-  fclose(fp);
+  if (ret == NULL) {
+    fclose(fp);
+    PyErr_NoMemory();
+    return NULL;
+  }
+  try {
+    setset* loaded_ss;
+    Py_BEGIN_ALLOW_THREADS;
+    loaded_ss = new setset(setset::load(fp));
+    Py_END_ALLOW_THREADS;
+    ret->ss = loaded_ss;
+  } catch (const std::exception& e) {
+    Py_DECREF(ret);
+    fclose(fp);
+    PyErr_SetString(PyExc_RuntimeError, e.what());
+    return NULL;
+  } catch (...) {
+    Py_DECREF(ret);
+    fclose(fp);
+    PyErr_SetString(PyExc_RuntimeError, "Unknown error occurred");
+    return NULL;
+  }
+
+  if (fclose(fp) != 0) {
+    PyErr_SetFromErrno(PyExc_OSError);
+    return NULL;
+  }
   return reinterpret_cast<PyObject*>(ret);
 }
 
 static PyObject* setset_loads(PySetsetObject* self, PyObject* obj) {
   CHECK_OR_ERROR(obj, PyUnicode_Check, "str", NULL);
-  stringstream sstr(PyUnicode_AsUTF8(obj));
+  const char* utf8_str = PyUnicode_AsUTF8(obj);
+  if (utf8_str == NULL) {
+    return NULL;
+  }
+  stringstream sstr(utf8_str);
   PySetsetObject* ret = reinterpret_cast<PySetsetObject*>(
       PySetset_Type.tp_alloc(&PySetset_Type, 0));
-  ret->ss = new setset(setset::load(sstr));
+  if (ret == NULL) {
+    PyErr_NoMemory();
+    return NULL;
+  }
+  try {
+    ret->ss = new setset(setset::load(sstr));
+  } catch (const std::exception& e) {
+    Py_DECREF(ret);
+    PyErr_SetString(PyExc_RuntimeError, e.what());
+    return NULL;
+  } catch (...) {
+    Py_DECREF(ret);
+    PyErr_SetString(PyExc_RuntimeError, "Unknown error occurred");
+    return NULL;
+  }
   return reinterpret_cast<PyObject*>(ret);
 }
 
 static PyObject* setset_enum(PySetsetObject* self, PyObject* obj) {
   CHECK_OR_ERROR(obj, PyObject_AsFileDescriptor, "file", NULL);
   int fd = PyObject_AsFileDescriptor(obj);
+  if (fd == -1) {
+    return NULL;
+  }
   FILE* fp = fdopen(fd, "r");
-  Py_BEGIN_ALLOW_THREADS;
+  if (fp == NULL) {
+    PyErr_SetFromErrno(PyExc_OSError);
+    return NULL;
+  }
   string name = Py_TYPE(self)->tp_name;
-  self->ss->_enum(fp, std::make_pair((name + "([").c_str(), "])"),
-                  std::make_pair("set([", "])"));
-  Py_END_ALLOW_THREADS;
+  string prefix = name + "([";
+  auto outer_pair = std::make_pair(prefix.c_str(), "])");
+  auto inner_pair = std::make_pair("set([", "])");
+  try {
+    Py_BEGIN_ALLOW_THREADS;
+    self->ss->_enum(fp, outer_pair, inner_pair);
+    Py_END_ALLOW_THREADS;
+  } catch (const std::exception& e) {
+    fclose(fp);
+    PyErr_SetString(PyExc_RuntimeError, e.what());
+    return NULL;
+  } catch (...) {
+    fclose(fp);
+    PyErr_SetString(PyExc_RuntimeError, "Unknown error occurred");
+    return NULL;
+  }
+
+  if (fclose(fp) != 0) {
+    PyErr_SetFromErrno(PyExc_OSError);
+    return NULL;
+  }
   Py_RETURN_NONE;
 }
 
 static PyObject* setset_enums(PySetsetObject* self) {
   stringstream sstr;
   string name = Py_TYPE(self)->tp_name;
-  self->ss->_enum(sstr, std::make_pair((name + "([").c_str(), "])"),
-                  std::make_pair("set([", "])"));
-  return PyUnicode_FromString(sstr.str().c_str());
+  string prefix = name + "([";
+  auto outer_pair = std::make_pair(prefix.c_str(), "])");
+  auto inner_pair = std::make_pair("set([", "])");
+  try {
+    self->ss->_enum(sstr, outer_pair, inner_pair);
+  } catch (const std::exception& e) {
+    PyErr_SetString(PyExc_RuntimeError, e.what());
+    return NULL;
+  } catch (...) {
+    PyErr_SetString(PyExc_RuntimeError, "Unknown error occurred");
+    return NULL;
+  }
+  PyObject* result = PyUnicode_FromString(sstr.str().c_str());
+  if (result == NULL) {
+    PyErr_SetString(PyExc_RuntimeError, "Failed to create Unicode string");
+    return NULL;
+  }
+  return result;
 }
 
 static PyObject* setset_repr(PySetsetObject* self) {
@@ -980,7 +1300,11 @@ static PyObject* setset_cost_le(PySetsetObject* self, PyObject* args, PyObject* 
   PyObject* cost;
   while ((cost = PyIter_Next(cost_iter))) {
     if (PyLong_Check(cost)) {
-      costs.push_back(static_cast<int>(PyLong_AsLong(cost)));
+      long value = PyLong_AsLong(cost);
+      if (PyErr_Occurred()) {
+        return NULL;
+      }
+      costs.push_back(static_cast<int>(value));
     } else {
       PyErr_SetString(PyExc_TypeError, "not a number");
       Py_DECREF(cost);
@@ -1271,24 +1595,42 @@ static bool translate_graph(PyObject* graph_obj,
   PyObject* eo;
   while ((eo = PyIter_Next(i))) {
     PyObject* j = PyObject_GetIter(eo);
-    if (j == NULL) return false;
+    Py_DECREF(eo);
+    if (j == NULL) {
+      Py_DECREF(i);
+      return false;
+    }
     vector<string> e;
     PyObject* vo;
     while ((vo = PyIter_Next(j))) {
-      if (!PyBytes_Check(vo)) {
+      if (!PyBytes_Check(vo) && !PyUnicode_Check(vo)) {
+        Py_DECREF(vo);
+        Py_DECREF(j);
+        Py_DECREF(i);
         PyErr_SetString(PyExc_TypeError, "invalid graph");
         return false;
       }
-      string v = PyBytes_AsString(vo);
+      string v = PyBytes_Check(vo) ? PyBytes_AsString(vo) : PyUnicode_AsUTF8(vo);
+      Py_DECREF(vo);
       if (v.find(',') != string::npos) {
+        Py_DECREF(j);
+        Py_DECREF(i);
         PyErr_SetString(PyExc_TypeError, "invalid vertex in the graph");
         return false;
       }
       e.push_back(v);
     }
-    assert(e.size() == 2);
+    Py_DECREF(j);
+
+    if (e.size() != 2) {
+      Py_DECREF(i);
+      PyErr_SetString(PyExc_TypeError, "each edge must have "
+        "exactly two vertices");
+      return false;
+    }
     graph.push_back(make_pair(e[0], e[1]));
   }
+  Py_DECREF(i);
   return true;
 }
 
@@ -1367,7 +1709,11 @@ static PyObject* graphset_graphs(PyObject*, PyObject* args, PyObject* kwds) {
           PyErr_SetString(PyExc_TypeError, "invalid degree in degree constraints");
           return NULL;
         }
-        r.push_back(PyLong_AsLong(io));
+        long value = PyLong_AsLong(io);
+        if (PyErr_Occurred()) {
+          return NULL;
+        }
+        r.push_back(value);
       }
       (*degree_constraints)[vertex] = Range(r[0], r[1], r[2]);
     }
@@ -1386,7 +1732,11 @@ static PyObject* graphset_graphs(PyObject*, PyObject* args, PyObject* kwds) {
         PyErr_SetString(PyExc_TypeError, "invalid number of edges");
         return NULL;
       }
-      r.push_back(PyLong_AsLong(io));
+      long value = PyLong_AsLong(io);
+      if (PyErr_Occurred()) {
+        return NULL;
+      }
+      r.push_back(value);
     }
     *num_edges = Range(r[0], r[1], r[2]);
   }
@@ -1474,6 +1824,9 @@ static PyObject* regular_graphs(PyObject*, PyObject* args, PyObject* kwds){
 
   if (PyLong_Check(degree_obj)) {
     int d = PyLong_AsLong(degree_obj);
+    if (PyErr_Occurred()) {
+      return NULL;
+    }
     degree_lower = d;
     degree_upper = d;
   } else if (PyTuple_Check(degree_obj)) {
@@ -1485,6 +1838,9 @@ static PyObject* regular_graphs(PyObject*, PyObject* args, PyObject* kwds){
     PyObject* lower_obj = PyTuple_GetItem(degree_obj, 0);
     if (PyLong_Check(lower_obj)) {
       degree_lower = PyLong_AsLong(lower_obj);
+      if (PyErr_Occurred()) {
+        return NULL;
+      }
     } else {
       PyErr_SetString(PyExc_TypeError, "degree lower must be integer");
       return NULL;
@@ -1492,6 +1848,9 @@ static PyObject* regular_graphs(PyObject*, PyObject* args, PyObject* kwds){
     PyObject* upper_obj = PyTuple_GetItem(degree_obj, 1);
     if (PyLong_Check(upper_obj)) {
       degree_upper = PyLong_AsLong(upper_obj);
+      if (PyErr_Occurred()) {
+        return NULL;
+      }
     } else {
       PyErr_SetString(PyExc_TypeError, "degree upper must be an integer");
       return NULL;
@@ -1574,7 +1933,13 @@ static PyObject* degree_distribution_graphs(PyObject*, PyObject* args, PyObject*
     }
     if (PyLong_Check(value)) {
       int k = PyLong_AsLong(key);
+      if (PyErr_Occurred()) {
+        return NULL;
+      }
       int v = PyLong_AsLong(value);
+      if (PyErr_Occurred()) {
+        return NULL;
+      }
       if (static_cast<int>(deg_ranges.size()) <= k) {
         deg_ranges.resize(k + 1);
       }
@@ -1696,6 +2061,9 @@ static PyObject* balanced_partitions(PyObject*, PyObject* args, PyObject* kwds) 
         return NULL;
       }
       uint32_t weight = PyLong_AsLong(valObject);
+      if (PyErr_Occurred()) {
+        return NULL;
+      }
       weight_list[vertex] = weight;
     }
   }
@@ -1770,6 +2138,9 @@ static PyObject* weighted_induced_graphs(PyObject*, PyObject* args,
         return NULL;
       }
       uint32_t weight = PyLong_AsLong(valObject);
+      if (PyErr_Occurred()) {
+        return NULL;
+      }
       weight_list[vertex] = weight;
     }
   }
@@ -1988,7 +2359,11 @@ bool input_vertex_to_range_map(
         PyErr_SetString(PyExc_TypeError, "invalid degree in map object");
         return false;
       }
-      r.push_back(PyLong_AsLong(io));
+      long value = PyLong_AsLong(io);
+      if (PyErr_Occurred()) {
+        return NULL;
+      }
+      r.push_back(value);
     }
     mp[vertex] = Range(r[0], r[1], r[2]);
   }
