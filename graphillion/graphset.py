@@ -3003,7 +3003,7 @@ class GraphSet(object):
             assert set(indexed_edges) == set(sorted_edges)
             return sorted_edges
         else:
-            raise ValueError('invalid `traversal`: %s' % traversal)
+            raise ValueError('invalid `traversal`: {}'.format(traversal))
 
     @staticmethod
     def _conv_arg(obj):

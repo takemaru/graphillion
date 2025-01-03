@@ -34,4 +34,4 @@ import graphillion.release
 __version__ = release.version
 #__date__ = release.date
 __license__ = release.license
-__author__ = '\n'.join(['%s <%s>' % _ for _ in release.authors])
+__author__ = '\n'.join(['{} <{}>'.format(x[0], x[1]) for x in release.authors])

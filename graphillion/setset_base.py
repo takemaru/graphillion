@@ -53,7 +53,7 @@ class ObjectTable:
     def add_elem(self, elem):
         assert elem not in self.obj2int
         if len(self.obj2int) >= _graphillion._elem_limit():
-            m = 'too many elements are set, which must be %d or less' % _graphillion._elem_limit()
+            m = 'too many elements are set, which must be {} or less'.format(_graphillion._elem_limit())
             raise RuntimeError(m)
         i = len(self.int2obj)
         _graphillion.setset([set([i])])
