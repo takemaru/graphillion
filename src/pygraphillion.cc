@@ -75,45 +75,42 @@ using std::vector;
 #define CHECK_SETSET_OR_ERROR(obj)                              \
   CHECK_OR_ERROR(obj, PySetset_Check, "setset", NULL);
 
-#define RETURN_NEW_SETSET(self, expr)                         \
-  do {                                                        \
-    PySetsetObject* _ret = reinterpret_cast<PySetsetObject*>( \
-        Py_TYPE(self)->tp_alloc(Py_TYPE(self), 0));           \
-    if (_ret == NULL) {                                       \
-      PyErr_SetString(PyExc_MemoryError, "Failed to "         \
-      "allocate memory for new setset object");               \
-      return NULL;                                            \
-    }                                                         \
-    try {                                                     \
-      _ret->ss = new setset(expr);                            \
-    } catch (const std::exception& e) {                       \
-      Py_DECREF(_ret);                                        \
-      PyErr_SetString(PyExc_RuntimeError, e.what());          \
-      return NULL;                                            \
-    }                                                         \
-    return reinterpret_cast<PyObject*>(_ret);                 \
+#define RETURN_NEW_OBJECT(py_type, expr)                         \
+  do {                                                           \
+    PySetsetObject* _ret = reinterpret_cast<PySetsetObject*>(    \
+        (py_type)->tp_alloc((py_type), 0));                      \
+    if (_ret == NULL) {                                          \
+      PyErr_SetString(PyExc_MemoryError, "Failed to "            \
+      "allocate memory for new setset object");                  \
+      return NULL;                                               \
+    }                                                            \
+    try {                                                        \
+      _ret->ss = new setset(expr);                               \
+    } catch (const std::exception& e) {                          \
+      Py_DECREF(_ret);                                           \
+      Py_TYPE(_ret)->tp_free(reinterpret_cast<PyObject*>(_ret)); \
+      PyErr_SetString(PyExc_RuntimeError, e.what());             \
+      return NULL;                                               \
+    } catch (...) {                                              \
+      Py_DECREF(_ret);                                           \
+      Py_TYPE(_ret)->tp_free(reinterpret_cast<PyObject*>(_ret)); \
+      PyErr_SetString(PyExc_RuntimeError, "Unknown error "       \
+        "occured while creating a new setset");                  \
+      return NULL;                                               \
+    }                                                            \
+    return reinterpret_cast<PyObject*>(_ret);                    \
   } while (0);
 
-
-#define RETURN_NEW_SETSET2(self, other, _other, expr)                   \
+#define RETURN_NEW_OBJECT2(py_type, other, _other, expr)                \
   do {                                                                  \
     PySetsetObject* _other = reinterpret_cast<PySetsetObject*>(other);  \
-    PySetsetObject* _ret = reinterpret_cast<PySetsetObject*>(           \
-        Py_TYPE(self)->tp_alloc(Py_TYPE(self), 0));                     \
-    if (_ret == NULL) {                                                 \
-      PyErr_SetString(PyExc_MemoryError, "Failed to "                   \
-      "allocate memory for new setset object");                         \
-      return NULL;                                                      \
-    }                                                                   \
-    try {                                                               \
-      _ret->ss = new setset(expr);                                      \
-    } catch (const std::exception& e) {                                 \
-      Py_DECREF(_ret);                                                  \
-      PyErr_SetString(PyExc_RuntimeError, e.what());                    \
-      return NULL;                                                      \
-    }                                                                   \
-    return reinterpret_cast<PyObject*>(_ret);                           \
+    RETURN_NEW_OBJECT((py_type), (expr));                               \
   } while (0);
+
+#define RETURN_NEW_SETSET(expr)  RETURN_NEW_OBJECT(&PySetset_Type, expr)
+
+#define RETURN_NEW_SETSET2(other, _other, expr)  \
+    RETURN_NEW_OBJECT2(&PySetset_Type, other, _other, expr)
 
 #define RETURN_SELF_SETSET(self, other, _other, expr)                  \
   do {                                                                 \
@@ -169,10 +166,10 @@ using std::vector;
     Py_RETURN_NONE;                                                    \
   } while (0);
 
-
 static PyObject* setset_build_set(const set<int>& s) {
   PyObject* so = PySet_New(NULL);
   if (so == NULL) {
+    PyErr_SetString(PyExc_RuntimeError, "Failed to create Python set");
     return NULL;
   }
   for (set<int>::const_iterator e = s.begin(); e != s.end(); ++e) {
@@ -445,7 +442,7 @@ static int setset_init(PySetsetObject* self, PyObject* args, PyObject* kwds) {
       if (setset_parse_map(obj, &m) == -1) return -1;
       self->ss = new setset(m, num_elems_a);
     } else {
-      PyErr_SetString(PyExc_TypeError, "invalid argumet");
+      PyErr_SetString(PyExc_TypeError, "invalid argument");
       return -1;
     }
   } catch (...) {
@@ -461,11 +458,11 @@ static void setset_dealloc(PySetsetObject* self) {
 }
 
 static PyObject* setset_copy(PySetsetObject* self) {
-  RETURN_NEW_SETSET(self, *self->ss);
+  RETURN_NEW_OBJECT(Py_TYPE(self), *self->ss);
 }
 
 static PyObject* setset_invert(PySetsetObject* self) {
-  RETURN_NEW_SETSET(self, ~(*self->ss));
+  RETURN_NEW_OBJECT(Py_TYPE(self), ~(*self->ss));
 }
 
 static PyObject* setset_complement(PySetsetObject* self, PyObject* io) {
@@ -478,12 +475,12 @@ static PyObject* setset_complement(PySetsetObject* self, PyObject* io) {
     PyErr_SetString(PyExc_ValueError, "not unsigned int");
     return NULL;
   }
-  RETURN_NEW_SETSET(self, self->ss->complement(num_elems_a));
+  RETURN_NEW_OBJECT(Py_TYPE(self), self->ss->complement(num_elems_a));
 }
 
 static PyObject* setset_union(PySetsetObject* self, PyObject* other) {
   CHECK_SETSET_OR_ERROR(other);
-  RETURN_NEW_SETSET2(self, other, _other, (*self->ss) | (*_other->ss));
+  RETURN_NEW_OBJECT2(Py_TYPE(self), other, _other, (*self->ss) | (*_other->ss));
 }
 
 static PyObject* setset_union_multi(PySetsetObject* self, PyObject* others) {
@@ -501,7 +498,7 @@ static PyObject* setset_update_multi(PySetsetObject* self, PyObject* others) {
 
 static PyObject* setset_intersection(PySetsetObject* self, PyObject* other) {
   CHECK_SETSET_OR_ERROR(other);
-  RETURN_NEW_SETSET2(self, other, _other, (*self->ss) & (*_other->ss));
+  RETURN_NEW_OBJECT2(Py_TYPE(self), other, _other, (*self->ss) & (*_other->ss));
 }
 
 static PyObject* setset_intersection_multi(PySetsetObject* self, PyObject* others) {
@@ -519,7 +516,7 @@ static PyObject* setset_intersection_update_multi(PySetsetObject* self, PyObject
 
 static PyObject* setset_difference(PySetsetObject* self, PyObject* other) {
   CHECK_SETSET_OR_ERROR(other);
-  RETURN_NEW_SETSET2(self, other, _other, (*self->ss) - (*_other->ss));
+  RETURN_NEW_OBJECT2(Py_TYPE(self), other, _other, (*self->ss) - (*_other->ss));
 }
 
 static PyObject* setset_difference_multi(PySetsetObject* self, PyObject* others) {
@@ -537,7 +534,7 @@ static PyObject* setset_difference_update_multi(PySetsetObject* self, PyObject* 
 
 static PyObject* setset_symmetric_difference(PySetsetObject* self, PyObject* other) {
   CHECK_SETSET_OR_ERROR(other);
-  RETURN_NEW_SETSET2(self, other, _other, (*self->ss) ^ (*_other->ss));
+  RETURN_NEW_OBJECT2(Py_TYPE(self), other, _other, (*self->ss) ^ (*_other->ss));
 }
 
 static PyObject* setset_symmetric_difference_multi(PySetsetObject* self, PyObject* others) {
@@ -555,7 +552,7 @@ static PyObject* setset_symmetric_difference_update_multi(PySetsetObject* self, 
 
 static PyObject* setset_quotient(PySetsetObject* self, PyObject* other) {
   CHECK_SETSET_OR_ERROR(other);
-  RETURN_NEW_SETSET2(self, other, _other, (*self->ss) / (*_other->ss));
+  RETURN_NEW_OBJECT2(Py_TYPE(self), other, _other, (*self->ss) / (*_other->ss));
 }
 
 static PyObject* setset_quotient_update(PySetsetObject* self, PyObject* other) {
@@ -565,7 +562,7 @@ static PyObject* setset_quotient_update(PySetsetObject* self, PyObject* other) {
 
 static PyObject* setset_remainder(PySetsetObject* self, PyObject* other) {
   CHECK_SETSET_OR_ERROR(other);
-  RETURN_NEW_SETSET2(self, other, _other, (*self->ss) % (*_other->ss));
+  RETURN_NEW_OBJECT2(Py_TYPE(self), other, _other, (*self->ss) % (*_other->ss));
 }
 
 static PyObject* setset_remainder_update(PySetsetObject* self, PyObject* other) {
@@ -626,7 +623,7 @@ static PyObject* setset_len2(PySetsetObject* self, PyObject* args) {
     if (PyErr_Occurred()) {
       return NULL;
     }
-    RETURN_NEW_SETSET(self, self->ss->set_size(len));
+    RETURN_NEW_OBJECT(Py_TYPE(self), self->ss->set_size(len));
   } else {
     PyErr_SetString(PyExc_TypeError, "not int");
     return NULL;
@@ -910,11 +907,11 @@ static PyObject* setset_flip_all(PySetsetObject* self, PyObject* args) {
 }
 
 static PyObject* setset_minimal(PySetsetObject* self) {
-  RETURN_NEW_SETSET(self, self->ss->minimal());
+  RETURN_NEW_OBJECT(Py_TYPE(self), self->ss->minimal());
 }
 
 static PyObject* setset_maximal(PySetsetObject* self) {
-  RETURN_NEW_SETSET(self, self->ss->maximal());
+  RETURN_NEW_OBJECT(Py_TYPE(self), self->ss->maximal());
 }
 
 static PyObject* setset_hitting(PySetsetObject* self, PyObject* io) {
@@ -927,7 +924,7 @@ static PyObject* setset_hitting(PySetsetObject* self, PyObject* io) {
     PyErr_SetString(PyExc_ValueError, "not unsigned int");
     return NULL;
   }
-  RETURN_NEW_SETSET(self, self->ss->hitting(num_elems_a));
+  RETURN_NEW_OBJECT(Py_TYPE(self), self->ss->hitting(num_elems_a));
 }
 
 static PyObject* setset_smaller(PySetsetObject* self, PyObject* io) {
@@ -940,7 +937,7 @@ static PyObject* setset_smaller(PySetsetObject* self, PyObject* io) {
     PyErr_SetString(PyExc_ValueError, "not unsigned int");
     return NULL;
   }
-  RETURN_NEW_SETSET(self, self->ss->smaller(set_size));
+  RETURN_NEW_OBJECT(Py_TYPE(self), self->ss->smaller(set_size));
 }
 
 static PyObject* setset_larger(PySetsetObject* self, PyObject* io) {
@@ -953,7 +950,7 @@ static PyObject* setset_larger(PySetsetObject* self, PyObject* io) {
     PyErr_SetString(PyExc_ValueError, "not unsigned int");
     return NULL;
   }
-  RETURN_NEW_SETSET(self, self->ss->larger(set_size));
+  RETURN_NEW_OBJECT(Py_TYPE(self), self->ss->larger(set_size));
 }
 
 static PyObject* setset_set_size(PySetsetObject* self, PyObject* io) {
@@ -966,33 +963,33 @@ static PyObject* setset_set_size(PySetsetObject* self, PyObject* io) {
     PyErr_SetString(PyExc_ValueError, "not unsigned int");
     return NULL;
   }
-  RETURN_NEW_SETSET(self, self->ss->set_size(set_size));
+  RETURN_NEW_OBJECT(Py_TYPE(self), self->ss->set_size(set_size));
 }
 
 static PyObject* setset_join(PySetsetObject* self, PyObject* other) {
   CHECK_SETSET_OR_ERROR(other);
-  RETURN_NEW_SETSET2(self, other, _other, self->ss->join(*_other->ss));
+  RETURN_NEW_OBJECT2(Py_TYPE(self), other, _other, self->ss->join(*_other->ss));
 }
 
 static PyObject* setset_meet(PySetsetObject* self, PyObject* other) {
   CHECK_SETSET_OR_ERROR(other);
-  RETURN_NEW_SETSET2(self, other, _other, self->ss->meet(*_other->ss));
+  RETURN_NEW_OBJECT2(Py_TYPE(self), other, _other, self->ss->meet(*_other->ss));
 }
 
 static PyObject* setset_subsets(PySetsetObject* self, PyObject* other) {
   CHECK_SETSET_OR_ERROR(other);
-  RETURN_NEW_SETSET2(self, other, _other, self->ss->subsets(*_other->ss));
+  RETURN_NEW_OBJECT2(Py_TYPE(self), other, _other, self->ss->subsets(*_other->ss));
 }
 
 static PyObject* setset_supersets(PySetsetObject* self, PyObject* obj) {
   if (PySetset_Check(obj)) {
-    RETURN_NEW_SETSET2(self, obj, _obj, self->ss->supersets(*_obj->ss));
+    RETURN_NEW_OBJECT2(Py_TYPE(self), obj, _obj, self->ss->supersets(*_obj->ss));
   } else if (PyLong_Check(obj)) {
     int e = PyLong_AsLong(obj);
     if (PyErr_Occurred()) {
       return NULL;
     }
-    RETURN_NEW_SETSET(self, self->ss->supersets(e));
+    RETURN_NEW_OBJECT(Py_TYPE(self), self->ss->supersets(e));
   } else {
     PyErr_SetString(PyExc_TypeError, "not setset nor int");
     return NULL;
@@ -1001,18 +998,18 @@ static PyObject* setset_supersets(PySetsetObject* self, PyObject* obj) {
 
 static PyObject* setset_non_subsets(PySetsetObject* self, PyObject* other) {
   CHECK_SETSET_OR_ERROR(other);
-  RETURN_NEW_SETSET2(self, other, _other, self->ss->non_subsets(*_other->ss));
+  RETURN_NEW_OBJECT2(Py_TYPE(self), other, _other, self->ss->non_subsets(*_other->ss));
 }
 
 static PyObject* setset_non_supersets(PySetsetObject* self, PyObject* obj) {
   if (PySetset_Check(obj)) {
-    RETURN_NEW_SETSET2(self, obj, _obj, self->ss->non_supersets(*_obj->ss));
+    RETURN_NEW_OBJECT2(Py_TYPE(self), obj, _obj, self->ss->non_supersets(*_obj->ss));
   } else if (PyLong_Check(obj)) {
     int e = PyLong_AsLong(obj);
     if (PyErr_Occurred()) {
       return NULL;
     }
-    RETURN_NEW_SETSET(self, self->ss->non_supersets(e));
+    RETURN_NEW_OBJECT(Py_TYPE(self), self->ss->non_supersets(e));
   } else {
     PyErr_SetString(PyExc_TypeError, "not setset nor int");
     return NULL;
@@ -1301,23 +1298,26 @@ static PyObject* setset_cost_le(PySetsetObject* self, PyObject* args, PyObject* 
   while ((cost = PyIter_Next(cost_iter))) {
     if (PyLong_Check(cost)) {
       long value = PyLong_AsLong(cost);
+      Py_DECREF(cost);
       if (PyErr_Occurred()) {
+        Py_DECREF(cost_iter);
         return NULL;
       }
       costs.push_back(static_cast<int>(value));
     } else {
-      PyErr_SetString(PyExc_TypeError, "not a number");
       Py_DECREF(cost);
+      Py_DECREF(cost_iter);
+      PyErr_SetString(PyExc_TypeError, "not a number");
       return NULL;
     }
   }
   Py_DECREF(cost_iter);
 
-  RETURN_NEW_SETSET(self, self->ss->cost_le(costs, cost_bound));
+  RETURN_NEW_OBJECT(Py_TYPE(self), self->ss->cost_le(costs, cost_bound));
 }
 
 static PyObject* setset_remove_some_element(PySetsetObject* self) {
-  RETURN_NEW_SETSET(self, self->ss->remove_some_element());
+  RETURN_NEW_OBJECT(Py_TYPE(self), self->ss->remove_some_element());
 }
 
 static PyObject* setset_add_some_element(PySetsetObject* self, PyObject* args) {
@@ -1329,7 +1329,7 @@ static PyObject* setset_add_some_element(PySetsetObject* self, PyObject* args) {
     PyErr_SetString(PyExc_TypeError, "not a positive number");
     return NULL;
   }
-  RETURN_NEW_SETSET(self, self->ss->add_some_element(setset::max_elem(),
+  RETURN_NEW_OBJECT(Py_TYPE(self), self->ss->add_some_element(setset::max_elem(),
     setset::max_elem() - num_variables + 1));
 }
 
@@ -1342,7 +1342,7 @@ static PyObject* setset_remove_add_some_elements(PySetsetObject* self, PyObject*
     PyErr_SetString(PyExc_TypeError, "not a positive number");
     return NULL;
   }
-  RETURN_NEW_SETSET(self, self->ss->remove_add_some_elements(setset::max_elem(),
+  RETURN_NEW_OBJECT(Py_TYPE(self), self->ss->remove_add_some_elements(setset::max_elem(),
     setset::max_elem() - num_variables + 1));
 }
 
@@ -1362,38 +1362,77 @@ std::vector<std::vector<std::string>> parse_args_to_edges(PyObject* args) {
   edges.reserve(edge_num);
   for (int i = 0; i < edge_num; ++i) {
     PyObject *edge_obj = PyList_GetItem(edges_obj, i);
-    if (!PyList_Check(edge_obj) || PyList_Size(edge_obj) != 2) {
-      PyErr_SetString(PyExc_ValueError, "invalid edge");
+    if (!PyList_Check(edge_obj)) {
+      PyErr_SetString(PyExc_TypeError, "Each edge must be a list");
+      return empty_edges;
+    }
+    if (PyList_Size(edge_obj) != 2) {
+      PyErr_SetString(PyExc_ValueError, "Each edge must have exactly two elements");
       return empty_edges;
     }
     std::vector<std::string> edge(2);
     for (int j = 0; j < 2; ++j) {
       PyObject *v_obj = PyList_GetItem(edge_obj, j);
       PyObject *v_repr = PyObject_Repr(v_obj);
+      if (v_repr == NULL) {
+        return empty_edges;
+      }
       const char *v = PyUnicode_AsUTF8(v_repr);
+      if (v == NULL) {
+        Py_DECREF(v_repr);
+        return empty_edges;
+      }
       edge[j] = std::string(v);
+      Py_DECREF(v_repr);
     }
     edges.push_back(std::move(edge));
   }
   return edges;
 }
 
-static PyObject* setset_to_vertexsetset(PySetsetObject* self, PyObject* args) {
+static PyObject* setset_to_vss_convert(PySetsetObject* self, PyObject* args, bool is_evss) {
   std::vector<std::vector<std::string>> edges = parse_args_to_edges(args);
+  if (PyErr_Occurred()) {
+    return NULL;
+  }
+  if (edges.size() == 0) {
+    PyErr_SetString(PyExc_ValueError, "Graph is empty");
+    return NULL;
+  }
   PySetsetObject* ret = reinterpret_cast<PySetsetObject*>
       (PySetset_Type.tp_alloc(&PySetset_Type, 0));
-  auto ss = self->ss->to_vertexsetset_setset(edges);
-  ret->ss = new setset(ss);
+  if (ret == NULL) {
+    PyErr_SetString(PyExc_MemoryError, "Failed to allocate "
+        "memory for PySetsetObject");
+    return NULL;
+  }
+  try {
+    if (is_evss) {
+      auto ss = self->ss->to_edgevertexsetset_setset(edges);
+      ret->ss = new setset(ss);
+    } else {
+      auto ss = self->ss->to_vertexsetset_setset(edges);
+      ret->ss = new setset(ss);
+    }
+  } catch (const std::exception& e) {
+    Py_DECREF(ret);
+    PyErr_SetString(PyExc_RuntimeError, e.what());
+    return NULL;
+  } catch (...) {
+    Py_DECREF(ret);
+    PyErr_SetString(PyExc_RuntimeError, "Unknown error occurred");
+    return NULL;
+  }
+
   return reinterpret_cast<PyObject*>(ret);
 }
 
+static PyObject* setset_to_vertexsetset(PySetsetObject* self, PyObject* args) {
+  return setset_to_vss_convert(self, args, false);
+}
+
 static PyObject* setset_to_edgevertexsetset(PySetsetObject* self, PyObject* args) {
-  std::vector<std::vector<std::string>> edges = parse_args_to_edges(args);
-  PySetsetObject* ret = reinterpret_cast<PySetsetObject*>
-      (PySetset_Type.tp_alloc(&PySetset_Type, 0));
-  auto ss = self->ss->to_edgevertexsetset_setset(edges);
-  ret->ss = new setset(ss);
-  return reinterpret_cast<PyObject*>(ret);
+  return setset_to_vss_convert(self, args, true);
 }
 
 static PyMemberDef setset_members[] = {
@@ -1634,6 +1673,46 @@ static bool translate_graph(PyObject* graph_obj,
   return true;
 }
 
+// return false if an error occurs
+static bool get_string_from_sequence(PyObject* obj, int index, string* str) {
+  PyObject* i = PySequence_GetItem(obj, index);
+  if (i == NULL) {
+    return false;
+  }
+  if (!PyBytes_Check(i)) {
+    Py_DECREF(i);
+    return false;
+  }
+  const char* s = PyBytes_AsString(i);
+  if (s == NULL) {
+    Py_DECREF(i);
+    return false;
+  }
+  Py_DECREF(i);
+  *str = string(s);
+  return true;
+}
+
+// return false if an error occurs
+static bool get_double_from_sequence(PyObject* obj, int index, double* value) {
+  PyObject* i = PySequence_GetItem(obj, index);
+  if (i == NULL) {
+    return false;
+  }
+  PyObject* float_obj = PyNumber_Float(i);
+  Py_DECREF(i);
+  if (float_obj == NULL) {
+    return false;
+  }
+  double v = PyFloat_AsDouble(float_obj);
+  Py_DECREF(float_obj);
+  if (PyErr_Occurred()) {
+    return false;
+  }
+  *value = v;
+  return true;
+}
+
 static PyObject* graphset_graphs(PyObject*, PyObject* args, PyObject* kwds) {
   static char s1[] = "graph";
   static char s2[] = "vertex_groups";
@@ -1659,6 +1738,7 @@ static PyObject* graphset_graphs(PyObject*, PyObject* args, PyObject* kwds) {
 
   vector<pair<string, string> > graph;
   if (!translate_graph(graph_obj, graph)) {
+    PyErr_SetString(PyExc_ValueError, "Failed to translate graph object");
     return NULL;
   }
 
@@ -1671,19 +1751,44 @@ static PyObject* graphset_graphs(PyObject*, PyObject* args, PyObject* kwds) {
     PyObject* uo;
     while ((uo = PyIter_Next(i))) {
       PyObject* j = PyObject_GetIter(uo);
-      if (j == NULL) return NULL;
+      Py_DECREF(uo);
+      if (j == NULL) {
+        Py_DECREF(i);
+        return NULL;
+      }
       vector<string> v;
       PyObject* vo;
       while ((vo = PyIter_Next(j))) {
         if (!PyBytes_Check(vo)) {
+          Py_DECREF(vo);
+          Py_DECREF(j);
+          Py_DECREF(i);
           PyErr_SetString(PyExc_TypeError, "invalid vertex groups");
           return NULL;
         }
-        string vertex = PyBytes_AsString(vo);
-        v.push_back(vertex);
+        const char* vertex = PyBytes_AsString(vo);
+        if (vertex == NULL) {
+          Py_DECREF(vo);
+          Py_DECREF(j);
+          Py_DECREF(i);
+          return NULL;
+        }
+        v.push_back(string(vertex));
+        Py_DECREF(vo);
       }
+      if (PyErr_Occurred()) { // check the error of PyIter_Next(j)
+        Py_DECREF(j);
+        Py_DECREF(i);
+        return NULL;
+      }
+      Py_DECREF(j);
       vertex_groups->push_back(v);
     }
+    if (PyErr_Occurred()) { // check the error of PyIter_Next(i)
+      Py_DECREF(i);
+      return NULL;
+    }
+    Py_DECREF(i);
   }
 
   map<string, Range> degree_constraints_entity;
@@ -1698,7 +1803,12 @@ static PyObject* graphset_graphs(PyObject*, PyObject* args, PyObject* kwds) {
         PyErr_SetString(PyExc_TypeError, "invalid vertex in degree constraints");
         return NULL;
       }
-      string vertex = PyBytes_AsString(vo);
+      const char* vertex_p = PyBytes_AsString(vo);
+      if (vertex_p == NULL) {
+        PyErr_SetString(PyExc_TypeError, "error converting vertex to string");
+        return NULL;
+      }
+      string vertex(vertex_p);
       PyObject* i = PyObject_GetIter(lo);
       if (i == NULL) return NULL;
       vector<int> r;
@@ -1706,14 +1816,26 @@ static PyObject* graphset_graphs(PyObject*, PyObject* args, PyObject* kwds) {
       while ((io = PyIter_Next(i))) {
         if (!PyLong_Check(io)) {
           Py_DECREF(io);
+          Py_DECREF(i);
           PyErr_SetString(PyExc_TypeError, "invalid degree in degree constraints");
           return NULL;
         }
         long value = PyLong_AsLong(io);
+        Py_DECREF(io);
         if (PyErr_Occurred()) {
+          Py_DECREF(i);
           return NULL;
         }
         r.push_back(value);
+      }
+      if (PyErr_Occurred()) { // check the error of PyIter_Next(i)
+        Py_DECREF(i);
+        return NULL;
+      }
+      Py_DECREF(i);
+      if (r.size() < 3) {
+        PyErr_SetString(PyExc_ValueError, "degree constraints must have at least 3 values");
+        return NULL;
       }
       (*degree_constraints)[vertex] = Range(r[0], r[1], r[2]);
     }
@@ -1725,18 +1847,31 @@ static PyObject* graphset_graphs(PyObject*, PyObject* args, PyObject* kwds) {
     num_edges = &num_edges_entity;
     vector<int> r;
     PyObject* i = PyObject_GetIter(num_edges_obj);
+    if (i == NULL) return NULL;
     PyObject* io;
     while ((io = PyIter_Next(i))) {
       if (!PyLong_Check(io)) {
         Py_DECREF(io);
+        Py_DECREF(i);
         PyErr_SetString(PyExc_TypeError, "invalid number of edges");
         return NULL;
       }
       long value = PyLong_AsLong(io);
+      Py_DECREF(io);
       if (PyErr_Occurred()) {
+        Py_DECREF(i);
         return NULL;
       }
       r.push_back(value);
+    }
+    if (PyErr_Occurred()) { // check the error of PyIter_Next(i)
+      Py_DECREF(i);
+      return NULL;
+    }
+    Py_DECREF(i);
+    if (r.size() < 3) {
+      PyErr_SetString(PyExc_ValueError, "num_edges must have at least 3 values");
+      return NULL;
     }
     *num_edges = Range(r[0], r[1], r[2]);
   }
@@ -1758,30 +1893,69 @@ static PyObject* graphset_graphs(PyObject*, PyObject* args, PyObject* kwds) {
       vector<weighted_edge_t>& expr = c.first;
       pair<double,double>& range = c.second;
       PyObject* lo = PySequence_GetItem(co, 0);
-      if (lo == NULL) return NULL;
+      if (lo == NULL) {
+        Py_DECREF(co);
+        Py_DECREF(i);
+        return NULL;
+      }
       PyObject* j = PyObject_GetIter(lo);
-      if (j == NULL) return NULL;
-      PyObject* eo;
+      Py_DECREF(lo);
+      if (j == NULL) {
+        Py_DECREF(co);
+        Py_DECREF(i);
+        return NULL;
+      }
+      PyObject* eo = NULL;
       while ((eo = PyIter_Next(j))) {
-        PyObject* uo = PySequence_GetItem(eo, 0);
-        if (uo == NULL || !PyBytes_Check(uo)) return NULL;
+        string u, v;
+        double w;
+        if (!get_string_from_sequence(eo, 0, &u)
+            || !get_string_from_sequence(eo, 1, &v)
+            || !get_double_from_sequence(eo, 2, &w)) {
+          Py_DECREF(eo);
+          Py_DECREF(j);
+          Py_DECREF(i);
+          return NULL;
+        }
+        /*PyObject* uo = PySequence_GetItem(eo, 0);
         string u = PyBytes_AsString(uo);
         PyObject* vo = PySequence_GetItem(eo, 1);
         if (vo == NULL || !PyBytes_Check(vo)) return NULL;
         string v = PyBytes_AsString(vo);
         PyObject* wo = PySequence_GetItem(eo, 2);
         if (wo == NULL || !PyFloat_Check(wo)) return NULL;
-        double w = PyFloat_AsDouble(wo);
+        double w = PyFloat_AsDouble(wo);*/
         expr.push_back(make_pair(make_pair(u, v), w));
       }
+      Py_DECREF(j);
+      if (PyErr_Occurred()) { // check the error of PyIter_Next(j)
+        Py_DECREF(co);
+        Py_DECREF(i);
+        return NULL;
+      }
       PyObject* ro = PySequence_GetItem(co, 1);
-      if (ro == NULL) return NULL;
-      PyObject* r0o = PySequence_GetItem(ro, 0);
+      Py_DECREF(co);
+      if (ro == NULL) {
+        Py_DECREF(i);
+        return NULL;
+      }
+      /*PyObject* r0o = PySequence_GetItem(ro, 0);
       if (r0o == NULL || !PyFloat_Check(r0o)) return NULL;
       range.first = PyFloat_AsDouble(r0o);
       PyObject* r1o = PySequence_GetItem(ro, 1);
       if (r1o == NULL || !PyFloat_Check(r1o)) return NULL;
-      range.second = PyFloat_AsDouble(r1o);
+      range.second = PyFloat_AsDouble(r1o);*/
+      if (!get_double_from_sequence(ro, 0, &range.first)
+          || !get_double_from_sequence(ro, 1, &range.second)) {
+        Py_DECREF(ro);
+        Py_DECREF(i);
+        return NULL;
+      }
+      Py_DECREF(ro);
+    }
+    Py_DECREF(i);
+    if (PyErr_Occurred()) { // check the error of PyIter_Next(i)
+      return NULL;
     }
   }
 
@@ -1789,10 +1963,7 @@ static PyObject* graphset_graphs(PyObject*, PyObject* args, PyObject* kwds) {
                            num_comps, no_loop, search_space,
                            linear_constraints);
 
-  PySetsetObject* ret = reinterpret_cast<PySetsetObject*>
-      (PySetset_Type.tp_alloc(&PySetset_Type, 0));
-  ret->ss = new setset(ss);
-  return reinterpret_cast<PyObject*>(ret);
+  RETURN_NEW_SETSET(ss);
 }
 
 static PyObject* graphset_show_messages(PySetsetObject* self, PyObject* obj) {
@@ -1819,6 +1990,7 @@ static PyObject* regular_graphs(PyObject*, PyObject* args, PyObject* kwds){
 
   vector<pair<string, string> > graph;
   if (!translate_graph(graph_obj, graph)) {
+    PyErr_SetString(PyExc_ValueError, "Failed to translate graph object");
     return NULL;
   }
 
@@ -1874,10 +2046,7 @@ static PyObject* regular_graphs(PyObject*, PyObject* args, PyObject* kwds){
   auto ss = graphillion::SearchRegularGraphs(graph,
               degree_lower, degree_upper,
               is_connected, search_space);
-  PySetsetObject* ret = reinterpret_cast<PySetsetObject*>
-      (PySetset_Type.tp_alloc(&PySetset_Type, 0));
-  ret->ss = new setset(ss);
-  return reinterpret_cast<PyObject*>(ret);
+  RETURN_NEW_SETSET(ss);
 }
 
 static PyObject* odd_edges_subgraphs(PyObject*, PyObject* args, PyObject* kwds) {
@@ -1890,14 +2059,12 @@ static PyObject* odd_edges_subgraphs(PyObject*, PyObject* args, PyObject* kwds) 
 
   vector<pair<string, string> > graph;
   if (!translate_graph(graph_obj, graph)) {
+    PyErr_SetString(PyExc_ValueError, "Failed to translate graph object");
     return NULL;
   }
 
   auto ss = graphillion::SearchOddEdgeSubgraphs(graph);
-  PySetsetObject* ret = reinterpret_cast<PySetsetObject*>(
-      PySetset_Type.tp_alloc(&PySetset_Type, 0));
-  ret->ss = new setset(ss);
-  return reinterpret_cast<PyObject*>(ret);
+  RETURN_NEW_SETSET(ss);
 }
 
 static PyObject* degree_distribution_graphs(PyObject*, PyObject* args, PyObject* kwds) {
@@ -1919,6 +2086,12 @@ static PyObject* degree_distribution_graphs(PyObject*, PyObject* args, PyObject*
 
   vector<pair<string, string> > graph;
   if (!translate_graph(graph_obj, graph)) {
+    PyErr_SetString(PyExc_ValueError, "Failed to translate graph object");
+    return NULL;
+  }
+
+  if (!PyDict_Check(deg_dist)) {
+    PyErr_SetString(PyExc_TypeError, "deg_dist must be a dictionary");
     return NULL;
   }
 
@@ -1931,23 +2104,27 @@ static PyObject* degree_distribution_graphs(PyObject*, PyObject* args, PyObject*
       PyErr_SetString(PyExc_TypeError, "key must be an integer.");
       return NULL;
     }
-    if (PyLong_Check(value)) {
-      int k = PyLong_AsLong(key);
-      if (PyErr_Occurred()) {
-        return NULL;
-      }
-      int v = PyLong_AsLong(value);
-      if (PyErr_Occurred()) {
-        return NULL;
-      }
-      if (static_cast<int>(deg_ranges.size()) <= k) {
-        deg_ranges.resize(k + 1);
-      }
-      deg_ranges[k] = v;
-    } else {
+    if (!PyLong_Check(value)) {
       PyErr_SetString(PyExc_TypeError, "Currently, value must be an integer.");
       return NULL;
     }
+    int k = PyLong_AsLong(key);
+    if (PyErr_Occurred()) {
+      return NULL;
+    }
+    if (k < 0) {
+      PyErr_SetString(PyExc_ValueError, "degree distribution keys "
+        "must be non-negative");
+      return NULL;
+    }
+    int v = PyLong_AsLong(value);
+    if (PyErr_Occurred()) {
+      return NULL;
+    }
+    if (static_cast<int>(deg_ranges.size()) <= k) {
+      deg_ranges.resize(k + 1);
+    }
+    deg_ranges[k] = v;
   }
 
   if (!PyBool_Check(is_connected)) {
@@ -1962,10 +2139,7 @@ static PyObject* degree_distribution_graphs(PyObject*, PyObject* args, PyObject*
 
   auto ss = graphillion::SearchDegreeDistributionGraphs(graph, deg_ranges,
     is_connected != Py_False, search_space);
-  PySetsetObject* ret = reinterpret_cast<PySetsetObject*>
-      (PySetset_Type.tp_alloc(&PySetset_Type, 0));
-  ret->ss = new setset(ss);
-  return reinterpret_cast<PyObject*>(ret);
+  RETURN_NEW_SETSET(ss);
 }
 
 static PyObject* graph_partitions(PyObject*, PyObject* args, PyObject* kwds){
@@ -1980,28 +2154,26 @@ static PyObject* graph_partitions(PyObject*, PyObject* args, PyObject* kwds){
     return NULL;
   }
   if (num_comp_lb < 1){
-    PyErr_SetString(PyExc_TypeError, "not positive integer");
+    PyErr_SetString(PyExc_ValueError, "not positive integer");
     return NULL;
   }
   if (num_comp_ub < num_comp_lb) {
-    PyErr_SetString(PyExc_TypeError, "lower bound is larger than upper bound");
+    PyErr_SetString(PyExc_ValueError, "lower bound is larger than upper bound");
     return NULL;
   }
   if(std::numeric_limits<int16_t>::max() < num_comp_ub){
-    PyErr_SetString(PyExc_TypeError, "too many components");
+    PyErr_SetString(PyExc_ValueError, "too many components");
     return NULL;
   }
 
   vector<pair<string, string> > graph;
   if (!translate_graph(graph_obj, graph)) {
+    PyErr_SetString(PyExc_ValueError, "Failed to translate graph object");
     return NULL;
   }
 
   auto ss = graphillion::SearchPartitions(graph, num_comp_lb, num_comp_ub);
-  PySetsetObject* ret = reinterpret_cast<PySetsetObject*>
-      (PySetset_Type.tp_alloc(&PySetset_Type, 0));
-  ret->ss = new setset(ss);
-  return reinterpret_cast<PyObject*>(ret);
+  RETURN_NEW_SETSET(ss);
 }
 
 static PyObject* balanced_partitions(PyObject*, PyObject* args, PyObject* kwds) {
@@ -2024,29 +2196,34 @@ static PyObject* balanced_partitions(PyObject*, PyObject* args, PyObject* kwds) 
     return NULL;
   }
   if (num_comps != -1 && num_comps < 1) {
-    PyErr_SetString(PyExc_TypeError, "not positive integer");
+    PyErr_SetString(PyExc_ValueError, "not positive integer");
     return NULL;
   }
   if (upper < lower) {
-    PyErr_SetString(PyExc_TypeError, "lower bound is larger than upper bound");
+    PyErr_SetString(PyExc_ValueError, "lower bound is larger than upper bound");
     return NULL;
   }
   if (ratio != 0 && ratio < 1.0) {
-    PyErr_SetString(PyExc_TypeError, "ratio is less than 1.0");
+    PyErr_SetString(PyExc_ValueError, "ratio is less than 1.0");
     return NULL;
   }
   if (std::numeric_limits<int16_t>::max() < num_comps) {
-    PyErr_SetString(PyExc_TypeError, "too many components");
+    PyErr_SetString(PyExc_ValueError, "too many components");
     return NULL;
   }
 
   vector<pair<string, string> > graph;
   if (!translate_graph(graph_obj, graph)) {
+    PyErr_SetString(PyExc_ValueError, "Failed to translate graph object");
     return NULL;
   }
 
   map<string, uint32_t> weight_list;
   if (weight_list_obj != NULL && weight_list_obj != Py_None) {
+    if (!PyDict_Check(weight_list_obj)) {
+      PyErr_SetString(PyExc_TypeError, "weight_list must be a dictionary");
+      return NULL;
+    }
     PyObject* keyObject;
     PyObject* valObject;
     Py_ssize_t pos = 0;
@@ -2055,25 +2232,32 @@ static PyObject* balanced_partitions(PyObject*, PyObject* args, PyObject* kwds) 
         PyErr_SetString(PyExc_TypeError, "invalid vertex in weight list");
         return NULL;
       }
-      string vertex = PyBytes_AsString(keyObject);
+      const char* vertex_p = PyBytes_AsString(keyObject);
+      if (vertex_p == NULL) {
+        PyErr_SetString(PyExc_ValueError, "invalid vertex in weight list");
+        return NULL;
+      }
+      string vertex(vertex_p);
       if (!PyLong_Check(valObject)) {
         PyErr_SetString(PyExc_TypeError, "invalid weight in weight list");
         return NULL;
       }
-      uint32_t weight = PyLong_AsLong(valObject);
+      long weight = PyLong_AsLong(valObject);
       if (PyErr_Occurred()) {
+        PyErr_SetString(PyExc_ValueError, "invalid weight in weight list");
         return NULL;
       }
-      weight_list[vertex] = weight;
+      if (weight < 0 || weight > std::numeric_limits<weight_t>::max()) {
+        PyErr_SetString(PyExc_ValueError, "Weight value is out of valid range");
+        return NULL;
+      }
+      weight_list[vertex] = static_cast<uint32_t>(weight);
     }
   }
 
   auto ss = graphillion::SearchBalancedPartitions(graph, weight_list, ratio, lower,
                                              upper, num_comps);
-  PySetsetObject* ret = reinterpret_cast<PySetsetObject*>
-      (PySetset_Type.tp_alloc(&PySetset_Type, 0));
-  ret->ss = new setset(ss);
-  return reinterpret_cast<PyObject*>(ret);
+  RETURN_NEW_SETSET(ss);
 }
 
 static PyObject* induced_graphs(PyObject*, PyObject* args, PyObject* kwds){
@@ -2087,14 +2271,12 @@ static PyObject* induced_graphs(PyObject*, PyObject* args, PyObject* kwds){
 
   vector<pair<string, string> > graph;
   if (!translate_graph(graph_obj, graph)) {
+    PyErr_SetString(PyExc_ValueError, "Failed to translate graph object");
     return NULL;
   }
 
   auto ss = graphillion::SearchInducedGraphs(graph);
-  PySetsetObject* ret = reinterpret_cast<PySetsetObject*>
-      (PySetset_Type.tp_alloc(&PySetset_Type, 0));
-  ret->ss = new setset(ss);
-  return reinterpret_cast<PyObject*>(ret);
+  RETURN_NEW_SETSET(ss);
 }
 
 static PyObject* weighted_induced_graphs(PyObject*, PyObject* args,
@@ -2119,11 +2301,16 @@ static PyObject* weighted_induced_graphs(PyObject*, PyObject* args,
 
   vector<pair<string, string> > graph;
   if (!translate_graph(graph_obj, graph)) {
+    PyErr_SetString(PyExc_ValueError, "Failed to translate graph object");
     return NULL;
   }
 
   std::map<std::string, uint32_t> weight_list;
   if (weight_list_obj != NULL && weight_list_obj != Py_None) {
+    if (!PyDict_Check(weight_list_obj)) {
+      PyErr_SetString(PyExc_TypeError, "weight_list must be a dictionary");
+      return NULL;
+    }
     PyObject* keyObject;
     PyObject* valObject;
     Py_ssize_t pos = 0;
@@ -2132,25 +2319,31 @@ static PyObject* weighted_induced_graphs(PyObject*, PyObject* args,
         PyErr_SetString(PyExc_TypeError, "invalid vertex in weight list");
         return NULL;
       }
-      string vertex = PyBytes_AsString(keyObject);
+      const char* vertex_p = PyBytes_AsString(keyObject);
+      if (vertex_p == NULL) {
+        PyErr_SetString(PyExc_ValueError, "invalid vertex in weight list");
+        return NULL;
+      }
+      string vertex(vertex_p);
       if (!PyLong_Check(valObject)) {
         PyErr_SetString(PyExc_TypeError, "invalid weight in weight list");
         return NULL;
       }
-      uint32_t weight = PyLong_AsLong(valObject);
+      long weight = PyLong_AsLong(valObject);
       if (PyErr_Occurred()) {
         return NULL;
       }
-      weight_list[vertex] = weight;
+      if (weight < 0 || weight > std::numeric_limits<weight_t>::max()) {
+        PyErr_SetString(PyExc_ValueError, "Weight value is out of valid range");
+        return NULL;
+      }
+      weight_list[vertex] = static_cast<uint32_t>(weight);
     }
   }
 
   auto ss = graphillion::SearchWeightedInducedGraphs(graph, weight_list, lower,
                                                      upper);
-  PySetsetObject* ret = reinterpret_cast<PySetsetObject*>
-      (PySetset_Type.tp_alloc(&PySetset_Type, 0));
-  ret->ss = new setset(ss);
-  return reinterpret_cast<PyObject*>(ret);
+  RETURN_NEW_SETSET(ss);
 }
 
 static PyObject* forbidden_induced_subgraphs(PyObject*, PyObject* args, PyObject* kwds){
@@ -2166,6 +2359,7 @@ static PyObject* forbidden_induced_subgraphs(PyObject*, PyObject* args, PyObject
 
   vector<pair<string, string> > graph;
   if (!translate_graph(graph_obj, graph)) {
+    PyErr_SetString(PyExc_ValueError, "Failed to translate graph object");
     return NULL;
   }
 
@@ -2174,12 +2368,14 @@ static PyObject* forbidden_induced_subgraphs(PyObject*, PyObject* args, PyObject
     return NULL;
   }
 
+  if (!PyObject_TypeCheck(graphset_obj, &PySetset_Type)) {
+    PyErr_SetString(PyExc_TypeError, "graphset must be a PySetsetObject");
+    return NULL;
+  }
+
   auto ss = graphillion::SearchForbiddenInducedSubgraphs(graph,
     reinterpret_cast<PySetsetObject*>(graphset_obj)->ss);
-  PySetsetObject* ret = reinterpret_cast<PySetsetObject*>
-      (PySetset_Type.tp_alloc(&PySetset_Type, 0));
-  ret->ss = new setset(ss);
-  return reinterpret_cast<PyObject*>(ret);
+  RETURN_NEW_SETSET(ss);
 }
 
 static PyObject* chordal_graphs(PyObject*, PyObject* args, PyObject* kwds){
@@ -2193,14 +2389,12 @@ static PyObject* chordal_graphs(PyObject*, PyObject* args, PyObject* kwds){
 
   vector<pair<string, string> > graph;
   if (!translate_graph(graph_obj, graph)) {
+    PyErr_SetString(PyExc_ValueError, "Failed to translate graph object");
     return NULL;
   }
 
   auto ss = graphillion::SearchChordals(graph);
-  PySetsetObject* ret = reinterpret_cast<PySetsetObject*>
-      (PySetset_Type.tp_alloc(&PySetset_Type, 0));
-  ret->ss = new setset(ss);
-  return reinterpret_cast<PyObject*>(ret);
+  RETURN_NEW_SETSET(ss);
 }
 
 static PyObject* reliability(PyObject*, PyObject* args, PyObject* kwds) {
@@ -2219,6 +2413,7 @@ static PyObject* reliability(PyObject*, PyObject* args, PyObject* kwds) {
 
   vector<pair<string, string> > graph;
   if (!translate_graph(graph_obj, graph)) {
+    PyErr_SetString(PyExc_ValueError, "Failed to translate graph object");
     return NULL;
   }
 
@@ -2235,16 +2430,30 @@ static PyObject* reliability(PyObject*, PyObject* args, PyObject* kwds) {
       if (!PyFloat_Check(p)) {
         PyErr_SetString(PyExc_TypeError, "invalid probability");
         Py_DECREF(p);
+        Py_DECREF(i);
         return NULL;
       }
-      probabilities.push_back(PyFloat_AsDouble(p));
+      double prob = PyFloat_AsDouble(p);
       Py_DECREF(p);
+      if (PyErr_Occurred()) {
+        Py_DECREF(i);
+        return NULL;
+      }
+      probabilities.push_back(prob);
+    }
+    if (PyErr_Occurred()) {
+      Py_DECREF(i);
+      return NULL;
     }
     Py_DECREF(i);
   }
 
   if (terminals_obj == NULL || terminals_obj == Py_None) {
     PyErr_SetString(PyExc_TypeError, "no terminals");
+    return NULL;
+  }
+  if (!PySequence_Check(terminals_obj)) {
+    PyErr_SetString(PyExc_TypeError, "terminals must be a sequence of strings");
     return NULL;
   }
   vector<string> terminals;
@@ -2256,10 +2465,15 @@ static PyObject* reliability(PyObject*, PyObject* args, PyObject* kwds) {
       if (!PyBytes_Check(term)) {
         PyErr_SetString(PyExc_TypeError, "invalid terminals");
         Py_DECREF(term);
+        Py_DECREF(i);
         return NULL;
       }
       terminals.push_back(PyBytes_AsString(term));
       Py_DECREF(term);
+    }
+    if (PyErr_Occurred()) {
+      Py_DECREF(i);
+      return NULL;
     }
     Py_DECREF(i);
   }
@@ -2271,11 +2485,22 @@ static PyObject* reliability(PyObject*, PyObject* args, PyObject* kwds) {
 static PyObject* setset_get_vertices_from_top(PySetsetObject* self, PyObject* args) {
   std::vector<std::vector<std::string>> edges = parse_args_to_edges(args);
   std::vector<std::string> v_order_from_top = VariableConverter::get_vertices_from_top(edges);
-  int n = v_order_from_top.size();
+  int n = static_cast<int>(v_order_from_top.size());
   PyObject* ret = PyList_New(n);
+  if (ret == NULL) {
+    return ret;
+  }
   for (int i = 0; i < n; ++i) {
     PyObject* v = PyUnicode_FromString(v_order_from_top[i].c_str());
-    PyList_SetItem(ret, i, v);
+    if (v == NULL) {
+      Py_DECREF(ret);
+      return NULL;
+    }
+    if (PyList_SetItem(ret, i, v) != 0) {
+      Py_DECREF(v);
+      Py_DECREF(ret);
+      return NULL;
+    }
   }
   return ret;
 }
@@ -2393,10 +2618,7 @@ static PyObject* graphset_directed_cycles(PyObject*, PyObject* args,
   graphillion::setset ss =
       graphillion::SearchDirectedCycles(graph, search_space);
 
-  PySetsetObject* ret = reinterpret_cast<PySetsetObject*>(
-      PySetset_Type.tp_alloc(&PySetset_Type, 0));
-  ret->ss = new graphillion::setset(ss);
-  return reinterpret_cast<PyObject*>(ret);
+  RETURN_NEW_SETSET(ss);
 }
 
 static PyObject* graphset_directed_hamiltonian_cycles(PyObject*, PyObject* args,
@@ -2422,10 +2644,7 @@ static PyObject* graphset_directed_hamiltonian_cycles(PyObject*, PyObject* args,
   graphillion::setset ss =
       graphillion::SearchDirectedHamiltonianCycles(graph, search_space);
 
-  PySetsetObject* ret = reinterpret_cast<PySetsetObject*>(
-      PySetset_Type.tp_alloc(&PySetset_Type, 0));
-  ret->ss = new graphillion::setset(ss);
-  return reinterpret_cast<PyObject*>(ret);
+  RETURN_NEW_SETSET(ss);
 }
 
 static PyObject* graphset_directed_st_path(PyObject*, PyObject* args,
@@ -2479,10 +2698,7 @@ static PyObject* graphset_directed_st_path(PyObject*, PyObject* args,
   graphillion::setset ss = graphillion::SearchDirectedSTPath(
       graph, is_hamiltonian, s, t, search_space);
 
-  PySetsetObject* ret = reinterpret_cast<PySetsetObject*>(
-      PySetset_Type.tp_alloc(&PySetset_Type, 0));
-  ret->ss = new graphillion::setset(ss);
-  return reinterpret_cast<PyObject*>(ret);
+  RETURN_NEW_SETSET(ss);
 }
 
 static PyObject* graphset_rooted_forests(PyObject*, PyObject* args,
@@ -2519,10 +2735,7 @@ static PyObject* graphset_rooted_forests(PyObject*, PyObject* args,
   graphillion::setset ss = graphillion::SearchDirectedForests(
       graph, roots, is_spanning, search_space);
 
-  PySetsetObject* ret = reinterpret_cast<PySetsetObject*>(
-      PySetset_Type.tp_alloc(&PySetset_Type, 0));
-  ret->ss = new graphillion::setset(ss);
-  return reinterpret_cast<PyObject*>(ret);
+  RETURN_NEW_SETSET(ss);
 }
 
 static PyObject* graphset_rooted_trees(PyObject*, PyObject* args,
@@ -2563,10 +2776,7 @@ static PyObject* graphset_rooted_trees(PyObject*, PyObject* args,
   graphillion::setset ss =
       graphillion::SearchRootedTrees(graph, root, is_spanning, search_space);
 
-  PySetsetObject* ret = reinterpret_cast<PySetsetObject*>(
-      PySetset_Type.tp_alloc(&PySetset_Type, 0));
-  ret->ss = new graphillion::setset(ss);
-  return reinterpret_cast<PyObject*>(ret);
+  RETURN_NEW_SETSET(ss);
 }
 
 static PyObject* graphset_directed_graphs(PyObject*, PyObject* args,
@@ -2619,10 +2829,7 @@ static PyObject* graphset_directed_graphs(PyObject*, PyObject* args,
   graphillion::setset ss = graphillion::SearchDirectedGraphs(
       graph, in_degree_constraints, out_degree_constrains, search_space);
 
-  PySetsetObject* ret = reinterpret_cast<PySetsetObject*>(
-      PySetset_Type.tp_alloc(&PySetset_Type, 0));
-  ret->ss = new graphillion::setset(ss);
-  return reinterpret_cast<PyObject*>(ret);
+  RETURN_NEW_SETSET(ss);
 }
 
 static PyMethodDef module_methods[] = {
