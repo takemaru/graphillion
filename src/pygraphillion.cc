@@ -2518,23 +2518,43 @@ bool input_graph(PyObject* graph_obj,
   PyObject* eo;
   while ((eo = PyIter_Next(i))) {
     PyObject* j = PyObject_GetIter(eo);
+    Py_DECREF(eo);
     if (j == NULL) return false;
     std::vector<std::string> e;
     PyObject* vo;
     while ((vo = PyIter_Next(j))) {
       if (!PyBytes_Check(vo)) {
+        Py_DECREF(vo);
+        Py_DECREF(j);
+        Py_DECREF(i);
         PyErr_SetString(PyExc_TypeError, "invalid graph");
         return false;
       }
       std::string v = PyBytes_AsString(vo);
+      Py_DECREF(vo);
       if (v.find(',') != std::string::npos) {
+        Py_DECREF(j);
+        Py_DECREF(i);
         PyErr_SetString(PyExc_TypeError, "invalid vertex in the graph");
         return false;
       }
       e.push_back(v);
     }
-    assert(e.size() == 2);
+    Py_DECREF(j);
+    if (PyErr_Occurred()) {
+      return false;
+    }
+    if (e.size() != 2) {
+      Py_DECREF(i);
+      PyErr_SetString(PyExc_TypeError, "each edge must have "
+        "exactly two vertices");
+      return false;
+    }
     graph.push_back(make_pair(e[0], e[1]));
+  }
+  Py_DECREF(i);
+  if (PyErr_Occurred()) {
+    return false;
   }
   return true;
 }
@@ -2551,15 +2571,20 @@ bool input_string_list(PyObject* list_obj, std::vector<std::string>& list) {
   while ((vo = PyIter_Next(i))) {
     if (!PyBytes_Check(vo)) {
       PyErr_SetString(PyExc_TypeError, "invalid input");
+      Py_DECREF(vo);
+      Py_DECREF(i);
       return false;
     }
     std::string v = PyBytes_AsString(vo);
+    Py_DECREF(vo);
     if (v.find(',') != std::string::npos) {
       PyErr_SetString(PyExc_TypeError, "invalid vertex in the graph");
+      Py_DECREF(i);
       return false;
     }
     list.push_back(v);
   }
+  Py_DECREF(i);
   return true;
 }
 
@@ -2581,14 +2606,24 @@ bool input_vertex_to_range_map(
     while ((io = PyIter_Next(i))) {
       if (!PyLong_Check(io)) {
         Py_DECREF(io);
+        Py_DECREF(i);
         PyErr_SetString(PyExc_TypeError, "invalid degree in map object");
         return false;
       }
       long value = PyLong_AsLong(io);
       if (PyErr_Occurred()) {
+        Py_DECREF(i);
         return NULL;
       }
       r.push_back(value);
+    }
+    Py_DECREF(i);
+    if (PyErr_Occurred()) {
+      return false;
+    }
+    if (r.size() != 3) {
+      PyErr_SetString(PyExc_ValueError, "range must contain exactly 3 integers");
+      return false;
     }
     mp[vertex] = Range(r[0], r[1], r[2]);
   }
@@ -2612,8 +2647,13 @@ static PyObject* graphset_directed_cycles(PyObject*, PyObject* args,
   }
 
   graphillion::setset* search_space = NULL;
-  if (search_space_obj != NULL && search_space_obj != Py_None)
+  if (search_space_obj != NULL && search_space_obj != Py_None) {
+    if (!PyObject_TypeCheck(search_space_obj, &PySetset_Type)) {
+      PyErr_SetString(PyExc_TypeError, "search_space must be a setset object");
+      return NULL;
+    }
     search_space = reinterpret_cast<PySetsetObject*>(search_space_obj)->ss;
+  }
 
   graphillion::setset ss =
       graphillion::SearchDirectedCycles(graph, search_space);
@@ -2638,8 +2678,13 @@ static PyObject* graphset_directed_hamiltonian_cycles(PyObject*, PyObject* args,
   }
 
   graphillion::setset* search_space = NULL;
-  if (search_space_obj != NULL && search_space_obj != Py_None)
+  if (search_space_obj != NULL && search_space_obj != Py_None) {
+    if (!PyObject_TypeCheck(search_space_obj, &PySetset_Type)) {
+      PyErr_SetString(PyExc_TypeError, "search_space must be a setset object");
+      return NULL;
+    }
     search_space = reinterpret_cast<PySetsetObject*>(search_space_obj)->ss;
+  }
 
   graphillion::setset ss =
       graphillion::SearchDirectedHamiltonianCycles(graph, search_space);
@@ -2692,8 +2737,13 @@ static PyObject* graphset_directed_st_path(PyObject*, PyObject* args,
   t = PyBytes_AsString(t_obj);
 
   graphillion::setset* search_space = NULL;
-  if (search_space_obj != NULL && search_space_obj != Py_None)
+  if (search_space_obj != NULL && search_space_obj != Py_None) {
+    if (!PyObject_TypeCheck(search_space_obj, &PySetset_Type)) {
+      PyErr_SetString(PyExc_TypeError, "search_space must be a setset object");
+      return NULL;
+    }
     search_space = reinterpret_cast<PySetsetObject*>(search_space_obj)->ss;
+  }
 
   graphillion::setset ss = graphillion::SearchDirectedSTPath(
       graph, is_hamiltonian, s, t, search_space);
@@ -2729,8 +2779,13 @@ static PyObject* graphset_rooted_forests(PyObject*, PyObject* args,
   }
 
   graphillion::setset* search_space = NULL;
-  if (search_space_obj != NULL && search_space_obj != Py_None)
+  if (search_space_obj != NULL && search_space_obj != Py_None) {
+    if (!PyObject_TypeCheck(search_space_obj, &PySetset_Type)) {
+      PyErr_SetString(PyExc_TypeError, "search_space must be a setset object");
+      return NULL;
+    }
     search_space = reinterpret_cast<PySetsetObject*>(search_space_obj)->ss;
+  }
 
   graphillion::setset ss = graphillion::SearchDirectedForests(
       graph, roots, is_spanning, search_space);
@@ -2770,8 +2825,13 @@ static PyObject* graphset_rooted_trees(PyObject*, PyObject* args,
   root = PyBytes_AsString(root_obj);
 
   graphillion::setset* search_space = NULL;
-  if (search_space_obj != NULL && search_space_obj != Py_None)
+  if (search_space_obj != NULL && search_space_obj != Py_None) {
+    if (!PyObject_TypeCheck(search_space_obj, &PySetset_Type)) {
+      PyErr_SetString(PyExc_TypeError, "search_space must be a setset object");
+      return NULL;
+    }
     search_space = reinterpret_cast<PySetsetObject*>(search_space_obj)->ss;
+  }
 
   graphillion::setset ss =
       graphillion::SearchRootedTrees(graph, root, is_spanning, search_space);
@@ -2823,8 +2883,13 @@ static PyObject* graphset_directed_graphs(PyObject*, PyObject* args,
   }
 
   graphillion::setset* search_space = NULL;
-  if (search_space_obj != NULL && search_space_obj != Py_None)
+  if (search_space_obj != NULL && search_space_obj != Py_None) {
+    if (!PyObject_TypeCheck(search_space_obj, &PySetset_Type)) {
+      PyErr_SetString(PyExc_TypeError, "search_space must be a setset object");
+      return NULL;
+    }
     search_space = reinterpret_cast<PySetsetObject*>(search_space_obj)->ss;
+  }
 
   graphillion::setset ss = graphillion::SearchDirectedGraphs(
       graph, in_degree_constraints, out_degree_constrains, search_space);
