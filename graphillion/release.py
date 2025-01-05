@@ -20,36 +20,12 @@
 """Release data for Graphillion.
 """
 
-authors = []
-
-# read the version and authors from pyproject.toml file
-with open('pyproject.toml') as f:
-    import re
-    pattern = r'\{name\s*=\s*"(.*?)"(?:,\s*email\s*=\s*"(.*?)")?\},?'
-
-    author_mode = False
-    for line in f:
-        if line.startswith('version'):
-            a = line.split('=')
-            version = a[1].strip().replace('"', '')
-        elif line.startswith('authors'):
-            author_mode = True
-        elif author_mode:
-            if line.startswith(']'):
-                author_mode = False
-            else:
-                # parse '{name = "xxx", email = "yyy"}'
-                m = re.match(pattern, line.strip())
-                if m:
-                    if m.group(2):
-                        email = m.group(2)
-                    else:
-                        email = ""
-                    authors.append((m.group(1), email))
-
-authors = tuple(authors)
-
-#version = '2.0rc0'
+version = '2.0rc0'
 date = ''
 license = 'MIT'
-#authors = ()
+authors = (('Takeru Inoue', 'takeru.inoue@gmail.com'),
+           ('Hiroaki Iwashita', 'iwashita@erato.ist.hokudai.ac.jp'),
+           ('Jun Kawahara', 'jkawahara@i.kyoto-u.ac.jp'),
+           ('Shin-ichi Minato', 'minato@i.kyoto-u.ac.jp'),
+           ('Hiroki Yamazaki', ''),
+           ('Takeshi Konishi', ''))
