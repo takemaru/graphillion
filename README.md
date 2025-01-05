@@ -228,8 +228,8 @@ We first introduce the terminology used in Graphillion, as follows:
 
 Vertices (or nodes) can be any hashable object; e.g., a number, a text
 string, etc.  Edges (or links) are defined as a pair of vertices, and
-a graph is a list of edges; currently, Graphillion supports
-*undirected* graphs only.  A GraphSet object stores a set of graphs.
+a graph is a list of edges; Graphillion supports
+undirected and directed graphs.  A GraphSet object stores a set of undirected graphs and a DiGraphSet object stores a set of directed graphs.
 
 Before anything else, we start the Python interpreter and import
 Graphillion and a helper module; the latter provides some functions
