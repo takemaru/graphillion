@@ -161,10 +161,8 @@ class VertexSetSet(object):
         """
         return VertexSetSet(self)
 
-    def __nonzero__(self):
+    def __bool__(self):
         return bool(self._ss)
-
-    __bool__ = __nonzero__
 
     def __repr__(self):
         return setset_base._repr(self._ss,

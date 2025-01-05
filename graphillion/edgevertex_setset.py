@@ -159,7 +159,7 @@ class EdgeVertexSetSet(object):
         """
         return EdgeVertexSetSet(self)
 
-    def __nonzero__(self):
+    def __bool__(self):
         return bool(self._ss)
 
     def __repr__(self):

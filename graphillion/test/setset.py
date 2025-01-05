@@ -121,7 +121,7 @@ class TestSetset(unittest.TestCase):
         self.assertEqual(ss, setset([s12]))
         self.assertNotEqual(ss, setset([s13]))
 
-        # __nonzero__
+        # __bool__
         self.assertTrue(ss)
         self.assertFalse(setset())
 

@@ -166,7 +166,7 @@ class GraphSet(object):
         """
         return GraphSet(self)
 
-    def __nonzero__(self):
+    def __bool__(self):
         return bool(self._ss)
 
     def __repr__(self):
@@ -1791,7 +1791,7 @@ class GraphSet(object):
         Examples:
           >>> import pickle
           >>> GraphSet.set_universe(pickle.loads(universe_str), traversal='as-is')
-          >>> gs = GraphSet.load(graphset_str)
+          >>> gs = GraphSet.loads(graphset_str)
 
         See Also:
           load(), dumps()

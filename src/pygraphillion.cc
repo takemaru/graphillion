@@ -585,7 +585,7 @@ static PyObject* setset_issuperset(PySetsetObject* self, PyObject* other) {
   RETURN_TRUE_IF(self, other, _other, self->ss->is_superset(*_other->ss));
 }
 
-static int setset_nonzero(PySetsetObject* self) {
+static int setset_bool(PySetsetObject* self) {
   return !self->ss->empty();
 }
 
@@ -1507,7 +1507,7 @@ static PyNumberMethods setset_as_number = {
   0,                                  /*nb_negative*/
   0,                                  /*nb_positive*/
   0,                                  /*nb_absolute*/
-  reinterpret_cast<inquiry>(setset_nonzero), /*nb_nonzero or nb_bool*/
+  reinterpret_cast<inquiry>(setset_bool), /*nb_nonzero or nb_bool*/
   reinterpret_cast<unaryfunc>(setset_invert), /*nb_invert*/
   0,                                  /*nb_lshift*/
   0,                                  /*nb_rshift*/

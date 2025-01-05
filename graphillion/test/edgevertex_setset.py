@@ -106,7 +106,7 @@ class TestEdgeVertexSetSet(unittest.TestCase):
         self.assertNotEqual(gs, EdgeVertexSetSet([ev12 + [1, 2, 3, 4]]))
         self.assertNotEqual(gs, EdgeVertexSetSet([ev13]))
 
-        # __nonzero__
+        # __bool__
         self.assertTrue(gs)
         self.assertFalse(EdgeVertexSetSet())
 

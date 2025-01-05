@@ -172,7 +172,7 @@ class TestDiGraphSet(unittest.TestCase):
         self.assertEqual(gs, DiGraphSet([g12]))
         self.assertNotEqual(gs, DiGraphSet([g13]))
 
-        # __nonzero__
+        # __bool__
         self.assertTrue(gs)
         self.assertFalse(DiGraphSet())
 

@@ -135,7 +135,7 @@ class TestVertexSetSet(unittest.TestCase):
         self.assertEqual(vss, VertexSetSet([vs12]))
         self.assertNotEqual(vss, VertexSetSet([vs13]))
 
-        # __nonzero__
+        # __bool__
         self.assertTrue(vss)
         self.assertFalse(VertexSetSet())
 

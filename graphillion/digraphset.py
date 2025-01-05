@@ -162,7 +162,7 @@ class DiGraphSet(object):
         """
         return DiGraphSet(self)
 
-    def __nonzero__(self):
+    def __bool__(self):
         return bool(self._ss)
 
     def __repr__(self):

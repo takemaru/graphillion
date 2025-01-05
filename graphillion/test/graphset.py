@@ -782,7 +782,7 @@ class TestGraphSet(unittest.TestCase):
         self.assertEqual(gs, GraphSet([g12]))
         self.assertNotEqual(gs, GraphSet([g13]))
 
-        # __nonzero__
+        # __bool__
         self.assertTrue(gs)
         self.assertFalse(GraphSet())
 
