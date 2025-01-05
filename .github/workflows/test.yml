@@ -34,4 +34,4 @@ jobs:
           python --version
       - name: run test
         run: |
-          python ./setup.py -q test
+          sh test_all.sh
