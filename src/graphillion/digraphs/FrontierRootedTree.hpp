@@ -105,7 +105,7 @@ class FrontierRootedTreeSpec
         root_(root),
         isSpanning_(isSpanning),
         fm_(graph_) {
-    if (n_ >= (1 << 15)) {
+    if (graph_.vertexSize() >= (1 << 15)) {
       std::cerr << "The number of vertices must be smaller than 2^15."
                 << std::endl;
       exit(1);

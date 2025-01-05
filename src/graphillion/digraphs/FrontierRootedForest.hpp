@@ -99,7 +99,7 @@ class FrontierRootedForestSpec
         n_(static_cast<short>(graph_.vertexSize())),
         m_(graph_.edgeSize()),
         fm_(graph_) {
-    if (n_ >= (1 << 16)) {
+    if (graph_.vertexSize() >= (1 << 16)) {
       std::cerr << "The number of vertices must be smaller than 2^15."
                 << std::endl;
       exit(1);

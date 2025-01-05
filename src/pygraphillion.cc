@@ -2613,7 +2613,7 @@ bool input_vertex_to_range_map(
       long value = PyLong_AsLong(io);
       if (PyErr_Occurred()) {
         Py_DECREF(i);
-        return NULL;
+        return false;
       }
       r.push_back(value);
     }
