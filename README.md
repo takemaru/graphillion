@@ -20,15 +20,18 @@ Graphillion - Fast, lightweight library for a huge number of graphs
 News
 --------------------------------------------------------------------------------
 
+- Graphillion version 2.0 is released with the following features:
+  - Many graph classes are supported.
+  - DiGraphSet, VertexSetSet, and EdgeVertexSetSet classes are introduced.
+  - Extracting cost bounded solutions is introduced.
+  - Python 2 is not supported any more.
+
 - Graphillion version 1.0 is released with long-awaited features:
   - Python 3 is supported (Python 2 is as well),
   - [Parallel computing] is enabled with [OpenMP],
   - More efficient configuration (i.e., the edge order) is introduced, and
   - Advanced set operations (e.g., join, meet, quotient) are introduced.
-- Graphillion [book] was published in April 2015 (sorry, written in
-  Japanese).
-- Graphillion was used in the lecture by Prof. Jun Kawahara at Nara
-  Institute of Science and Technology in January and February 2015.
+- Graphillion [book] written in Japanese was published in April 2015.
 
 Features
 --------------------------------------------------------------------------------
