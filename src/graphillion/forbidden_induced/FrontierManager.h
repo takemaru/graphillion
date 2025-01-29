@@ -37,6 +37,7 @@ class FrontierManager {
   int max_frontier_size_;
 
   void constructEnteringAndLeavingVss() {
+    const int n = graph_.vertexSize();
     const int m = graph_.edgeSize();
 
     entering_vss_.resize(m);
