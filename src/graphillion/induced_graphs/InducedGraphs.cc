@@ -29,7 +29,7 @@ setset SearchInducedGraphs(const std::vector<edge_t> &edges) {
 
   auto dd = constructInducedGraphs(g);
   dd.useMultiProcessors(false);
-  zdd_t f = dd.evaluate(ToZBDD(setset::max_elem() - setset::num_elems()));
+  zdd_t f = dd.evaluate(tdzdd::ToZBDD(setset::max_elem() - setset::num_elems()));
   return setset(f);
 }
 

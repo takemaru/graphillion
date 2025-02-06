@@ -24,70 +24,52 @@
 
 #pragma once
 
-#include <cassert>
-#include <ostream>
-
 #ifndef B_64
 #if __SIZEOF_POINTER__ == 8
 #define B_64
 #endif
 #endif
-#include <ZBDD.h>
+#include <stdexcept>
+#include <BDD.h>
 
-#include "../DdSpec.hpp"
+#include "../DdEval.hpp"
 
 namespace tdzdd {
 
 /**
- * ZBDD wrapper.
- * ZBDD nodes at level @a i + @p offset are converted to
- * TdZdd nodes at level @a i.
+ * Exporter to BDD.
+ * TdZdd nodes at level @a i are converted to
+ * BDD nodes at level @a i + @p offset.
+ * When the BDD variables are not enough, they are
+ * created automatically by BDD_NewVar().
  */
-class SapporoZdd: public tdzdd::DdSpec<SapporoZdd,ZBDD,2> {
-    ZBDD const root;
+struct ToBDD: public tdzdd::DdEval<ToBDD,BDD> {
     int const offset;
 
-    int var2level(int var) const {
-        return BDD_LevOfVar(var) - offset;
-    }
-
-    int level2var(int level) const {
-        return BDD_VarOfLev(level + offset);
-    }
-
 public:
-    SapporoZdd(ZBDD const& f, int offset = 0)
-            : root(f), offset(offset) {
+    ToBDD(int offset = 0)
+            : offset(offset) {
     }
 
-    int getRoot(ZBDD& f) const {
-        f = root;
-
-        int level = BDD_LevOfVar(f.Top()) - offset;
-        if (level >= 1) return level;
-
-        while (BDD_LevOfVar(f.Top()) >= 1) {
-            f = f.OffSet(BDD_VarOfLev(f.Top()));
+    void initialize(int topLevel) const {
+        while (BDD_VarUsed() < topLevel + offset) {
+            BDD_NewVar();
         }
-        return (f == 1) ? -1 : 0;
     }
 
-    int getChild(ZBDD& f, int level, int take) const {
-        int var = BDD_VarOfLev(level + offset);
-        f = take ? f.OnSet0(var) : f.OffSet(var);
+    void evalTerminal(BDD& f, int value) const {
+        f = BDD(value);
+    }
 
-        int nextLevel = BDD_LevOfVar(f.Top()) - offset;
-        assert(nextLevel < level);
-        if (nextLevel >= 1) return nextLevel;
-
-        while (BDD_LevOfVar(f.Top()) >= 1) {
-            f = f.OffSet(BDD_VarOfLev(f.Top()));
+    void evalNode(BDD& f, int level, tdzdd::DdValues<BDD,2> const& values) const {        
+        if (level + offset > 0) {
+            BDD f0 = values.get(0);
+            BDD f1 = values.get(1);
+            int var = BDD_VarOfLev(level + offset);
+            f = (f0 & ~BDDvar(var)) | (f1 & BDDvar(var));
+        } else {
+            throw std::runtime_error("ERROR: level + offset must be positive.");
         }
-        return (f == 1) ? -1 : 0;
-    }
-
-    size_t hashCode(ZBDD const& f) const {
-        return const_cast<ZBDD*>(&f)->GetID();
     }
 };
 

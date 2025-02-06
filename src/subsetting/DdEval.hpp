@@ -110,7 +110,15 @@ public:
     }
 
     /**
-     * Returns preference to show messages.
+     * Declares thread-safety.
+     * @return true if this class is thread-safe.
+     */
+    bool isThreadSafe() const {
+        return true;
+    }
+
+    /**
+     * Declares preference to show messages.
      * @return true if messages are preferred.
      */
     bool showMessages() const {

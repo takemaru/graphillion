@@ -1,6 +1,7 @@
 #ifndef GRAPHILLION_CHORDAL_H_
 #define GRAPHILLION_CHORDAL_H_
 
+#include "subsetting/util/MessageHandler.hpp"
 #include "subsetting/util/Graph.hpp"
 
 #include "SAPPOROBDD/ZBDD.h"

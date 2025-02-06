@@ -23,7 +23,7 @@ setset SearchWeightedInducedGraphs(
   dd.zddReduce();
   dd.useMultiProcessors(false);
 
-  auto f = dd.evaluate(ToZBDD(setset::max_elem() - setset::num_elems()));
+  auto f = dd.evaluate(tdzdd::ToZBDD(setset::max_elem() - setset::num_elems()));
   return setset(f);
 }
 }  // namespace graphillion

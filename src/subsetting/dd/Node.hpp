@@ -47,7 +47,7 @@ class NodeId {
     uint64_t code_;
 
 public:
-    NodeId() { // 'code_' is not initialized in the default constructor for SPEED.
+    NodeId() { // 'code_' is not initialized in the default constructor for SPEED. @suppress("Class members should be properly initialized")
     }
 
     NodeId(uint64_t code) :
@@ -56,10 +56,14 @@ public:
 
     NodeId(uint64_t row, uint64_t col) :
             code_((row << NODE_ROW_OFFSET) | col) {
+        assert(row <= NODE_ROW_MAX);
+        assert(col <= NODE_COL_MAX);
     }
 
     NodeId(uint64_t row, uint64_t col, bool attr) :
             code_((row << NODE_ROW_OFFSET) | col) {
+        assert(row <= NODE_ROW_MAX);
+        assert(col <= NODE_COL_MAX);
         setAttr(attr);
     }
 
@@ -136,7 +140,7 @@ struct NodeBranchId {
     int row;
     int val;
 
-    NodeBranchId() {
+    NodeBranchId() { // @suppress("Class members should be properly initialized")
     }
 
     NodeBranchId(int row, size_t col, int val) :
@@ -195,7 +199,7 @@ struct Node {
 template<int ARITY>
 struct InitializedNode: Node<ARITY> {
     InitializedNode() :
-            Node<ARITY>(0, 0) {
+            Node<ARITY>(NodeId(0, NODE_COL_MAX), NodeId(0, NODE_COL_MAX)) {
     }
 
     InitializedNode(NodeId f0, NodeId f1) :

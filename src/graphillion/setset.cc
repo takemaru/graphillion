@@ -267,8 +267,10 @@ bool setset::empty() const {
 }
 
 string setset::size() const {
-  SapporoZdd f(this->zdd_, graphillion::max_elem() - graphillion::num_elems());
-  return countPaths(f, true);
+  // need not offset because it just counts the number of elements
+  //SapporoZdd f(this->zdd_, graphillion::max_elem() - graphillion::num_elems());
+  tdzdd::SapporoZdd f(this->zdd_, 0);
+  return tdzdd::countPaths(f, true);
 }
 
 setset::iterator setset::begin() const {
@@ -461,7 +463,7 @@ setset setset::to_vertexsetset_setset(const std::vector<std::vector<std::string>
   VariableConverter::VariableList vlist = graph_and_vlist.second;
 
   const int offset = max_elem() - std::max(graph.edgeSize(), graph.vertexSize());
-  SapporoZdd dd_e_spec(this->zdd_, offset);
+  tdzdd::SapporoZdd dd_e_spec(this->zdd_, offset);
   tdzdd::DdStructure<2> dd_e(dd_e_spec);
   dd_e.zddReduce();
   zdd_t dd_v = VariableConverter::eToVZdd(dd_e, graph, vlist, offset);

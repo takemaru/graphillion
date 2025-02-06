@@ -34,6 +34,7 @@
 #ifndef _WIN32
 #include <sys/resource.h>
 #else
+#undef NOMINMAX
 #define NOMINMAX
 #include <windows.h>
 #include <psapi.h>
@@ -95,6 +96,10 @@ struct ResourceUsage {
         utime = s.ru_utime.tv_sec + s.ru_utime.tv_usec * 1e-6;
         stime = s.ru_stime.tv_sec + s.ru_stime.tv_usec * 1e-6;
         maxrss = s.ru_maxrss;
+#ifdef __APPLE__
+        // Mac reports the maximum resident set size in bytes rather than in kilobytes.
+        maxrss /= 1024;
+#endif
 #endif
         return *this;
     }

@@ -38,8 +38,6 @@
 #include <stdint.h>
 #include <vector>
 
-#include "MessageHandler.hpp"
-
 namespace tdzdd {
 
 class Graph {
