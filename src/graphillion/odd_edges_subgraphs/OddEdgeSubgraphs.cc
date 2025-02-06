@@ -48,7 +48,7 @@ setset SearchOddEdgeSubgraphs(const std::vector<edge_t>& edges) {
   dd.zddReduce();
 
   dd.useMultiProcessors(false);
-  zdd_t f = dd.evaluate(ToZBDD(setset::max_elem() - g.edgeSize()));
+  zdd_t f = dd.evaluate(tdzdd::ToZBDD(setset::max_elem() - g.edgeSize()));
   return setset(f);
 }
 }  // namespace graphillion

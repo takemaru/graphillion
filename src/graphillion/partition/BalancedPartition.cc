@@ -87,7 +87,7 @@ setset SearchRatioPartitions(const std::vector<edge_t> &edges,
   auto dd = constructRatioDd(g, convert_weight_list<weight_t>(g, weight_list), ratio,
                              lower, upper, k);
   dd.useMultiProcessors(false);
-  zdd_t f = dd.evaluate(ToZBDD(setset::max_elem() - g.edgeSize()));
+  zdd_t f = dd.evaluate(tdzdd::ToZBDD(setset::max_elem() - g.edgeSize()));
   return setset(f);
 }
 
@@ -104,7 +104,7 @@ setset SearchWeightPartitions(
   auto dd = constructWeightDd(g, convert_weight_list<weight_t>(g, weight_list), lower,
                               upper, k);
   dd.useMultiProcessors(false);
-  zdd_t f = dd.evaluate(ToZBDD(setset::max_elem() - g.edgeSize()));
+  zdd_t f = dd.evaluate(tdzdd::ToZBDD(setset::max_elem() - g.edgeSize()));
   return setset(f);
 }
 

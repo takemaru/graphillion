@@ -21,7 +21,7 @@ constructDegreeDistributionGraphs(const tdzdd::Graph &g,
 
   tdzdd::DdStructure<2> dd;
   if (search_space != NULL) {
-    SapporoZdd f(*search_space, offset);
+    tdzdd::SapporoZdd f(*search_space, offset);
     dd = tdzdd::DdStructure<2>(f, use_mp);
   } else {
     dd = tdzdd::DdStructure<2>(g.edgeSize(), use_mp);
@@ -67,7 +67,7 @@ SearchDegreeDistributionGraphs(const std::vector<edge_t> &edges,
   auto dd = constructDegreeDistributionGraphs(g, degRanges, is_connected,
     search_space_z, setset::max_elem() - g.edgeSize());
   dd.useMultiProcessors(false);
-  zdd_t f = dd.evaluate(ToZBDD(setset::max_elem() - g.edgeSize()));
+  zdd_t f = dd.evaluate(tdzdd::ToZBDD(setset::max_elem() - g.edgeSize()));
   return setset(f);
 }
 

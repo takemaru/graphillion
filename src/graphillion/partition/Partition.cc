@@ -26,7 +26,7 @@ setset SearchPartitions(const std::vector<edge_t> &edges, int16_t comp_lb,
 
   auto dd = constructPartitionDd(g, comp_lb, comp_ub);
   dd.useMultiProcessors(false);
-  zdd_t f = dd.evaluate(ToZBDD(setset::max_elem() - g.edgeSize()));
+  zdd_t f = dd.evaluate(tdzdd::ToZBDD(setset::max_elem() - g.edgeSize()));
   return setset(f);
 }
 

@@ -249,7 +249,7 @@ ZBDD eToEvSZdd(const tdzdd::DdStructure<2>& dd,
                 const VariableList& vlist,
                 int offset) {
   tdzdd::DdStructure<2> evdd = eToEvZdd(dd, graph, vlist);
-  return evdd.evaluate(ToZBDD(offset));
+  return evdd.evaluate(tdzdd::ToZBDD(offset));
 }
 
 ZBDD eToVZdd(const tdzdd::DdStructure<2>& dd,

@@ -54,7 +54,7 @@ setset SearchForbiddenInducedSubgraphs(const std::vector<edge_t> &edges, setset*
 
   int offset =
       graphillion::setset::max_elem() - g.edgeSize();
-  SapporoZdd szdd(ss->zdd_, offset);
+  tdzdd::SapporoZdd szdd(ss->zdd_, offset);
   auto new_dd = constructForbiddenInducedSubgraphs(g,
     tdzdd::DdStructure<2>(szdd));
   return setset(new_dd);
