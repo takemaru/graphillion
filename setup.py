@@ -112,6 +112,8 @@ if platform.system() == 'Darwin': # macOS
 else:
     extra_compile_args_list.append('-Wno-maybe-uninitialized')
 
+#extra_compile_args_list.append('-UNDEBUG')
+
 setup(name='Graphillion',
       version=release.version,
       description='Fast, lightweight library for a huge number of graphs',

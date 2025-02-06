@@ -435,7 +435,7 @@ setset setset::non_supersets(elem_t e) const {
 }
 
 setset setset::cost_le(const std::vector<bddcost>& costs, const bddcost cost_bound) const {
-  //assert(costs.size() == num_elems());
+  assert(static_cast<graphillion::elem_t>(costs.size()) == num_elems());
   BDDCT bddct;
   //bddct.Alloc(costs.size());
   bddct.Alloc(BDD_VarUsed()); // We should set n to be the number of used vars.
@@ -495,7 +495,7 @@ setset setset::to_edgevertexsetset_setset(const std::vector<std::vector<std::str
 }
 
 double setset::probability(const vector<double>& probabilities, elem_t num_elems_a) const {
-  assert(probabilities.size() == num_elems_a + 1);
+  assert(static_cast<graphillion::elem_t>(probabilities.size()) == num_elems() + 1);
   if (this->zdd_ == bot()) {  // this->empty()
     return 0;
   } else if (this->zdd_ == top()) {

@@ -55,7 +55,7 @@ class FrontierManager {
         entered_vs.insert(e.v2);
       }
     }
-    assert(static_cast<int>(entered_vs.size()) == n);
+    assert(static_cast<int>(entered_vs.size()) == graph_.vertexSize());
 
     // compute leaving_vss_
     std::set<int> leaved_vs;
@@ -70,7 +70,7 @@ class FrontierManager {
         leaved_vs.insert(e.v2);
       }
     }
-    assert(static_cast<int>(leaved_vs.size()) == n);
+    assert(static_cast<int>(leaved_vs.size()) == graph_.vertexSize());
   }
 
   void construct() {
