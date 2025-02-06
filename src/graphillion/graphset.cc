@@ -105,7 +105,12 @@ setset SearchGraphs(
   DdStructure<2> dd;
   if (search_space != NULL) {
     SapporoZdd f(search_space->zdd_, setset::max_elem() - g.edgeSize());
-    dd = DdStructure<2>(f, use_mp);
+    //dd = DdStructure<2>(f, use_mp);
+    dd = DdStructure<2>(f, false); // not use multi processors because
+                                   // SAPPOROBDDD is not thread safe
+    if (use_mp) {
+      dd.useMultiProcessors(true);
+    }
   } else {
     dd = DdStructure<2>(g.edgeSize(), use_mp);
   }
