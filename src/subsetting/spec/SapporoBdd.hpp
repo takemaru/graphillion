@@ -32,19 +32,19 @@
 #define B_64
 #endif
 #endif
-#include <ZBDD.h>
+#include <BDD.h>
 
 #include "../DdSpec.hpp"
 
 namespace tdzdd {
 
 /**
- * ZBDD wrapper.
- * ZBDD nodes at level @a i + @p offset are converted to
+ * BDD wrapper.
+ * BDD nodes at level @a i + @p offset are converted to
  * TdZdd nodes at level @a i.
  */
-class SapporoZdd: public tdzdd::DdSpec<SapporoZdd,ZBDD,2> {
-    ZBDD const root;
+class SapporoBdd: public tdzdd::DdSpec<SapporoBdd,BDD,2> {
+    BDD const root;
     int const offset;
 
     int var2level(int var) const {
@@ -56,38 +56,34 @@ class SapporoZdd: public tdzdd::DdSpec<SapporoZdd,ZBDD,2> {
     }
 
 public:
-    SapporoZdd(ZBDD const& f, int offset = 0)
+    SapporoBdd(BDD const& f, int offset = 0)
             : root(f), offset(offset) {
     }
 
-    int getRoot(ZBDD& f) const {
+    int getRoot(BDD& f) const {
         f = root;
+
+        if (f.Top() == 0) return (f == 1) ? -1 : 0; // f is constant
 
         int level = BDD_LevOfVar(f.Top()) - offset;
         if (level >= 1) return level;
-
-        while (BDD_LevOfVar(f.Top()) >= 1) {
-            f = f.OffSet(BDD_VarOfLev(f.Top()));
-        }
-        return (f == 1) ? -1 : 0;
+        else throw std::runtime_error("ERROR: invalid offset.");
     }
 
-    int getChild(ZBDD& f, int level, int take) const {
+    int getChild(BDD& f, int level, int take) const {
         int var = BDD_VarOfLev(level + offset);
-        f = take ? f.OnSet0(var) : f.OffSet(var);
+        f = take ? f.At1(var) : f.At0(var);
+
+        if (f.Top() == 0) return (f == 1) ? -1 : 0; // f is constant
 
         int nextLevel = BDD_LevOfVar(f.Top()) - offset;
         assert(nextLevel < level);
         if (nextLevel >= 1) return nextLevel;
-
-        while (BDD_LevOfVar(f.Top()) >= 1) {
-            f = f.OffSet(BDD_VarOfLev(f.Top()));
-        }
-        return (f == 1) ? -1 : 0;
+        else throw std::runtime_error("ERROR: invalid offset.");
     }
 
-    size_t hashCode(ZBDD const& f) const {
-        return const_cast<ZBDD*>(&f)->GetID();
+    size_t hashCode(BDD const& f) const {
+        return const_cast<BDD*>(&f)->GetID();
     }
 };
 

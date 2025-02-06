@@ -29,8 +29,11 @@
 #define B_64
 #endif
 #endif
+#include <ZBDD.h>
 
 #include "../DdEval.hpp"
+
+namespace tdzdd {
 
 /**
  * Exporter to ZBDD.
@@ -45,6 +48,10 @@ struct ToZBDD: public tdzdd::DdEval<ToZBDD,ZBDD> {
 public:
     ToZBDD(int offset = 0)
             : offset(offset) {
+    }
+
+    bool isThreadSafe() const {
+        return false;
     }
 
     void initialize(int topLevel) const {
@@ -65,3 +72,5 @@ public:
         }
     }
 };
+
+} // namespace tdzdd

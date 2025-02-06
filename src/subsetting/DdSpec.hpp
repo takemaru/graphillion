@@ -93,16 +93,26 @@ public:
         return DepthFirstSearcher<S>(entity()).findOneInstance();
     }
 
-public:
     /**
-     * Dumps the node table in Graphviz (dot) format.
+     * Dumps the diagram in Graphviz (DOT) format.
      * @param os the output stream.
      * @param title title label.
      */
-    void dumpDot(std::ostream& os = std::cout, std::string title =
-            typenameof<S>()) const {
+    void dumpDot(std::ostream& os = std::cout,
+                 std::string title = typenameof<S>()) const {
         DdDumper<S> dumper(entity());
         dumper.dump(os, title);
+    }
+
+    /**
+     * Makes an input code for Graphviz.
+     * @param title title label.
+     * @return DOT code
+     */
+    std::string dot(std::string title = typenameof<S>()) const {
+        std::stringstream s;
+        dumpDot(s, title);
+        return s.str();
     }
 
     /**
@@ -312,7 +322,8 @@ public:
     }
 
     bool equalTo(State const& s1, State const& s2) const {
-        return this->rawEqualTo(s1, s2);
+        //return this->rawEqualTo(s1, s2);
+        return s1 == s2;
     }
 
     bool equalToAtLevel(State const& s1, State const& s2, int level) const {
@@ -349,6 +360,8 @@ public:
  *
  * Optionally, the following functions can be overloaded:
  * - void mergeStates(T* array1, T* array2)
+ * - size_t hashCode(T const* state) const
+ * - bool equalTo(T const* state1, T const* state2) const
  * - void printLevel(std::ostream& os, int level) const
  * - void printState(std::ostream& os, State const* array) const
  *
@@ -433,8 +446,8 @@ public:
     void destructLevel(int level) {
     }
 
-    size_t hash_code(void const* p, int level) const {
-        Word const* pa = static_cast<Word const*>(p);
+    size_t hashCode(State const* s) const {
+        Word const* pa = reinterpret_cast<Word const*>(s);
         Word const* pz = pa + dataWords;
         size_t h = 0;
         while (pa != pz) {
@@ -444,14 +457,30 @@ public:
         return h;
     }
 
-    bool equal_to(void const* p, void const* q, int level) const {
-        Word const* pa = static_cast<Word const*>(p);
-        Word const* qa = static_cast<Word const*>(q);
+    size_t hashCodeAtLevel(State const* s, int level) const {
+        return this->entity().hashCode(s);
+    }
+
+    size_t hash_code(void const* p, int level) const {
+        return this->entity().hashCodeAtLevel(state(p), level);
+    }
+
+    bool equalTo(State const* s1, State const* s2) const {
+        Word const* pa = reinterpret_cast<Word const*>(s1);
+        Word const* qa = reinterpret_cast<Word const*>(s2);
         Word const* pz = pa + dataWords;
         while (pa != pz) {
             if (*pa++ != *qa++) return false;
         }
         return true;
+    }
+
+    bool equalToAtLevel(State const* s1, State const* s2, int level) const {
+        return this->entity().equalTo(s1, s2);
+    }
+
+    bool equal_to(void const* p, void const* q, int level) const {
+        return this->entity().equalToAtLevel(state(p), state(q), level);
     }
 
     void printState(std::ostream& os, State const* a) const {
@@ -581,7 +610,7 @@ public:
 
     int merge_states(void* p1, void* p2) {
         return this->entity().mergeStates(s_state(p1), a_state(p1), s_state(p2),
-                a_state(p2));
+                                          a_state(p2));
     }
 
     void destruct(void* p) {
@@ -633,8 +662,9 @@ public:
         return true;
     }
 
-    void printState(std::ostream& os, S_State const& s,
-            A_State const* a) const {
+    void printState(std::ostream& os,
+                    S_State const& s,
+                    A_State const* a) const {
         os << "[" << s << ":";
         for (int i = 0; i < arraySize; ++i) {
             if (i > 0) os << ",";
@@ -643,8 +673,10 @@ public:
         os << "]";
     }
 
-    void printStateAtLevel(std::ostream& os, S_State const& s, A_State const* a,
-            int level) const {
+    void printStateAtLevel(std::ostream& os,
+                           S_State const& s,
+                           A_State const* a,
+                           int level) const {
         this->entity().printState(os, s, a);
     }
 

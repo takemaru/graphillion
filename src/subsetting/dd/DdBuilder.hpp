@@ -1351,7 +1351,7 @@ public:
             os << "  \"^\" [shape=none,label=\"" << title << "\"];\n";
             os << "  \"^\" -> \"" << oneId << "\" [style=dashed" << "];\n";
             os << "  \"" << oneId << "\" ";
-            os << "[shape=square,label=\"⊤\"];\n";
+            os << "[shape=square,margin=0.05,width=0,label=\"T\"];\n";
         }
         else {
             NodeId root(n, 0);
@@ -1370,7 +1370,6 @@ public:
 
             snodeTable.init(n + 1);
             SpecNode* p = snodeTable[n].alloc_front(specNodeSize);
-            spec.destruct(oneState);
             spec.get_copy(state(p), oneState);
             nodeId(p) = root;
 
@@ -1392,7 +1391,7 @@ public:
                 os << "[style=invis];\n";
             }
             os << "  \"" << oneId << "\" ";
-            os << "[shape=square,label=\"⊤\"];\n";
+            os << "[shape=square,margin=0.05,width=0,label=\"T\"];\n";
         }
 
         os << "}\n";
