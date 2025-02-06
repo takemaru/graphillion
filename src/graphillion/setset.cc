@@ -270,9 +270,7 @@ string setset::size() const {
   // need not offset because it just counts the number of elements
   //SapporoZdd f(this->zdd_, graphillion::max_elem() - graphillion::num_elems());
   tdzdd::SapporoZdd f(this->zdd_, 0);
-  //return tdzdd::countPaths(f, true);
-  return tdzdd::countPaths(f, false); // not use multi processors because
-                                      // SAPPOROBDDD is not thread safe
+  return tdzdd::countPaths(f, true);
 }
 
 setset::iterator setset::begin() const {
