@@ -46,9 +46,14 @@ class Range;
 
 class setset {
  public:
-  class iterator
-      : public std::iterator<std::forward_iterator_tag, std::set<elem_t> > {
+  class iterator {
    public:
+    using iterator_category  = std::forward_iterator_tag;
+    using value_type = std::set<elem_t>;
+    using difference_type = std::ptrdiff_t;
+    using pointer = value_type*;
+    using reference = value_type&;
+
     iterator();
     iterator(const iterator& i);
     explicit iterator(const setset& ss);
