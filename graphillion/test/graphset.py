@@ -404,6 +404,15 @@ class TestGraphSet(unittest.TestCase):
         d = GraphSet.show_messages(a)
         self.assertFalse(d)
 
+    def test_omp_functions(self):
+        a = GraphSet.omp_get_max_threads()
+        self.assertTrue(isinstance(a, int))
+        b = GraphSet.omp_get_num_threads()
+        self.assertTrue(isinstance(b, int))
+        c = GraphSet.omp_get_num_procs()
+        self.assertTrue(isinstance(c, int))
+        GraphSet.omp_set_num_threads(a)
+
     def test_bicliques(self):
         GraphSet.set_universe([(1, 2), (1, 3), (1, 4), (2, 3), (2, 4), (3, 4)])
 

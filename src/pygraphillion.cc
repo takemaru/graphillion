@@ -1972,6 +1972,43 @@ static PyObject* graphset_show_messages(PySetsetObject* self, PyObject* obj) {
   else Py_RETURN_FALSE;
 }
 
+static PyObject* graphset_omp_get_max_threads(PyObject*) {
+#ifdef _OPENMP
+  return PyLong_FromLong(omp_get_max_threads());
+#else
+  return PyLong_FromLong(1);
+#endif
+}
+
+static PyObject* graphset_omp_get_num_threads(PyObject*) {
+#ifdef _OPENMP
+  return PyLong_FromLong(omp_get_num_threads());
+#else
+  return PyLong_FromLong(1);
+#endif
+}
+
+static PyObject* graphset_omp_set_num_threads(PyObject*, PyObject* obj) {
+#ifdef _OPENMP
+  if (!PyLong_Check(obj)) {
+    PyErr_SetString(PyExc_TypeError, "not an integer");
+    return NULL;
+  }
+  long value = PyLong_AsLong(obj);
+  omp_set_num_threads(value);
+#endif
+  Py_RETURN_NONE;
+}
+
+static PyObject* graphset_omp_get_num_procs(PyObject*) {
+#ifdef _OPENMP
+  return PyLong_FromLong(omp_get_num_procs());
+#else
+  return PyLong_FromLong(1);
+#endif
+}
+
+
 static PyObject* regular_graphs(PyObject*, PyObject* args, PyObject* kwds){
   static char s1[] = "graph";
   static char s2[] = "degree";
@@ -2904,6 +2941,10 @@ static PyMethodDef module_methods[] = {
   //{"_num_elems", setset_num_elems, METH_VARARGS, ""},
   {"_graphs", reinterpret_cast<PyCFunction>(graphset_graphs), METH_VARARGS | METH_KEYWORDS, ""},
   {"_show_messages", reinterpret_cast<PyCFunction>(graphset_show_messages), METH_O, ""},
+  {"_omp_get_max_threads", reinterpret_cast<PyCFunction>(graphset_omp_get_max_threads), METH_NOARGS, ""},
+  {"_omp_get_num_threads", reinterpret_cast<PyCFunction>(graphset_omp_get_num_threads), METH_NOARGS, ""},
+  {"_omp_set_num_threads", reinterpret_cast<PyCFunction>(graphset_omp_set_num_threads), METH_O, ""},
+  {"_omp_get_num_procs", reinterpret_cast<PyCFunction>(graphset_omp_get_num_procs), METH_NOARGS, ""},
   {"_regular_graphs", reinterpret_cast<PyCFunction>(regular_graphs), METH_VARARGS | METH_KEYWORDS, ""},
   {"_odd_edges_subgraphs", reinterpret_cast<PyCFunction>(odd_edges_subgraphs), METH_VARARGS | METH_KEYWORDS, ""},
   {"_degree_distribution_graphs", reinterpret_cast<PyCFunction>(degree_distribution_graphs), METH_VARARGS | METH_KEYWORDS, ""},

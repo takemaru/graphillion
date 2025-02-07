@@ -2934,6 +2934,45 @@ class GraphSet(object):
         return _graphillion._show_messages(flag)
 
     @staticmethod
+    def omp_get_max_threads():
+        """Returns the maximum number of threads for OpenMP.
+
+        Returns:
+          int.  The maximum number of threads.
+        """
+        return _graphillion._omp_get_max_threads()
+
+    @staticmethod
+    def omp_get_num_threads():
+        """Returns the number of threads for OpenMP.
+
+        Returns:
+          int.  The number of threads.
+        """
+        return _graphillion._omp_get_num_threads()
+
+    @staticmethod
+    def omp_set_num_threads(num_threads):
+        """Sets the number of threads for OpenMP.
+
+        Args:
+          num_threads: int.  The number of threads.
+
+        Returns:
+          None.
+        """
+        _graphillion._omp_set_num_threads(num_threads)
+
+    @staticmethod
+    def omp_get_num_procs():
+        """Returns the number of processors.
+
+        Returns:
+          int.  The number of processors.
+        """
+        return _graphillion._omp_get_num_procs()
+
+    @staticmethod
     def _traverse(indexed_edges, traversal, source):
         neighbors = {}
         for u, v in indexed_edges:
