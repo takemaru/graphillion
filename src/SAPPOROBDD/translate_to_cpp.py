@@ -23,6 +23,10 @@ def convert_code(c_code):
                             'static int  err B_ARG((const char *msg, bddp num));')
     c_code = c_code.replace('char *msg;', 'const char *msg;')
 
+    # suppress the warning of "suggest braces
+    # around initialization of subobject"
+    c_code = c_code.replace('mptable[B_MP_LMAX] = {0}', 'mptable[B_MP_LMAX] = {{0}}')
+
     # change the function call style from the old style to ANSI style.
     # an example of the old style:
     # int function(a, b)
