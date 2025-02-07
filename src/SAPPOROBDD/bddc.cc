@@ -222,7 +222,7 @@ struct B_MPTable
   bddp used;  /* Used entries */
   bddp* word; /* Table head */
 };
-static struct B_MPTable mptable[B_MP_LMAX] = {0}; /* MP-Count Table */
+static struct B_MPTable mptable[B_MP_LMAX] = {{0}}; /* MP-Count Table */
 
 struct B_MP
 {
