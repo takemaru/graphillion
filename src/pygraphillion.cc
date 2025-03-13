@@ -845,20 +845,57 @@ static PyObject* setset_load(PySetsetObject* self, PyObject* obj) {
   CHECK_OR_ERROR(obj, PyFile_Check, "file", NULL);
 #if IS_PY3 == 1
   int fd = PyObject_AsFileDescriptor(obj);
+  if (fd == -1) {
+    return NULL;
+  }
   FILE* fp = fdopen(dup(fd), "r");
 #else
   FILE* fp = PyFile_AsFile(obj);
   PyFileObject* file = reinterpret_cast<PyFileObject*>(obj);
   PyFile_IncUseCount(file);
 #endif
-  PySetsetObject* ret;
-  Py_BEGIN_ALLOW_THREADS;
-  ret = reinterpret_cast<PySetsetObject*>(
+  PySetsetObject* ret = reinterpret_cast<PySetsetObject*>(
       PySetset_Type.tp_alloc(&PySetset_Type, 0));
-  ret->ss = new setset(setset::load(fp));
-  Py_END_ALLOW_THREADS;
+  if (ret == NULL) {
 #if IS_PY3 == 1
   fclose(fp);
+#else
+  PyFile_DecUseCount(file);
+#endif
+    PyErr_NoMemory();
+    return NULL;
+  }
+  try {
+    setset* loaded_ss;
+    Py_BEGIN_ALLOW_THREADS;
+    loaded_ss = new setset(setset::load(fp));
+    Py_END_ALLOW_THREADS;
+    ret->ss = loaded_ss;
+  } catch (const std::exception& e) {
+    Py_DECREF(ret);
+#if IS_PY3 == 1
+  fclose(fp);
+#else
+  PyFile_DecUseCount(file);
+#endif
+    PyErr_SetString(PyExc_RuntimeError, e.what());
+    return NULL;
+  } catch (...) {
+    Py_DECREF(ret);
+#if IS_PY3 == 1
+  fclose(fp);
+#else
+  PyFile_DecUseCount(file);
+#endif
+    PyErr_SetString(PyExc_RuntimeError, "Unknown error occurred");
+    return NULL;
+  }
+
+#if IS_PY3 == 1
+  if (fclose(fp) != 0) {
+    PyErr_SetFromErrno(PyExc_OSError);
+    return NULL;
+  }
 #else
   PyFile_DecUseCount(file);
 #endif
