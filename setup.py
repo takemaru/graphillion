@@ -109,6 +109,8 @@ else:
 # the variables that the compiler warns are actually used.
 if platform.system() == 'Darwin': # macOS
     extra_compile_args_list.append('-std=c++11')
+elif platform.system() == 'Windows':
+    pass
 else:
     extra_compile_args_list.append('-Wno-maybe-uninitialized')
 
@@ -144,6 +146,7 @@ trillions of graphs can be processed on a single computer.
         'Programming Language :: Python :: 3.9',
         'Programming Language :: Python :: 3.10',
         'Programming Language :: Python :: 3.11',
+        'Programming Language :: Python :: 3.12',
         'Programming Language :: Python :: 3',
         'Topic :: Software Development :: Libraries :: Python Modules',
         'Topic :: Scientific/Engineering :: Information Analysis',
