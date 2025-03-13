@@ -1,6 +1,7 @@
 from setuptools import setup, find_packages, Extension
 import distutils.sysconfig
 import os
+import platform
 import subprocess
 import shutil
 import sys
@@ -52,7 +53,7 @@ printf(\"Hello from thread %d, nthreads %d\\n\", omp_get_thread_num(), omp_get_n
     if exit_code == 0:
         return True
     else:
-        import multiprocessing, platform
+        import multiprocessing
         cpus = multiprocessing.cpu_count()
         if cpus>1:
             print ("""WARNING:
@@ -106,8 +107,10 @@ else:
 # We add this option to suppress warning when compiling bddc.c
 # in SAPPOROBDD library. It is no problem because
 # the variables that the compiler warns are actually used.
-if os.uname().sysname == 'Darwin': # macOS
+if platform.system() == 'Darwin': # macOS
     extra_compile_args_list.append('-std=c++11')
+elif platform.system() == 'Windows':
+    pass
 else:
     extra_compile_args_list.append('-Wno-maybe-uninitialized')
 
@@ -138,6 +141,12 @@ trillions of graphs can be processed on a single computer.
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10',
+        'Programming Language :: Python :: 3.11',
+        'Programming Language :: Python :: 3.12',
         'Programming Language :: Python :: 3',
         'Topic :: Software Development :: Libraries :: Python Modules',
         'Topic :: Scientific/Engineering :: Information Analysis',
@@ -160,5 +169,5 @@ trillions of graphs can be processed on a single computer.
                   extra_link_args=extra_link_args_list,
                   ),
         ],
-      test_suite='graphillion.test',
+#      test_suite='graphillion.test',
       )
