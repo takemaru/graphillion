@@ -169,5 +169,5 @@ trillions of graphs can be processed on a single computer.
                   extra_link_args=extra_link_args_list,
                   ),
         ],
-#      test_suite='graphillion.test',
+      test_suite='graphillion.test',
       )
