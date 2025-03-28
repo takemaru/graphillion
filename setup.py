@@ -116,7 +116,7 @@ else:
 
 #extra_compile_args_list.append('-UNDEBUG')
 
-setup(name='Graphillion',
+setup(name='graphillion',
       version=release.version,
       description='Fast, lightweight library for a huge number of graphs',
       long_description="""\

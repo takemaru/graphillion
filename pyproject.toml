@@ -3,7 +3,7 @@ requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "Graphillion"
+name = "graphillion"
 version = "2.0rc0"
 description = "Fast, lightweight library for a huge number of graphs"
 authors = [
