@@ -1,6 +1,8 @@
 #ifndef GRAPHILLION_PARTITION_H_
 #define GRAPHILLION_PARTITION_H_
 
+#include <limits>
+
 #include "graphillion/setset.h"
 #include "graphillion/type.h"
 #include "subsetting/DdStructure.hpp"

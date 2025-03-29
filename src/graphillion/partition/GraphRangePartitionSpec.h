@@ -2,6 +2,7 @@
 #define GRAPH_PARTITION_SPEC_H_
 
 #include <numeric>
+#include <limits>
 
 #include "subsetting/DdSpec.hpp"
 #include "subsetting/util/Graph.hpp"

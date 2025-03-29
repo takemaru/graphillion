@@ -39,6 +39,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <string>
 #include <sstream>
 #include <vector>
+#include <limits>
 
 #include "graphillion/graphset.h"
 #include "graphillion/reliability/reliability.h"

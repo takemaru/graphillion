@@ -1,6 +1,7 @@
 #include "BalancedPartition.h"
 
 #include <numeric>
+#include <limits>
 
 #include "ComponentRatioSpec.h"
 #include "ComponentWeightSpec.h"

@@ -30,7 +30,10 @@ def check_for_openmp():
 
     # Attempt to compile a test script.
     # See http://openmp.org/wp/openmp-compilers/
-    filename = r'test.c'
+    if compiler == 'g++':
+        filename = r'test.cpp'
+    else:
+        filename = r'test.c'
     with open(filename,'w') as f :
         f.write("""#include <omp.h>
 #include <stdio.h>
