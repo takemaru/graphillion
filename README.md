@@ -25,6 +25,9 @@ News
   - DiGraphSet, VertexSetSet, and EdgeVertexSetSet classes are introduced.
   - Extracting cost bounded solutions is introduced.
   - Python 2 is not supported any more.
+  - `pyproject.toml` is introduced.
+  - In accordance with PyPI's conventions, the package name has been changed to lowercase as 'graphillion'.
+  - See the [graphillion 2.0 manual](doc/graphillion2_0.md) for detail.
 
 - Graphillion version 1.0 is released with long-awaited features:
   - Python 3 is supported (Python 2 is as well),
@@ -171,18 +174,18 @@ source code repository.
    https://github.com/takemaru/graphillion
 2. Unpack and change the directory to the source directory (it should have
    the file setup.py)
-3. Run `python setup.py build` to build
-4. (optional) Run `python setup.py test -q` to execute the tests
-5. Run `sudo python setup.py install` to install
+3. Run `python -m build` to build
+4. (optional) Run `sh test_all.sh` to execute the tests
+5. Run `sudo pip install .` to install
 
 #### GitHub repository
 
 1. Clone the Graphillion repository
    `git clone https://github.com/takemaru/graphillion.git`
 2. Change the directory to "graphillion"
-3. Run `python setup.py build` to build
-4. (optional) Run `python setup.py test -q` to execute the tests
-5. Run `sudo python setup.py install` to install
+3. Run `python -m build` to build
+4. (optional) Run `sh test_all.sh` to execute the tests
+5. Run `sudo pip install .` to install
 
 If you don't have permission to install software on your system, you
 can install it into another directory using the `-user`, `-prefix`, or
@@ -200,10 +203,6 @@ If you didn't install in the standard Python site-packages directory
 you will need to set your `PYTHONPATH` variable to the alternate
 location.  See http://docs.python.org/inst/search-path.html for
 further details.
-
-#### Windows
-
-Please see [Graphillion for Windows](https://github.com/junkawahara/graphillion_for_windows).
 
 
 Tutorial
@@ -872,6 +871,8 @@ gs         # DiGraphSet([[(1, 2), (2, 4)], [(1, 2), (2, 3), (3, 4)]])
 VertexSetSet class
 --------------------------------------------------------------------------------
 
+See also the [graphillion 2.0 manual](doc/graphillion2_0.md).
+
 The VertexSetSet class is a class representing a set of vertices of a given graph. For example, it can represent all the independent sets and dominating sets of a graph.
 
 We need to set the universe of VertexSetSet by calling VertexSetSet.set_universe() without arguments after setting the universe of GraphSet.
@@ -916,6 +917,8 @@ vss         # VertexSetSet([[2, 4], [1, 2, 3]])
 EdgeVertexSetSet class
 --------------------------------------------------------------------------------
 
+See also the [graphillion 2.0 manual](doc/graphillion2_0.md).
+
 The EdgeVertexSetSet class is a class representing a set of subgraphs of a given graph, where a subgraph is represented by a set containing edges and vertices. It enables us to represent subgraphs with isolated vertices and to conduct linear optimization where both edges and vertices have weights.
 
 We need to set the universe of EdgeVertexSetSet by calling EdgeVertexSetSet.set_universe() without arguments after setting the universe of GraphSet.
@@ -943,6 +946,8 @@ EdgeVertexSetSet supports some methods of GraphSet, but does not support quotien
 Parallel computing
 --------------------------------------------------------------------------------
 
+See also the [graphillion 2.0 manual](doc/graphillion2_0.md).
+
 Graphillion runs in parallel using [OpenMP], an API supporting
 multi-platform shared memory multiprocessing.  To enjoy parallel
 computing, specify the number of CPU cores to use by the environmental
@@ -963,7 +968,6 @@ Currently, the following methods can be parallelized:
 - `GraphSet.paths(terminal1, terminal2, is_hamilton)`
 - `GraphSet.matchings()`
 - `GraphSet.perfect_matchings()`
-- `GraphSet.induced_graphs()`
 
 Working with NetworkX
 --------------------------------------------------------------------------------
@@ -1222,3 +1226,7 @@ References
 [GGCount]: https://github.com/kunisura/GGCount
 [TdZdd]: https://github.com/kunisura/TdZdd
 [book]: http://www.amazon.co.jp/dp/4627852614
+
+## Acknowledgement
+
+This library is/was partly developed by research supported by JSPS KAKENHI Grant Numbers JP18H04091, JP20H05794, and JP23H04383.
