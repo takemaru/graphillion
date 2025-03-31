@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "graphillion"
-version = "2.0rc0"
+version = "2.0"
 description = "Fast, lightweight library for a huge number of graphs"
 authors = [
     {name = "Takeru Inoue", email = "takeru.inoue@gmail.com"},
