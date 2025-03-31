@@ -158,7 +158,7 @@ trillions of graphs can be processed on a single computer.
       keywords=['graph', 'set', 'math', 'network'],
       author=release.authors[0][0],
       author_email=release.authors[0][1],
-      url='https://github.com/takemaru/graphillion',
+      url='http://graphillion.org/',
       license=release.license,
       packages=['graphillion', 'graphillion.test'],
 #      install_requires=['future'],

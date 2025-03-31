@@ -40,4 +40,4 @@ classifiers = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/takemaru/graphillion"
+Homepage = "http://graphillion.org/"
