@@ -15,13 +15,13 @@ authors = [
     {name = "Takeshi Konishi"}
 ]
 readme = "README.md"
-license = {file = "LICENSE.txt"}
+license = "MIT"
+license-files = ["LICENSE.txt"]
 keywords = ["graph", "set", "math", "network"]
 classifiers = [
         "Development Status :: 4 - Beta",
         "Intended Audience :: Developers",
         "Intended Audience :: Science/Research",
-        "License :: OSI Approved :: MIT License",
         "Operating System :: POSIX :: Linux",
         "Operating System :: POSIX :: BSD :: FreeBSD",
         "Operating System :: MacOS :: MacOS X",

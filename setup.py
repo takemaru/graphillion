@@ -159,7 +159,7 @@ trillions of graphs can be processed on a single computer.
       author=release.authors[0][0],
       author_email=release.authors[0][1],
       url='http://graphillion.org/',
-      license=release.license,
+#      license=release.license,
       packages=['graphillion', 'graphillion.test'],
 #      install_requires=['future'],
       ext_modules=[
