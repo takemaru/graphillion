@@ -18,6 +18,7 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 from builtins import range
+from graphillion.universe import Universe
 from graphillion import GraphSet
 import tempfile
 import unittest
@@ -59,19 +60,22 @@ class TestGraphSet(unittest.TestCase):
         GraphSet.set_universe([('i', 'ii')])
         self.assertEqual(GraphSet.universe(), [('i', 'ii')])
 
+        # Test the old set_universe test (for compatibility)
         GraphSet.set_universe([e1 + (.3,), e2 + (-.2,), e3 + (-.2,), e4 + (.4,)],
                               traversal='bfs', source=1)
         self.assertEqual(GraphSet.universe(),
                          [e1 + (.3,), e2 + (-.2,), e3 + (-.2,), e4 + (.4,)])
 
-        GraphSet.set_universe([e1 + (.3,), e2 + (-.2,), e3 + (-.2,), e4 + (.4,)],
+        # Test the new universe class
+        Universe.set_universe([e1 + (.3,), e2 + (-.2,), e3 + (-.2,), e4 + (.4,)],
                               traversal='dfs', source=1)
-        self.assertEqual(GraphSet.universe(),
+        self.assertEqual(Universe.edge_universe(),
                          [e2 + (-.2,), e4 + (.4,), e1 + (.3,), e3 + (-.2,)])
 
-        GraphSet.set_universe([e1 + (.3,), e2 + (-.2,), e3 + (-.2,), e4 + (.4,)],
+        # Test the new universe class
+        Universe.set_universe([e1 + (.3,), e2 + (-.2,), e3 + (-.2,), e4 + (.4,)],
                               traversal='greedy', source=3)
-        self.assertEqual(GraphSet.universe(),
+        self.assertEqual(Universe.edge_universe(),
                          [e2 + (-.2,), e1 + (.3,), e3 + (-.2,), e4 + (.4,)])
 
         self.assertRaises(KeyError, GraphSet.set_universe, [(1,2), (2,1)])
@@ -162,7 +166,7 @@ class TestGraphSet(unittest.TestCase):
 
         # b-matching
         b = {}
-        for v in GraphSet._vertices:
+        for v in Universe.vertices:
             if v != 1:
                 b[v] = v % 2 + 1
         gs = GraphSet.b_matchings(b)
@@ -182,7 +186,7 @@ class TestGraphSet(unittest.TestCase):
 
         # f-factor
         f = {}
-        for v in GraphSet._vertices:
+        for v in Universe.vertices:
             if v == 2 or v == 5:
                 f[v] = 2
             else:

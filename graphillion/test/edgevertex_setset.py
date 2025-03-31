@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
+from graphillion.universe import Universe
 from graphillion import EdgeVertexSetSet
 import unittest
 import tempfile
@@ -32,21 +33,25 @@ ev1234 = [e1, e2, e3, e4, 1, 2, 3, 4]
 class TestEdgeVertexSetSet(unittest.TestCase):
 
     def setUp(self):
-        EdgeVertexSetSet.set_universe([e1 + (.3,), e2 + (-.2,), e3 + (-.2,), e4 + (.4,)],
+        #Universe.set_universe([e1 + (.3,), e2 + (-.2,), e3 + (-.2,), e4 + (.4,)],
+        #                      traversal='bfs', source=1,
+        #                      weights={e1: -.3, e2: .2, e3: .2, e4: -.4, 1: -.2, 2: .4, 3: .6, 4: -.5})
+        Universe.set_universe([e1 + (-.3,), e2 + (.2,), e3 + (.2,), e4 + (-.4,)],
                               traversal='bfs', source=1,
-                              weights={e1: -.3, e2: .2, e3: .2, e4: -.4, 1: -.2, 2: .4, 3: .6, 4: -.5})
+                              weights={e1: 2, e2: 5, e3: -4, e4: 8, 1: -.2, 2: .4, 3: .6, 4: -.5})
+        # The edge weights in 'weights' argument should be ignored.
 
     def tearDown(self):
         pass
 
     def test_init(self):
-        EdgeVertexSetSet.set_universe([('i', 'ii')])
-        self.assertEqual(EdgeVertexSetSet.universe(), [('i', 'ii'), 'i', 'ii'])
+        Universe.set_universe([('i', 'ii')])
+        self.assertEqual(Universe.edge_vertex_universe(), [('i', 'ii'), 'i', 'ii'])
 
-        self.assertRaises(KeyError, EdgeVertexSetSet.set_universe, [(1,2), (2,1)])
+        self.assertRaises(KeyError, Universe.set_universe, [(1,2), (2,1)])
 
-        EdgeVertexSetSet.set_universe([(1,2), (3,4)])  # disconnected graph
-        self.assertEqual(EdgeVertexSetSet.universe(), [(1,2), 1, 2, (3,4), 3, 4])
+        Universe.set_universe([(1,2), (3,4)])  # disconnected graph
+        self.assertEqual(Universe.edge_vertex_universe(), [(1,2), 1, 2, (3,4), 3, 4])
 
     def test_constructors(self):
         gs = EdgeVertexSetSet()
@@ -449,7 +454,7 @@ class TestEdgeVertexSetSet(unittest.TestCase):
         self.assertAlmostEqual(gs.probability(p), .0127008)
 
     def test_cost_le(self):
-        EdgeVertexSetSet.set_universe([e1, e2, e3, e4])
+        Universe.set_universe([e1, e2, e3, e4])
         gs = EdgeVertexSetSet([ev0, ev1, ev2, ev3, ev4, ev12, ev14, ev134, ev234, ev1234])
 
         costs = {e1: 2, e2: 14, e3: 4, e4: 7, 1: 3, 2: 1, 3: 4, 4: 3}
@@ -468,7 +473,7 @@ class TestEdgeVertexSetSet(unittest.TestCase):
         self.assertNotIn(ev1234, small_cost_gs) # cost: 38
 
     def test_cost_ge(self):
-        EdgeVertexSetSet.set_universe([e1, e2, e3, e4])
+        Universe.set_universe([e1, e2, e3, e4])
         gs = EdgeVertexSetSet([ev0, ev1, ev2, ev3, ev4, ev12, ev14, ev134, ev234, ev1234])
 
         costs = {e1: 2, e2: 14, e3: 4, e4: 7, 1: 3, 2: 1, 3: 4, 4: 3}
@@ -487,7 +492,7 @@ class TestEdgeVertexSetSet(unittest.TestCase):
         self.assertIn(ev1234, large_cost_gs) # cost: 38
 
     def test_cost_eq(self):
-        EdgeVertexSetSet.set_universe([e1, e2, e3, e4])
+        Universe.set_universe([e1, e2, e3, e4])
         gs = EdgeVertexSetSet([ev0, ev1, ev2, ev3, ev4, ev12, ev14, ev134, ev234, ev1234])
 
         costs = {e1: 2, e2: 14, e3: 4, e4: 7, 1: 3, 2: 1, 3: 4, 4: 3}

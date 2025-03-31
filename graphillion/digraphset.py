@@ -22,7 +22,7 @@
 
 from functools import partial
 import _graphillion
-from graphillion.setset_base import ObjectTable
+from graphillion.universe import ObjectTable
 from graphillion.setset_base import setset_base
 import pickle
 import heapq

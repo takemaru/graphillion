@@ -29,6 +29,7 @@ induced subgraphs) or by specific structural properties (like being chordal).
 This module implements many common graph classes from graph theory literature.
 """
 
+from graphillion.universe import Universe
 from graphillion import GraphSet
 
 class GraphClass:
@@ -199,7 +200,7 @@ class GraphClass:
 
         # cycle with odd length at least 5
         dc = {}
-        for v in GraphSet._vertices:
+        for v in Universe.vertices:
             dc[v] = range(0, 3, 2)
         return GraphSet.graphs(vertex_groups=[[]], degree_constraints=dc,
                                num_edges=range(5, n + 1, 2))

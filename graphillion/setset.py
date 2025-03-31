@@ -21,7 +21,7 @@
 """
 
 from graphillion.setset_base import setset_base
-from graphillion.setset_base import ObjectTable
+from graphillion.universe import ObjectTable
 import _graphillion
 
 class setset(setset_base):

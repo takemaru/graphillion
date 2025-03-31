@@ -24,6 +24,7 @@ enumeration for a "graphset", or a set of graphs.
 See README for details.
 """
 
+from graphillion.universe import Universe
 from graphillion.setset import setset
 from graphillion.vertex_setset import VertexSetSet
 from graphillion.edgevertex_setset import EdgeVertexSetSet

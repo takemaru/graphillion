@@ -20,14 +20,11 @@
 """Module for a set of sets containing edges and vertices.
 """
 
-from functools import partial
 from builtins import range, int
 import _graphillion
-from graphillion import VertexSetSet
-from graphillion.setset_base import ObjectTable
+from graphillion.universe import ObjectTable
+from graphillion.universe import Universe
 from graphillion.setset_base import setset_base
-import pickle
-import heapq
 
 
 class EdgeVertexSetSet(object):
@@ -42,7 +39,7 @@ class EdgeVertexSetSet(object):
     EdgeVertexSetSet only supports undirected graphs without edge labels.
 
     The universal graph must be defined before creating EdgeVertexSetSet
-    objects by `EdgeVertexSetSet.set_universe()` method.
+    objects by `Universe.set_universe()` method.
 
     Like Python set types, EdgeVertexSetSet supports `graph in graphset`,
     `len(graphset)`, and `for graph in graphset`.  It also supports
@@ -55,7 +52,7 @@ class EdgeVertexSetSet(object):
     * ==, !=, <=, <, >=, >, |, &, -, ^, |=, &=, -=, ^=.
 
     Examples:
-      >>> from graphillion import GraphSet, EdgeVertexSetSet
+      >>> from graphillion import GraphSet, EdgeVertexSetSet, Universe
 
       We assume the following graph and register the edge list as the
       universe.
@@ -65,8 +62,7 @@ class EdgeVertexSetSet(object):
       4 --- 5 --- 6
 
       >>> universe = [(1, 2), (1, 4), (2, 3), (2, 5), (3, 6), (4, 5), (5, 6)]
-      >>> GraphSet.set_universe(universe)
-      >>> EdgeVertexSetSet.set_universe()
+      >>> Universe.set_universe(universe)
 
       Find all paths from 1 to 6.
 
@@ -140,7 +136,7 @@ class EdgeVertexSetSet(object):
             elif isinstance(obj, dict):
                 raise TypeError("graphset_or_constraints does not support dict other than {}")
 
-            self._ss = setset_base(EdgeVertexSetSet._objtable, obj)
+            self._ss = setset_base(Universe.ev_objtable, obj)
 
     def copy(self):
         """Returns a new EdgeVertexSetSet with a shallow copy of `self`.
@@ -163,7 +159,7 @@ class EdgeVertexSetSet(object):
         return bool(self._ss)
 
     def __repr__(self):
-        return self._repr(EdgeVertexSetSet._objtable, (self.__class__.__name__ + '([', '])'))
+        return self._repr(Universe.ev_objtable, (self.__class__.__name__ + '([', '])'))
 
     # obj_to_str: dict[tuple, str]
     def _repr(self, objtable, outer_braces=('[', ']'), inner_braces=('[', ']'), obj_to_str=None):
@@ -560,7 +556,7 @@ class EdgeVertexSetSet(object):
         See Also:
           rand_iter(), max_iter(), min_iter()
         """
-        for g in self._ss._iter(EdgeVertexSetSet._objtable):
+        for g in self._ss._iter(Universe.ev_objtable):
             try:
                 yield EdgeVertexSetSet._conv_ret(g)
             except StopIteration:
@@ -590,7 +586,7 @@ class EdgeVertexSetSet(object):
         See Also:
           __iter__(), max_iter(), min_iter()
         """
-        for g in self._ss.rand_iter(EdgeVertexSetSet._objtable):
+        for g in self._ss.rand_iter(Universe.ev_objtable):
             try:
                 yield EdgeVertexSetSet._conv_ret(g)
             except StopIteration:
@@ -631,8 +627,8 @@ class EdgeVertexSetSet(object):
 
         """
         if weights is None:
-            weights = EdgeVertexSetSet._weights
-        for g in self._ss.min_iter(EdgeVertexSetSet._objtable, weights):
+            weights = Universe.weights
+        for g in self._ss.min_iter(Universe.ev_objtable, weights):
             try:
                 yield EdgeVertexSetSet._conv_ret(g)
             except StopIteration:
@@ -672,8 +668,8 @@ class EdgeVertexSetSet(object):
           __iter__(), rand_iter(), min_iter()
         """
         if weights is None:
-            weights = EdgeVertexSetSet._weights
-        for g in self._ss.max_iter(EdgeVertexSetSet._objtable, weights):
+            weights = Universe.weights
+        for g in self._ss.max_iter(Universe.ev_objtable, weights):
             try:
                 yield EdgeVertexSetSet._conv_ret(g)
             except StopIteration:
@@ -714,7 +710,7 @@ class EdgeVertexSetSet(object):
         """
         type, obj = EdgeVertexSetSet._conv_arg(obj)
         if type == 'edgesvertices' or type == 'edge' or type == 'vertex':
-            return self._ss._contains(EdgeVertexSetSet._objtable, obj)
+            return self._ss._contains(Universe.ev_objtable, obj)
         raise TypeError(obj)
 
     def add(self, edgesvertices):
@@ -751,7 +747,7 @@ class EdgeVertexSetSet(object):
         """
         type, obj = EdgeVertexSetSet._conv_arg(edgesvertices)
         if type == 'edgesvertices':
-            self._ss.add(EdgeVertexSetSet._objtable, obj)
+            self._ss.add(Universe.ev_objtable, obj)
         else:
             raise TypeError(edgesvertices)
     
@@ -783,7 +779,7 @@ class EdgeVertexSetSet(object):
         """
         type, obj = EdgeVertexSetSet._conv_arg(vertex)
         if type == 'vertex':
-            self._ss.add(EdgeVertexSetSet._objtable, obj)
+            self._ss.add(Universe.ev_objtable, obj)
         else:
             raise TypeError(vertex)
 
@@ -816,7 +812,7 @@ class EdgeVertexSetSet(object):
         """
         type, obj = EdgeVertexSetSet._conv_arg(obj)
         if type == 'edgesvertices':
-            self._ss.remove(EdgeVertexSetSet._objtable, obj)
+            self._ss.remove(Universe.ev_objtable, obj)
         else:
             raise TypeError(obj)
         return None
@@ -850,7 +846,7 @@ class EdgeVertexSetSet(object):
         """
         type, obj = EdgeVertexSetSet._conv_arg(obj)
         if type == 'edgesvertices':
-            self._ss.discard(EdgeVertexSetSet._objtable, obj)
+            self._ss.discard(Universe.ev_objtable, obj)
         else:
             raise TypeError(obj)
         return None
@@ -878,7 +874,7 @@ class EdgeVertexSetSet(object):
         See Also:
           remove(), discard(), choice()
         """
-        return EdgeVertexSetSet._conv_ret(self._ss.pop(EdgeVertexSetSet._objtable))
+        return EdgeVertexSetSet._conv_ret(self._ss.pop(Universe.ev_objtable))
 
     def clear(self):
         """Removes all graphs from `self`.
@@ -1117,7 +1113,7 @@ class EdgeVertexSetSet(object):
         See Also:
           subsets(), non_supersets()
         """
-        return EdgeVertexSetSet(self._ss.supersets(EdgeVertexSetSet._objtable, other._ss))
+        return EdgeVertexSetSet(self._ss.supersets(Universe.ev_objtable, other._ss))
 
     def non_subgraphs(self, other):
         """Returns a new EdgeVertexSetSet with graphs that aren't subgraphs of any graph in `other`.
@@ -1173,7 +1169,7 @@ class EdgeVertexSetSet(object):
         See Also:
           non_subsets(), supersets()
         """
-        return EdgeVertexSetSet(self._ss.non_supersets(EdgeVertexSetSet._objtable, other._ss))
+        return EdgeVertexSetSet(self._ss.non_supersets(Universe.ev_objtable, other._ss))
 
     def including(self, obj):
         """Returns a new EdgeVertexSetSet that includes supergraphs of `obj`.
@@ -1210,11 +1206,11 @@ class EdgeVertexSetSet(object):
         """
         type, obj = EdgeVertexSetSet._conv_arg(obj)
         if type == 'edgevertexsetset':
-            return EdgeVertexSetSet(self._ss.supersets(EdgeVertexSetSet._objtable, obj._ss))
+            return EdgeVertexSetSet(self._ss.supersets(Universe.ev_objtable, obj._ss))
         elif type == 'edgesvertices':
             return self.including(EdgeVertexSetSet([obj]))
         elif type == 'edge' or type == 'vertex':
-            return EdgeVertexSetSet(self._ss.supersets(EdgeVertexSetSet._objtable, obj))
+            return EdgeVertexSetSet(self._ss.supersets(Universe.ev_objtable, obj))
         else:
             raise TypeError(obj)
 
@@ -1257,7 +1253,7 @@ class EdgeVertexSetSet(object):
         elif type == 'edgesvertices':
             return self.excluding(EdgeVertexSetSet([obj]))
         elif type == 'edge' or type == 'vertex':
-            return EdgeVertexSetSet(self._ss.non_supersets(EdgeVertexSetSet._objtable, obj))
+            return EdgeVertexSetSet(self._ss.non_supersets(Universe.ev_objtable, obj))
         else:
             raise TypeError(obj)
 
@@ -1314,7 +1310,7 @@ class EdgeVertexSetSet(object):
         See Also:
           pop()
         """
-        return EdgeVertexSetSet._conv_ret(self._ss.choice(EdgeVertexSetSet._objtable))
+        return EdgeVertexSetSet._conv_ret(self._ss.choice(Universe.ev_objtable))
 
     def probability(self, probabilities):
         """Returns the probability of `self` with edge/vertex `probabilities`.
@@ -1323,7 +1319,7 @@ class EdgeVertexSetSet(object):
         graph in `self` given `probabilities` of each edge.
 
         Examples:
-          >>> EdgeVertexSetSet.set_universe([(1, 2), (1, 4), (2, 3)])
+          >>> Universe.set_universe([(1, 2), (1, 4), (2, 3)])
           >>> graph1 = [(1, 2), (1, 4), 1, 2, 4]
           >>> graph2 = [(2, 3), 2, 3]
           >>> gs = EdgeVertexSetSet([graph1, graph2])
@@ -1343,7 +1339,7 @@ class EdgeVertexSetSet(object):
           KeyError: If a given edge/vertex is not found in the universe.
         """
         probabilities = {EdgeVertexSetSet._conv_edgevertex(ev): p for ev, p in probabilities.items()}
-        return self._ss.probability(EdgeVertexSetSet._objtable, probabilities)
+        return self._ss.probability(Universe.ev_objtable, probabilities)
 
     def cost_le(self, costs, cost_bound):
         """Returns a new EdgeVertexSetSet with subgraphs whose cost is less than or equal to the cost bound.
@@ -1355,7 +1351,7 @@ class EdgeVertexSetSet(object):
 
         Examples:
           >>> universe = [(1, 2), (1, 4), (2, 3), (3, 4)]
-          >>> EdgeVertexSetSet.set_universe(universe)
+          >>> Universe.set_universe(universe)
 
           >>> graph1 = [(1, 2), (2, 3), 1, 2, 3]
           >>> graph2 = [(3, 4), 3, 4]
@@ -1379,7 +1375,7 @@ class EdgeVertexSetSet(object):
           TypeError: If at least one cost is not integer.
 
         """
-        return EdgeVertexSetSet(self._ss.cost_le(objtable=EdgeVertexSetSet._objtable, costs=costs, cost_bound=cost_bound))
+        return EdgeVertexSetSet(self._ss.cost_le(objtable=Universe.ev_objtable, costs=costs, cost_bound=cost_bound))
 
     def cost_ge(self, costs, cost_bound):
         """Returns a new EdgeVertexSetSet with subgraphs whose cost is greater than or equal to the cost bound.
@@ -1391,7 +1387,7 @@ class EdgeVertexSetSet(object):
 
         Examples:
           >>> universe = [(1, 2), (1, 4), (2, 3), (3, 4)]
-          >>> EdgeVertexSetSet.set_universe(universe)
+          >>> Universe.set_universe(universe)
 
           >>> graph1 = [(1, 2), (2, 3), 1, 2, 3]
           >>> graph2 = [(3, 4), 3, 4]
@@ -1416,7 +1412,7 @@ class EdgeVertexSetSet(object):
 
         """
         inv_costs = {e: -cost for e, cost in costs.items()}
-        return EdgeVertexSetSet(self._ss.cost_le(objtable=EdgeVertexSetSet._objtable, costs=inv_costs, cost_bound=-cost_bound))
+        return EdgeVertexSetSet(self._ss.cost_le(objtable=Universe.ev_objtable, costs=inv_costs, cost_bound=-cost_bound))
 
     def cost_eq(self, costs, cost_bound):
         """Returns a new EdgeVertexSetSet with subgraphs whose cost is equal to the cost bound.
@@ -1428,7 +1424,7 @@ class EdgeVertexSetSet(object):
 
         Examples:
           >>> universe = [(1, 2), (1, 4), (2, 3), (3, 4)]
-          >>> EdgeVertexSetSet.set_universe(universe)
+          >>> Universe.set_universe(universe)
 
           >>> graph1 = [(1, 2), (2, 3), 1, 2, 3]
           >>> graph2 = [(3, 4), 3, 4]
@@ -1452,8 +1448,8 @@ class EdgeVertexSetSet(object):
           TypeError: If at least one cost is not integer.
 
         """
-        le_ss = self._ss.cost_le(objtable=EdgeVertexSetSet._objtable, costs=costs, cost_bound=cost_bound)
-        lt_ss = self._ss.cost_le(objtable=EdgeVertexSetSet._objtable, costs=costs, cost_bound=cost_bound - 1)
+        le_ss = self._ss.cost_le(objtable=Universe.ev_objtable, costs=costs, cost_bound=cost_bound)
+        lt_ss = self._ss.cost_le(objtable=Universe.ev_objtable, costs=costs, cost_bound=cost_bound - 1)
         return EdgeVertexSetSet(le_ss.difference(lt_ss))
 
     def dump(self, fp):
@@ -1506,7 +1502,7 @@ class EdgeVertexSetSet(object):
         Examples:
           >>> import pickle
           >>> fp = open('/path/to/universe')
-          >>> EdgeVertexSetSet.set_universe(pickle.load(fp), traversal='as-is')
+          >>> Universe.set_universe(pickle.load(fp), traversal='as-is')
           >>> fp = open('/path/to/graphset')
           >>> gs = EdgeVertexSetSet.load(fp)
 
@@ -1527,96 +1523,13 @@ class EdgeVertexSetSet(object):
 
         Examples:
           >>> import pickle
-          >>> EdgeVertexSetSet.set_universe(pickle.loads(universe_str), traversal='as-is')
+          >>> Universe.set_universe(pickle.loads(universe_str), traversal='as-is')
           >>> gs = EdgeVertexSetSet.load(graphset_str)
 
         See Also:
           load(), dumps()
         """
         return EdgeVertexSetSet(setset_base.loads(s))
-
-    @staticmethod
-    def set_universe(universe=None, traversal='greedy', source=None, weights=None):
-        """Registers the new universe.
-
-        Examples:
-          >>> w = {(1, 2): 1.5, (1, 4): 3.2, (2, 3): -4.3,
-          >>>        1: 0.5, 2: -1.4, 3: 5.2, 4: -0.5}
-          >>> EdgeVertexSetSet.set_universe([(1, 2), (1, 4), (2, 3)])
-
-        Args:
-          universe: A list of edges (not list of edges and vertices)
-            that represents the new universe. If universe is None,
-            the universe of GraphSet will be used.
-
-          traversal: Optional.  This argument specifies the order of
-            edges to be processed in the internal graphset operations.
-            The default is 'greedy', best-first search from `source`
-            with respect to the number of unused incident edges.
-            Other options include 'bfs', the breadth-first search, 
-            'dfs', the depth-first search, and 'as-is', the order of
-            `universe` list.
-
-          source: Optional.  This argument specifies the starting
-            point of the edge traversal.
-
-          weights: Optional. This argument specifies edge/vertex
-            weights as dict. If the weight of an edge/vertex
-            is not specified, the default value 1 is used.
-
-        See Also:
-          universe()
-        """
-        from graphillion import GraphSet
-        if universe:
-            GraphSet.set_universe(universe, traversal, source)
-        edges = GraphSet.universe()
-        if weights:
-            EdgeVertexSetSet._weights = weights.copy()
-        visited_vertices = set()
-        edges_vertices = []
-        EdgeVertexSetSet._edge_vertex_kind = {}
-        for e in reversed(edges):
-            for v in [e[1], e[0]]:
-                if v not in visited_vertices:
-                    visited_vertices.add(v)
-                    edges_vertices.append(v)
-                    EdgeVertexSetSet._edge_vertex_kind[v] = False
-            # check if a vertex such as "(a, b)" exists
-            if e in visited_vertices:
-                KeyError("{} cannot be a vertex".format(e))
-            else:
-                edges_vertices.append(e[:2])
-                EdgeVertexSetSet._edge_vertex_kind[e[:2]] = True
-                EdgeVertexSetSet._edge_vertex_kind[(e[1], e[0])] = True
-
-        edges_vertices.reverse()
-
-        EdgeVertexSetSet._objtable = ObjectTable()
-        for x in edges_vertices:
-            EdgeVertexSetSet._objtable.add_elem(x)
-
-    @staticmethod
-    def universe():
-        """Returns the current universe.
-
-        The list of edges/vertices that represents the current universe is
-        returned. Note that the retutrned list of universe() includes
-        edges/vertices while a list of set_universe() passed as arguments
-        includes edges (does not include vertices).
-
-        Examples:
-          >>> EdgeVertexSetSet.set_universe([(1, 2), (1, 4), (2, 3)])
-          >>> EdgeVertexSetSet.universe()
-          [(1, 2), (1, 4), 1, 4, (2, 3), 2, 3]
-
-        Returns:
-          The universe if no argument is given, or None otherwise.
-
-        See Also:
-          set_universe()
-        """
-        return EdgeVertexSetSet._objtable.universe()
 
     @staticmethod
     def reliability(probabilities, terminals):
@@ -1644,7 +1557,7 @@ class EdgeVertexSetSet(object):
             return 'edgesvertices', set([EdgeVertexSetSet._conv_edgevertex(e) for e in obj])
         elif isinstance(obj, tuple):
             return 'edge', EdgeVertexSetSet._conv_edgevertex(obj)
-        elif obj in EdgeVertexSetSet._edge_vertex_kind and not EdgeVertexSetSet._edge_vertex_kind[obj]: # obj is a vertex
+        elif obj in Universe.edge_vertex_kind and not Universe.edge_vertex_kind[obj]: # obj is a vertex
             return 'vertex', obj
         else:
             raise KeyError(obj)
@@ -1655,9 +1568,9 @@ class EdgeVertexSetSet(object):
             return edge_or_vertex # interpret it as a vertex
         if len(edge_or_vertex) > 2:
             edge_or_vertex = edge_or_vertex[:2]
-        if edge_or_vertex in EdgeVertexSetSet._objtable.obj2int:
+        if edge_or_vertex in Universe.ev_objtable.obj2int:
             return edge_or_vertex
-        elif (edge_or_vertex[1], edge_or_vertex[0]) in EdgeVertexSetSet._objtable.obj2int:
+        elif (edge_or_vertex[1], edge_or_vertex[0]) in Universe.ev_objtable.obj2int:
             return (edge_or_vertex[1], edge_or_vertex[0])
         raise KeyError(edge_or_vertex)
 
@@ -1673,9 +1586,9 @@ class EdgeVertexSetSet(object):
     @staticmethod
     def _check_consistency(edgesvertices):
         for ev in edgesvertices:
-            if ev not in EdgeVertexSetSet._edge_vertex_kind:
+            if ev not in Universe.edge_vertex_kind:
                 raise KeyError("{} is not in the universe".format(ev))
-            if EdgeVertexSetSet._edge_vertex_kind[ev]: # ev is an edge
+            if Universe.edge_vertex_kind[ev]: # ev is an edge
                 for v in ev:
                     if v not in edgesvertices:
                         raise KeyError("{} is in the edge/vertex list but {} is not in it".format(ev, v))
@@ -1685,15 +1598,10 @@ class EdgeVertexSetSet(object):
         vertices = []
         edges = []
         for ev in edgesvertices:
-            if EdgeVertexSetSet._edge_vertex_kind[ev]: # ev is an edge
+            if Universe.edge_vertex_kind[ev]: # ev is an edge
                 edges.append(ev)
             else:
                 vertices.append(ev)
         vertices.sort()
         edges.sort()
         return edges + vertices
-
-    _weights = {}
-    _edge_vertex_kind = {} # key: vertex_or_edge, value: is_edge
-
-    _objtable = ObjectTable()

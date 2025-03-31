@@ -23,65 +23,6 @@
 from builtins import range
 import _graphillion
 
-"""
-ObjectTable class manages the universe of each class such as GraphSet and VertexSetSet.
-"""
-class ObjectTable:
-
-    # Objects such as edges and vertices are
-    # associated with integers 1,...,n.
-    # self.int2obj[0] is dummy.
-    # To obtain the set of objects,
-    # write "objtable.int2obj[1:]".
-    def __init__(self):
-        self.obj2int = {}
-        self.int2obj = [None]
-
-    def num_elems(self):
-        return len(self.int2obj) - 1
-
-    def check_universe(self):
-        for e, i in self.obj2int.items():
-            assert e == self.int2obj[i]
-        for i in range(1, len(self.int2obj)):
-            e = self.int2obj[i]
-            assert i == self.obj2int[e]
-
-    def universe(self):
-        return self.int2obj[1:]
-
-    def add_elem(self, elem):
-        assert elem not in self.obj2int
-        if len(self.obj2int) >= _graphillion._elem_limit():
-            m = 'too many elements are set, which must be {} or less'.format(_graphillion._elem_limit())
-            raise RuntimeError(m)
-        i = len(self.int2obj)
-        _graphillion.setset([set([i])])
-        self.obj2int[elem] = i
-        self.int2obj.append(elem)
-        assert self.int2obj[i] == elem
-        assert self.obj2int[elem] == i
-
-    def conv_elem(self, elem):
-        if elem not in self.obj2int:
-            self.add_elem(elem)
-        return self.obj2int[elem]
-
-    def conv_arg(self, obj):
-        if isinstance(obj, (set, frozenset)):  # a set
-            return set([self.conv_elem(e) for e in obj])
-        else:  # an element
-            return self.conv_elem(obj)
-
-    def conv_ret(self, obj):
-        if isinstance(obj, (set, frozenset)):  # a set
-            ret = set()
-            for e in obj:
-                ret.add(self.int2obj[e])
-            return ret
-        raise TypeError(obj)
-
-
 
 class setset_base(_graphillion.setset):
     """
@@ -198,9 +139,11 @@ class setset_base(_graphillion.setset):
     def _optimize(self, objtable, weights, default, generator):
         ws = [default] * (objtable.num_elems() + 1)
         if weights:
+            universe = objtable.universe()
             for e, w in weights.items():
-                i = objtable.obj2int[e]
-                ws[i] = w
+                if e in universe:
+                    i = objtable.obj2int[e]
+                    ws[i] = w
         i = generator(self, ws)
         while (True):
             try:
@@ -261,7 +204,6 @@ class setset_base(_graphillion.setset):
 
     @staticmethod
     def load(fp):
-
         return setset_base(None, _graphillion.load(fp))
 
     @staticmethod

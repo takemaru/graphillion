@@ -17,7 +17,7 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-from graphillion import GraphSet, setset, VertexSetSet
+from graphillion import GraphSet, VertexSetSet, Universe
 import tempfile
 import unittest
 
@@ -62,6 +62,8 @@ class TestVertexSetSet(unittest.TestCase):
         pass
 
     def test_init(self):
+        # Test the old universe class for backward compatibility.
+
         VertexSetSet.set_universe(["i", "ii"])
         self.assertEqual(VertexSetSet.universe(), ["i", "ii"])
 
@@ -71,11 +73,32 @@ class TestVertexSetSet(unittest.TestCase):
         VertexSetSet.set_universe([1, (3, 100), 2])
         self.assertEqual(VertexSetSet.universe(), [1, (3, 100), 2])
 
-        # currently, universe size larger than that of GraphSet is supported
-        #self.assertRaises(AssertionError,
-        #                  VertexSetSet.set_universe,
-        #                  ["i", "ii", "iii", "iv", "v", "vi", "vii", "viii", "ix"])
-        self.assertRaises(ValueError, VertexSetSet.set_universe, ["i", "i"])
+        VertexSetSet.set_universe(["i", "ii", "iii", "iv", "v", "vi", "vii", "viii", "ix"])
+        self.assertEqual(VertexSetSet.universe(), ["i", "ii", "iii", "iv", "v", "vi", "vii", "viii", "ix"])
+
+        # The new universe class
+
+        Universe.set_vertex_universe(["i", "ii"])
+        self.assertEqual(Universe.vertex_universe(), ["i", "ii"])
+
+        Universe.set_vertex_universe([1, 2, (3)])
+        self.assertEqual(Universe.vertex_universe(), [1, 2, 3])
+
+        Universe.set_vertex_universe([1, (3, 100), 2])
+        self.assertEqual(Universe.vertex_universe(), [1, (3, 100), 2])
+
+        Universe.set_vertex_universe(["i", "ii", "iii", "iv", "v", "vi", "vii", "viii", "ix"])
+        self.assertEqual(Universe.vertex_universe(), ["i", "ii", "iii", "iv", "v", "vi", "vii", "viii", "ix"])
+
+        Universe.set_universe([(1, 2), (1, 3), (1, 4), (2, 3), (2, 4), (3, 4)], traversal='as-is')
+        self.assertEqual(Universe.edge_universe(), [(1, 2), (1, 3), (1, 4), (2, 3), (2, 4), (3, 4)])
+        self.assertEqual(Universe.vertex_universe(), [1, 2, 3, 4])
+
+        Universe.set_universe([(1, 2), (2, 3), (3, 4), (4, 5), (5, 6), (6, 7)], traversal='as-is')
+        self.assertEqual(Universe.edge_universe(), [(1, 2), (2, 3), (3, 4), (4, 5), (5, 6), (6, 7)])
+        self.assertEqual(Universe.vertex_universe(), [1, 2, 3, 4, 5, 6, 7])
+
+        self.assertRaises(ValueError, Universe.set_vertex_universe, ["i", "i"])
 
     def test_constructors(self):
         vss = VertexSetSet()
@@ -665,7 +688,7 @@ class TestVertexSetSet(unittest.TestCase):
 
     def test_remove_some_vertex(self):
         GraphSet.set_universe([(1, 2), (1, 3), (1, 4), (2, 3), (2, 4)])
-        VertexSetSet.set_universe()
+        # VertexSetSet.set_universe()
 
         vss = VertexSetSet([])
         self.assertEqual(vss.remove_some_vertex(), VertexSetSet())
@@ -688,7 +711,7 @@ class TestVertexSetSet(unittest.TestCase):
 
     def test_add_some_vertex(self):
         GraphSet.set_universe([(1, 2), (1, 3), (1, 4), (2, 3), (2, 4)])
-        VertexSetSet.set_universe()
+        # VertexSetSet.set_universe()
 
         vss = VertexSetSet([])
         self.assertEqual(vss.add_some_vertex(), VertexSetSet())
@@ -714,7 +737,7 @@ class TestVertexSetSet(unittest.TestCase):
 
     def test_remove_add_some_vertices(self):
         GraphSet.set_universe([(1, 2), (1, 3), (1, 4), (2, 3), (2, 4)])
-        VertexSetSet.set_universe()
+        # VertexSetSet.set_universe()
 
         vss = VertexSetSet([])
         self.assertEqual(vss.remove_add_some_vertices(), VertexSetSet())
@@ -745,7 +768,7 @@ class TestVertexSetSet(unittest.TestCase):
         e4 = (2, 4)
         e5 = (2, 5)
         GraphSet.set_universe([e1, e2, e3, e4, e5], "as-is")
-        VertexSetSet.set_universe()
+        # VertexSetSet.set_universe()
         self.assertEqual(VertexSetSet.universe(), [1, 3, 4, 2, 5])
 
         vss1 = GraphSet([]).to_vertexsetset() # empty graphset

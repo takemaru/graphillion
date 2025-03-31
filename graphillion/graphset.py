@@ -23,13 +23,9 @@
 from functools import partial
 from builtins import range, int
 import _graphillion
-from graphillion import VertexSetSet
-from graphillion import EdgeVertexSetSet
-from graphillion.setset_base import ObjectTable
+from graphillion.universe import Universe
 from graphillion.setset_base import setset_base
 import pickle
-import heapq
-
 
 class GraphSet(object):
     """Represents and manipulates a set of graphs.
@@ -137,7 +133,7 @@ class GraphSet(object):
                 for k, l in obj.items():
                     d[k] = [GraphSet._conv_edge(e) for e in l]
                 obj = d
-            self._ss = setset_base(GraphSet._objtable, obj)
+            self._ss = setset_base(Universe.e_objtable, obj)
         methods = ['graphs', 'connected_components', 'cliques', 'bicliques',
                    'trees', 'forests', 'cycles', 'paths', 'matchings',
                    'perfect_matchings', 'k_matchings', 'b_matchings',
@@ -170,7 +166,7 @@ class GraphSet(object):
         return bool(self._ss)
 
     def __repr__(self):
-        return setset_base._repr(self._ss, GraphSet._objtable, (self.__class__.__name__ + '([', '])'))
+        return setset_base._repr(self._ss, Universe.e_objtable, (self.__class__.__name__ + '([', '])'))
 
     def union(self, *others):
         """Returns a new GraphSet with graphs from `self` and all others.
@@ -459,7 +455,7 @@ class GraphSet(object):
         Returns:
           A new GraphSet object.
         """
-        return GraphSet(self._ss._invert(GraphSet._objtable))
+        return GraphSet(self._ss._invert(Universe.e_objtable))
 
     __or__ = union
     __and__ = intersection
@@ -658,7 +654,7 @@ class GraphSet(object):
         See Also:
           rand_iter(), max_iter(), min_iter()
         """
-        for g in self._ss._iter(GraphSet._objtable):
+        for g in self._ss._iter(Universe.e_objtable):
             try:
                 yield GraphSet._conv_ret(g)
             except StopIteration:
@@ -688,7 +684,7 @@ class GraphSet(object):
         See Also:
           __iter__(), max_iter(), min_iter()
         """
-        for g in self._ss.rand_iter(GraphSet._objtable):
+        for g in self._ss.rand_iter(Universe.e_objtable):
             try:
                 yield GraphSet._conv_ret(g)
             except StopIteration:
@@ -728,8 +724,8 @@ class GraphSet(object):
 
         """
         if weights is None:
-            weights = GraphSet._weights
-        for g in self._ss.min_iter(GraphSet._objtable, weights):
+            weights = Universe.weights
+        for g in self._ss.min_iter(Universe.e_objtable, weights):
             try:
                 yield GraphSet._conv_ret(g)
             except StopIteration:
@@ -768,8 +764,8 @@ class GraphSet(object):
           __iter__(), rand_iter(), min_iter()
         """
         if weights is None:
-            weights = GraphSet._weights
-        for g in self._ss.max_iter(GraphSet._objtable, weights):
+            weights = Universe.weights
+        for g in self._ss.max_iter(Universe.e_objtable, weights):
             try:
                 yield GraphSet._conv_ret(g)
             except StopIteration:
@@ -809,10 +805,10 @@ class GraphSet(object):
         """
         type, obj = GraphSet._conv_arg(obj)
         if type == 'graph' or type == 'edge':
-            return self._ss._contains(GraphSet._objtable, obj)
+            return self._ss._contains(Universe.e_objtable, obj)
         elif type == 'vertex':
             #return len([e for e in obj if e in self._ss]) > 0
-            return len([e for e in obj if self._ss._contains(GraphSet._objtable, e)]) > 0
+            return len([e for e in obj if self._ss._contains(Universe.e_objtable, e)]) > 0
         raise TypeError(obj)
 
     def add(self, graph_or_edge):
@@ -847,7 +843,7 @@ class GraphSet(object):
         """
         type, obj = GraphSet._conv_arg(graph_or_edge)
         if type == 'graph' or type == 'edge':
-            self._ss.add(GraphSet._objtable, obj)
+            self._ss.add(Universe.e_objtable, obj)
         else:
             raise TypeError(graph_or_edge)
 
@@ -883,7 +879,7 @@ class GraphSet(object):
         """
         type, obj = GraphSet._conv_arg(obj)
         if type == 'graph' or type == 'edge':
-            self._ss.remove(GraphSet._objtable, obj)
+            self._ss.remove(Universe.e_objtable, obj)
         elif type == 'vertex':
             for edge in obj:
                 self.remove(edge)
@@ -923,7 +919,7 @@ class GraphSet(object):
         """
         type, obj = GraphSet._conv_arg(obj)
         if type == 'graph' or type == 'edge':
-            self._ss.discard(GraphSet._objtable, obj)
+            self._ss.discard(Universe.e_objtable, obj)
         elif type == 'vertex':
             for edge in obj:
                 self.discard(edge)
@@ -954,7 +950,7 @@ class GraphSet(object):
         See Also:
           remove(), discard(), choice()
         """
-        return GraphSet._conv_ret(self._ss.pop(GraphSet._objtable))
+        return GraphSet._conv_ret(self._ss.pop(Universe.e_objtable))
 
     def clear(self):
         """Removes all graphs from `self`.
@@ -998,7 +994,7 @@ class GraphSet(object):
         """
         type, obj = GraphSet._conv_arg(edge)
         if type == 'edge':
-            self._ss.flip(GraphSet._objtable, edge)
+            self._ss.flip(Universe.e_objtable, edge)
         else:
             raise TypeError(edge)
 
@@ -1082,7 +1078,7 @@ class GraphSet(object):
         See Also:
           minimal()
         """
-        return GraphSet(self._ss.hitting(GraphSet._objtable))
+        return GraphSet(self._ss.hitting(Universe.e_objtable))
 
     hitting = blocking
 
@@ -1177,7 +1173,7 @@ class GraphSet(object):
           A new GraphSet object.
         """
         ss = self._ss.copy()
-        ss.flip(GraphSet._objtable)
+        ss.flip(Universe.e_objtable)
         return GraphSet(ss)
 
     def join(self, other):
@@ -1278,7 +1274,7 @@ class GraphSet(object):
         See Also:
           subsets(), non_supersets()
         """
-        return GraphSet(self._ss.supersets(GraphSet._objtable, other._ss))
+        return GraphSet(self._ss.supersets(Universe.e_objtable, other._ss))
 
     def non_subgraphs(self, other):
         """Returns a new GraphSet with graphs that aren't subgraphs of any graph in `other`.
@@ -1334,7 +1330,7 @@ class GraphSet(object):
         See Also:
           non_subsets(), supersets()
         """
-        return GraphSet(self._ss.non_supersets(GraphSet._objtable, other._ss))
+        return GraphSet(self._ss.non_supersets(Universe.e_objtable, other._ss))
 
     def including(self, obj):
         """Returns a new GraphSet that includes supergraphs of `obj`.
@@ -1371,11 +1367,11 @@ class GraphSet(object):
         """
         type, obj = GraphSet._conv_arg(obj)
         if type == 'graphset':
-            return GraphSet(self._ss.supersets(GraphSet._objtable, obj._ss))
+            return GraphSet(self._ss.supersets(Universe.e_objtable, obj._ss))
         elif type == 'graph':
             return self.including(GraphSet([obj]))
         elif type == 'edge':
-            return GraphSet(self._ss.supersets(GraphSet._objtable, obj))
+            return GraphSet(self._ss.supersets(Universe.e_objtable, obj))
         else:
             return self.including(GraphSet([set([e]) for e in obj]))
 
@@ -1414,12 +1410,12 @@ class GraphSet(object):
         """
         type, obj = GraphSet._conv_arg(obj)
         if type == 'graphset':
-#            return GraphSet(self._ss.non_supersets(GraphSet._objtable, obj._ss))  # correct but slow
+#            return GraphSet(self._ss.non_supersets(Universe.e_objtable, obj._ss))  # correct but slow
             return self - self.including(obj)
         elif type == 'graph':
             return self.excluding(GraphSet([obj]))
         elif type == 'edge':
-            return GraphSet(self._ss.non_supersets(GraphSet._objtable, obj))
+            return GraphSet(self._ss.non_supersets(Universe.e_objtable, obj))
         else:
             return self.excluding(GraphSet([set([e]) for e in obj]))
 
@@ -1476,7 +1472,7 @@ class GraphSet(object):
         See Also:
           pop()
         """
-        return GraphSet._conv_ret(self._ss.choice(GraphSet._objtable))
+        return GraphSet._conv_ret(self._ss.choice(Universe.e_objtable))
 
     def probability(self, probabilities):
         """Returns the probability of `self` with edge `probabilities`.
@@ -1504,7 +1500,7 @@ class GraphSet(object):
           KeyError: If a given edge is not found in the universe.
         """
         probabilities = {GraphSet._conv_edge(e): p for e, p in probabilities.items()}
-        return self._ss.probability(GraphSet._objtable, probabilities)
+        return self._ss.probability(Universe.e_objtable, probabilities)
 
     def cost_le(self, costs, cost_bound):
         """Returns a new GraphSet with subgraphs whose cost is less than or equal to the cost bound.
@@ -1539,7 +1535,7 @@ class GraphSet(object):
           TypeError: If at least one cost is not integer.
 
         """
-        return GraphSet(self._ss.cost_le(objtable=GraphSet._objtable, costs=costs, cost_bound=cost_bound))
+        return GraphSet(self._ss.cost_le(objtable=Universe.e_objtable, costs=costs, cost_bound=cost_bound))
 
     def cost_ge(self, costs, cost_bound):
         """Returns a new GraphSet with subgraphs whose cost is greater than or equal to the cost bound.
@@ -1575,7 +1571,7 @@ class GraphSet(object):
 
         """
         inv_costs = {e: -cost for e, cost in costs.items()}
-        return GraphSet(self._ss.cost_le(objtable=GraphSet._objtable, costs=inv_costs, cost_bound=-cost_bound))
+        return GraphSet(self._ss.cost_le(objtable=Universe.e_objtable, costs=inv_costs, cost_bound=-cost_bound))
 
     def cost_eq(self, costs, cost_bound):
         """Returns a new GraphSet with subgraphs whose cost is equal to the cost bound.
@@ -1610,8 +1606,8 @@ class GraphSet(object):
           TypeError: If at least one cost is not integer.
 
         """
-        le_ss = self._ss.cost_le(objtable=GraphSet._objtable, costs=costs, cost_bound=cost_bound)
-        lt_ss = self._ss.cost_le(objtable=GraphSet._objtable, costs=costs, cost_bound=cost_bound - 1)
+        le_ss = self._ss.cost_le(objtable=Universe.e_objtable, costs=costs, cost_bound=cost_bound)
+        lt_ss = self._ss.cost_le(objtable=Universe.e_objtable, costs=costs, cost_bound=cost_bound - 1)
         return GraphSet(le_ss.difference(lt_ss))
 
     def remove_some_edge(self):
@@ -1648,7 +1644,7 @@ class GraphSet(object):
         Returns:
           A new GraphSet object.
         """
-        return GraphSet(self._ss.add_some_element(GraphSet._objtable))
+        return GraphSet(self._ss.add_some_element(Universe.e_objtable))
     
     def remove_add_some_edges(self):
         """Returns a new GraphSet with graphs that are obtained by removing some edge from a graph in `self` and adding another edge to the graph.
@@ -1666,7 +1662,7 @@ class GraphSet(object):
         Returns:
           A new GraphSet object.
         """
-        return GraphSet(self._ss.remove_add_some_elements(GraphSet._objtable))
+        return GraphSet(self._ss.remove_add_some_elements(Universe.e_objtable))
 
     def to_vertexsetset(self):
         """Returns a new VertexSetSet with vertices of each graph in `self`.
@@ -1690,7 +1686,8 @@ class GraphSet(object):
           A new VertexSetSet object.
 
         """
-        return VertexSetSet(self._ss.to_vertexsetset(GraphSet._objtable))
+        from graphillion import VertexSetSet
+        return VertexSetSet(self._ss.to_vertexsetset(Universe.e_objtable))
 
     def to_edgevertexsetset(self):
         """Returns a new EdgeVertexSetSet with edges and vertices of each graph in `self`.
@@ -1717,7 +1714,8 @@ class GraphSet(object):
           A new EdgeVertexSetSet object.
 
         """
-        return EdgeVertexSetSet(self._ss.to_edgevertexsetset(GraphSet._objtable))
+        from graphillion import EdgeVertexSetSet
+        return EdgeVertexSetSet(self._ss.to_edgevertexsetset(Universe.e_objtable))
 
     def dump(self, fp):
         """Serialize `self` to a file `fp`.
@@ -1802,6 +1800,8 @@ class GraphSet(object):
     def set_universe(universe, traversal='greedy', source=None):
         """Registers the new universe.
 
+        This method is obsolete.  Use `Universe.set_universe()` instead.
+
         Examples:
           >>> GraphSet.set_universe([(1, 2, 2.0), (1, 4, -3.0), (2, 3)])
 
@@ -1824,33 +1824,7 @@ class GraphSet(object):
         See Also:
           universe()
         """
-        if len(universe) == 0:
-            raise ValueError("The universe must not be empty.")
-        sorted_edges = []
-        indexed_edges = set()
-        GraphSet._vertices = set()
-        GraphSet._weights = {}
-        universe = GraphSet.converters['to_edges'](universe)
-        for e in universe:
-            if e[:2] in indexed_edges or (e[1], e[0]) in indexed_edges:
-                raise KeyError(e)
-            sorted_edges.append(e[:2])
-            indexed_edges.add(e[:2])
-            if len(e) > 2:
-                GraphSet._weights[e[:2]] = e[2]
-        if traversal != 'as-is':
-            if source is None:
-                source = sorted_edges[0][0]
-                for e in sorted_edges:
-                    source = min(e[0], e[1], source)
-            sorted_edges = GraphSet._traverse(indexed_edges, traversal, source)
-        for u, v in sorted_edges:
-            GraphSet._vertices.add(u)
-            GraphSet._vertices.add(v)
-        #setset.set_universe(sorted_edges)
-        GraphSet._objtable = ObjectTable()
-        for e in sorted_edges:
-            GraphSet._objtable.add_elem(e)
+        return Universe.set_universe(universe, traversal, source)
 
     @staticmethod
     def universe():
@@ -1858,6 +1832,8 @@ class GraphSet(object):
 
         The list of edges that represents the current universe is
         returned.
+
+        This method is obsolete.  Use `Universe.edge_universe()` instead.
 
         Examples:
           >>> GraphSet.universe()
@@ -1869,13 +1845,7 @@ class GraphSet(object):
         See Also:
           set_universe()
         """
-        edges = []
-        for e in GraphSet._objtable.universe():
-            if e in GraphSet._weights:
-                edges.append((e[0], e[1], GraphSet._weights[e]))
-            else:
-                edges.append(e)
-        return GraphSet.converters['to_graph'](edges)
+        return Universe.edge_universe()
 
     @staticmethod
     def graphs(vertex_groups=None, degree_constraints=None, num_edges=None,
@@ -1944,8 +1914,8 @@ class GraphSet(object):
 
         """
         graph = []
-        for e in GraphSet._objtable.universe():
-            assert e[0] in GraphSet._vertices and e[1] in GraphSet._vertices
+        for e in Universe.e_objtable.universe():
+            assert e[0] in Universe.vertices and e[1] in Universe.vertices
             graph.append((pickle.dumps(e[0], protocol=0), pickle.dumps(e[1], protocol=0)))
 
         vg = []
@@ -1956,7 +1926,7 @@ class GraphSet(object):
                     nc += 1
                 else:
                     for v in vs:
-                        if v not in GraphSet._vertices:
+                        if v not in Universe.vertices:
                             raise KeyError(v)
                     vg.append([pickle.dumps(v, protocol=0) for v in vs])
         if not vg and nc == 0:
@@ -1966,7 +1936,7 @@ class GraphSet(object):
         if degree_constraints is not None:
             dc = {}
             for v, r in degree_constraints.items():
-                if v not in GraphSet._vertices:
+                if v not in Universe.vertices:
                     raise KeyError(v)
                 if isinstance(r, int):
                     dc[pickle.dumps(v, protocol=0)] = (r, r + 1, 1)
@@ -2063,7 +2033,7 @@ class GraphSet(object):
           graphs()
         """
         dc = {}
-        for v in GraphSet._vertices:
+        for v in Universe.vertices:
             dc[v] = range(0, k, k - 1)
         ne = range(k * (k - 1) // 2, k * (k - 1) // 2 + 1)
         return GraphSet.graphs(vertex_groups=[[]], degree_constraints=dc,
@@ -2137,8 +2107,8 @@ class GraphSet(object):
         dc = None
         if is_spanning:
             dc = {}
-            for v in GraphSet._vertices:
-                dc[v] = range(1, len(GraphSet._vertices))
+            for v in Universe.vertices:
+                dc[v] = range(1, len(Universe.vertices))
         return GraphSet.graphs(vertex_groups=vg, degree_constraints=dc,
                                no_loop=True, graphset=graphset)
 
@@ -2175,9 +2145,9 @@ class GraphSet(object):
         dc = None
         if is_spanning:
             dc = {}
-            for v in GraphSet._vertices:
+            for v in Universe.vertices:
                 if v not in roots:
-                    dc[v] = range(1, len(GraphSet._vertices))
+                    dc[v] = range(1, len(Universe.vertices))
         return GraphSet.graphs(vertex_groups=vg, degree_constraints=dc,
                                no_loop=True, graphset=graphset)
 
@@ -2208,7 +2178,7 @@ class GraphSet(object):
           graphs()
         """
         dc = {}
-        for v in GraphSet._vertices:
+        for v in Universe.vertices:
             dc[v] = 2 if is_hamilton else range(0, 3, 2)
         return GraphSet.graphs(vertex_groups=[[]], degree_constraints=dc,
                                graphset=graphset)
@@ -2251,7 +2221,7 @@ class GraphSet(object):
               return gs
             else:
                 dc = {}
-                for v in GraphSet._vertices:
+                for v in Universe.vertices:
                     if v == terminal1:
                         dc[v] = 1
                     else:
@@ -2260,7 +2230,7 @@ class GraphSet(object):
                                       graphset=gs)
         else:
             dc = {}
-            for v in GraphSet._vertices:
+            for v in Universe.vertices:
                 if v in (terminal1, terminal2):
                     dc[v] = 1
                 else:
@@ -2318,7 +2288,7 @@ class GraphSet(object):
           graphs()
         """
         dc = {}
-        for v in GraphSet._vertices:
+        for v in Universe.vertices:
           dc[v] = 1
         return GraphSet.graphs(degree_constraints=dc, graphset=graphset)
 
@@ -2348,7 +2318,7 @@ class GraphSet(object):
           graphs()
         """
         dc = {}
-        for v in GraphSet._vertices:
+        for v in Universe.vertices:
           dc[v] = range(0, k + 1)
         return GraphSet.graphs(degree_constraints=dc, graphset=graphset)
 
@@ -2384,7 +2354,7 @@ class GraphSet(object):
           graphs()
         """
         dc = {}
-        for v in GraphSet._vertices:
+        for v in Universe.vertices:
             if v in b:
                 dc[v] = range(0, b[v] + 1)
             else:
@@ -2417,7 +2387,7 @@ class GraphSet(object):
           graphs()
         """
         dc = {}
-        for v in GraphSet._vertices:
+        for v in Universe.vertices:
           dc[v] = k
         return GraphSet.graphs(degree_constraints=dc, graphset=graphset)
 
@@ -2453,7 +2423,7 @@ class GraphSet(object):
           graphs()
         """
         dc = {}
-        for v in GraphSet._vertices:
+        for v in Universe.vertices:
             if v in f:
                 dc[v] = f[v]
             else:
@@ -2499,12 +2469,12 @@ class GraphSet(object):
         """
 
         graph = []
-        for e in GraphSet._objtable.universe():
-            assert e[0] in GraphSet._vertices and e[1] in GraphSet._vertices
+        for e in Universe.e_objtable.universe():
+            assert e[0] in Universe.vertices and e[1] in Universe.vertices
             graph.append((pickle.dumps(e[0], protocol=0), pickle.dumps(e[1], protocol=0)))
 
         if degree == None:
-            degree = (1, len(GraphSet._vertices))
+            degree = (1, len(Universe.vertices))
 
         ss = None if graphset is None else graphset._ss
 
@@ -2530,8 +2500,8 @@ class GraphSet(object):
           A new GraphSet object.
         """
         graph = []
-        for e in GraphSet._objtable.universe():
-            assert e[0] in GraphSet._vertices and e[1] in GraphSet._vertices
+        for e in Universe.e_objtable.universe():
+            assert e[0] in Universe.vertices and e[1] in Universe.vertices
             graph.append(
                 (pickle.dumps(e[0], protocol=0), pickle.dumps(e[1], protocol=0)))
 
@@ -2638,7 +2608,7 @@ class GraphSet(object):
           A new GraphSet object.
         """
         dc = {}
-        for v in GraphSet._vertices:
+        for v in Universe.vertices:
             dc[v] = range(0, 3, 2)
         return GraphSet.graphs(vertex_groups=[terminals], degree_constraints=dc,
                                graphset=graphset)
@@ -2692,8 +2662,8 @@ class GraphSet(object):
             A new GraphSet object.
         """
         graph = []
-        for e in GraphSet._objtable.universe():
-            assert e[0] in GraphSet._vertices and e[1] in GraphSet._vertices
+        for e in Universe.e_objtable.universe():
+            assert e[0] in Universe.vertices and e[1] in Universe.vertices
             graph.append(
                 (pickle.dumps(e[0], protocol=0), pickle.dumps(e[1], protocol=0)))
 
@@ -2735,8 +2705,8 @@ class GraphSet(object):
           A new GraphSet object.
         """
         graph = []
-        for e in GraphSet._objtable.universe():
-            assert e[0] in GraphSet._vertices and e[1] in GraphSet._vertices
+        for e in Universe.e_objtable.universe():
+            assert e[0] in Universe.vertices and e[1] in Universe.vertices
             graph.append(
               (pickle.dumps(e[0], protocol=0), pickle.dumps(e[1], protocol=0)))
 
@@ -2771,8 +2741,8 @@ class GraphSet(object):
           A new GraphSet object.
         """
         graph = []
-        for e in GraphSet._objtable.universe():
-            assert e[0] in GraphSet._vertices and e[1] in GraphSet._vertices
+        for e in Universe.e_objtable.universe():
+            assert e[0] in Universe.vertices and e[1] in Universe.vertices
             graph.append(
                 (pickle.dumps(e[0], protocol=0), pickle.dumps(e[1], protocol=0)))
 
@@ -2780,7 +2750,7 @@ class GraphSet(object):
         if weight_list is not None:
             wl = {}
             for v, r in weight_list.items():
-                if v not in GraphSet._vertices:
+                if v not in Universe.vertices:
                     raise KeyError(v)
                 wl[pickle.dumps(v, protocol=0)] = r
 
@@ -2801,8 +2771,8 @@ class GraphSet(object):
           A new GraphSet Object.
         """
         graph = []
-        for e in GraphSet._objtable.universe():
-            assert e[0] in GraphSet._vertices and e[1] in GraphSet._vertices
+        for e in Universe.e_objtable.universe():
+            assert e[0] in Universe.vertices and e[1] in Universe.vertices
             graph.append(
                 (pickle.dumps(e[0], protocol=0), pickle.dumps(e[1], protocol=0)))
 
@@ -2831,8 +2801,8 @@ class GraphSet(object):
           A new GraphSet Object.
         """
         graph = []
-        for e in GraphSet._objtable.universe():
-            assert e[0] in GraphSet._vertices and e[1] in GraphSet._vertices
+        for e in Universe.e_objtable.universe():
+            assert e[0] in Universe.vertices and e[1] in Universe.vertices
             graph.append(
                 (pickle.dumps(e[0], protocol=0), pickle.dumps(e[1], protocol=0)))
 
@@ -2840,7 +2810,7 @@ class GraphSet(object):
         if weight_list is not None:
             wl = {}
             for v, r in weight_list.items():
-                if v not in GraphSet._vertices:
+                if v not in Universe.vertices:
                     raise KeyError(v)
                 wl[pickle.dumps(v, protocol=0)] = r
 
@@ -2858,8 +2828,8 @@ class GraphSet(object):
             A new GraphSet object.
         """
         graph = []
-        for e in GraphSet._objtable.universe():
-            assert e[0] in GraphSet._vertices and e[1] in GraphSet._vertices
+        for e in Universe.e_objtable.universe():
+            assert e[0] in Universe.vertices and e[1] in Universe.vertices
             graph.append(
                 (pickle.dumps(e[0], protocol=0), pickle.dumps(e[1], protocol=0)))
 
@@ -2896,23 +2866,23 @@ class GraphSet(object):
           KeyError: If a given edge is not found in the universe.
         """
         graph = []
-        for e in GraphSet._objtable.universe():
-            assert e[0] in GraphSet._vertices and e[1] in GraphSet._vertices
+        for e in Universe.e_objtable.universe():
+            assert e[0] in Universe.vertices and e[1] in Universe.vertices
             graph.append(
                 (pickle.dumps(e[0], protocol=0), pickle.dumps(e[1], protocol=0)))
 
         terms = []
         if terminals is not None:
             for v in terminals:
-                if v not in GraphSet._vertices:
+                if v not in Universe.vertices:
                     raise KeyError(v)
                 terms.append(pickle.dumps(v, protocol=0))
 
         #ps = [1.0] * (_graphillion._num_elems())
-        ps = [1.0] * (GraphSet._objtable.num_elems())
+        ps = [1.0] * (Universe.e_objtable.num_elems())
         if probabilities is not None:
           for e, p in probabilities.items():
-              i = GraphSet._objtable.obj2int[e]
+              i = Universe.e_objtable.obj2int[e]
               ps[i - 1] = p
 
         reliability = _graphillion._reliability(
@@ -2973,80 +2943,6 @@ class GraphSet(object):
         return _graphillion._omp_get_num_procs()
 
     @staticmethod
-    def _traverse(indexed_edges, traversal, source):
-        neighbors = {}
-        for u, v in indexed_edges:
-            if u not in neighbors:
-                neighbors[u] = set([v])
-            else:
-                neighbors[u].add(v)
-            if v not in neighbors:
-                neighbors[v] = set([u])
-            else:
-                neighbors[v].add(u)
-        assert source in neighbors
-        vertices = set(neighbors.keys())
-
-        sorted_edges = []
-        visited_vertices = set()
-        u = source
-
-        if traversal == 'greedy':
-            degree = dict()
-            for v in vertices:
-                degree[v] = len(neighbors[v])
-
-            heap = []
-            while True:
-                visited_vertices.add(u)
-                for v in sorted(neighbors[u]):
-                    degree[v] -= 1
-                    if v in visited_vertices:
-                        degree[u] -= 1
-                        e = (u, v) if (u, v) in indexed_edges else (v, u)
-                        sorted_edges.append(e)
-                        if degree[v]:
-                            for w in sorted(neighbors[v]):
-                                if w not in visited_vertices:
-                                    heapq.heappush(heap, (degree[v], degree[w], w))
-                for v in sorted(neighbors[u]):
-                    if v not in visited_vertices:
-                         heapq.heappush(heap, (degree[u], degree[v], v))
-                if visited_vertices == vertices:
-                    break
-                while u in visited_vertices:
-                    if not heap:
-                        u = min(vertices - visited_vertices)
-                    else:
-                        u = heapq.heappop(heap)[2]
-            assert set(indexed_edges) == set(sorted_edges)
-            return sorted_edges
-        elif traversal == 'bfs' or traversal == 'dfs':
-            queue_or_stack = []
-            while True:
-                visited_vertices.add(u)
-                for v in sorted(neighbors[u]):
-                    if v in visited_vertices:
-                        e = (u, v) if (u, v) in indexed_edges else (v, u)
-                        sorted_edges.append(e)
-                new_vertices = neighbors[u] - visited_vertices - set(queue_or_stack)
-                queue_or_stack.extend(sorted(new_vertices))
-                if not queue_or_stack:
-                    if visited_vertices == vertices:
-                        break
-                    else:
-                        queue_or_stack.append(min(vertices - visited_vertices))
-                if traversal == 'bfs':
-                    u, queue_or_stack = queue_or_stack[0], queue_or_stack[1:]
-                else:
-                    queue_or_stack, u = queue_or_stack[:-1], queue_or_stack[-1]
-                assert u not in visited_vertices
-            assert set(indexed_edges) == set(sorted_edges)
-            return sorted_edges
-        else:
-            raise ValueError('invalid `traversal`: {}'.format(traversal))
-
-    @staticmethod
     def _conv_arg(obj):
         if isinstance(obj, GraphSet):
             return 'graphset', obj
@@ -3054,8 +2950,8 @@ class GraphSet(object):
             return 'graph', set([GraphSet._conv_edge(e) for e in obj])
         elif isinstance(obj, tuple):
             return 'edge', GraphSet._conv_edge(obj)
-        elif obj in GraphSet._vertices:
-            return 'vertex', [e for e in GraphSet._objtable.universe() if obj in e]
+        elif obj in Universe.vertices:
+            return 'vertex', [e for e in Universe.e_objtable.universe() if obj in e]
         try:
             edges = GraphSet.converters['to_edges'](obj)
             return 'graph', set([GraphSet._conv_edge(e) for e in edges])
@@ -3072,9 +2968,9 @@ class GraphSet(object):
             raise KeyError(edge)
         if len(edge) > 2:
             edge = edge[:2]
-        if edge in GraphSet._objtable.obj2int:
+        if edge in Universe.e_objtable.obj2int:
             return edge
-        elif (edge[1], edge[0]) in GraphSet._objtable.obj2int:
+        elif (edge[1], edge[0]) in Universe.e_objtable.obj2int:
             return (edge[1], edge[0])
         raise KeyError(edge)
 
@@ -3087,7 +2983,7 @@ class GraphSet(object):
     converters = { 'to_graph': lambda edges: edges,
                    'to_edges': lambda graph: graph }
 
-    _vertices = set()
-    _weights = {}
+    # _vertices = set()
+    # _weights = {}
 
-    _objtable = ObjectTable()
+    # _objtable = ObjectTable()

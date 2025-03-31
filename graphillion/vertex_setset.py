@@ -21,9 +21,11 @@
 """
 
 from collections import deque
+import sys
 
 import _graphillion
-from graphillion.setset_base import ObjectTable
+from graphillion.universe import ObjectTable
+from graphillion.universe import Universe
 from graphillion.setset_base import setset_base
 
 class VertexSetSet(object):
@@ -124,7 +126,7 @@ class VertexSetSet(object):
             elif isinstance(obj, (set, frozenset, list)): # a list of vertex lists
                 for vertices in obj:
                     for vertex in vertices:
-                        if vertex not in VertexSetSet._objtable.int2obj[1:]:
+                        if vertex not in Universe.v_objtable.int2obj[1:]:
                             raise KeyError("invalid vertex:", vertex)
 
                 l = []
@@ -137,12 +139,12 @@ class VertexSetSet(object):
                 for k, l in obj.items():
                     #d[k] = list(VertexSetSet._conv_vertices_to_objs(l))
                     for v in l:
-                        if v not in VertexSetSet._objtable.obj2int:
+                        if v not in Universe.v_objtable.obj2int:
                             raise KeyError("invalid vertex:", v)
                     d[k] = list(l)
                 if "exclude" not in d: d["exclude"] = []
                 obj = d
-            self._ss = setset_base(VertexSetSet._objtable, obj)
+            self._ss = setset_base(Universe.v_objtable, obj)
 
     def copy(self):
         """Returns a new VertexSetSet with a shallow copy of `self`.
@@ -166,7 +168,7 @@ class VertexSetSet(object):
 
     def __repr__(self):
         return setset_base._repr(self._ss,
-                            VertexSetSet._objtable,
+                            Universe.v_objtable,
                             (self.__class__.__name__ + "([", "])"),
                             ("[", "]"))
                             #,
@@ -460,7 +462,7 @@ class VertexSetSet(object):
           A new VertexSetSet object.
         """
         #invert_ss = ~self._ss
-        invert_ss = self._ss._invert(VertexSetSet._objtable)
+        invert_ss = self._ss._invert(Universe.v_objtable)
         #for obj in setset._int2obj[VertexSetSet._vertex_num + 1:]:
         #    invert_ss = invert_ss.non_supersets(obj)
         return VertexSetSet(invert_ss)
@@ -663,7 +665,7 @@ class VertexSetSet(object):
           rand_iter(), max_iter(), min_iter()
         """
         #for objs in self._ss.__iter__():
-        for objs in self._ss._iter(VertexSetSet._objtable):
+        for objs in self._ss._iter(Universe.v_objtable):
             try:
                 #yield VertexSetSet._sort_vertices(VertexSetSet._conv_objs_to_vertices(objs))
                 yield VertexSetSet._sort_vertices(objs)
@@ -695,7 +697,7 @@ class VertexSetSet(object):
         See Also:
           __iter__(), max_iter(), min_iter()
         """
-        for objs in self._ss.rand_iter(VertexSetSet._objtable):
+        for objs in self._ss.rand_iter(Universe.v_objtable):
             try:
                 #yield VertexSetSet._sort_vertices(VertexSetSet._conv_objs_to_vertices(objs))
                 yield VertexSetSet._sort_vertices(objs)
@@ -739,10 +741,10 @@ class VertexSetSet(object):
         """
         if weights is None:
             #weights = VertexSetSet._obj2weight
-            weights = VertexSetSet._vertex2weight
+            weights = Universe.weights
         #else:
         #    weights = {VertexSetSet._vertex2obj[vertex]: weight for vertex, weight in weights.items()}
-        for objs in self._ss.min_iter(VertexSetSet._objtable, weights):
+        for objs in self._ss.min_iter(Universe.v_objtable, weights):
             try:
                 #yield VertexSetSet._sort_vertices(VertexSetSet._conv_objs_to_vertices(objs))
                 yield VertexSetSet._sort_vertices(objs)
@@ -783,10 +785,10 @@ class VertexSetSet(object):
         """
         if weights is None:
             #weights = VertexSetSet._obj2weight
-            weights = VertexSetSet._vertex2weight
+            weights = Universe.weights
         #else:
         #    weights = {VertexSetSet._vertex2obj[vertex]: weight for vertex, weight in weights.items()}
-        for objs in self._ss.max_iter(VertexSetSet._objtable, weights):
+        for objs in self._ss.max_iter(Universe.v_objtable, weights):
             try:
                 #yield VertexSetSet._sort_vertices(VertexSetSet._conv_objs_to_vertices(objs))
                 yield VertexSetSet._sort_vertices(objs)
@@ -818,7 +820,7 @@ class VertexSetSet(object):
         type, obj = VertexSetSet._conv_arg(obj)
         if type == "vertex" or type == "vertices":
             #return obj in self._ss
-            return self._ss._contains(VertexSetSet._objtable, obj)
+            return self._ss._contains(Universe.v_objtable, obj)
         raise TypeError(obj)
 
     def add(self, vertices_or_vertex):
@@ -853,7 +855,7 @@ class VertexSetSet(object):
         """
         type, obj = VertexSetSet._conv_arg(vertices_or_vertex)
         if type == "vertices" or type == "vertex":
-            self._ss.add(VertexSetSet._objtable, obj)
+            self._ss.add(Universe.v_objtable, obj)
         else:
             raise TypeError(obj)
 
@@ -889,7 +891,7 @@ class VertexSetSet(object):
         """
         type, obj = VertexSetSet._conv_arg(obj)
         if type == "vertices" or type == "vertex":
-            self._ss.remove(VertexSetSet._objtable, obj)
+            self._ss.remove(Universe.v_objtable, obj)
         else:
             raise TypeError(obj)
 
@@ -924,7 +926,7 @@ class VertexSetSet(object):
         """
         type, obj = VertexSetSet._conv_arg(obj)
         if type == "vertices" or type == "vertex":
-            self._ss.discard(VertexSetSet._objtable, obj)
+            self._ss.discard(Universe.v_objtable, obj)
         else:
             raise TypeError(obj)
 
@@ -951,8 +953,8 @@ class VertexSetSet(object):
         See Also:
           remove(), discard(), choice()
         """
-        #return VertexSetSet._conv_objs_to_vertices(self._ss.pop(VertexSetSet._objtable))
-        return self._ss.pop(VertexSetSet._objtable)
+        #return VertexSetSet._conv_objs_to_vertices(self._ss.pop(Universe.v_objtable))
+        return self._ss.pop(Universe.v_objtable)
 
     def clear(self):
         """Removes all vertex sets from `self`.
@@ -996,7 +998,7 @@ class VertexSetSet(object):
         """
         type, obj = VertexSetSet._conv_arg(vertex)
         if type == "vertex":
-            self._ss.flip(VertexSetSet._objtable, obj)
+            self._ss.flip(Universe.v_objtable, obj)
         else:
             raise TypeError(vertex)
 
@@ -1080,7 +1082,7 @@ class VertexSetSet(object):
         See Also:
           minimal()
         """
-        h = self._ss.hitting(VertexSetSet._objtable)
+        h = self._ss.hitting(Universe.v_objtable)
         #for obj in setset._int2obj[VertexSetSet._vertex_num + 1:]:
         #    h = h.non_supersets(setset([[obj]]))
         return VertexSetSet(h)
@@ -1180,7 +1182,7 @@ class VertexSetSet(object):
         ss = self._ss.copy()
         #for obj in VertexSetSet._obj2vertex:
         #    ss.flip(obj)
-        ss.flip(VertexSetSet._objtable)
+        ss.flip(Universe.v_objtable)
         return VertexSetSet(ss)
 
     def join(self, other):
@@ -1281,7 +1283,7 @@ class VertexSetSet(object):
         See Also:
           subsets(), non_supersets()
         """
-        return VertexSetSet(self._ss.supersets(VertexSetSet._objtable, other._ss))
+        return VertexSetSet(self._ss.supersets(Universe.v_objtable, other._ss))
 
     def non_subgraphs(self, other):
         """Returns a new VertexSetSet with vertex sets that aren't subsets of any graph in `other`.
@@ -1337,7 +1339,7 @@ class VertexSetSet(object):
         See Also:
           non_subsets(), supersets()
         """
-        return VertexSetSet(self._ss.non_supersets(VertexSetSet._objtable, other._ss))
+        return VertexSetSet(self._ss.non_supersets(Universe.v_objtable, other._ss))
 
     def including(self, obj):
         """Returns a new VertexSetSet that includes supersets of `obj`.
@@ -1372,7 +1374,7 @@ class VertexSetSet(object):
         """
         type, obj = VertexSetSet._conv_arg(obj)
         if type == "vertexsetset":
-            return VertexSetSet(self._ss.supersets(VertexSetSet._objtable, obj._ss))
+            return VertexSetSet(self._ss.supersets(Universe.v_objtable, obj._ss))
         elif type == "vertices":
             # originally the argument "obj" is a list of vertices,
             # and VertexSetSet._conv_arg(obj) converts it to a list of
@@ -1382,7 +1384,7 @@ class VertexSetSet(object):
             #obj = VertexSetSet._conv_objs_to_vertices(obj)
             return self.including(VertexSetSet([obj]))
         elif type == "vertex":
-            return VertexSetSet(self._ss.supersets(VertexSetSet._objtable, obj))
+            return VertexSetSet(self._ss.supersets(Universe.v_objtable, obj))
         else:
             return self.including(VertexSetSet([set([e]) for e in obj]))
 
@@ -1425,7 +1427,7 @@ class VertexSetSet(object):
             #obj = VertexSetSet._conv_objs_to_vertices(obj)
             return self.excluding(VertexSetSet([obj]))
         elif type == "vertex":
-            return VertexSetSet(self._ss.non_supersets(VertexSetSet._objtable, obj))
+            return VertexSetSet(self._ss.non_supersets(Universe.v_objtable, obj))
         else:
             return self.excluding(VertexSetSet([set([e]) for e in obj]))
 
@@ -1485,7 +1487,7 @@ class VertexSetSet(object):
           pop()
         """
         #return VertexSetSet._conv_objs_to_vertices(self._ss.choice())
-        return self._ss.choice(VertexSetSet._objtable)
+        return self._ss.choice(Universe.v_objtable)
 
     def probability(self, probabilities):
         """Returns the probability of `self` with vertex `probabilities`.
@@ -1514,7 +1516,7 @@ class VertexSetSet(object):
         #probabilities = {VertexSetSet._vertex2obj[v]: p for v, p in probabilities.items()}
         #for obj in setset._int2obj[VertexSetSet._vertex_num + 1:]:
         #    probabilities[obj] = 0
-        return self._ss.probability(VertexSetSet._objtable, probabilities)
+        return self._ss.probability(Universe.v_objtable, probabilities)
 
     def dump(self, fp):
         """Serialize `self` to a file `fp`.
@@ -1587,7 +1589,7 @@ class VertexSetSet(object):
         #costs = {VertexSetSet._vertex2obj[v]: c for v, c in costs.items()}
         #for obj in setset._int2obj[VertexSetSet._vertex_num + 1:]:
         #    costs[obj] = 0
-        le = self._ss.cost_le(VertexSetSet._objtable, costs, cost_bound)
+        le = self._ss.cost_le(Universe.v_objtable, costs, cost_bound)
         #for obj in setset._int2obj[VertexSetSet._vertex_num + 1:]:
         #    le = le.non_supersets(setset([[obj]]))
         return VertexSetSet(le)
@@ -1695,7 +1697,7 @@ class VertexSetSet(object):
         Returns:
           A new VertexSetSet object.
         """
-        return VertexSetSet(self._ss.add_some_element(VertexSetSet._objtable))
+        return VertexSetSet(self._ss.add_some_element(Universe.v_objtable))
 
     def remove_add_some_vertices(self):
         """Returns a new VertexSetSet with vertex sets that are obtained by removing some vertex from a vertex set in `self` and adding another vertex to the vertex set.
@@ -1714,7 +1716,7 @@ class VertexSetSet(object):
         Returns:
           A new VertexSetSet object.
         """
-        return VertexSetSet(self._ss.remove_add_some_elements(VertexSetSet._objtable))
+        return VertexSetSet(self._ss.remove_add_some_elements(Universe.v_objtable))
 
     @staticmethod
     def load(fp):
@@ -1765,9 +1767,11 @@ class VertexSetSet(object):
         return VertexSetSet(setset_base.loads(fp))
 
     @staticmethod
-    # TODO: Add optional arguments "traversal" and "source" as in GraphSet class
     def set_universe(universe=None):
         """Registers the new universe.
+
+        This method is obsolete.  In almost all cases, you need not
+        call VertexSetSet.set_universe() anymore.
 
         Examples:
           >>> # This example sets the universe as a vertex set {1, 2, 3},
@@ -1784,56 +1788,12 @@ class VertexSetSet(object):
         See Also:
           universe()
         """
-        #from graphillion import GraphSet
-        #universe_edges = GraphSet.universe()
-        #assert universe_edges != None and len(universe_edges) > 0, \
-        #        "GraphSet.set_universe must be called."
-
         if universe is None: # adopt the vertex set of GraphSet's underlying graph
-            from graphillion import GraphSet
-            universe = [eval(v) for v in setset_base.get_vertices_from_top(GraphSet._objtable)]
-            #assert len(universe) <= len(universe_edges), \
-            #      "The number of edges of the universe graph must be " \
-            #      + "larger than or equal to the number of vertices " \
-            #      + "of the universe graph."
-        #else:
-        #    assert len(universe) <= len(universe_edges), \
-        #          "The size of universe must be " \
-        #          + "smaller than or equal to the number of edges " \
-        #          + "of the universe graph."
-
-        vertex_num = len(universe)
-        if vertex_num != len(set(universe)):
-            raise ValueError("duplicated elements found")
-
-        #VertexSetSet._universe_vertices = []
-        #VertexSetSet._vertex2id = {}
-        #VertexSetSet._vertex2obj = {}
-        #VertexSetSet._obj2vertex = {}
-        #VertexSetSet._obj2str = {}
-        #VertexSetSet._obj2weight = {}
-        #low_level_objs = setset._int2obj[1: vertex_num + 1]
-        VertexSetSet._objtable = ObjectTable()
-        VertexSetSet._vertex2weight = {}
-
-        for i, vertex in enumerate(universe):
-            if isinstance(vertex, tuple):
-                if len(vertex) == 2:
-                    vertex, weight = vertex
-                    #VertexSetSet._obj2weight[low_level_objs[i]] = weight
-                    VertexSetSet._vertex2weight[vertex] = weight
-                elif len(vertex) == 1:
-                    vertex = vertex[0]
-                    
-                else:
-                    raise TypeError(vertex)
-            VertexSetSet._objtable.add_elem(vertex)
-            #VertexSetSet._universe_vertices.append(vertex)
-            #VertexSetSet._vertex2id[vertex] = i
-            #VertexSetSet._vertex2obj[vertex] = low_level_objs[i]
-            #VertexSetSet._obj2vertex[low_level_objs[i]] = vertex
-            #VertexSetSet._obj2str[low_level_objs[i]] = repr(vertex)
-        #VertexSetSet._vertex_num = len(VertexSetSet._universe_vertices)
+            print('In graphillion 2.0+, you should not call this method. '
+            'The vertex universe is automatically set when the universe '
+            'of edges is set using the set_universe method.', file = sys.stderr)
+            exit(1)
+        Universe.set_vertex_universe(universe)
 
     @staticmethod
     def universe():
@@ -1841,6 +1801,8 @@ class VertexSetSet(object):
 
         The list of vertices that represents the current universe is
         returned.
+
+        This method is obsolute.  Use `Universe.vertex_universe()` instead.
 
         Examples:
           >>> VertexSetSet.universe()
@@ -1852,15 +1814,7 @@ class VertexSetSet(object):
         See Also:
           set_universe()
         """
-        vertices = []
-        for v in VertexSetSet._objtable.int2obj[1:]:
-            #obj = VertexSetSet._vertex2obj[v]
-            #if obj in VertexSetSet._obj2weight:
-            if v in VertexSetSet._vertex2weight:
-                vertices.append((v, VertexSetSet._vertex2weight[v]))
-            else:
-                vertices.append(v)
-        return vertices
+        return Universe.vertex_universe()
 
     @staticmethod
     def independent_sets(edges, distance=1):
@@ -1886,19 +1840,19 @@ class VertexSetSet(object):
         for edge in edges:
             if len(edge) != 2:
                 raise ValueError(f"invalid edge format: {edge}")
-            if edge[0] not in VertexSetSet._objtable.int2obj[1:] \
-               or edge[1] not in VertexSetSet._objtable.int2obj[1:]:
+            if edge[0] not in Universe.v_objtable.int2obj[1:] \
+               or edge[1] not in Universe.v_objtable.int2obj[1:]:
                 raise ValueError(f"invalid vertex in edge {edge}")
 
-        underlying_graph = {v: [] for v in VertexSetSet._objtable.int2obj[1:]}
+        underlying_graph = {v: [] for v in Universe.v_objtable.int2obj[1:]}
         for u, v in edges:
             underlying_graph[u].append(v)
             underlying_graph[v].append(u)
 
         if distance > 1:
-            vertices_within_k = {v: [] for v in VertexSetSet._objtable.int2obj[1:]}
-            for v in VertexSetSet._objtable.int2obj[1:]:
-                dist = {v: -1 for v in VertexSetSet._objtable.int2obj[1:]}
+            vertices_within_k = {v: [] for v in Universe.v_objtable.int2obj[1:]}
+            for v in Universe.v_objtable.int2obj[1:]:
+                dist = {v: -1 for v in Universe.v_objtable.int2obj[1:]}
                 dist[v] = 0
                 qu = deque()
                 for adj in underlying_graph[v]:
@@ -1917,7 +1871,7 @@ class VertexSetSet(object):
 
         p = VertexSetSet({})
         f = p.copy()
-        for v in VertexSetSet._objtable.int2obj[1:]:
+        for v in Universe.v_objtable.int2obj[1:]:
             for u in underlying_graph[v]:
                 assert v != u
                 if hash(v) > hash(u): continue
@@ -1951,19 +1905,19 @@ class VertexSetSet(object):
         for edge in edges:
             if len(edge) != 2:
                 raise ValueError(f"invalid edge format: {edge}")
-            if edge[0] not in VertexSetSet._objtable.int2obj[1:] \
-               or edge[1] not in VertexSetSet._objtable.int2obj[1:]:
+            if edge[0] not in Universe.v_objtable.int2obj[1:] \
+               or edge[1] not in Universe.v_objtable.int2obj[1:]:
                 raise ValueError(f"invalid vertex in edge {edge}")
 
-        underlying_graph = {v: [] for v in VertexSetSet._objtable.int2obj[1:]}
+        underlying_graph = {v: [] for v in Universe.v_objtable.int2obj[1:]}
         for u, v in edges:
             underlying_graph[u].append(v)
             underlying_graph[v].append(u)
 
         if distance > 1:
-            vertices_within_k = {v: [] for v in VertexSetSet._objtable.int2obj[1:]}
-            for v in VertexSetSet._objtable.int2obj[1:]:
-                dist = {v: -1 for v in VertexSetSet._objtable.int2obj[1:]}
+            vertices_within_k = {v: [] for v in Universe.v_objtable.int2obj[1:]}
+            for v in Universe.v_objtable.int2obj[1:]:
+                dist = {v: -1 for v in Universe.v_objtable.int2obj[1:]}
                 dist[v] = 0
                 qu = deque()
                 for adj in underlying_graph[v]:
@@ -1982,7 +1936,7 @@ class VertexSetSet(object):
 
         p = VertexSetSet({})
         f = p.copy()
-        for v in VertexSetSet._objtable.int2obj[1:]:
+        for v in Universe.v_objtable.int2obj[1:]:
             g = p.supergraphs(VertexSetSet([[v]]))
             for adj in underlying_graph[v]:
                 g |= p.supergraphs(VertexSetSet([[adj]]))
@@ -2013,8 +1967,8 @@ class VertexSetSet(object):
         for edge in edges:
             if len(edge) != 2:
                 raise ValueError(f"invalid edge format: {edge}")
-            if edge[0] not in VertexSetSet._objtable.int2obj[1:] \
-               or edge[1] not in VertexSetSet._objtable.int2obj[1:]:
+            if edge[0] not in Universe.v_objtable.int2obj[1:] \
+               or edge[1] not in Universe.v_objtable.int2obj[1:]:
                 raise ValueError(f"invalid vertex in edge {edge}")
 
         return VertexSetSet.independent_sets(edges).complement()
@@ -2042,14 +1996,14 @@ class VertexSetSet(object):
         for edge in edges:
             if len(edge) != 2:
                 raise ValueError(f"invalid edge format: {edge}")
-            if edge[0] not in VertexSetSet._objtable.int2obj[1:] \
-               or edge[1] not in VertexSetSet._objtable.int2obj[1:]:
+            if edge[0] not in Universe.v_objtable.int2obj[1:] \
+               or edge[1] not in Universe.v_objtable.int2obj[1:]:
                 raise ValueError(f"invalid vertex in edge {edge}")
 
         edges = set(edges)
         complement_edges = []
-        for u in VertexSetSet._objtable.int2obj[1:]:
-            for v in VertexSetSet._objtable.int2obj[1:]:
+        for u in Universe.v_objtable.int2obj[1:]:
+            for v in Universe.v_objtable.int2obj[1:]:
                 if u != v and (u, v) not in edges and (v, u) not in edges:
                     complement_edges.append((u, v))
 
@@ -2085,11 +2039,11 @@ class VertexSetSet(object):
         elif isinstance(obj, (set, frozenset, list)):
             #return "vertices", VertexSetSet._conv_vertices_to_objs(obj)
             for e in obj:
-                if e not in VertexSetSet._objtable.obj2int:
+                if e not in Universe.v_objtable.obj2int:
                     raise KeyError(e)
             return "vertices", set(obj)
         #elif obj in VertexSetSet._vertex2obj:
-        elif obj in VertexSetSet._objtable.obj2int:
+        elif obj in Universe.v_objtable.obj2int:
             #return "vertex", VertexSetSet._vertex2obj[obj]
             return "vertex", obj
         raise KeyError(obj)
@@ -2097,7 +2051,7 @@ class VertexSetSet(object):
     @staticmethod
     def _sort_vertices(obj):
         #return (sorted(list(obj), key=lambda x : VertexSetSet._vertex2id[x]))
-        return (sorted(list(obj), key=lambda x : VertexSetSet._objtable.obj2int[x]))
+        return (sorted(list(obj), key=lambda x : Universe.v_objtable.obj2int[x]))
 
     #_universe_vertices = [] # TODO: consider that is should be a list or set.
     #_vertex2id = {}
@@ -2107,5 +2061,5 @@ class VertexSetSet(object):
     #_obj2weight = {}
     #_vertex_num = 0
 
-    _objtable = ObjectTable()
+    # _objtable = ObjectTable()
     _vertex2weight = {}
