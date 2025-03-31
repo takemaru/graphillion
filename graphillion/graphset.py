@@ -2987,3 +2987,5 @@ class GraphSet(object):
     # _weights = {}
 
     # _objtable = ObjectTable()
+
+EdgeSetSet = GraphSet
