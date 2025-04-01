@@ -27,7 +27,7 @@ News
   - Python 2 is not supported any more.
   - `pyproject.toml` is introduced.
   - In accordance with PyPI's conventions, the package name has been changed to lowercase as 'graphillion'.
-  - See the [graphillion 2.0 manual](doc/graphillion2_0.md) for detail.
+  - See the [graphillion 2.0 manual](doc/graphillion2_0.md) and [change history](doc/history.md) for detail.
 
 - Graphillion version 1.0 is released with long-awaited features:
   - Python 3 is supported (Python 2 is as well),

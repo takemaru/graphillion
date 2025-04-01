@@ -1,5 +1,105 @@
 # History
 
+# Key Changes from Version 0.99 to 2.0 in Graphillion Software
+
+- **New Classes Added**
+  - VertexSetSet class for handling sets of vertex sets
+  - DiGraphSet class (merged from DiGraphillion) for handling sets of directed graphs
+  - EdgeVertexSetSet class for handling sets of subgraphs represented by both edges and vertices
+
+- **VertexSetSet Class for Handling Sets of Vertex Sets**
+  - Implements standard set operations: union, intersection, difference, symmetric difference, quotient, remainder, complement, join, meet
+  - Implements graph-specific operations: subgraphs, supergraphs, non_subgraphs, non_supergraphs
+  - Provides methods to add, remove, or discard vertices or vertex sets
+  - Implements flip operation to toggle vertex presence
+  - Provides including/excluding operations to filter sets containing/not containing specific vertices
+  - Compares sets with equality, subset, superset, and disjoint checks
+  - Filters by size with smaller(), larger(), graph_size(), len() methods
+  - Supports saving/loading sets to/from files or strings with dump/load and dumps/loads
+  - Provides various iterators: standard, random, min-cost, and max-cost
+  - Provides minimal() and maximal() operations to find extremal sets
+  - Implements cost_le(), cost_ge(), and cost_eq() to filter by vertex costs
+  - Supports weighted vertex operations
+  - Provides remove_some_vertex(), add_some_vertex(), remove_add_some_vertices() to return sets with vertices removed, added, or both
+  - Computes sets of independent_sets(), dominating_sets(), vertex_covers(), cliques() in a graph
+  - Converts between GraphSet and VertexSetSet using to_vertexsetset()
+
+- **DiGraphSet Class for Handling Sets of Directed Graphs (Merged from DiGraphillion)**
+  - Supports many set operations similar to GraphSet and VertexSetSet
+  - Returns sets of directed_cycles() in a graph
+  - Returns sets of directed_hamiltonian_cycles() in a graph
+  - Returns sets of directed_st_paths() from source s to target t
+  - Returns sets of rooted_forests() (possibly with specified roots)
+  - Returns sets of rooted_trees() with a specified root node
+  - Returns sets of rooted_spanning_forests() with specified root nodes
+  - Returns sets of rooted_spanning_trees() with a specified root node
+
+- **EdgeVertexSetSet Class for Handling Sets of Subgraphs Represented by Both Edges and Vertices**
+  - Supports many set operations similar to GraphSet and VertexSetSet
+  - Converts between GraphSet and EdgeVertexSetSet using to_edgevertexsetset()
+
+- **Improved Universe Management**
+  - Integrated universe management for GraphSet, VertexSetSet, and EdgeVertexSetSet into the Universe class
+  - Modified so that calling VertexSetSet.set_universe() is no longer necessary
+
+- **Enhanced Graph Creation Methods**
+  - bicliques
+  - matchings, perfect_matchings, k_matchings, b_matchings
+  - k_factors, f_factors
+  - regular_graphs, regular_bipartite_graphs
+  - steiner_subgraphs, steiner_trees, steiner_cycles, steiner_paths
+  - degree_distribution_graphs
+  - letter_P_graphs
+  - induced_graphs, weighted_induced_graphs
+  - chordal_graphs, bipartite_graphs
+  - partitions, balanced_partitions
+  - Claw graphs and claw-free graphs
+  - Diamond graphs and diamond-free graphs
+  - Gem graphs and gem-free graphs
+  - Odd hole graphs and odd-hole-free graphs
+  - Cographs
+  - Chordal bipartite graphs
+  - Split graphs
+  - Block graphs
+  - Ptolemaic graphs
+  - Threshold graphs
+  - Gridline graphs
+  - Domino graphs
+  - Linear domino graphs
+
+- **Enhanced Graph Operations**
+  - Added cost-based filtering methods:
+    - cost_le(): Returns graphs with total edge costs less than or equal to a bound
+    - cost_ge(): Returns graphs with total edge costs greater than or equal to a bound
+    - cost_eq(): Returns graphs with total edge costs equal to a bound
+  - Added graph modification methods:
+    - remove_some_edge(): Returns sets of graphs with one edge removed
+    - add_some_edge(): Returns sets of graphs with one edge added
+    - remove_add_some_edges(): Returns sets of graphs with one edge removed and another added
+  - Added reliability() method for network reliability calculation
+
+- **Python Language Support Changes**
+  - Added support for Python 3
+  - Ended support for Python 2.7
+  - Modified error raising syntax to use exception classes instead of string errors
+
+- **Performance Improvements**
+  - Improved edge traversal with a new 'greedy' algorithm
+  - Enhanced serialization/deserialization with proper pickle protocol
+  - Added OpenMP parallelization support for graph generation methods
+
+- **Bug Fixes and Maintenance**
+  - Fixed bugs in multithreaded environments
+  - Distinguished GraphSet from setset class (both can now be used independently)
+  - Fixed conversion issues between graphset and string representations
+  - Improved exception handling for StopIteration in iterator methods
+  - Added support for NetworkX 2.0
+  - Changed package name to lowercase following PyPI conventions
+  - Added pyproject.toml for Python packaging
+
+
+# Change detail
+
 ## Version 2.0 (Mar 31, 2025)
 
 - Added DiGraphSet class (Merged from [DiGraphillion](https://github.com/ComputerAlgorithmsGroupAtKyotoU/digraphillion))
