@@ -319,19 +319,19 @@ class Universe:
         visited_vertices = set()
         edges_vertices = []
         Universe.edge_vertex_kind = {}
-        for e in reversed(universe):
+        for e in reversed(list(universe)):
             for v in [e[1], e[0]]:
                 if v not in visited_vertices:
                     visited_vertices.add(v)
                     edges_vertices.append(v)
                     Universe.edge_vertex_kind[v] = False
             # check if a vertex such as "(a, b)" exists
-            if e in visited_vertices:
-                KeyError("{} cannot be a vertex".format(e))
-            else:
-                edges_vertices.append(e[:2])
-                Universe.edge_vertex_kind[e[:2]] = True
-                Universe.edge_vertex_kind[(e[1], e[0])] = True
+            #if e in visited_vertices:
+            #    KeyError("{} cannot be a vertex".format(e))
+            #else:
+            edges_vertices.append(e[:2])
+            Universe.edge_vertex_kind[e[:2]] = True
+            Universe.edge_vertex_kind[(e[1], e[0])] = True
 
         edges_vertices.reverse()
 
