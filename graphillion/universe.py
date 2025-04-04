@@ -239,7 +239,7 @@ class Universe:
 
         from graphillion.setset_base import setset_base
         vertex_universe = [eval(v) for v in setset_base.get_vertices_from_top(Universe.e_objtable)]
-        Universe.set_vertex_universe(vertex_universe, weights)
+        Universe.set_vertex_universe(vertex_universe, weights, tuple_vertex=True)
 
         Universe._set_ev_universe(universe)
 
@@ -249,7 +249,7 @@ class Universe:
             Universe.isolated_vertices = isolated.copy()
 
     @staticmethod
-    def set_vertex_universe(universe, weights=None):
+    def set_vertex_universe(universe, weights=None, tuple_vertex=False):
         """Registers the new vertex universe.
         Normally, there is no need to call this method because the universe
         of vertices is automatically set when the universe of edges is set
@@ -275,6 +275,13 @@ class Universe:
             The vertex weights specified by the second element of a
             vertex tuple take priority.
 
+          tuple_vertex: Optional.  This argument specifies whether
+            the vertices are tuples or not. The default is False,
+            which means that if a vertex is a tuple, it is treated as a
+            pair of a vertex and its weight. If True, a tuple itself is
+            treated as a vertex. This is useful when the vertices are
+            represented as tuples, such as (1, 2) or (3, 4).
+
         See Also:
           universe()
         """
@@ -288,7 +295,7 @@ class Universe:
             Universe.weights = {}
 
         for i, vertex in enumerate(universe):
-            if isinstance(vertex, tuple):
+            if not tuple_vertex and isinstance(vertex, tuple):
                 if len(vertex) == 2:
                     vertex, weight = vertex
                     Universe.weights[vertex] = weight
