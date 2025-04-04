@@ -24,39 +24,39 @@ import unittest
 
 # Tests for some graph classes are under construction
 
-e1 = (1, 2)
-e2 = (1, 3)
-e3 = (2, 3)
-e4 = (2, 4)
-e5 = (3, 4)
-e6 = (3, 5)
-e7 = (4, 5)
+ea1 = (1, 2)
+ea2 = (1, 3)
+ea3 = (2, 3)
+ea4 = (2, 4)
+ea5 = (3, 4)
+ea6 = (3, 5)
+ea7 = (4, 5)
 
-g0 = []
-g1 = [e1]
-g2 = [e2]
-g3 = [e3]
-g4 = [e4]
-g12 = [e1, e2]
-g13 = [e1, e3]
-g14 = [e1, e4]
-g23 = [e2, e3]
-g24 = [e2, e4]
-g34 = [e3, e4]
-g123 = [e1, e2, e3]
-g134 = [e1, e3, e4]
-g234 = [e2, e3, e4]
-g345 = [e3, e4, e5]
-g1234 = [e1, e2, e3, e4]
-g2345 = [e2, e3, e4, e5]
-g12345 = [e1, e2, e3, e4, e5]
+ga0 = []
+ga1 = [ea1]
+ga2 = [ea2]
+ga3 = [ea3]
+ga4 = [ea4]
+ga12 = [ea1, ea2]
+ga13 = [ea1, ea3]
+ga14 = [ea1, ea4]
+ga23 = [ea2, ea3]
+ga24 = [ea2, ea4]
+ga34 = [ea3, ea4]
+ga123 = [ea1, ea2, ea3]
+ga134 = [ea1, ea3, ea4]
+ga234 = [ea2, ea3, ea4]
+ga345 = [ea3, ea4, ea5]
+ga1234 = [ea1, ea2, ea3, ea4]
+ga2345 = [ea2, ea3, ea4, ea5]
+ga12345 = [ea1, ea2, ea3, ea4, ea5]
 
 
 class TestGraphClass(unittest.TestCase):
 
     def setUp(self):
         # Simple graph with potential for various structures
-        GraphSet.set_universe([e1, e2, e3, e4, e5, e6, e7])
+        GraphSet.set_universe([ea1, ea2, ea3, ea4, ea5, ea6, ea7])
 
     def tearDown(self):
         pass
