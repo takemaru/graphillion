@@ -209,3 +209,7 @@ class setset_base(_graphillion.setset):
     @staticmethod
     def loads(s):
         return setset_base(None, _graphillion.loads(s))
+
+    @staticmethod
+    def from_zdd_id(zdd_id):
+        return setset_base(None, _graphillion.setset.from_zdd_id(zdd_id))

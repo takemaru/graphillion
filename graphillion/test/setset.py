@@ -51,7 +51,8 @@ class TestSetset(unittest.TestCase):
 
     def test_init(self):
         import _graphillion
-        self.assertEqual(_graphillion._elem_limit(), 2**16 - 1)
+        elem_limit = _graphillion._elem_limit()
+        self.assertIn(elem_limit, [2**16 - 1, 2**20 - 1])
 
         setset.set_universe([])
 
@@ -586,6 +587,35 @@ class TestSetset(unittest.TestCase):
 
          # it takes more than 10 sec.
 #        self.assertRaises(RuntimeError, setset.set_universe, range(65536))
+
+    def test_zdd_id(self):
+        import graphillion
+        result = graphillion.is_external_sapporobdd()
+        self.assertTrue(isinstance(result, bool))
+
+        setset.set_universe(['1', '2', '3', '4'])
+
+        ss1 = setset([s0, s12, s13])
+        zdd_id = ss1.zdd_id()
+        self.assertTrue(isinstance(zdd_id, int))
+        self.assertGreater(zdd_id, 0)
+
+        ss2 = setset.from_zdd_id(zdd_id)
+        self.assertTrue(isinstance(ss2, setset))
+        self.assertEqual(ss1, ss2)
+
+        ss3 = setset([s1, s123, s1234])
+        zdd_id3 = ss3.zdd_id()
+        self.assertNotEqual(zdd_id, zdd_id3)
+        ss4 = setset.from_zdd_id(zdd_id3)
+        self.assertEqual(ss3, ss4)
+
+        empty_ss = setset()
+        empty_id = empty_ss.zdd_id()
+        self.assertTrue(isinstance(empty_id, int))
+        ss5 = setset.from_zdd_id(empty_id)
+        self.assertEqual(empty_ss, ss5)
+        self.assertEqual(len(ss5), 0)
 
 
 if __name__ == '__main__':

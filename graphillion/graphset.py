@@ -1796,6 +1796,52 @@ class GraphSet(object):
         """
         return GraphSet(setset_base.loads(s))
 
+    def zdd_id(self):
+        """Returns the internal ZDD ID for interoperability with pysapporobdd.
+
+        This method returns the raw ZDD identifier that can be used to
+        create a ZDD object in pysapporobdd when graphillion is built
+        with USE_EXTERNAL_SAPPOROBDD=1.
+
+        Returns:
+          An integer representing the internal ZDD ID.
+
+        Examples:
+          >>> gs = GraphSet.paths(1, 4)
+          >>> zdd_id = gs.zdd_id()
+          >>> # In pysapporobdd:
+          >>> # zdd = ZDD.from_id(zdd_id)
+
+        See Also:
+          from_zdd_id()
+        """
+        return self._ss.zdd_id()
+
+    @staticmethod
+    def from_zdd_id(zdd_id):
+        """Creates a GraphSet from a ZDD ID.
+
+        This method creates a GraphSet from a raw ZDD identifier,
+        enabling interoperability with pysapporobdd when graphillion
+        is built with USE_EXTERNAL_SAPPOROBDD=1.
+
+        Args:
+          zdd_id: An integer representing a ZDD ID.
+
+        Returns:
+          A GraphSet object corresponding to the ZDD.
+
+        Examples:
+          >>> # In pysapporobdd:
+          >>> # zdd = ZDD.singleton(1) | ZDD.singleton(2)
+          >>> # zdd_id = zdd.get_id()
+          >>> gs = GraphSet.from_zdd_id(zdd_id)
+
+        See Also:
+          zdd_id()
+        """
+        return GraphSet(setset_base.from_zdd_id(zdd_id))
+
     @staticmethod
     def set_universe(universe, traversal='greedy', source=None):
         """Registers the new universe.

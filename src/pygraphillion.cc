@@ -1561,7 +1561,7 @@ static PyObject* setset_zdd_id(PySetsetObject* self) {
 // Helper function declared as friend in setset.h (must be in graphillion namespace)
 namespace graphillion {
 setset setset_from_zdd_id_impl(word_t id) {
-  ZBDD zdd = ZDD_ID(bddcopy(id));
+  ZBDD zdd = ZBDD_ID(bddcopy(id));
   return setset(zdd);
 }
 }  // namespace graphillion

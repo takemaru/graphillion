@@ -182,6 +182,31 @@ class setset(setset_base):
         return setset(_graphillion.loads(s))
 
     @staticmethod
+    def from_zdd_id(zdd_id):
+        """Creates a setset from a ZDD ID.
+
+        This method creates a setset from a raw ZDD identifier,
+        enabling interoperability with pysapporobdd when graphillion
+        is built with USE_EXTERNAL_SAPPOROBDD=1.
+
+        Args:
+          zdd_id: An integer representing a ZDD ID.
+
+        Returns:
+          A setset object corresponding to the ZDD.
+
+        Examples:
+          >>> # In pysapporobdd:
+          >>> # zdd = ZDD.singleton(1) | ZDD.singleton(2)
+          >>> # zdd_id = zdd.get_id()
+          >>> ss = setset.from_zdd_id(zdd_id)
+
+        See Also:
+          zdd_id()
+        """
+        return setset(_graphillion.setset.from_zdd_id(zdd_id))
+
+    @staticmethod
     def set_universe(universe):
         if len(universe) != len(set(universe)):
             raise ValueError('duplicated elements found')
