@@ -34,7 +34,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "graphillion/zdd.h"
 
 #include "subsetting/spec/SapporoZdd.hpp"
-#include "SAPPOROBDD/ZBDD.h"
 
 namespace graphillion {
 

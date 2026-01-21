@@ -27,7 +27,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include <vector>
 
-#include "SAPPOROBDD/ZBDD.h"
+#include "graphillion/type.h"
 #include "subsetting/DdStructure.hpp"
 #include "subsetting/util/Graph.hpp"
 

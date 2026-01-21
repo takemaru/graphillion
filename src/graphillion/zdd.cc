@@ -60,6 +60,15 @@ ZBDD operator|(const ZBDD& f, const ZBDD& g) {
 
 void init() {
   if (initialized_) return;
+
+#ifdef USE_EXTERNAL_SAPPOROBDD
+  // External SAPPOROBDD mode: pysapporobdd may have already initialized
+  if (BDD_VarUsed() > 0) {
+    initialized_ = true;
+    return;
+  }
+#endif
+
   BDD_Init(10000, 8000000000LL);
   initialized_ = true;
 }

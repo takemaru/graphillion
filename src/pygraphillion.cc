@@ -1549,6 +1549,41 @@ static PyObject* setset_to_edgevertexsetset(PySetsetObject* self, PyObject* args
   return setset_to_vss_convert(self, args, true);
 }
 
+// ZDD ID API for pysapporobdd interoperability
+
+static PyObject* setset_zdd_id(PySetsetObject* self) {
+  try {
+    bddword id = self->ss->id();
+    return PyLong_FromUnsignedLongLong(static_cast<unsigned long long>(id));
+  } CATCH_ALL(NULL);
+}
+
+// Helper function declared as friend in setset.h (must be in graphillion namespace)
+namespace graphillion {
+setset setset_from_zdd_id_impl(word_t id) {
+  ZBDD zdd = ZDD_ID(bddcopy(id));
+  return setset(zdd);
+}
+}  // namespace graphillion
+
+static PyObject* setset_from_zdd_id(PyTypeObject* type, PyObject* args) {
+  unsigned long long id;
+  if (!PyArg_ParseTuple(args, "K", &id)) {
+    return NULL;
+  }
+
+  PySetsetObject* ret = reinterpret_cast<PySetsetObject*>(type->tp_alloc(type, 0));
+  if (ret == NULL) {
+    PyErr_SetString(PyExc_MemoryError, "Failed to allocate memory for setset object");
+    return NULL;
+  }
+
+  try {
+    ret->ss = new setset(graphillion::setset_from_zdd_id_impl(static_cast<bddword>(id)));
+    return reinterpret_cast<PyObject*>(ret);
+  } CATCH_ALL(NULL);
+}
+
 static PyMemberDef setset_members[] = {
   {NULL}  /* Sentinel */
 };
@@ -1608,6 +1643,10 @@ static PyMethodDef setset_methods[] = {
   {"remove_add_some_elements", reinterpret_cast<PyCFunction>(setset_remove_add_some_elements), METH_VARARGS, ""},
   {"to_vertexsetset", reinterpret_cast<PyCFunction>(setset_to_vertexsetset), METH_VARARGS, ""},
   {"to_edgevertexsetset", reinterpret_cast<PyCFunction>(setset_to_edgevertexsetset), METH_VARARGS, ""},
+  {"zdd_id", reinterpret_cast<PyCFunction>(setset_zdd_id), METH_NOARGS,
+   "Get internal ZDD ID for interoperability with pysapporobdd"},
+  {"from_zdd_id", reinterpret_cast<PyCFunction>(setset_from_zdd_id), METH_CLASS | METH_VARARGS,
+   "Create setset from ZDD ID for interoperability with pysapporobdd"},
   {NULL}  /* Sentinel */
 };
 
@@ -3050,5 +3089,12 @@ PyMODINIT_FUNC PyInit__graphillion(void) {
   PyModule_AddObject(m, "setset", reinterpret_cast<PyObject*>(&PySetset_Type));
   PyModule_AddObject(m, "setset_iterator",
                      reinterpret_cast<PyObject*>(&PySetsetIter_Type));
+
+#ifdef USE_EXTERNAL_SAPPOROBDD
+  PyModule_AddIntConstant(m, "USE_EXTERNAL_SAPPOROBDD", 1);
+#else
+  PyModule_AddIntConstant(m, "USE_EXTERNAL_SAPPOROBDD", 0);
+#endif
+
   return m;
 }

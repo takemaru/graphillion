@@ -4,7 +4,7 @@
 #include <cassert>
 #include <vector>
 
-#include "SAPPOROBDD/ZBDD.h"
+#include "graphillion/type.h"
 
 namespace sbddh {
 // inline function qualifier for gcc

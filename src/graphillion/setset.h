@@ -35,7 +35,9 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include "graphillion/type.h"
 
-#include "SAPPOROBDD/BDDCT.h"
+#ifndef USE_EXTERNAL_SAPPOROBDD
+  #include "SAPPOROBDD/BDDCT.h"
+#endif
 #include "subsetting/DdStructure.hpp"
 #include "subsetting/util/Graph.hpp"
 #include "graphillion/variable_converter/variable_converter.h"
@@ -279,6 +281,9 @@ class setset {
     const std::map<vertex_t, Range>* in_degree_constraints,
     const std::map<vertex_t, Range>* out_degree_constraints,
     const setset* search_space);
+
+  // For pysapporobdd interoperability (Python binding)
+  friend setset setset_from_zdd_id_impl(word_t id);
 
 };
 

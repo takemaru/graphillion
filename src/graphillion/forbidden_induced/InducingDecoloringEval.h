@@ -6,7 +6,7 @@
 #include "subsetting/DdSpecOp.hpp"
 #include "subsetting/DdStructure.hpp"
 
-#include "SAPPOROBDD/ZBDD.h"
+#include "graphillion/type.h"
 
 class InducingDecoloringEval
     : public tdzdd::DdEval<InducingDecoloringEval, ZBDD> {

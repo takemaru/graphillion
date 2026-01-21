@@ -10,6 +10,9 @@ import tempfile
 sys.path.insert(0, 'graphillion')
 import release
 
+# Check if external SAPPOROBDD (pysapporobdd) should be used
+USE_EXTERNAL_SAPPOROBDD = os.environ.get('USE_EXTERNAL_SAPPOROBDD', '').lower() in ('1', 'true', 'yes')
+
 
 def check_for_openmp():
     """Check  whether the default compiler supports OpenMP.
@@ -70,27 +73,54 @@ Continuing your build without OpenMP...
         return False
 
 
-sources_list = [os.path.join('src', 'pygraphillion.cc'),
-                os.path.join('src', 'graphillion', 'graphset.cc'),
-                os.path.join('src', 'graphillion', 'setset.cc'),
-                os.path.join('src', 'graphillion', 'util.cc'),
-                os.path.join('src', 'graphillion', 'zdd.cc'),
-                os.path.join('src', 'graphillion', 'reconf.cc'),
-                os.path.join('src', 'SAPPOROBDD', 'bddc.cc'),
-                os.path.join('src', 'SAPPOROBDD', 'BDD.cc'),
-                os.path.join('src', 'SAPPOROBDD', 'ZBDD.cc'),
-                os.path.join('src', 'SAPPOROBDD', 'BDDCT.cc'),
-                os.path.join('src', 'graphillion', 'regular', 'RegularGraphs.cc'),
-                os.path.join('src', 'graphillion', 'partition', 'Partition.cc'),
-                os.path.join('src', 'graphillion', 'partition', 'BalancedPartition.cc'),
-                os.path.join('src', 'graphillion', 'reliability', 'reliability.cc'),
-                os.path.join('src', 'graphillion', 'induced_graphs', 'InducedGraphs.cc'),
-                os.path.join('src', 'graphillion', 'induced_graphs', 'WeightedInducedGraphs.cc'),
-                os.path.join('src', 'graphillion', 'chordal', 'chordal.cc'),
-                os.path.join('src', 'graphillion', 'forbidden_induced', 'ForbiddenInducedSubgraphs.cc'),
-                os.path.join('src', 'graphillion', 'odd_edges_subgraphs', 'OddEdgeSubgraphs.cc'),
-                os.path.join('src', 'graphillion', 'degree_distribution', 'DegreeDistributionGraphs.cc'),
-                os.path.join('src', 'graphillion', 'variable_converter', 'variable_converter.cc')]
+# Common source files (graphillion core)
+graphillion_sources = [os.path.join('src', 'pygraphillion.cc'),
+                       os.path.join('src', 'graphillion', 'graphset.cc'),
+                       os.path.join('src', 'graphillion', 'setset.cc'),
+                       os.path.join('src', 'graphillion', 'util.cc'),
+                       os.path.join('src', 'graphillion', 'zdd.cc'),
+                       os.path.join('src', 'graphillion', 'reconf.cc'),
+                       os.path.join('src', 'graphillion', 'regular', 'RegularGraphs.cc'),
+                       os.path.join('src', 'graphillion', 'partition', 'Partition.cc'),
+                       os.path.join('src', 'graphillion', 'partition', 'BalancedPartition.cc'),
+                       os.path.join('src', 'graphillion', 'reliability', 'reliability.cc'),
+                       os.path.join('src', 'graphillion', 'induced_graphs', 'InducedGraphs.cc'),
+                       os.path.join('src', 'graphillion', 'induced_graphs', 'WeightedInducedGraphs.cc'),
+                       os.path.join('src', 'graphillion', 'chordal', 'chordal.cc'),
+                       os.path.join('src', 'graphillion', 'forbidden_induced', 'ForbiddenInducedSubgraphs.cc'),
+                       os.path.join('src', 'graphillion', 'odd_edges_subgraphs', 'OddEdgeSubgraphs.cc'),
+                       os.path.join('src', 'graphillion', 'degree_distribution', 'DegreeDistributionGraphs.cc'),
+                       os.path.join('src', 'graphillion', 'variable_converter', 'variable_converter.cc')]
+
+# SAPPOROBDD source files (only needed when not using external library)
+sapporobdd_sources = [os.path.join('src', 'SAPPOROBDD', 'bddc.cc'),
+                      os.path.join('src', 'SAPPOROBDD', 'BDD.cc'),
+                      os.path.join('src', 'SAPPOROBDD', 'ZBDD.cc'),
+                      os.path.join('src', 'SAPPOROBDD', 'BDDCT.cc')]
+
+if USE_EXTERNAL_SAPPOROBDD:
+    # External SAPPOROBDD mode: link against pysapporobdd's libsapporobdd.so
+    try:
+        import pysapporobdd
+        pysapporobdd_path = os.path.dirname(pysapporobdd.__file__)
+        sapporobdd_lib_path = pysapporobdd_path
+        sapporobdd_include = os.path.join(pysapporobdd_path, 'include')
+        if not os.path.exists(sapporobdd_include):
+            raise RuntimeError(
+                f"pysapporobdd include directory not found: {sapporobdd_include}\n"
+                "Please reinstall pysapporobdd or check your installation."
+            )
+    except ImportError:
+        raise RuntimeError(
+            "USE_EXTERNAL_SAPPOROBDD=1 requires pysapporobdd to be installed.\n"
+            "Please run: pip install pysapporobdd"
+        )
+    sources_list = graphillion_sources
+else:
+    # Default mode: compile SAPPOROBDD sources directly (statically linked)
+    sources_list = graphillion_sources + sapporobdd_sources
+    sapporobdd_lib_path = None
+    sapporobdd_include = None
 
 if sys.platform == 'win32':
     sources_list.append(os.path.join('src', 'mingw32', 'RpWinResource.c'))
@@ -118,6 +148,21 @@ else:
     extra_compile_args_list.append('-Wno-maybe-uninitialized')
 
 #extra_compile_args_list.append('-UNDEBUG')
+
+# Configure include directories, libraries, and macros based on build mode
+if USE_EXTERNAL_SAPPOROBDD:
+    # External SAPPOROBDD mode
+    include_dirs_list = ['src', sapporobdd_include]
+    libraries_list.append('sapporobdd')
+    library_dirs_list = [sapporobdd_lib_path]
+    runtime_library_dirs_list = [sapporobdd_lib_path]
+    define_macros_list = [('B_64', None), ('USE_EXTERNAL_SAPPOROBDD', None)]
+else:
+    # Default mode (statically linked SAPPOROBDD)
+    include_dirs_list = ['src', 'src/SAPPOROBDD']
+    library_dirs_list = []
+    runtime_library_dirs_list = []
+    define_macros_list = [('B_64', None)]
 
 setup(name='graphillion',
       version=release.version,
@@ -165,9 +210,11 @@ trillions of graphs can be processed on a single computer.
       ext_modules=[
         Extension('_graphillion',
                   sources=sources_list,
-                  include_dirs=['src', 'src/SAPPOROBDD'],
+                  include_dirs=include_dirs_list,
+                  library_dirs=library_dirs_list,
+                  runtime_library_dirs=runtime_library_dirs_list,
                   libraries=libraries_list,
-                  define_macros=[('B_64', None)],
+                  define_macros=define_macros_list,
                   extra_compile_args=extra_compile_args_list,
                   extra_link_args=extra_link_args_list,
                   ),

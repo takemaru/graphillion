@@ -37,3 +37,13 @@ __version__ = release.version
 #__date__ = release.date
 __license__ = release.license
 __author__ = '\n'.join(['{} <{}>'.format(x[0], x[1]) for x in release.authors])
+
+
+def is_external_sapporobdd():
+    """Check if graphillion was built with external SAPPOROBDD support.
+
+    Returns True if graphillion was built with USE_EXTERNAL_SAPPOROBDD=1,
+    which enables sharing ZDD state with pysapporobdd.
+    """
+    import _graphillion
+    return getattr(_graphillion, 'USE_EXTERNAL_SAPPOROBDD', 0) == 1

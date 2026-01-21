@@ -28,7 +28,19 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <stdint.h>
 #include <vector>
 
-#include "SAPPOROBDD/ZBDD.h"
+#ifdef USE_EXTERNAL_SAPPOROBDD
+  // Use pysapporobdd's SAPPOROBDD-plus-plus headers (with sapporobdd namespace)
+  #include "ZBDD.h"
+  #include "BDDCT.h"
+  using namespace sapporobdd;
+  // Backward compatibility alias (graphillion uses ZBDD, pysapporobdd uses ZDD)
+  inline ZBDD BDD_CacheZBDD(char op, bddword fx, bddword gx) {
+    return BDD_CacheZDD(op, fx, gx);
+  }
+#else
+  // Use graphillion's embedded SAPPOROBDD headers (without namespace)
+  #include "SAPPOROBDD/ZBDD.h"
+#endif
 
 namespace graphillion {
 

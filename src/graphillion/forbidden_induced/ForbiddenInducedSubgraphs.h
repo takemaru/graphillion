@@ -4,7 +4,6 @@
 #include "subsetting/util/MessageHandler.hpp"
 #include "subsetting/util/Graph.hpp"
 
-#include "SAPPOROBDD/ZBDD.h"
 #include "graphillion/type.h"
 #include "graphillion/graphset.h"
 
