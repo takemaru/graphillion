@@ -2103,13 +2103,19 @@ class GraphSet(object):
         See Also:
           graphs()
         """
-        vg = [[]] if root is None else [[root]]
-        dc = None
         if is_spanning:
-            dc = {}
-            for v in Universe.vertices:
-                dc[v] = range(1, len(Universe.vertices))
-        return GraphSet.graphs(vertex_groups=vg, degree_constraints=dc,
+            # `root` is irrelevant in spanning mode (every spanning tree
+            # contains every vertex). Use a single color group covering all
+            # vertices: the all-colored DP collapses touched/untouched
+            # distinctions and reaches the theoretical-minimum state count
+            # P(k) per frontier, dramatically smaller than the legacy
+            # vg=[[root]] + DegreeConstraint(deg>=1) path (which had
+            # (Δ+1)^k state inflation from the per-vertex degree counter).
+            return GraphSet.graphs(vertex_groups=[list(Universe.vertices)],
+                                   no_loop=True,
+                                   graphset=graphset)
+        vg = [[]] if root is None else [[root]]
+        return GraphSet.graphs(vertex_groups=vg, degree_constraints=None,
                                no_loop=True, graphset=graphset)
 
     @staticmethod
