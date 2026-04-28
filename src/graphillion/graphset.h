@@ -39,6 +39,7 @@ class Range : public tdzdd::IntSubset {
   bool contains(int x) const;
   int lowerBound() const;
   int upperBound() const;
+  int saturationPoint(int reachableMax) const;
 
  private:
   int min_;

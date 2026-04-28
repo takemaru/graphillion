@@ -28,6 +28,15 @@
 
 namespace tdzdd {
 
+/// Saturation rule shared by every step-1 linear range subclass: when the
+/// declared upper bound never bites, contains(d) is true on the whole
+/// reachable interval, so the counter may collapse to `min`. Otherwise
+/// returning `reachableMax` signals "no saturation".
+inline int linearRangeSaturationPoint(int min, int max, int step,
+                                      int reachableMax) {
+    return (step == 1 && max >= reachableMax) ? min : reachableMax;
+}
+
 struct IntSubset {
     virtual ~IntSubset() {
     }
@@ -40,6 +49,16 @@ struct IntSubset {
 
     virtual int upperBound() const {
         return INT_MAX;
+    }
+
+    /// Saturation point: smallest k such that contains(d) is constant for
+    /// every reachable d in [k, reachableMax]. DegreeConstraint clamps its
+    /// per-vertex degree counter to this value so equivalent counter
+    /// states get merged. The default returns reachableMax (no saturation
+    /// possible), which the caller can treat as a no-op cap because the
+    /// counter cannot grow past reachableMax anyway.
+    virtual int saturationPoint(int reachableMax) const {
+        return reachableMax;
     }
 };
 
@@ -64,6 +83,10 @@ public:
 
     int upperBound() const {
         return max;
+    }
+
+    int saturationPoint(int reachableMax) const {
+        return linearRangeSaturationPoint(min, max, step, reachableMax);
     }
 };
 

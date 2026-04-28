@@ -24,6 +24,7 @@
 
 #pragma once
 
+#include <algorithm>
 #include <cassert>
 #include <cstring>
 #include <iostream>
@@ -41,9 +42,19 @@ class DegreeConstraint: public PodArrayDdSpec<DegreeConstraint,int16_t,2> {
 
     Graph const& graph;
     std::vector<IntSubset const*> constraints;
+    std::vector<int> reachable_;  // per-vertex incident-edge count
+    // Per-vertex saturation cap: the DP stops incrementing the counter
+    // once it reaches caps[v]. Defaults to reachable_[v] (a no-op cap,
+    // since the counter cannot grow past it anyway).
+    std::vector<Mate> caps;
     int const n;
     int const mateSize;
     bool const lookahead;
+
+    Mate computeCap(IntSubset const* c, int reachable) const {
+        int s = c ? c->saturationPoint(reachable) : reachable;
+        return static_cast<Mate>(std::min(s, reachable));
+    }
 
     void shiftMate(Mate* mate, int d) const {
         assert(d >= 0);
@@ -73,9 +84,16 @@ public:
         setArraySize(mateSize);
 
         int m = graph.vertexSize();
-        constraints.resize(m + 1);
+        reachable_.assign(m + 1, 0);
+        for (int a = 0; a < n; ++a) {
+            Graph::EdgeInfo const& ei = graph.edgeInfo(a);
+            ++reachable_[ei.v1];
+            ++reachable_[ei.v2];
+        }
+        constraints.assign(m + 1, c);
+        caps.resize(m + 1);
         for (int v = 1; v <= m; ++v) {
-            constraints[v] = c;
+            caps[v] = computeCap(c, reachable_[v]);
         }
     }
 
@@ -83,10 +101,11 @@ public:
         if (v < 1 || graph.vertexSize() < v) throw std::runtime_error(
                 "ERROR: Vertex number is out of range");
         constraints[v] = c;
+        caps[v] = computeCap(c, reachable_[v]);
     }
 
     void setConstraint(std::string v, IntSubset const* c) {
-        constraints[graph.getVertex(v)] = c;
+        setConstraint(graph.getVertex(v), c);
     }
 
     int getRoot(Mate* mate) const {
@@ -109,8 +128,8 @@ public:
         if (take) {
             if (!takable(c1, w1, e.v1final)) return 0;
             if (!takable(c2, w2, e.v2final)) return 0;
-            if (c1) ++w1;
-            if (c2) ++w2;
+            if (c1 && w1 < caps[e.v1]) ++w1;
+            if (c2 && w2 < caps[e.v2]) ++w2;
         }
         else {
             if (!leavable(c1, w1, e.v1final)) return 0;

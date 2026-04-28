@@ -79,6 +79,11 @@ int Range::upperBound() const {
   return this->max_;
 }
 
+int Range::saturationPoint(int reachableMax) const {
+  return tdzdd::linearRangeSaturationPoint(this->min_, this->max_,
+                                           this->step_, reachableMax);
+}
+
 setset SearchGraphs(
     const vector<edge_t>& graph,
     const vector<vector<vertex_t> >* vertex_groups,
