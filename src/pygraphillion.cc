@@ -2535,7 +2535,6 @@ static PyObject* setset_get_vertices_from_top(PySetsetObject* self, PyObject* ar
       return NULL;
     }
     if (PyList_SetItem(ret, i, v) != 0) {
-      Py_DECREF(v);
       Py_DECREF(ret);
       return NULL;
     }
